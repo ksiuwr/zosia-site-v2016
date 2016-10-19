@@ -44,6 +44,8 @@ class Zosia(models.Model):
         super(Zosia, self).clean()
 
     def validate_unique(self, **kwargs):
+        # NOTE: If this instance is not yet saved, self.pk == None
+        # So this query will take all active objects from db
         if self.active and Zosia.objects.exclude(pk=self.pk).filter(active=True).exists():
             raise ValidationError(
                 _('Only one Zosia may be active at any given time')
