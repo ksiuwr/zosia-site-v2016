@@ -1,21 +1,30 @@
 from django.db import models
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ValidationError
 
 
 class Place(models.Model):
-    place_name = models.CharField(
+    name = models.CharField(
         max_length=300
     )
-    place_url = models.CharField(
-        max_length=300
+    url = models.URLField(
+        max_length=300,
+        blank=True
     )
-    place_address = models.TextField()
+    address = models.TextField()
 
     def __str__(self):
-        return self.place_name
+        return self.name
+
+
+class ZosiaManager(models.Manager):
+    def find_active(self):
+        return self.filter(active=True).first()
 
 
 class Zosia(models.Model):
+    objects = ZosiaManager()
+
     start_date = models.DateField(
         verbose_name=_('First day')
     )
@@ -27,11 +36,25 @@ class Zosia(models.Model):
         default=False
     )
 
-    banner = models.ImageField()
+    banner = models.ImageField(blank=True, null=True)
 
     place = models.ForeignKey(Place)
 
     def __str__(self):
-        return 'In {} from {} to {}'.format(str(self.place),
-                                            self.start_date,
-                                            self.end_date)
+        return 'Zosia {}'.format(self.start_date.year)
+
+    def clean(self):
+        if self.start_date > self.end_date:
+            raise ValidationError(
+                _('Zosia has to have non-negative duration')
+            )
+        super(Zosia, self).clean()
+
+    def validate_unique(self, **kwargs):
+        # NOTE: If this instance is not yet saved, self.pk == None
+        # So this query will take all active objects from db
+        if self.active and Zosia.objects.exclude(pk=self.pk).filter(active=True).exists():
+            raise ValidationError(
+                _('Only one Zosia may be active at any given time')
+            )
+        super(Zosia, self).validate_unique(**kwargs)
