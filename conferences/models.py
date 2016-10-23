@@ -7,7 +7,7 @@ class Place(models.Model):
     name = models.CharField(
         max_length=300
     )
-    url = models.CharField(
+    url = models.URLField(
         max_length=300,
         blank=True
     )
