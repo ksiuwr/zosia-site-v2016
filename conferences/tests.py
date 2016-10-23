@@ -34,7 +34,7 @@ class ZosiaTestCase(TestCase):
 
     def test_find_active(self):
         """Zosia.find_active returns active Zosia"""
-        self.assertEqual(self.active.pk, Zosia.find_active().pk)
+        self.assertEqual(self.active.pk, Zosia.objects.find_active().pk)
 
     def test_end_after_start(self):
         """End date must occur after start date"""

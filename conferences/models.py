@@ -17,7 +17,14 @@ class Place(models.Model):
         return self.name
 
 
+class ZosiaManager(models.Manager):
+    def find_active(self):
+        return self.filter(active=True).first()
+
+
 class Zosia(models.Model):
+    objects = ZosiaManager()
+
     start_date = models.DateField(
         verbose_name=_('First day')
     )
@@ -51,6 +58,3 @@ class Zosia(models.Model):
                 _('Only one Zosia may be active at any given time')
             )
         super(Zosia, self).validate_unique(**kwargs)
-
-    def find_active():
-        return Zosia.objects.filter(active=True).first()
