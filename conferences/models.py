@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
+from datetime import timedelta
 
 
 class Place(models.Model):
@@ -21,15 +22,12 @@ class ZosiaManager(models.Manager):
     def find_active(self):
         return self.filter(active=True).first()
 
-
+# NOTE: Zosia has 4 days. Period.
 class Zosia(models.Model):
     objects = ZosiaManager()
 
     start_date = models.DateField(
         verbose_name=_('First day')
-    )
-    end_date = models.DateField(
-        verbose_name=_('Last day')
     )
 
     active = models.BooleanField(
@@ -39,6 +37,10 @@ class Zosia(models.Model):
     banner = models.ImageField(blank=True, null=True)
 
     place = models.ForeignKey(Place)
+
+    @property
+    def end_date(self):
+        return start_date + timedelta(3)
 
     def __str__(self):
         return 'Zosia {}'.format(self.start_date.year)
@@ -58,3 +60,17 @@ class Zosia(models.Model):
                 _('Only one Zosia may be active at any given time')
             )
         super(Zosia, self).validate_unique(**kwargs)
+
+
+class Bus(models.Model):
+    zosia = models.ForeignKey(Zosia)
+    capacity = models.IntegerField()
+    time = models.TimeField()
+
+
+class UserPrefences(models.Model):
+    user = models.ForeignKey(User)
+    zosia = models.ForeignKey(Zosia)
+    organization = models.ForeignKey(Organization)
+    bus = models.ForeignKey(Bus, null=True, blank=True)
+
