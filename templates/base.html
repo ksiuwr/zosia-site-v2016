@@ -1,29 +1,55 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>ZOSIA</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Zimowy Obóz Studentów Informatyki</title>
 
     <!--Import Google Icon Font-->
-      <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- CSS -->
     <link type="text/css" rel="stylesheet" href="{% static 'materialize/css/materialize.min.css' %}"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/main.css' %}"  media="screen,projection"/>
 
-    <!--Let browser know website is optimized for mobile-->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
     {% block custom_head %}
     {% endblock %}
 </head>
 <body>
-
-
-    {% block custom_scripts %}
+    {% block navbar %}
+    <nav>
+        <div class="nav-wrapper container">
+            <a href="{% url 'index' %}" class="brand-logo">
+                <img src="{% static 'imgs/zosia.png' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
+            </a>
+            <ul class="right hide-on-med-and-down">
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">{% trans 'Log in' %}</a></li>
+            </ul>
+            <ul id="navie" class="side-nav">
+                <li><a href="#">Blog</a></li>
+                <li><a href="#">{% trans "Log in" %}</a></li>
+            </ul>
+            <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>
+        </div>
+    </nav>
     {% endblock %}
+    <main>
+    {% block content %}
+    {% endblock %}
+    </main>
+    <!-- FOOTER -->
+    {% include 'footer.html' %}
 
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" src="{% static 'materialize/js/materialize.min.js' %}"></script>
+
+    {% block custom_scripts %}
+    {% endblock %}
+    <script type="text/javascript" src="{% static 'script/main.js' %}"></script>
 </body>
 </html>

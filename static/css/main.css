@@ -1,0 +1,89 @@
+/*
+    Color palette:
+    light grey: #D9DCDB
+    salmon color: #E4AE85
+    dark grey: #3F3F3F
+    green: #818464
+    beige: #FBF3E5
+*/
+
+.text-green {
+    color: #818464;
+}
+
+.text-light-gray {
+    color: #D9DCDB;
+}
+
+.text-dark-gray{
+    color: #3F3F3F;
+}
+
+.bg-dark-gray{
+    background-color: #3F3F3F;
+    color: #D9DCDB;
+    height: 300px;
+    margin-bottom: 0;
+}
+
+nav{
+    background-color: #E4AE85;
+}
+
+#index-banner{
+    width: 100%;
+    height: 500px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+footer.page-footer {
+    background-color: #818464;
+    margin-top: 0;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #FBF3E5;
+}
+
+main {
+    flex: 1 0 auto;
+    margin-bottom: 0;
+  }
+
+/*      MEDIA DEFINTION         */
+
+
+@media screen and (min-width: 2881px){
+    #index-banner{
+        background-image: url("../imgs/dawn-landscape-mountains-nature4896x3264.jpg");
+    }
+}
+
+@media screen and (max-width: 2880px){
+    #index-banner{
+        background-image: url("../imgs/dawn-landscape-mountains-nature2880x1920.jpg");
+    }
+}
+
+@media screen and (max-width: 1600px){
+    #index-banner{
+        background-image: url("../imgs/dawn-landscape-mountains-nature1600x1067.jpg");
+    }
+}
+
+@media screen and (max-width: 992px){
+    #index-banner{
+        background-image: url("../imgs/dawn-landscape-mountains-nature992x661.jpg");
+    }
+}
+
+@media screen and (max-width: 600px){
+    #index-banner{
+        background-image: url("../imgs/dawn-landscape-mountains-nature600x900.png");
+    }
+}
