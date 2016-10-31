@@ -19,11 +19,15 @@
     color: #3F3F3F;
 }
 
+.bg-beige {
+    padding: 20px;
+    color: #818464;
+}
+
 .bg-dark-gray{
     background-color: #3F3F3F;
     color: #D9DCDB;
-    height: 300px;
-    margin-bottom: 0;
+    padding: 20px;
 }
 
 nav{
