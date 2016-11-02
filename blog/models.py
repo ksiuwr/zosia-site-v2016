@@ -1,3 +1,20 @@
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 
-# Create your models here.
+User = settings.AUTH_USER_MODEL
+
+class BlogPost(models.Model):
+    title = models.CharField(verbose_name=_("Title"), max_length=200)
+    content = models.TextField(verbose_name=_("Content"))
+    publication = models.DateTimeField(verbose_name=_("Publication date"),
+        auto_now_add=True)
+    author = models.ForeignKey(User, verbose_name=_("author"),
+        limit_choices_to={'is_staff': True})
+
+    class Meta:
+        ordering = ['-publication']
+        get_latest_by = "publication"
+
+    def __str__(self):
+        return self.title

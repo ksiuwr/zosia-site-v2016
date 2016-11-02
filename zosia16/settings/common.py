@@ -36,6 +36,7 @@ ALLOWED_HOSTS = os.environ.get('HOSTS', 'staging.zosia.org').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'blog.apps.BlogConfig',
     'conferences.apps.ConferencesConfig',
     'users.apps.UsersConfig',
     'django.contrib.admin',
