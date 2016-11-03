@@ -1,8 +1,10 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 
 from .models import BlogPost
+from .forms import BlogPostForm
 
 User = get_user_model()
 
@@ -29,3 +31,42 @@ class ModelTestCase(TestCase):
         count = BlogPost.objects.count()
         BlogPost(author=self.staff, title='foo', content='bar').save()
         self.assertEqual(count + 1, BlogPost.objects.count())
+
+    def test_model_str(self):
+        foo = BlogPost(author=self.staff, title="foo", content="bar")
+        foo.save()
+        self.assertEqual("foo", str(foo))
+
+
+class FormTestCase(TestCase):
+    pass
+
+
+class ViewTestCase(TestCase):
+    def setUp(self):
+        self.staff = User.objects.create_user('paul', 'paul@thebeatles.com',
+                                              'paulpassword')
+        self.staff.is_staff = True
+        self.staff.save()
+        self.foo = BlogPost(author=self.staff, title='foo', content='bar')
+        self.foo.save()
+
+    def test_index(self):
+        response = self.client.get(reverse('blog_index'), follow=True)
+        context = response.context[-1]
+        self.assertEqual(set(context['posts']), set(BlogPost.objects.all()))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'blog/index.html')
+
+    def test_create_get_no_user(self):
+        response = self.client.get(reverse('blog_create'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/blog/create')
+
+    def test_create_get_staff_user(self):
+        self.client.login(username="paul", password="paulpassword")
+        response = self.client.get(reverse('blog_create'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'blog/create.html')
+        context = response.context[-1]
+        self.assertTrue(isinstance(context['form'], BlogPostForm))
