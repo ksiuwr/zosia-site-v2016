@@ -1,1 +1,24 @@
 {% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h3>{% trans "Blog" %}</h3>
+    {% for post in posts %}
+        <div class="row">
+            <div class="col l6 m6 s12">
+                <h4>{{ post.title }}</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col l6 m6 s6">{{ post.author }}</div>
+            <div class="col l6 m6 s6 right">{{ post.publication }}</div>
+        </div>
+        <div class="row" style="margin-bottom: 60px">
+            <div class="col l6 m6 s12">
+                {{ post.content }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}
