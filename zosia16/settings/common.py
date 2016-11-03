@@ -27,6 +27,9 @@ def random_string(length=10):
 
 SECRET_KEY = os.environ.get('SECRET_KEY', random_string(20))
 
+if "SECRET_KEY" not in os.environ:
+    os.environ['SECRET_KEY'] = SECRET_KEY
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
