@@ -9,7 +9,7 @@ from .forms import BlogPostForm
 User = get_user_model()
 
 
-class ModelTestCase(TestCase):
+class BlogTests(TestCase):
     def setUp(self):
         self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
                                                'johnpassword')
@@ -19,6 +19,9 @@ class ModelTestCase(TestCase):
                                               'paulpassword')
         self.staff.is_staff = True
         self.staff.save()
+
+
+class ModelTestCase(BlogTests):
 
     def test_user_cannot_be_normal(self):
         count = BlogPost.objects.count()
@@ -38,16 +41,26 @@ class ModelTestCase(TestCase):
         self.assertEqual("foo", str(foo))
 
 
-class FormTestCase(TestCase):
-    pass
+class FormTestCase(BlogTests):
+    def test_no_data(self):
+        form = BlogPostForm()
+        self.assertFalse(form.is_valid())
+
+    def test_create_object(self):
+        count = BlogPost.objects.count()
+        form = BlogPostForm({'title': 'foo', 'content': 'bar', 'author': self.staff.id})
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.assertEqual(count + 1, BlogPost.objects.count())
+
+    def test_fail_normal_user(self):
+        form = BlogPostForm({'title': 'foo', 'content': 'bar', 'author': self.normal.id})
+        self.assertFalse(form.is_valid())
 
 
-class ViewTestCase(TestCase):
+class ViewTestCase(BlogTests):
     def setUp(self):
-        self.staff = User.objects.create_user('paul', 'paul@thebeatles.com',
-                                              'paulpassword')
-        self.staff.is_staff = True
-        self.staff.save()
+        super().setUp()
         self.foo = BlogPost(author=self.staff, title='foo', content='bar')
         self.foo.save()
 
