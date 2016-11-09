@@ -83,3 +83,10 @@ class ViewTestCase(BlogTests):
         self.assertTemplateUsed(response, 'blog/create.html')
         context = response.context[-1]
         self.assertTrue(isinstance(context['form'], BlogPostForm))
+
+    def test_create_post(self):
+        count = BlogPost.objects.count()
+        response = self.client.post(reverse('blog_create'), {'author': self.normal.id, 'title': 'foo',
+                                    'content': 'bar'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(count, BlogPost.objects.count())
