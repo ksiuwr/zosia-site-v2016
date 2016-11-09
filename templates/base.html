@@ -26,11 +26,11 @@
                 <img src="{% static 'imgs/zosia.png' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
             </a>
             <ul class="right hide-on-med-and-down">
-                <li><a href="#">Blog</a></li>
+                <li><a href="{% url 'blog_index' %}">Blog</a></li>
                 <li><a href="#">{% trans 'Log in' %}</a></li>
             </ul>
             <ul id="navie" class="side-nav">
-                <li><a href="#">Blog</a></li>
+                <li><a href="{% url 'blog_index' %}">Blog</a></li>
                 <li><a href="#">{% trans "Log in" %}</a></li>
             </ul>
             <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>
