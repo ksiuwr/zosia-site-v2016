@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from datetime import timedelta
 
 from users.models import User, Organization
+from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 
 
 class Place(models.Model):
@@ -60,21 +61,6 @@ class Bus(models.Model):
     zosia = models.ForeignKey(Zosia)
     capacity = models.IntegerField()
     time = models.TimeField()
-
-
-SHIRT_SIZE_CHOICES = (
-    ('S', 'S'),
-    ('M', 'M'),
-    ('L', 'L'),
-    ('XL', 'XL'),
-    ('XXL', 'XXL'),
-    ('XXXL', 'XXXL'),
-)
-
-SHIRT_TYPES_CHOICES = (
-    ('m', _(u'classic')),
-    ('f', _(u'female')),
-)
 
 
 class UserPrefences(models.Model):
