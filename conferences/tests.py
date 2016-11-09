@@ -13,7 +13,6 @@ def new_zosia(**kwargs):
     defaults = {
         'active': False,
         'start_date': now,
-        'end_date': now + timedelta(2),
         'place': place
     }
     defaults.update(kwargs)
@@ -36,7 +35,6 @@ class ZosiaTestCase(TestCase):
         """Zosia.find_active returns active Zosia"""
         self.assertEqual(self.active.pk, Zosia.objects.find_active().pk)
 
-    def test_end_after_start(self):
-        """End date must occur after start date"""
-        with self.assertRaises(ValidationError):
-            new_zosia(start_date=datetime.now(), end_date=(datetime.now() - timedelta(5))).full_clean()
+    def test_end_date(self):
+        """Zosia has 4 days"""
+        self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
