@@ -6,7 +6,7 @@ Django 1.10 version of ZOSIA registration page - v2016 edition.
 #### Static components (bower)
 * Ensure you have `npm` installed
 * Install dependencies with: `npm i`
-* Install bower components with `cd static && ../node_modules/.bin/bower install`
+* Install bower components with `make deps`
 
 #### Virtualenv
 Create virtualenv for python 3.5.
