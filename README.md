@@ -8,6 +8,9 @@ Django 1.10 version of ZOSIA registration page - v2016 edition.
 * Install dependencies with: `npm i`
 * Install bower components with `make deps`
 
+#### Google APIs
+Google API key is needed for map display. Set it in settings as `GAPI_KEY`.
+
 #### Virtualenv
 Create virtualenv for python 3.5.
 * `virtualenv env`

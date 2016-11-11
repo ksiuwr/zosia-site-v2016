@@ -134,3 +134,5 @@ STATIC_ROOT = '/var/www/static'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, '..', 'static'),
 )
+
+GAPI_KEY = ''
