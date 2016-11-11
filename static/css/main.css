@@ -95,6 +95,10 @@ main {
     padding: 0.5em;
 }
 
+.modal-table {
+    display: inline-table;
+}
+
 /*      MEDIA DEFINTION         */
 
 
