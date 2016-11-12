@@ -99,6 +99,13 @@ main {
     display: inline-table;
 }
 
+.logo {
+    background-color: white;
+    border-radius: 15px;
+    padding: 10px;
+    height: 80px;
+}
+
 /*      MEDIA DEFINTION         */
 
 
