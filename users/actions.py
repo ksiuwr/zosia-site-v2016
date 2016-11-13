@@ -8,7 +8,6 @@ class SendActivationEmail:
         self.site = site
         self.token_generator = token_generator
 
-
     def call(self):
         from django.template import loader
         from django.core.mail import EmailMultiAlternatives

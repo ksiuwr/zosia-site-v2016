@@ -31,7 +31,6 @@ def signup(request):
         token_generator=default_token_generator,
     ).call()
 
-
     ctx = {
         'email': user.email,
     }
