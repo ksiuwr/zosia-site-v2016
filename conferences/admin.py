@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import Zosia, Bus, Place, UserPreferences
 
-# Register your models here.
+for model in [Zosia, Bus, Place, UserPreferences]:
+    admin.site.register(model)
