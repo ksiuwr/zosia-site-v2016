@@ -63,7 +63,7 @@ class Bus(models.Model):
     time = models.TimeField()
 
 
-class UserPrefences(models.Model):
+class UserPreferences(models.Model):
     user = models.ForeignKey(User)
     zosia = models.ForeignKey(Zosia)
     organization = models.ForeignKey(Organization)
