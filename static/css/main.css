@@ -106,6 +106,15 @@ main {
     height: 80px;
 }
 
+.error-modal {
+    background-color: rgba(255, 0, 0, 0.48);
+    border-radius: 15px;
+}
+
+.error-modal li .collapsible-header {
+    background-color: rgba(255, 0, 0, 0.48);
+    border-radius: 15px;
+}
 /*      MEDIA DEFINTION         */
 
 
