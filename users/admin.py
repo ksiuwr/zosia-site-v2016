@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import Organization
+from .models import Organization, User
 
-admin.site.register(Organization)
+for model in [User, Organization]:
+    admin.site.register(model)
