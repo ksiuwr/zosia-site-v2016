@@ -118,10 +118,25 @@ main {
 
 nav {
     box-shadow: none;
+    height: 70px;
+    border-bottom: 1px #3F3F3F solid;
 }
 
 .button-collapse {
     color: #3F3F3F;
+}
+
+.text-danger {
+    background-color: rgba(255, 0, 0, 0.48);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.text-help ul li {
+    background-color: hsla(36, 100%, 50%, 0.48);
+    border-radius: 5px;
+    padding: 1px;
+    margin: 2px;
 }
 /*      MEDIA DEFINTION         */
 
