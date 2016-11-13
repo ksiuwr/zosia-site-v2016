@@ -10,3 +10,16 @@ class UserForm(forms.ModelForm):
         widgets = {
             'password': forms.PasswordInput()
         }
+
+    def save(self):
+        data = self.cleaned_data
+
+        user = User(
+            email=data['email'],
+            username=data['username'],
+        )
+        user.set_password(data['password'])
+        user.is_active = False
+        user.save()
+
+        return user
