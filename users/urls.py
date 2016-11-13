@@ -4,6 +4,8 @@ from . import views
 
 urlpatterns = [
     url('^profile/$', views.profile, name='accounts_profile'),
+    url('^', include('django.contrib.auth.urls')),
+    # NOTE: it adds following URLs:
     # ^login/$ [name='login']
     # ^logout/$ [name='logout']
     # ^password_change/$ [name='password_change']
@@ -13,5 +15,4 @@ urlpatterns = [
     # ^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$
     #   [name='password_reset_confirm']
     # ^reset/done/$ [name='password_reset_complete']
-    url('^', include('django.contrib.auth.urls')),
 ]
