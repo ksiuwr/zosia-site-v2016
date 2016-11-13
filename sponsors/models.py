@@ -11,3 +11,6 @@ class Sponsor(models.Model):
 
     def __str__(self):
         return self.name
+
+    def toggle_active(self):
+        self.is_active = not self.is_active
