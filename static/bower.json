@@ -1,0 +1,21 @@
+{
+  "name": "static",
+  "homepage": "https://github.com/scoiatael/zosia16-site",
+  "authors": [
+    "scoiatael <czapl.luk@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "materialize": "^0.97.8"
+  }
+}

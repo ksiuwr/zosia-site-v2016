@@ -92,3 +92,10 @@ ENV/
 zosia16/settings/dev.py
 
 .idea/
+
+
+# Bower
+bower_components
+
+# Node
+node_modules

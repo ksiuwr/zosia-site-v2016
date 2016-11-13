@@ -21,7 +21,12 @@
 
 .bg-beige {
     padding: 20px;
-    color: #818464;
+    background-color: #818464;
+}
+
+.bg-salmon {
+    padding: 20px;
+    background-color: #E4AE85;
 }
 
 .bg-dark-gray{
@@ -30,13 +35,21 @@
     padding: 20px;
 }
 
-nav{
-    background-color: #E4AE85;
+nav {
+    background-color: #FBF3E5;
+}
+
+nav ul a {
+    color: #3F3f3F;
+}
+
+nav ul a:hover {
+    color: #9a9a9a;
 }
 
 #index-banner{
     width: 100%;
-    height: 500px;
+    height: 200px;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
@@ -59,6 +72,40 @@ main {
     margin-bottom: 0;
   }
 
+
+.flexbox {
+    display: flex;
+}
+
+
+.center-items-horizontal {
+    align-items: center;
+    justify-content: center;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.text-block {
+    padding: 0.5em;
+}
+
+.modal-table {
+    display: inline-table;
+}
+
+.logo {
+    background-color: white;
+    border-radius: 15px;
+    padding: 10px;
+    height: 80px;
+}
+
 /*      MEDIA DEFINTION         */
 
 
@@ -80,6 +127,12 @@ main {
     }
 }
 
+@media screen and (min-width: 600px) {
+    #index-banner {
+        height: 500px;
+    }
+}
+
 @media screen and (max-width: 992px){
     #index-banner{
         background-image: url("../imgs/dawn-landscape-mountains-nature992x661.jpg");
@@ -89,5 +142,9 @@ main {
 @media screen and (max-width: 600px){
     #index-banner{
         background-image: url("../imgs/dawn-landscape-mountains-nature600x900.png");
+    }
+
+    .flexbox {
+        display: initial;
     }
 }

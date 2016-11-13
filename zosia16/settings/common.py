@@ -14,12 +14,9 @@ import os
 import random
 import string
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Google API key
+GAPI_KEY = os.environ.get('GAPI_KEY')
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):
@@ -35,6 +32,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = os.environ.get('HOSTS', 'staging.zosia.org').split(',')
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
