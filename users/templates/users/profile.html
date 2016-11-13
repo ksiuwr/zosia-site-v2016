@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+  <h3>{% trans "User" %}</h3>
+  <div class="row">
+    <div class="col l6 m6 s12">
+      <h4>{{ user }}</h4>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col l6 m6 s6">{% trans "email" %}:</div>
+    <div class="col l6 m6 s6 right">{{ user.email }}</div>
+  </div>
+  <div class="row">
+      <p><a href="{% url 'password_change' %}">Change password?</a></p>
+  </div>
+</div>
+{% endblock %}
