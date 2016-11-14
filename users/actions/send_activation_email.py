@@ -10,10 +10,11 @@ SUBJECT_TEMPLATE_NAME = 'users/signup_email_subject.txt'
 
 
 class SendActivationEmail:
-    def __init__(self, user, site, token_generator):
+    def __init__(self, user, site, token_generator, use_https=False):
         self.user = user
         self.site = site
         self.token_generator = token_generator
+        self.use_https = use_https
 
     def call(self):
         site_name = self.site.name
@@ -22,7 +23,7 @@ class SendActivationEmail:
             'domain': domain,
             'site_name': site_name,
             'token': self.token_generator.make_token(self.user),
-            'protocol': 'https',
+            'protocol': 'https' if self.use_https else 'http',
             'uid': urlsafe_base64_encode(force_bytes(self.user.pk)),
             'user': self.user,
         }

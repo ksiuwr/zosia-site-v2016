@@ -1,11 +1,10 @@
 from django.shortcuts import render, redirect
-from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 
 from . import forms
-from .actions import SendActivationEmail, ActivateUser
+from .actions import ActivateUser
 
 
 # Create your views here.
@@ -20,21 +19,12 @@ def signup(request):
         'form': form,
     }
 
-    if request.method == 'GET' or not form.is_valid():
-        return render(request, 'users/signup.html', ctx)
+    if request.method == 'POST':
+        if form.is_valid():
+            user = form.save(request)
+            return render(request, 'users/signup_done.html', ctx)
 
-    user = form.save()
-
-    SendActivationEmail(
-        user=user,
-        site=get_current_site(request),
-        token_generator=default_token_generator,
-    ).call()
-
-    ctx = {
-        'email': user.email,
-    }
-    return render(request, 'users/signup_done.html', ctx)
+    return render(request, 'users/signup.html', ctx)
 
 
 def activate(request, uidb64, token):
