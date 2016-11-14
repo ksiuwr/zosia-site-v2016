@@ -15,7 +15,7 @@ def profile(request):
 
 
 def signup(request):
-    form = forms.UserForm(request.POST)
+    form = forms.UserForm(request.POST or None)
     ctx = {
         'form': form,
     }
