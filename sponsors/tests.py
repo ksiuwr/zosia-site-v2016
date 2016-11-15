@@ -1,10 +1,15 @@
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.contrib.auth import get_user_model
 from django.forms import ValidationError
+from django.shortcuts import reverse
 from django.test import TestCase
 from sponsors.models import Sponsor
 from sponsors.forms import SponsorForm
 import os
+
+
+User = get_user_model()
 
 
 class SponsorTestCase(TestCase):
@@ -70,3 +75,53 @@ class FormTestCase(SponsorTestCase):
         form = SponsorForm({'name': 'foo', 'url': 'barbaz'},
                            {'logo': self.image})
         self.assertFalse(form.is_valid())
+
+
+class ViewsTestCase(SponsorTestCase):
+    def setUp(self):
+        super().setUp()
+        self.staff = User.objects.create_user('paul', 'paul@thebeatles.com',
+                                              'paulpassword')
+        self.staff.is_staff = True
+        self.staff.save()
+
+        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
+                                               'johnpassword')
+        self.normal.save()
+
+    def test_index_get_no_user(self):
+        response = self.client.get(reverse('sponsors_index'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/sponsors/')
+
+    def test_index_get_normal_user(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.get(reverse('sponsors_index'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/sponsors/')
+
+    def test_index_get_staff_user(self):
+        self.client.login(username='paul', password='paulpassword')
+        response = self.client.get(reverse('sponsors_index'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        context = response.context[-1]
+        self.assertEqual(list(context['objects']), list(Sponsor.objects.all()))
+
+    def test_add_get_staff_user(self):
+        self.client.login(username='paul', password='paulpassword')
+        response = self.client.get(reverse('sponsors_add'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, SponsorForm)
+
+    def test_edit_get_staff_user(self):
+        self.client.login(username='paul', password='paulpassword')
+        sponsor = Sponsor(name='foo', url='http://google.com', logo=self.image)
+        sponsor.save()
+        response = self.client.get(reverse('sponsors_edit',
+                                           kwargs={'sponsor_id': sponsor.id}),
+                                   follow=True)
+        self.assertEqual(response.status_code, 200)
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, SponsorForm)
+        self.assertEqual(context['object'], sponsor)

@@ -13,7 +13,7 @@ def index(request):
 
 
 @staff_member_required()
-def update(request, sponsor_id):
+def update(request, sponsor_id=None):
     ctx = {}
     kwargs = {}
     if sponsor_id:

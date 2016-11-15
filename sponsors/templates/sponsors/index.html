@@ -1,1 +1,36 @@
 {% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col l12 m12 s12">
+            <h3>
+                {% trans "Sponsors" %}
+            </h3>
+            <!-- TODO: move! -->
+            <a href="{% url 'sponsors_add' %}" class="waves-effect waves-light btn-floating secondary-content">
+                <i class="material-icons">add</i>
+            </a>
+        </div>
+    </div>
+    {% for object in objects %}
+        <div class="row">
+            <div class="col l8 m6 s6">
+                {{ object }}
+            </div>
+            <div class="col l4 m6 s6">
+                {{ object.is_active }}
+                <div class="switch">
+                    <label>
+                        Off
+                        <input type="checkbox" {% if object.is_active %}checked{% endif %}>
+                        <span class="lever"></span>
+                        On
+                    </label>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
