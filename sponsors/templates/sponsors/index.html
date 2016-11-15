@@ -17,11 +17,10 @@
     {% for object in objects %}
         <div class="row">
             <div class="col l8 m6 s6">
-                {{ object }}
+                <a href="{% url 'sponsors_edit' object.id %}">{{ object }}</a>
             </div>
             <div class="col l4 m6 s6">
-                {{ object.is_active }}
-                <div class="switch">
+                <div class="switch" data-id="{{ object.id }}">
                     <label>
                         Off
                         <input type="checkbox" {% if object.is_active %}checked{% endif %}>
@@ -33,4 +32,27 @@
         </div>
     {% endfor %}
 </div>
+{% endblock %}
+
+{% block custom_scripts %}
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.switch').on('click', function(){
+        $.ajax({
+            type: "POST",
+            url: '{% url 'sponsors_toggle_active' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'key': $(this).data('id')
+            },
+            success: function(data){
+                console.log(data.msg)
+            },
+            error: function(){
+                alert("Error occured!");
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
