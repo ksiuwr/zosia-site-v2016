@@ -13,6 +13,15 @@
                 <div class="input-field col s6">
                     {{ field }}
                     <label for="first_name">{{ field.label }}</label>
+                    {% if field.errors %}
+                        <span class="text-danger">
+                            {{ field.errors|first }}
+                        </span>
+                    {% else %}
+                        <span class="text-help">
+                            {{ field.help_text|safe }}
+                        </span>
+                    {% endif %}
                 </div>
             </div>
         {% endfor %}

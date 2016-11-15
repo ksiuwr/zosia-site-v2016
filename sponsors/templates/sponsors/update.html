@@ -34,12 +34,30 @@
             <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
                 {{ form.name.label_tag }}
                 {{ form.name }}
+                {% if form.name.errors %}
+                    <span class="text-danger">
+                        {{ form.name.errors|first }}
+                    </span>
+                {% else %}
+                    <span class="text-help">
+                        {{ form.name.help_text|safe }}
+                    </span>
+                {% endif %}
             </div>
         </div>
         <div class="row">
             <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
                 {{ form.url.label_tag }}
                 {{ form.url }}
+                {% if form.url.errors %}
+                    <span class="text-danger">
+                        {{ form.url.errors|first }}
+                    </span>
+                {% else %}
+                    <span class="text-help">
+                        {{ form.url.help_text|safe }}
+                    </span>
+                {% endif %}
             </div>
         </div>
         <div class="row">
@@ -56,6 +74,15 @@
                 <div class="file-path-wrapper">
                     <input class="file-path validate" type="text">
                 </div>
+                {% if form.logo.errors %}
+                    <span class="text-danger">
+                        {{ form.logo.errors|first }}
+                    </span>
+                {% else %}
+                    <span class="text-help">
+                        {{ form.logo.help_text|safe }}
+                    </span>
+                {% endif %}
             </div>
         </div>
         <div class="row">
