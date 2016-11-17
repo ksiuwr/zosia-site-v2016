@@ -5,7 +5,7 @@ from .forms import BlogPostForm
 
 
 def index(request):
-    ctx = {'posts': BlogPost.objects.all()}
+    ctx = {'posts': BlogPost.objects.select_realted('author').all()}
     return render(request, 'blog/index.html', ctx)
 
 

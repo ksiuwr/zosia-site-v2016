@@ -48,5 +48,3 @@ def toggle_active(request):
             {'msg': "{} changed status!".format(sponsor.name)}),
             content_type='application/json')
     return HttpResponse(_("It should be post ajax request!"))
-
-
