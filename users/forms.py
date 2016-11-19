@@ -1,22 +1,19 @@
-from django import forms
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.forms import UserCreationForm
+
 
 from .actions import SendActivationEmail
 from .models import User
 
 
-class UserForm(forms.ModelForm):
+class UserForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'password']
-        widgets = {
-            'password': forms.PasswordInput()
-        }
+        fields = ['username', 'email']
 
     def save(self, request):
         user = super().save(commit=False)
-        user.set_password(self.cleaned_data['password'])
         user.is_active = False
         user.save()
 
@@ -28,3 +25,4 @@ class UserForm(forms.ModelForm):
         ).call()
 
         self.user = user
+        return user
