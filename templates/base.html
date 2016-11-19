@@ -35,6 +35,7 @@
                   <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
                 {% else %}
                   <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
+                  <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
                 {% endif %}
             </ul>
             <ul id="navie" class="side-nav">
@@ -44,6 +45,7 @@
                   <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
                 {% else %}
                   <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
+                  <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
                 {% endif %}
             </ul>
             <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>

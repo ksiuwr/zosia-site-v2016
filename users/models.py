@@ -1,7 +1,9 @@
 from django.db import models
-from django.conf import settings
+from django.contrib.auth.models import AbstractUser
 
-User = settings.AUTH_USER_MODEL
+
+class User(AbstractUser):
+    email = models.EmailField(unique=True)
 
 
 class Organization(models.Model):
