@@ -39,7 +39,7 @@ def update(request, sponsor_id=None):
 
 @staff_member_required()
 def toggle_active(request):
-    if request.method == 'POST' and request.is_ajax():
+    if request.method == 'POST':
         sponsor_id = request.POST.get('key', None)
         sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
         sponsor.toggle_active()

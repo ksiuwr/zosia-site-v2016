@@ -57,6 +57,16 @@ class ModelTestCase(SponsorTestCase):
         sponsor.save()
         self.assertEqual(str(sponsor), "Bar")
 
+    def test_toggle_active(self):
+        sponsor = Sponsor(url="http://google.com", logo=self.image.name,
+                          is_active=True, name="Bar")
+        sponsor.save()
+        self.assertTrue(sponsor.is_active)
+        sponsor.toggle_active()
+        self.assertFalse(sponsor.is_active)
+        sponsor.toggle_active()
+        self.assertTrue(sponsor.is_active)
+
 
 class FormTestCase(SponsorTestCase):
     def test_no_data(self):
@@ -125,3 +135,11 @@ class ViewsTestCase(SponsorTestCase):
         context = response.context[-1]
         self.assertEqual(context['form'].__class__, SponsorForm)
         self.assertEqual(context['object'], sponsor)
+
+    def test_sposor_toggle_active(self):
+        self.client.login(username='paul', password='paulpassword')
+        sponsor = Sponsor(name='foo', url='http://google.com', logo=self.image)
+        sponsor.save()
+        response = self.client.post(reverse('sponsors_toggle_active'),
+                                    {'key': sponsor.id}, follow=True)
+        self.assertEqual(response.status_code, 200)
