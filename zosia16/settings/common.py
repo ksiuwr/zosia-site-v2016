@@ -34,12 +34,21 @@ ALLOWED_HOSTS = os.environ.get('HOSTS', 'staging.zosia.org').split(',')
 
 AUTH_USER_MODEL = "users.User"
 
+# Mailgun (https://github.com/anymail/django-anymail)
+ANYMAIL = {
+    "MAILGUN_API_KEY": os.environ.get('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": ALLOWED_HOSTS[0],  # your Mailgun domain, if needed
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
+DEFAULT_FROM_EMAIL = "admin@" + ALLOWED_HOSTS[0]
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
 INSTALLED_APPS = [
+    "anymail",
     'blog.apps.BlogConfig',
     'conferences.apps.ConferencesConfig',
     'users.apps.UsersConfig',
