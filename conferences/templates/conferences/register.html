@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col l6 m6 s12 offset-m3">
+      <h2>{% trans "Register" %}</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col l6 m6 s12">
+      <p>{% trans "username" %}</p>
+    </div>
+    <div class="col l6 m6 s12">
+      <p>{{ user }}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col l6 m6 s6">{% trans "email" %}:</div>
+    <div class="col l6 m6 s6 right">{{ user.email }}</div>
+  </div>
+  <div class="row">
+      <p><a href="{% url 'password_change' %}">{% trans 'Change password?' %}</a></p>
+  </div>
+</div>
+{% endblock %}

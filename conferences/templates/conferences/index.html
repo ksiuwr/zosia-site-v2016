@@ -32,13 +32,20 @@
             </div>
             <div class="col l8 m6 s12">
                 <div class="flow-text center-align text-block">
-                  Tegoroczna <b>ZOSIA</b> rozpocznie się {{ zosia.start_date }} i obędzie się w
+                {% blocktrans %}
+                  Tegoroczna <b>ZOSIA</b> rozpocznie się
+                {% endblocktrans %}
+                  {{ zosia.start_date }}
+                {% blocktrans %}
+                  i obędzie się w
+                {% endblocktrans %}
                   <!-- FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http -->
                   <a href="{{ zosia.place.url }}">{{ zosia.place.name }}</a>.
                   <br>
-                  Adres: {{ zosia.place.address }}.
+                  {% trans "Adres" %}: {{ zosia.place.address }}.
                   <br>
-                  <a class="waves-effect waves-light btn">zapisz się</a>
+                  <a href="{% url 'user_zosia_register' zosia.id %}"
+                     class="waves-effect waves-light btn">{% trans "Register" %}</a>
                 </div>
             </div>
         </div>
@@ -50,10 +57,12 @@
     <div class="row flexbox center-items-horizontal">
         <div class="col l8 m6 s12">
             <div class="flow-text center-align text-block">
+            {% blocktrans %}
                 <b>ZOSIA</b>, czyli <b>Zimowy Obóz Studentów Informatyki A</b>, to impreza organizowana przez Koło Studentów Informatyki od ponad 20 lat.
                 Historia obozu rozpoczęła się od nieformalnych wyjazdów grupy zaprzyjaźnionych studentów, dziś zrzesza każdego roku niemal 200 osób:
                 studentów róznych uczelni, przedstawicieli świata nauki i firm z branży IT. Podczas trzydniowego wyjazdu odbywają się wykłady,
                 prezentacje firm ale także wycieczki i imprezy integracyjne.
+            {% endblocktrans %}
             </div>
         </div>
         <div class=" col l4 m6 s12">
