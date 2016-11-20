@@ -3,9 +3,9 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.views.decorators.http import require_http_methods
 from sponsors.models import Sponsor
 from sponsors.forms import SponsorForm
-import json
 
 
 @staff_member_required()
@@ -38,11 +38,10 @@ def update(request, sponsor_id=None):
 
 
 @staff_member_required()
+@require_http_methods(['POST'])
 def toggle_active(request):
-    if request.method == 'POST':
-        sponsor_id = request.POST.get('key', None)
-        sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
-        sponsor.toggle_active()
-        sponsor.save()
-        return JsonResponse({'msg': "{} changed status!".format(sponsor.name)})
-    return HttpResponse(_("It should be post ajax request!"))
+    sponsor_id = request.POST.get('key', None)
+    sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
+    sponsor.toggle_active()
+    sponsor.save()
+    return JsonResponse({'msg': "{} changed status!".format(sponsor.name)})
