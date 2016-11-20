@@ -1,6 +1,6 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from sponsors.models import Sponsor
@@ -44,7 +44,5 @@ def toggle_active(request):
         sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
         sponsor.toggle_active()
         sponsor.save()
-        return HttpResponse(json.dumps(
-            {'msg': "{} changed status!".format(sponsor.name)}),
-            content_type='application/json')
+        return JsonResponse({'msg': "{} changed status!".format(sponsor.name)})
     return HttpResponse(_("It should be post ajax request!"))

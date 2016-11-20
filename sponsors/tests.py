@@ -25,8 +25,13 @@ class ModelTestCase(SponsorTestCase):
 
     def test_create_object(self):
         count = Sponsor.objects.count()
-        Sponsor.objects.create(name="Foo", url="http://google.com",
-                               logo=self.image.name)
+        sponsor = Sponsor(name="Foo", url="http://google.com",
+                          logo=self.image.name)
+        try:
+            sponsor.full_clean()
+        except ValidationError:
+            self.fail("Full clean failed")
+        sponsor.save()
         self.assertEqual(count + 1, Sponsor.objects.count())
 
     def test_object_must_have_name(self):
