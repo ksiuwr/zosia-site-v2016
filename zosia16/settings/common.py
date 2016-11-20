@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import random
 import string
+import raven
 
 # Google API key
 GAPI_KEY = os.environ.get('GAPI_KEY')
@@ -42,13 +43,24 @@ ANYMAIL = {
 EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
 DEFAULT_FROM_EMAIL = "admin@" + ALLOWED_HOSTS[0]
 
+# Sentry (https://getsentry.io)
+sentry_dsn = os.environ.get('SENTRY_DSN')
+if sentry_dsn:
+    RAVEN_CONFIG = {
+        'dsn': sentry_dsn,
+        # If you are using git, you can also automatically configure the
+        # release based on the git info.
+        'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+    }
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Application definition
 
 INSTALLED_APPS = [
-    "anymail",
+    'anymail',
+    'raven.contrib.django.raven_compat',
     'blog.apps.BlogConfig',
     'conferences.apps.ConferencesConfig',
     'users.apps.UsersConfig',
