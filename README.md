@@ -11,6 +11,9 @@ Django 1.10 version of ZOSIA registration page - v2016 edition.
 #### Google APIs
 Google API key is needed for map display. Set it in settings as `GAPI_KEY`.
 
+#### Mailgun
+Mailgun API key is needed for sending mails. For development, simply use Console backend, or set up your own mailgun account.
+
 #### Virtualenv
 Create virtualenv for python 3.5.
 * `virtualenv env`
