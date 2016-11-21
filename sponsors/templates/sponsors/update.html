@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<form method="post" action="" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="container">
+    {% if object %}
+        <h3>{{ object }} - {% trans "Edit" %}</h3>
+    {% else %}
+        <h3>{% trans "Add sponsor" %}</h3>
+    {% endif %}
+        {% if form.non_field_errors %}
+        <div class="row">
+            <div class="col s10 m8 offset-s1 offset-m2 offset-l2">
+                <ul class="collapsible error-modal" data-collapsible="accordion">
+                    <li>
+                        <div class="collapsible-header active">
+                            <i class="material-icons">report_problem</i>
+                            {% trans 'Error' %}
+                        </div>
+                        <div class="collapsible-body">
+                            <p>
+                                {{ form.non_field_errors|first }}
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
+                {{ form.name.label_tag }}
+                {{ form.name }}
+                {% if form.name.errors %}
+                    <span class="text-danger">
+                        {{ form.name.errors|first }}
+                    </span>
+                {% else %}
+                    <span class="text-help">
+                        {{ form.name.help_text|safe }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
+                {{ form.url.label_tag }}
+                {{ form.url }}
+                {% if form.url.errors %}
+                    <span class="text-danger">
+                        {{ form.url.errors|first }}
+                    </span>
+                {% else %}
+                    <span class="text-help">
+                        {{ form.url.help_text|safe }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
+                <p>{{ form.is_active }} {{ form.is_active.label_tag }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="file-field input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
+                <div class="btn">
+                    <span>File</span>
+                    {{ form.logo }}
+                </div>
+                <div class="file-path-wrapper">
+                    <input class="file-path validate" type="text">
+                </div>
+                {% if form.logo.errors %}
+                    <span class="text-danger">
+                        {{ form.logo.errors|first }}
+                    </span>
+                {% else %}
+                    <span class="text-help">
+                        {{ form.logo.help_text|safe }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col m6 s6 offset-s3 offset-m4">
+                <div class="row">
+                    <input type="submit" value="{% trans 'submit' %}"  class="waves-effect waves-light btn"/>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</form>
+
+{% endblock %}

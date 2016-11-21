@@ -20,5 +20,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('users.urls')),
     url(r'', include('conferences.urls')),
-    url(r'^blog/', include('blog.urls'))
+    url(r'^blog/', include('blog.urls')),
+    url(r'^sponsors/', include('sponsors.urls')),
 ]

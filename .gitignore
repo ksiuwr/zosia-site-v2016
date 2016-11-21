@@ -90,6 +90,7 @@ ENV/
 
 # Dev settings
 zosia16/settings/dev.py
+media/
 
 .idea/
 

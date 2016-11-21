@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'conferences.apps.ConferencesConfig',
     'users.apps.UsersConfig',
+    'sponsors.apps.SponsorsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -156,3 +157,6 @@ STATIC_ROOT = '/var/www/static'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, '..', 'static'),
 )
+
+MEDIA_ROOT = os.path.join(os.environ.get('HOME', '/var/www'), 'media')
+MEDIA_URL = '/media/'
