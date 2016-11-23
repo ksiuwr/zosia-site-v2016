@@ -5,12 +5,24 @@ from django.contrib.auth.tokens import default_token_generator
 
 from . import forms
 from .actions import ActivateUser
+from conferences.models import Zosia, UserPreferences
 
 
 # Create your views here.
 @login_required
 def profile(request):
-    return render(request, 'users/profile.html')
+    ctx = {}
+    current_zosia = Zosia.objects.find_active()
+    if current_zosia:
+        current_prefs = UserPreferences.objects.filter(zosia=current_zosia, user=request.user).first()
+        print(current_prefs)
+        if current_prefs:
+            ctx['current_prefs'] = current_prefs
+
+    all_prefs = UserPreferences.objects.filter(user=request.user).exclude(zosia=current_zosia).all()
+    if all_prefs:
+        ctx['all_prefs'] = all_prefs
+    return render(request, 'users/profile.html', ctx)
 
 
 def signup(request):
