@@ -1,11 +1,14 @@
 from urllib.parse import urlencode
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils.translation import ugettext_lazy as _
 
-from .models import Zosia
+from .models import Zosia, UserPreferences
+from .forms import UserPreferencesForm
 
 
 GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
@@ -24,10 +27,28 @@ def index(request):
         context['gapi_place_src'] = GAPI_PLACE_BASE_URL + '?' + urlencode(query)
     return render(request, 'conferences/index.html', context)
 
+
 @login_required
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    context = {
-        'zosia': zosia,
-    }
-    return render(request, 'conferences/register.html', context)
+    ctx = {}
+    form_args = {}
+
+    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
+    if user_prefs:
+        ctx['object'] = user_prefs
+        form_args['instance'] = user_prefs
+
+    form = UserPreferencesForm(request.POST or None,
+                               **form_args)
+
+    ctx['form'] = form
+    if request.method == 'POST':
+        if form.is_valid():
+            form.call(zosia, request.user)
+            messages.success(request, _("Form saved!"))
+            return redirect('accounts_profile')
+        else:
+            messages.error(request, _("There were errors"))
+
+    return render(request, 'conferences/register.html', ctx)

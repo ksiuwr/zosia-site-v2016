@@ -1,27 +1,46 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load materializecss %}
 
 {% block content %}
 <div class="container">
-  <div class="row">
-    <div class="col l6 m6 s12 offset-m3">
-      <h2>{% trans "Register" %}</h2>
+  <h3>
+    {% if object %}
+      {% trans "Update preferences" %}
+    {% else %}
+      {% trans "Register" %}
+    {% endif %}
+  </h3>
+  <form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      {{ field|materializecss }}
+      {% if field.errors %}
+      <span class="text-danger">
+        {{ field.errors|first }}
+      </span>
+      {% else %}
+      <span class="text-help">
+        {{ field.help_text|safe }}
+      </span>
+      {% endif %}
+    {% endfor %}
+    <div class="row">
+      <div class="col m6 s6 offset-s3 offset-m4">
+        <div class="row">
+            <input type="submit" value="{% trans 'Confirm' %}" class="waves-effect waves-light btn"/>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col l6 m6 s12">
-      <p>{% trans "username" %}</p>
-    </div>
-    <div class="col l6 m6 s12">
-      <p>{{ user }}</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col l6 m6 s6">{% trans "email" %}:</div>
-    <div class="col l6 m6 s6 right">{{ user.email }}</div>
-  </div>
-  <div class="row">
-      <p><a href="{% url 'password_change' %}">{% trans 'Change password?' %}</a></p>
-  </div>
+  </form>
 </div>
-{% endblock %}
+{% endblock content %}
+
+{% block custom_scripts %}
+<script type="text/javascript">
+ $(document).ready(function() {
+   $('select').material_select();
+   $('textarea').addClass("materialize-textarea");
+ });
+</script>
+{% endblock custom_scripts %}

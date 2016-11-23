@@ -59,6 +59,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Application definition
 
 INSTALLED_APPS = [
+    'materializecssform',
     'anymail',
     'raven.contrib.django.raven_compat',
     'blog.apps.BlogConfig',
