@@ -73,26 +73,26 @@ class UserPreferences(models.Model):
     bus = models.ForeignKey(Bus, null=True, blank=True)
 
     # Day 1 (Coming)
-    accomodation_day_1 = models.BooleanField()
-    dinner_1 = models.BooleanField()
+    accomodation_day_1 = models.BooleanField(default=True)
+    dinner_1 = models.BooleanField(default=True)
 
     # Day 2 (Regular day)
-    accomodation_day_2 = models.BooleanField()
-    breakfast_2 = models.BooleanField()
-    dinner_2 = models.BooleanField()
+    accomodation_day_2 = models.BooleanField(default=True)
+    breakfast_2 = models.BooleanField(default=False)
+    dinner_2 = models.BooleanField(default=True)
 
     # Day 3 (Regular day)
-    accomodation_day_3 = models.BooleanField()
-    breakfast_3 = models.BooleanField()
-    dinner_3 = models.BooleanField()
+    accomodation_day_3 = models.BooleanField(default=True)
+    breakfast_3 = models.BooleanField(default=False)
+    dinner_3 = models.BooleanField(default=True)
 
     # Day 4 (Return)
-    breakfast_4 = models.BooleanField()
+    breakfast_4 = models.BooleanField(default=True)
 
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
-    contact = models.TextField()
-    vegetarian = models.BooleanField()
+    contact = models.TextField(default='')
+    vegetarian = models.BooleanField(default=False)
     # Set by admin after checking payment
     payment_accepted = models.BooleanField(default=False)
 
