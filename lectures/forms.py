@@ -13,4 +13,4 @@ class LectureForm(forms.ModelForm):
 class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        exclude = ['zosia', 'create_date']
+        exclude = ['zosia', 'create_date', 'order']
