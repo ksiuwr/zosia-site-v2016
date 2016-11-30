@@ -38,7 +38,17 @@
                   <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
                   <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
                 {% endif %}
+                {% if user.is_staff %}
+                <li><a class="dropdown-button" href="#" data-activates='dropdown1'>{% trans "Admin" %}</a></li>
+                {% endif %}
             </ul>
+            {% if user.is_staff %}
+            <ul id='dropdown1' class='dropdown-content'>
+                <li><a href="{% url 'blog_create' %}">{% trans "Add post" %}</a></li>
+                <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
+                <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
+            </ul>
+            {% endif %}
             <ul id="navie" class="side-nav">
                 <li><a href="{% url 'blog_index' %}">Blog</a></li>
                 {% if user.is_authenticated %}
@@ -48,6 +58,11 @@
                 {% else %}
                   <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
                   <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
+                {% endif %}
+                {% if user.is_staff %}
+                <li><a href="{% url 'blog_create' %}">{% trans "Add post" %}</a></li>
+                <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
+                <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
                 {% endif %}
             </ul>
             <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>
