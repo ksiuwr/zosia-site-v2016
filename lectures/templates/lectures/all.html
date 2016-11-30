@@ -5,6 +5,9 @@
 {% block content %}
 <div class="container">
     <h3>{% trans "Lectures" %}</h3>
+    <a href="{% url 'lectures_staff_add' %}" class="waves-effect waves-light btn-floating secondary-content">
+        <i class="material-icons">add</i>
+    </a>
     <table>
         <thead>
             <tr>
@@ -19,7 +22,7 @@
             {% for object in objects %}
                 <tr>
                     <td>{{ object.author }}</td>
-                    <td>{{ object.title }}</td>
+                    <td><a href="{% url 'lectures_edit' object.id %}">{{ object.title }}</a></td>
                     <td>{{ object.get_duration_display }}</td>
                     <td>{{ object.get_lecture_type_display }}</td>
                     <td>

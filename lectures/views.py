@@ -1,7 +1,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
 from conferences.models import Zosia
@@ -65,12 +65,28 @@ def lecture_add(request):
 
 
 @staff_member_required()
-def lecture_update(request):
+def lecture_update(request, lecture_id=None):
     """
     Staff member can add lecture for other user, can edit all lectures
     """
-    # TODO: create
-    pass
+    zosia = Zosia.objects.find_active()
+    kwargs = {}
+    ctx = {}
+    if lecture_id:
+        lecture = get_object_or_404(Lecture, pk=lecture_id)
+        kwargs['instance'] = lecture
+        ctx['object'] = lecture
+    ctx['form'] = LectureAdminForm(request.POST or None, **kwargs)
+    if request.method == 'POST':
+        if ctx['form'].is_valid():
+            lecture = ctx['form'].save(commit=False)
+            lecture.zosia = zosia
+            lecture.save()
+            messages.success(request, _("Lecture has been saved"))
+            return redirect('lectures_all_staff')
+        else:
+            messages.error(request, _('Please review your form'))
+    return render(request, 'lectures/add.html', ctx)
 
 
 def schedule_display(request):
