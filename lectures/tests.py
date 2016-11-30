@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.forms import ValidationError
+from django.shortcuts import reverse
 from django.test import TestCase
 from .models import Lecture
 from .forms import LectureForm, LectureAdminForm
@@ -156,7 +157,7 @@ class FormTestCase(LectureTestCase):
     def test_admin_create_object(self):
         form = LectureAdminForm({'title': 'foo', 'abstract': 'bar',
                                 'duration': '5', 'lecture_type': '1',
-                                'person_type': '0', 'author': self.user.id})
+                                 'person_type': '0', 'author': self.user.id})
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
                 form.save()
@@ -165,3 +166,37 @@ class FormTestCase(LectureTestCase):
         obj.zosia = self.zosia
         obj.save()
         self.assertEqual(count + 1, Lecture.objects.count())
+
+
+class ViewsTestCase(LectureTestCase):
+    def setUp(self):
+        super().setUp()
+        self.superuser = User.objects.create_user('paul', 'paul@thebeatles.com',
+                                                  'paulpassword')
+
+    def test_index_get(self):
+        response = self.client.get(reverse('lectures_index'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        lectures = Lecture.objects.filter(accepted=True).filter(zosia=self.zosia)
+        self.assertEqual(set(response.context['objects']), set(lectures))
+        self.assertTemplateUsed('lectures/index.html')
+
+    def test_display_all_no_user(self):
+        response = self.client.get(reverse('lectures_all_staff'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/lectures/all')
+
+    def test_display_all_normal(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.get(reverse('lectures_all_staff'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/lectures/all')
+
+    def test_display_all_staff(self):
+        self.client.login(username='paul', password='paulpassword')
+        response = self.client.get(reverse('lectures_all_staff'), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('lectures/all.html')
+        lectures = Lecture.objects.filter(zosia=self.zosia)
+        # FIXME: key error - object not found
+        self.assertEqual(response.context['objects'], lectures)
