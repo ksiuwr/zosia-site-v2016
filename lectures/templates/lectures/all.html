@@ -1,1 +1,30 @@
 {% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h3>{% trans "Lectures" %}</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans "Author" %}</th>
+                <th>{% trans "Title" %}</th>
+                <th>{% trans "Duration" %}</th>
+                <th>{% trans "Lecture type" %}</th>
+                <th>{% trans "Active" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lecture in objects %}
+
+            {% empty %}
+                <tr>
+                    <td colspan="5">{% trans "Nothing to display" %}</td>
+                </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

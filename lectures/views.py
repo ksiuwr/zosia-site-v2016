@@ -48,7 +48,6 @@ def lecture_add(request):
     """
     participant can add his own lecture
     """
-    # TODO: review view
     zosia = Zosia.objects.find_active()
     ctx = {'form': LectureForm(request.POST or None)}
     if request.method == 'POST':
