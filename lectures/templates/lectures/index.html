@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
     <h3>{% trans "Lectures" %}</h3>
-    {% for lecture in lectures %}
+    {% for lecture in objects %}
         <div class="row">
             <div class="col l6 m6 s12">
                 <h4>{{ lecture.title }}</h4>
@@ -20,6 +20,12 @@
                 {{ lecture.abstract }}
             </div>
         </div>
+    {% empty %}
+    <div class="row">
+        <div class="col l12 m12 s12">
+            {% trans "Nothing to display" %}
+        </div>
+    </div>
     {% endfor %}
 </div>
 {% endblock content %}

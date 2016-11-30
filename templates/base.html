@@ -30,6 +30,7 @@
             </a>
             <ul class="right hide-on-med-and-down">
                 <li><a href="{% url 'blog_index' %}">Blog</a></li>
+                <li><a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a></li>
                 {% if user.is_authenticated %}
                   <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
                   <li><a href="{% url 'accounts_profile' %}">{% trans 'Profile' %}</a></li>
@@ -51,6 +52,7 @@
             {% endif %}
             <ul id="navie" class="side-nav">
                 <li><a href="{% url 'blog_index' %}">Blog</a></li>
+                <li><a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a></li>
                 {% if user.is_authenticated %}
                   <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
                   <li><a href="{% url 'accounts_profile' %}">{% trans 'Profile' %}</a></li>
