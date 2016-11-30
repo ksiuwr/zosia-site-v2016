@@ -1,1 +1,25 @@
 {% extends "base.html" %}
+
+{% load i18n %}
+
+
+{% block content %}
+<div class="container">
+    <h3>{% trans "Lectures" %}</h3>
+    {% for lecture in lectures %}
+        <div class="row">
+            <div class="col l6 m6 s12">
+                <h4>{{ lecture.title }}</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col l6 m6 s6">{{ lecture.author }}</div>
+        </div>
+        <div class="row" style="margin-bottom: 60px">
+            <div class="col l6 m6 s12">
+                {{ lecture.abstract }}
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}
