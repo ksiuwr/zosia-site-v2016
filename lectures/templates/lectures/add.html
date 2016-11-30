@@ -33,8 +33,12 @@
         {% for field in form %}
         <div class="row">
             <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
+                {% if field.field.checkbox %}
+                <p>{{ field }} {{ field.label_tag }}</p>
+                {% else %}
                 {{ field }}
-                <label>{{ field.label }}</label>
+                {{ field.label_tag }}
+                {% endif %}
                 {% if field.errors %}
                     <span class="text-danger">
                         {{ field.errors|first }}

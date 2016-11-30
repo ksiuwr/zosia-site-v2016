@@ -14,3 +14,7 @@ class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
         exclude = ['zosia', 'create_date', 'order']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['accepted'].checkbox = True
