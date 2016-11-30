@@ -6,7 +6,7 @@ class LectureForm(forms.ModelForm):
 
     class Meta:
         model = Lecture
-        fields = ['info', 'title', 'abstract', 'duration', 'lecture_type',
+        fields = ['title', 'abstract', 'duration', 'info', 'lecture_type',
                   'person_type']
 
 

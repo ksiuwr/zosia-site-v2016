@@ -1,7 +1,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
 from conferences.models import Zosia
@@ -29,6 +29,7 @@ def display_all_staff(request):
     """
     zosia = Zosia.objects.find_active()
     lectures = Lecture.objects.select_related('author').filter(zosia=zosia)
+    print(Lecture.objects.all())
     ctx = {'objects': lectures}
     return render(request, 'lectures/all.html', ctx)
 
@@ -55,7 +56,8 @@ def lecture_add(request):
             lecture = ctx['form'].save(commit=False)
             lecture.zosia = zosia
             lecture.author = request.user
-            messages.succes(request, _("Lecture has been saved"))
+            lecture.save()
+            messages.success(request, _("Lecture has been saved"))
             return redirect('lectures_index')
         else:
             messages.error(request, _("Please review your form"))
