@@ -46,3 +46,23 @@
     </table>
 </div>
 {% endblock %}
+
+{% block custom_scripts %}
+<script type="text/javascript">
+$(document).ready(function(){
+    $('.lever').on('click', function(){
+        $.ajax({
+            type: "POST",
+            url: '{% url 'lectures_toggle_accept' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'key': $(this).data('id')
+            },
+            error: function(){
+                alert("Error occured!");
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

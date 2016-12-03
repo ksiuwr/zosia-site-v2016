@@ -1,6 +1,7 @@
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
@@ -39,8 +40,10 @@ def toggle_accept(request):
     """
     ajax for accepting lecture
     """
-    # TODO: create
-    pass
+    lecture_id = request.POST.get('key', None)
+    lecture = get_object_or_404(Lecture, pk=lecture_id)
+    lecture.toggle_accepted()
+    return JsonResponse({'msg': "{} changed status!".format(lecture.title)})
 
 
 @login_required()
