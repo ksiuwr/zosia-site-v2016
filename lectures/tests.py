@@ -130,6 +130,18 @@ class ModelTestCase(LectureTestCase):
             author=self.user)
         self.assertEqual(str(lecture), "john - foo")
 
+    def test_toggle_accept(self):
+        lecture = Lecture.objects.create(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration="5",
+            lecture_type="1",
+            person_type="0",
+            author=self.user)
+        self.assertFalse(lecture.accepted)
+        lecture.toggle_accepted()
+        self.assertTrue(lecture.accepted)
 
 class FormTestCase(LectureTestCase):
     def test_user_form_no_data(self):

@@ -38,3 +38,7 @@ class Lecture(models.Model):
         verbose_name = _("Lecture")
         verbose_name_plural = _("Lectures")
         ordering = ['order', 'id']
+
+    def toggle_accepted(self):
+        self.accepted = not self.accepted
+        self.save()

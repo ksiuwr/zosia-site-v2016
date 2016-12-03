@@ -29,7 +29,6 @@ def display_all_staff(request):
     """
     zosia = Zosia.objects.find_active()
     lectures = Lecture.objects.select_related('author').filter(zosia=zosia)
-    print(Lecture.objects.all())
     ctx = {'objects': lectures}
     return render(request, 'lectures/all.html', ctx)
 
