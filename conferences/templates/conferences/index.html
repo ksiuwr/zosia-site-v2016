@@ -33,16 +33,16 @@
             <div class="col l8 m6 s12">
                 <div class="flow-text center-align text-block">
                 {% blocktrans %}
-                  Tegoroczna <b>ZOSIA</b> rozpocznie się
+                  This year on
                 {% endblocktrans %}
                   {{ zosia.start_date }}
                 {% blocktrans %}
-                  i obędzie się w
+                    at
                 {% endblocktrans %}
                   <!-- FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http -->
                   <a href="{{ zosia.place.url }}">{{ zosia.place.name }}</a>.
                   <br>
-                  {% trans "Adres" %}: {{ zosia.place.address }}.
+                  {% trans "Place" %}: {{ zosia.place.address }}.
                   <br>
                   <a href="{% url 'user_zosia_register' zosia.id %}"
                      class="waves-effect waves-light btn">{% trans "Register" %}</a>
@@ -58,10 +58,15 @@
         <div class="col l8 m6 s12">
             <div class="flow-text center-align text-block">
             {% blocktrans %}
-                <b>ZOSIA</b>, czyli <b>Zimowy Obóz Studentów Informatyki A</b>, to impreza organizowana przez Koło Studentów Informatyki od ponad 20 lat.
-                Historia obozu rozpoczęła się od nieformalnych wyjazdów grupy zaprzyjaźnionych studentów, dziś zrzesza każdego roku niemal 200 osób:
-                studentów róznych uczelni, przedstawicieli świata nauki i firm z branży IT. Podczas trzydniowego wyjazdu odbywają się wykłady,
-                prezentacje firm ale także wycieczki i imprezy integracyjne.
+              <!-- <b>ZOSIA</b>, czyli <b>Zimowy Obóz Studentów Informatyki A</b>, to impreza organizowana przez Koło Studentów Informatyki od ponad 20 lat. -->
+              <!-- Historia obozu rozpoczęła się od nieformalnych wyjazdów grupy zaprzyjaźnionych studentów, dziś zrzesza każdego roku niemal 200 osób: -->
+              <!-- studentów róznych uczelni, przedstawicieli świata nauki i firm z branży IT. Podczas trzydniowego wyjazdu odbywają się wykłady, -->
+              <!-- prezentacje firm ale także wycieczki i imprezy integracyjne. -->
+              <b>ZOSIA</b> (Zimowy Obóz Studentów Informatyki A, which roughly translates to "Best Computer Science Students Winter Camp",
+              is the annual gathering for people associated with Wroclaw University Computer Science Institute. It started
+              20 years ago with a tight-knit group of friends and has grown to group of 200 people from all over the world.
+              During the 3-day conference, attendees are welcome to enjoy talks (not onlt about computer science), but also
+              various outdoor activities, trips, and of course integration with past and current students and lecturers.
             {% endblocktrans %}
             </div>
         </div>
