@@ -25,6 +25,8 @@ def index(request):
             'q': zosia.place.address,
         }
         context['gapi_place_src'] = GAPI_PLACE_BASE_URL + '?' + urlencode(query)
+        # FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http
+        context['zosia_url'] = zosia.place.url
     return render(request, 'conferences/index.html', context)
 
 
