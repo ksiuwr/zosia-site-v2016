@@ -15,7 +15,6 @@ def profile(request):
     current_zosia = Zosia.objects.find_active()
     if current_zosia:
         current_prefs = UserPreferences.objects.filter(zosia=current_zosia, user=request.user).first()
-        print(current_prefs)
         if current_prefs:
             ctx['current_prefs'] = current_prefs
 
