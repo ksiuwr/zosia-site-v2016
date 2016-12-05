@@ -180,6 +180,6 @@ class UserPreferences(models.Model):
             else:
                 for g in group:
                     if self._pays_for(g):
-                        payment += self._price_for(d)
+                        payment += self._price_for(g)
 
         return payment

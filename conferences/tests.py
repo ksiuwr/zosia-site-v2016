@@ -14,6 +14,15 @@ from .forms import UserPreferencesForm
 User = get_user_model()
 
 
+# NOTE: Using powers of 2 makes it easier to test if sums are precise
+PRICE_BONUS = 1
+PRICE_ACCOMODATION = 1 << 1
+PRICE_BREAKFAST = 1 << 2
+PRICE_DINNER = 1 << 3
+PRICE_BASE = 1 << 4
+PRICE_TRANSPORT = 1 << 5
+
+
 def new_zosia(**kwargs):
     now = datetime.now() + timedelta(1)
     place, _ = Place.objects.get_or_create(
@@ -28,13 +37,12 @@ def new_zosia(**kwargs):
         'registration_end': now,
         'rooming_start': now,
         'rooming_end': now,
-        # NOTE: Using powers of 2 makes it easier to test if sums are alright
-        'price_accomodation': 1 << 1,
-        'price_breakfast': 1 << 2,
-        'price_dinner': 1 << 3,
-        'price_bonus_for_whole_day': 1,
-        'price_base': 1 << 4,
-        'price_transport': 1 << 5,
+        'price_accomodation': PRICE_ACCOMODATION,
+        'price_breakfast': PRICE_BREAKFAST,
+        'price_dinner': PRICE_DINNER,
+        'price_bonus_for_whole_day': PRICE_BONUS,
+        'price_base': PRICE_BASE,
+        'price_transport': PRICE_TRANSPORT,
         'account_number': '',
     }
     defaults.update(kwargs)
@@ -83,6 +91,21 @@ class UserPreferencesTestCase(TestCase):
         defaults.update(**override)
         return UserPreferences(**defaults)
 
+    def test_price_base(self):
+        user_prefs = self.makeUserPrefs(
+            accomodation_day_1=False,
+            dinner_1=False,
+            breakfast_2=False,
+            accomodation_day_2=False,
+            dinner_2=False,
+            breakfast_3=False,
+            accomodation_day_3=False,
+            dinner_3=False,
+            breakfast_4=False,
+        )
+
+        self.assertEqual(user_prefs.price(), PRICE_BASE)
+
     def test_price_whole_day(self):
         user_prefs = self.makeUserPrefs(
             accomodation_day_1=True,
@@ -96,7 +119,24 @@ class UserPreferencesTestCase(TestCase):
             breakfast_4=False,
         )
 
-        self.assertEqual(user_prefs.price(), (1 << 2) + (1 << 3) + (1 << 1) + (1 << 4) - 1)
+        self.assertEqual(user_prefs.price(),
+                         PRICE_BASE + PRICE_DINNER + PRICE_BREAKFAST + PRICE_ACCOMODATION - PRICE_BONUS)
+
+    def test_price_partial_day(self):
+        user_prefs = self.makeUserPrefs(
+            accomodation_day_1=False,
+            dinner_1=True,
+            breakfast_2=True,
+            accomodation_day_2=False,
+            dinner_2=False,
+            breakfast_3=False,
+            accomodation_day_3=False,
+            dinner_3=False,
+            breakfast_4=False,
+        )
+
+        self.assertEqual(user_prefs.price(),
+                         PRICE_BASE + PRICE_DINNER + PRICE_BREAKFAST)
 
 
 class RegisterViewTestCase(TestCase):
