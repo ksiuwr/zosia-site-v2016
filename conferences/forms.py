@@ -7,7 +7,6 @@ from users.models import Organization
 class UserPreferencesForm(ModelForm):
     class Meta:
         model = UserPreferences
-        fields = '__all__'
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
 
     def __init__(self, *args, **kwargs):
