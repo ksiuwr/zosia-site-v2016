@@ -69,7 +69,7 @@ class Bus(models.Model):
 class UserPreferences(models.Model):
     user = models.ForeignKey(User)
     zosia = models.ForeignKey(Zosia)
-    organization = models.ForeignKey(Organization)
+    organization = models.ForeignKey(Organization, null=True, blank=True)
     bus = models.ForeignKey(Bus, null=True, blank=True)
 
     # Day 1 (Coming)

@@ -13,18 +13,7 @@
   </h3>
   <form method="post">
     {% csrf_token %}
-    {% for field in form %}
-      {{ field|materializecss }}
-      {% if field.errors %}
-      <span class="text-danger">
-        {{ field.errors|first }}
-      </span>
-      {% else %}
-      <span class="text-help">
-        {{ field.help_text|safe }}
-      </span>
-      {% endif %}
-    {% endfor %}
+    {{ form | materializecss }}
     <div class="row">
       <div class="col m6 s6 offset-s3 offset-m4">
         <div class="row">
