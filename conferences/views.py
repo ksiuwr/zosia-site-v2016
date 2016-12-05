@@ -1,6 +1,7 @@
 from urllib.parse import urlencode
 
 from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -14,6 +15,7 @@ from .forms import UserPreferencesForm
 GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 
 
+@require_http_methods(['GET'])
 def index(request):
     zosia = Zosia.objects.find_active()
     context = {
@@ -31,6 +33,7 @@ def index(request):
 
 
 @login_required
+@require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
     ctx = {}
