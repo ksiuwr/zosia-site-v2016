@@ -89,8 +89,38 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(context['form'].__class__, UserPreferencesForm)
         self.assertEqual(context['object'], user_prefs)
 
-    def test_post_user_not_registered(self):
-        pass
+    def test_post_user_not_registered_empty_data(self):
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.post(self.url,
+                                    data={},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
+
+    def test_post_user_not_registered_with_data(self):
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.post(self.url,
+                                    data={
+                                        'contact': 'fb: me',
+                                        'shirt_size': 'S',
+                                        'shirt_type': 'f',
+                                    },
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
 
     def test_post_user_already_registered(self):
-        pass
+        UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.post(self.url,
+                                    data={
+                                        'contact': 'fb: me',
+                                        'shirt_size': 'S',
+                                        'shirt_type': 'f',
+                                    },
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
