@@ -40,9 +40,50 @@ class Zosia(models.Model):
     place = models.ForeignKey(Place)
     description = models.TextField(default='')
 
+    registration_start = models.DateField(
+        verbose_name=_('Registration for users starts'),
+    )
+    registration_end = models.DateField()
+
+    rooming_start = models.DateField(
+        verbose_name=_('Users room picking starts'),
+    )
+    rooming_end = models.DateField()
+
+    price_accomodation = models.IntegerField(
+        verbose_name=_('Price for sleeping in hotel, per day'),
+    )
+    price_breakfast = models.IntegerField(
+        verbose_name=_('Price for breakfast'),
+    )
+    price_dinner = models.IntegerField(
+        verbose_name=_('Price for dinner'),
+    )
+    price_bonus_for_whole_day = models.IntegerField(
+        verbose_name=_('Bonus for picking whole day'),
+    )
+    price_transport = models.IntegerField(
+        verbose_name=_('Price for transportation')
+    )
+    price_base = models.IntegerField(
+        verbose_name=_('Organisation fee'))
+
+    account_number = models.CharField(
+        max_length=32,
+        verbose_name=_('Organization account for paying'),
+    )
+    account_details = models.TextField(
+        verbose_name=_('Details for account (name, address)'),
+        default='',
+    )
+
     @property
     def end_date(self):
         return self.start_date + timedelta(3)
+
+    @property
+    def price_whole_day(self):
+        return self.price_accomodation + self.price_breakfast + self.price_dinner - self.price_bonus_for_whole_day
 
     def __str__(self):
         return 'Zosia {}'.format(self.start_date.year)
@@ -104,3 +145,41 @@ class UserPreferences(models.Model):
     # Typically, almost everyone has some bonus, so we don't get trampled
     # by wave of users booking room at the same time
     bonus_minutes = models.IntegerField(default=0)
+
+    def _pays_for(self, option_name):
+        return self.__dict__[option_name]
+
+    def _price_for(self, option_name):
+        return {
+            'accomodation_day_1': self.zosia.price_accomodation,
+            'dinner_1': self.zosia.price_dinner,
+            'breakfast_2': self.zosia.price_breakfast,
+            'accomodation_day_2': self.zosia.price_accomodation,
+            'dinner_2': self.zosia.price_dinner,
+            'breakfast_3': self.zosia.price_breakfast,
+            'accomodation_day_3': self.zosia.price_accomodation,
+            'dinner_3': self.zosia.price_dinner,
+            'breakfast_4': self.zosia.price_breakfast,
+        }[option_name]
+
+    def price(self):
+        payment = self.zosia.price_base
+
+        payment_groups = [
+            ['accomodation_day_1', 'dinner_1', 'breakfast_2'],
+            ['accomodation_day_2', 'dinner_2', 'breakfast_3'],
+            ['accomodation_day_3', 'dinner_3', 'breakfast_4'],
+        ]
+
+        if self.bus:
+            payment += self.zosia.price_transport
+
+        for group in payment_groups:
+            if all(map(lambda d: self._pays_for(d), group)):
+                payment += self.zosia.price_whole_day
+            else:
+                for g in group:
+                    if self._pays_for(g):
+                        payment += self._price_for(d)
+
+        return payment

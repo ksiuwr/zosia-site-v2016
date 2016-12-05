@@ -23,7 +23,19 @@ def new_zosia(**kwargs):
     defaults = {
         'active': False,
         'start_date': now,
-        'place': place
+        'place': place,
+        'registration_start': now,
+        'registration_end': now,
+        'rooming_start': now,
+        'rooming_end': now,
+        # NOTE: Using powers of 2 makes it easier to test if sums are alright
+        'price_accomodation': 1 << 1,
+        'price_breakfast': 1 << 2,
+        'price_dinner': 1 << 3,
+        'price_bonus_for_whole_day': 1,
+        'price_base': 1 << 4,
+        'price_transport': 1 << 5,
+        'account_number': '',
     }
     defaults.update(kwargs)
     return Zosia(**defaults)
@@ -48,6 +60,43 @@ class ZosiaTestCase(TestCase):
     def test_end_date(self):
         """Zosia has 4 days"""
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
+
+
+class UserPreferencesTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
+                                               'johnpassword')
+        self.normal.save()
+
+        self.zosia = new_zosia()
+        self.zosia.save()
+
+    def makeUserPrefs(self, **override):
+        defaults = {
+            'user': self.normal,
+            'zosia': self.zosia,
+            'contact': 'fb: me',
+            'shirt_size': 'S',
+            'shirt_type': 'f',
+        }
+        defaults.update(**override)
+        return UserPreferences(**defaults)
+
+    def test_price_whole_day(self):
+        user_prefs = self.makeUserPrefs(
+            accomodation_day_1=True,
+            dinner_1=True,
+            breakfast_2=True,
+            accomodation_day_2=False,
+            dinner_2=False,
+            breakfast_3=False,
+            accomodation_day_3=False,
+            dinner_3=False,
+            breakfast_4=False,
+        )
+
+        self.assertEqual(user_prefs.price(), (1 << 2) + (1 << 3) + (1 << 1) + (1 << 4) - 1)
 
 
 class RegisterViewTestCase(TestCase):
