@@ -22,7 +22,10 @@ class UserPreferencesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].queryset = Organization.objects.filter(accepted=True)
-        self.fields['bus'].queryset = Bus.objects.filter(zosia=Zosia.objects.find_active())
+        bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
+        if 'instance' in kwargs:
+            bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=kwargs['instance'])
+        self.fields['bus'].queryset = bus_queryset
 
     def call(self, zosia, user):
         user_preferences = self.save(commit=False)

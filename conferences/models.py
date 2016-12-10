@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count, F
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
 from datetime import timedelta
@@ -100,13 +101,23 @@ class Zosia(models.Model):
         super(Zosia, self).validate_unique(**kwargs)
 
 
+class BusManager(models.Manager):
+    def find_with_free_places(self, zosia):
+        return self \
+                .filter(zosia=zosia) \
+                .annotate(seats_taken=Count('userpreferences')). \
+                filter(capacity__gt=F('seats_taken'))
+
+
 class Bus(models.Model):
+    objects = BusManager()
+
     zosia = models.ForeignKey(Zosia)
     capacity = models.IntegerField()
     time = models.TimeField()
 
     def __str__(self):
-        return str(self.time)
+        return str('Bus {}'.format(self.time))
 
 
 class UserPreferences(models.Model):

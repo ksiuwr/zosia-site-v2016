@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 
 from django.test import TestCase
 from django.core.exceptions import ValidationError
@@ -7,7 +7,7 @@ from django.shortcuts import reverse
 from django.contrib.auth import get_user_model
 
 from users.models import Organization
-from .models import Zosia, Place, UserPreferences
+from .models import Zosia, Place, UserPreferences, Bus
 from .forms import UserPreferencesForm
 
 
@@ -70,6 +70,40 @@ class ZosiaTestCase(TestCase):
     def test_end_date(self):
         """Zosia has 4 days"""
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
+
+
+class BusTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
+                                               'johnpassword')
+        self.normal.save()
+
+        self.normal2 = User.objects.create_user('ringo', 'starr@thebeatles.com',
+                                                'ringopassword')
+        self.normal2.save()
+
+        self.zosia = new_zosia()
+        self.zosia.save()
+
+        self.bus1 = Bus(zosia=self.zosia, capacity=0, time=time(1))
+        self.bus1.save()
+        self.bus2 = Bus(zosia=self.zosia, capacity=1, time=time(2))
+        self.bus2.save()
+        self.bus3 = Bus(zosia=self.zosia, capacity=2, time=time(3))
+        self.bus3.save()
+
+    def test_find_buses_with_free_places(self):
+        buses = Bus.objects.find_with_free_places(self.zosia)
+        self.assertEqual(buses.count(), 2)
+
+        UserPreferences.objects.create(
+            user=self.normal,
+            bus=self.bus2,
+            zosia=self.zosia
+        )
+        buses = Bus.objects.find_with_free_places(self.zosia)
+        self.assertEqual(buses.count(), 1)
 
 
 class UserPreferencesTestCase(TestCase):
@@ -142,6 +176,9 @@ class UserPreferencesTestCase(TestCase):
 
 
 class UserPreferencesFormTestCase(TestCase):
+    def setUp(self):
+        pass
+
     def makeUserPrefsForm(self, **override):
         defaults = {
             'contact': 'fb: me',
@@ -157,6 +194,10 @@ class UserPreferencesFormTestCase(TestCase):
     def test_accomodation_must_be_chosen_for_dinner_or_breakfast(self):
         form = self.makeUserPrefsForm(breakfast_2=True, accomodation_2=False)
         self.assertFalse(form.is_valid())
+
+    def test_bus_choices_with_user(self):
+        # TODO
+        pass
 
 
 class RegisterViewTestCase(TestCase):
