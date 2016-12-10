@@ -108,5 +108,4 @@ def schedule_update(request):
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, _("Schedule changed!"))
     return render(request, 'lectures/schedule_add.html', ctx)
