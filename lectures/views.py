@@ -51,6 +51,7 @@ def lecture_add(request):
     """
     participant can add his own lecture
     """
+    # FIXME: check if enrollment is open
     zosia = Zosia.objects.find_active()
     ctx = {'form': LectureForm(request.POST or None)}
     if request.method == 'POST':
