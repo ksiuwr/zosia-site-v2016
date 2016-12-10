@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^create$', views.lecture_update, name='lectures_staff_add'),
     url(r'^(?P<lecture_id>\d+)/$', views.lecture_update, name='lectures_edit'),
     url(r'^toggleaccepted/$', views.toggle_accept, name="lectures_toggle_accept"),
+    url(r'^schedule/$', views.schedule_display, name='lectures_schedule'),
 ]

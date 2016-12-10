@@ -7,7 +7,7 @@ from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
 from conferences.models import Zosia
 from .forms import LectureForm, LectureAdminForm
-from .models import Lecture
+from .models import Lecture, Schedule
 
 
 @require_http_methods(['GET'])
@@ -93,5 +93,7 @@ def lecture_update(request, lecture_id=None):
 
 
 def schedule_display(request):
-    # TODO: create
-    pass
+    zosia = Zosia.objects.find_active()
+    schedule = get_object_or_404(Schedule, zosia=zosia)
+    ctx = {'schedule': schedule}
+    return render(request, 'lectures/schedule.html', ctx)
