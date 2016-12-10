@@ -36,7 +36,10 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    ctx = {}
+    field_dependencies = UserPreferencesForm.DEPENDENCIES
+    ctx = {
+        'field_dependencies' : field_dependencies
+    }
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()

@@ -31,36 +31,20 @@
     $('select').material_select();
     $('textarea').addClass("materialize-textarea");
 
-    $('#id_dinner_1').attr('disabled', true);
-    $('#id_dinner_2').attr('disabled', true);
-    $('#id_breakfast_2').attr('disabled', true);
-    $('#id_dinner_3').attr('disabled', true);
-    $('#id_breakfast_3').attr('disabled', true);
+    {% for field_groups in field_dependencies %}
+      {%  for field in field_groups|slice:"1:" %}
+      $('#id_{{ field }}').attr('disabled', true);
+      {% endfor %}
 
-    $('#id_accomodation_day_1').change(function(event) {
-      $('#id_dinner_1').attr('disabled', !event.currentTarget.checked);
-      if(!event.currentTarget.checked) {
-        $('#id_dinner_1').prop('checked', false);
-      }
-    });
-
-    $('#id_accomodation_day_2').change(function(event) {
-      $('#id_dinner_2').attr('disabled', !event.currentTarget.checked);
-      $('#id_breakfast_2').attr('disabled', !event.currentTarget.checked);
-      if(!event.currentTarget.checked) {
-        $('#id_dinner_2').prop('checked', false);
-        $('#id_breakfast_2').prop('checked', false);
-      }
-    });
-
-    $('#id_accomodation_day_3').change(function(event) {
-      $('#id_dinner_3').attr('disabled', !event.currentTarget.checked);
-      $('#id_breakfast_3').attr('disabled', !event.currentTarget.checked);
-      if(!event.currentTarget.checked) {
-        $('#id_dinner_3').prop('checked', false);
-        $('#id_breakfast_3').prop('checked', false);
-      }
-    });
+      $('#id_{{ field_groups|first }}').change(function(event) {
+        {%  for field in field_groups|slice:"1:" %}
+        $('#id_{{ field }}').attr('disabled', !event.currentTarget.checked);
+        if(!event.currentTarget.checked) {
+          $('#id_{{ field }}').prop('checked', false);
+        }
+        {% endfor %}
+      });
+    {% endfor %}
   });
 </script>
 {% endblock custom_scripts %}

@@ -6,6 +6,15 @@ from users.models import Organization
 
 
 class UserPreferencesForm(forms.ModelForm):
+    # NOTE: I'm not sure if that's how it should be:
+    DEPENDENCIES = [
+        # This means you need to check accomodation_1 before you can check dinner_1
+        ['accomodation_day_1', 'dinner_1'],
+        # This means you need to check accomodation_2 before you can check breakfast2 or dinner_2
+        ['accomodation_day_2', 'breakfast_2', 'dinner_2'],
+        ['accomodation_day_3', 'breakfast_3', 'dinner_3']
+    ]
+
     class Meta:
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
@@ -28,16 +37,9 @@ class UserPreferencesForm(forms.ModelForm):
         def _pays_for(d):
             return cleaned_data.get(d, False)
 
-        # NOTE: I'm not sure if that's how it should be:
-        groups = [
-            # This means you need to check accomodation_1 before you can check dinner_1
-            ['accomodation_1', 'dinner_1'],
-            # This means you need to check accomodation_2 before you can check breakfast2 or dinner_2
-            ['accomodation_2', 'breakfast_2', 'dinner_2'],
-            ['accomodation_3', 'breakfast_3', 'dinner_3']
-        ]
-
+        groups = self.DEPENDENCIES
         errs = []
+
         for day in groups:
             deps = list(map(_pays_for, day[1:]))
             if any(deps) and not _pays_for(day[0]):
