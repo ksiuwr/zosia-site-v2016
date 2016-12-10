@@ -143,6 +143,7 @@ class ModelTestCase(LectureTestCase):
         lecture.toggle_accepted()
         self.assertTrue(lecture.accepted)
 
+
 class FormTestCase(LectureTestCase):
     def test_user_form_no_data(self):
         form = LectureForm({})
