@@ -42,3 +42,8 @@ class Lecture(models.Model):
     def toggle_accepted(self):
         self.accepted = not self.accepted
         self.save()
+
+
+class Schedule(models.Model):
+    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"))
+    content = models.TextField(verbose_name=_("content"))
