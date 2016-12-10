@@ -50,3 +50,8 @@ class UserPreferencesForm(forms.ModelForm):
 
         if len(errs) > 0:
             raise forms.ValidationError(errs)
+
+    def disable(self):
+        for field in self.fields:
+            if field not in ['contact', 'shirt_size', 'shirt_type']:
+                self.fields[field].disabled = True

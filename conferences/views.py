@@ -38,7 +38,7 @@ def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
     field_dependencies = UserPreferencesForm.DEPENDENCIES
     ctx = {
-        'field_dependencies' : field_dependencies
+        'field_dependencies': field_dependencies
     }
     form_args = {}
 
@@ -49,6 +49,9 @@ def register(request, zosia_id):
 
     form = UserPreferencesForm(request.POST or None,
                                **form_args)
+
+    if user_prefs and user_prefs.payment_accepted:
+        form.disable()
 
     ctx['form'] = form
     if request.method == 'POST':

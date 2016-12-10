@@ -106,7 +106,7 @@ class UserPreferencesTestCase(TestCase):
             breakfast_4=False,
         )
 
-        self.assertEqual(user_prefs.price(), PRICE_BASE)
+        self.assertEqual(user_prefs.price, PRICE_BASE)
 
     def test_price_whole_day(self):
         user_prefs = self.makeUserPrefs(
@@ -121,7 +121,7 @@ class UserPreferencesTestCase(TestCase):
             breakfast_4=False,
         )
 
-        self.assertEqual(user_prefs.price(),
+        self.assertEqual(user_prefs.price,
                          PRICE_BASE + PRICE_BONUS)
 
     def test_price_partial_day(self):
@@ -137,7 +137,7 @@ class UserPreferencesTestCase(TestCase):
             breakfast_4=False,
         )
 
-        self.assertEqual(user_prefs.price(),
+        self.assertEqual(user_prefs.price,
                          PRICE_BASE + PRICE_DINNER)
 
 

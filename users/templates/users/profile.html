@@ -25,13 +25,27 @@
   </div>
   {% if current_prefs %}
     <div class="row">
-      <div class="col l6 m6 s6">{% trans "You are registered for current ZOSIA" %}:</div>
+      <div class="col l6 m6 s6">{% trans "You are registered for current ZOSIA" %}</div>
       <div class="col l6 m6 s6 right">
         <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">
-          {% trans "Change preferences" %}
+          {% trans "Preferences" %}
         </a>
       </div>
     </div>
+
+    {% if current_prefs.payment_accepted %}
+      <div class="row">
+        <div class="col l6 m6 s6">{% trans "Payment accepted :)" %}</div>
+      </div>
+    {% else %}
+      <div class="row">
+        <div class="col l6 m6 s6">{% trans "You should pay" %} <b>{{ current_prefs.price }}</b> zł to</div>
+        <div class="col l6 m6 s6 right">
+          <p>{{ current_prefs.zosia.account_number }}</p>
+          <p>{{ current_prefs.zosia.account_details }}</p>
+        </div>
+      </div>
+    {% endif %}
   {% endif %}
 
   {% if all_prefs %}

@@ -166,6 +166,7 @@ class UserPreferences(models.Model):
             'breakfast_4': breakfast_price
         }[option_name]
 
+    @property
     def price(self):
         payment = self.zosia.price_base
 
