@@ -47,4 +47,4 @@ class Lecture(models.Model):
 class Schedule(models.Model):
     zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"))
     content = models.TextField(verbose_name=_("content"),
-            help_text=_("You can use html tags and materializecss classes"))
+                               help_text=_("You can use html tags and materializecss classes"))
