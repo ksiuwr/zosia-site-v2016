@@ -50,23 +50,29 @@ class Zosia(models.Model):
     )
     rooming_end = models.DateField()
 
+    lecture_registration_start = models.DateField(
+        verbose_name=_('Registration for lectures starts'),
+    )
+    lecture_registration_end = models.DateField()
+
     price_accomodation = models.IntegerField(
         verbose_name=_('Price for sleeping in hotel, per day'),
     )
-    price_breakfast = models.IntegerField(
-        verbose_name=_('Price for breakfast'),
+    price_accomodation_breakfast = models.IntegerField(
+        verbose_name=_('Price for accomodation + breakfast'),
     )
-    price_dinner = models.IntegerField(
-        verbose_name=_('Price for dinner'),
+    price_accomodation_dinner = models.IntegerField(
+        verbose_name=_('Price for accomodation + dinner'),
     )
-    price_bonus_for_whole_day = models.IntegerField(
-        verbose_name=_('Bonus for picking whole day'),
+    price_whole_day = models.IntegerField(
+        verbose_name=_('Price for whole day (accomodation + breakfast + dinner)'),
     )
     price_transport = models.IntegerField(
         verbose_name=_('Price for transportation')
     )
     price_base = models.IntegerField(
-        verbose_name=_('Organisation fee'))
+        verbose_name=_('Organisation fee'),
+        default=0)
 
     account_number = models.CharField(
         max_length=32,
@@ -80,10 +86,6 @@ class Zosia(models.Model):
     @property
     def end_date(self):
         return self.start_date + timedelta(3)
-
-    @property
-    def price_whole_day(self):
-        return self.price_accomodation + self.price_breakfast + self.price_dinner - self.price_bonus_for_whole_day
 
     def __str__(self):
         return 'Zosia {}'.format(self.start_date.year)
@@ -114,21 +116,21 @@ class UserPreferences(models.Model):
     bus = models.ForeignKey(Bus, null=True, blank=True)
 
     # Day 1 (Coming)
-    accomodation_day_1 = models.BooleanField(default=True)
-    dinner_1 = models.BooleanField(default=True)
+    accomodation_day_1 = models.BooleanField(default=False)
+    dinner_1 = models.BooleanField(default=False)
 
     # Day 2 (Regular day)
-    accomodation_day_2 = models.BooleanField(default=True)
+    accomodation_day_2 = models.BooleanField(default=False)
     breakfast_2 = models.BooleanField(default=False)
-    dinner_2 = models.BooleanField(default=True)
+    dinner_2 = models.BooleanField(default=False)
 
     # Day 3 (Regular day)
-    accomodation_day_3 = models.BooleanField(default=True)
+    accomodation_day_3 = models.BooleanField(default=False)
     breakfast_3 = models.BooleanField(default=False)
-    dinner_3 = models.BooleanField(default=True)
+    dinner_3 = models.BooleanField(default=False)
 
     # Day 4 (Return)
-    breakfast_4 = models.BooleanField(default=True)
+    breakfast_4 = models.BooleanField(default=False)
 
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
@@ -147,19 +149,21 @@ class UserPreferences(models.Model):
     bonus_minutes = models.IntegerField(default=0)
 
     def _pays_for(self, option_name):
-        return self.__dict__[option_name]
+        return getattr(self, option_name)
 
     def _price_for(self, option_name):
+        breakfast_price = self.zosia.price_accomodation_breakfast - self.zosia.price_accomodation
+        dinner_price = self.zosia.price_accomodation_dinner - self.zosia.price_accomodation
         return {
             'accomodation_day_1': self.zosia.price_accomodation,
-            'dinner_1': self.zosia.price_dinner,
-            'breakfast_2': self.zosia.price_breakfast,
+            'dinner_1': dinner_price,
+            'breakfast_2': breakfast_price,
             'accomodation_day_2': self.zosia.price_accomodation,
-            'dinner_2': self.zosia.price_dinner,
-            'breakfast_3': self.zosia.price_breakfast,
+            'dinner_2': dinner_price,
+            'breakfast_3': breakfast_price,
             'accomodation_day_3': self.zosia.price_accomodation,
-            'dinner_3': self.zosia.price_dinner,
-            'breakfast_4': self.zosia.price_breakfast,
+            'dinner_3': dinner_price,
+            'breakfast_4': breakfast_price
         }[option_name]
 
     def price(self):

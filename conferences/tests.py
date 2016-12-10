@@ -15,12 +15,12 @@ User = get_user_model()
 
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
-PRICE_BONUS = 1
 PRICE_ACCOMODATION = 1 << 1
 PRICE_BREAKFAST = 1 << 2
 PRICE_DINNER = 1 << 3
 PRICE_BASE = 1 << 4
 PRICE_TRANSPORT = 1 << 5
+PRICE_BONUS = 1 << 6
 
 
 def new_zosia(**kwargs):
@@ -37,10 +37,12 @@ def new_zosia(**kwargs):
         'registration_end': now,
         'rooming_start': now,
         'rooming_end': now,
+        'lecture_registration_start': now,
+        'lecture_registration_end': now,
         'price_accomodation': PRICE_ACCOMODATION,
-        'price_breakfast': PRICE_BREAKFAST,
-        'price_dinner': PRICE_DINNER,
-        'price_bonus_for_whole_day': PRICE_BONUS,
+        'price_accomodation_breakfast': PRICE_BREAKFAST,
+        'price_accomodation_dinner': PRICE_DINNER,
+        'price_whole_day': PRICE_BONUS,
         'price_base': PRICE_BASE,
         'price_transport': PRICE_TRANSPORT,
         'account_number': '',
@@ -120,13 +122,13 @@ class UserPreferencesTestCase(TestCase):
         )
 
         self.assertEqual(user_prefs.price(),
-                         PRICE_BASE + PRICE_DINNER + PRICE_BREAKFAST + PRICE_ACCOMODATION - PRICE_BONUS)
+                         PRICE_BASE + PRICE_BONUS)
 
     def test_price_partial_day(self):
         user_prefs = self.makeUserPrefs(
-            accomodation_day_1=False,
+            accomodation_day_1=True,
             dinner_1=True,
-            breakfast_2=True,
+            breakfast_2=False,
             accomodation_day_2=False,
             dinner_2=False,
             breakfast_3=False,
@@ -136,7 +138,25 @@ class UserPreferencesTestCase(TestCase):
         )
 
         self.assertEqual(user_prefs.price(),
-                         PRICE_BASE + PRICE_DINNER + PRICE_BREAKFAST)
+                         PRICE_BASE + PRICE_DINNER)
+
+
+class UserPreferencesFormTestCase(TestCase):
+    def makeUserPrefsForm(self, **override):
+        defaults = {
+            'contact': 'fb: me',
+            'shirt_size': 'S',
+            'shirt_type': 'f',
+        }
+        defaults.update(**override)
+        return UserPreferencesForm(defaults)
+
+    def test_basic_form(self):
+        self.assertTrue(self.makeUserPrefsForm().is_valid())
+
+    def test_accomodation_must_be_chosen_for_dinner_or_breakfast(self):
+        form = self.makeUserPrefsForm(breakfast_2=True, accomodation_2=False)
+        self.assertFalse(form.is_valid())
 
 
 class RegisterViewTestCase(TestCase):
