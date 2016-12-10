@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
 from conferences.models import Zosia
-from .forms import LectureForm, LectureAdminForm
+from .forms import LectureForm, LectureAdminForm, ScheduleForm
 from .models import Lecture, Schedule
 
 
@@ -97,3 +97,16 @@ def schedule_display(request):
     schedule = get_object_or_404(Schedule, zosia=zosia)
     ctx = {'schedule': schedule}
     return render(request, 'lectures/schedule.html', ctx)
+
+
+@staff_member_required()
+def schedule_update(request):
+    zosia = Zosia.objects.find_active()
+    schedule, _ = Schedule.objects.get_or_create(zosia=zosia)
+    form = ScheduleForm(request.POST or None, instance=schedule)
+    ctx = {'form': form, 'zosia': zosia}
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Schedule changed!"))
+    return render(request, 'lectures/schedule_add.html', ctx)

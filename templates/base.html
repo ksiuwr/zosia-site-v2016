@@ -49,6 +49,7 @@
                 <li><a href="{% url 'blog_create' %}">{% trans "Add post" %}</a></li>
                 <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
                 <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
+                <li><a href="{% url 'lectures_schedule_add' %}">{% trans "Update schedule" %}</a></li>
             </ul>
             {% endif %}
             <ul id="navie" class="side-nav">
@@ -68,6 +69,7 @@
                 <li><a href="{% url 'blog_create' %}">{% trans "Add post" %}</a></li>
                 <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
                 <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
+                <li><a href="{% url 'lectures_schedule_add' %}">{% trans "Update schedule" %}</a></li>
                 {% endif %}
             </ul>
             <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>

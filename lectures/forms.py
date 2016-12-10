@@ -1,5 +1,5 @@
 from django import forms
-from .models import Lecture
+from .models import Lecture, Schedule
 
 
 class LectureForm(forms.ModelForm):
@@ -18,3 +18,9 @@ class LectureAdminForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['accepted'].checkbox = True
+
+
+class ScheduleForm(forms.ModelForm):
+    class Meta:
+        model = Schedule
+        exclude = ['zosia']
