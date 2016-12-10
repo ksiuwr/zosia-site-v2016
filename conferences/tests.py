@@ -233,3 +233,24 @@ class RegisterViewTestCase(TestCase):
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
+
+    def test_user_cannot_change_accomodation_after_paid(self):
+        UserPreferences.objects.create(user=self.normal,
+                                       zosia=self.zosia,
+                                       accomodation_day_1=False,
+                                       payment_accepted=True)
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.post(self.url,
+                                    data={
+                                        'accomodation_day_1': True,
+                                        'shirt_size': 'M',
+                                        'shirt_type': 'f',
+                                        'contact': 'fb: me',
+                                    },
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        prefs = UserPreferences.objects.filter(user=self.normal).first()
+        self.assertFalse(prefs.accomodation_day_1)
+        # Sanity check ;)
+        self.assertEqual(prefs.shirt_size, 'M')
