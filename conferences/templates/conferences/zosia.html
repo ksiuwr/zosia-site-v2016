@@ -1,0 +1,28 @@
+{% load i18n %}
+{% if zosia %}
+<div id="active-zosia" class="bg-dark-green">
+    <div class="container">
+        <div class="row flexbox center-items-horizontal">
+            <div class=" col l4 m6 s12">
+              <iframe
+                  class="full-width"
+                  frameborder="0" style="border:0"
+                  src={{ gapi_place_src }}
+                  allowfullscreen>
+              </iframe>
+            </div>
+            <div class="col l8 m6 s12">
+                <div class="flow-text center-align text-block">
+                  Tegoroczna <b>ZOSIA</b> rozpocznie się {{ zosia.start_date }} i obędzie się w
+                  <!-- FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http -->
+                  <a href="{{ zosia.place.url }}">{{ zosia.place.name }}</a>.
+                  <br>
+                  Adres: {{ zosia.place.address }}.
+                  <br>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}

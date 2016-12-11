@@ -1,0 +1,14 @@
+nav {
+    box-shadow: none;
+    height: 70px;
+    border-bottom: 1px #A0A8A4 solid;
+    background-color: #EAECEB
+}
+
+nav ul a {
+    color: #A0A8A4
+}
+
+nav ul a:hover {
+    color: #9a9a9a;
+}
