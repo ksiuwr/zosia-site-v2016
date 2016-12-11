@@ -31,18 +31,6 @@ main {
 
  /** HELPERS **/
 
-.text-green {
-    color: #818464;
-}
-
-.text-light-gray {
-    color: #D9DCDB;
-}
-
-.text-gray{
-    color: #A0A8A4;
-}
-
 footer.page-footer {
     background-color: #818464;
     margin-top: 0;
@@ -86,9 +74,6 @@ footer.page-footer {
     border-radius: 15px;
 }
 
-.button-collapse {
-    color: #3F3F3F;
-}
 
 .text-danger {
     background-color: rgba(255, 0, 0, 0.48);
@@ -103,11 +88,17 @@ footer.page-footer {
     margin: 2px;
 }
 
+/** NEW **/
+
+.button-collapse {
+    color: #A0A8A4;
+}
+
 .bg-transparent {
     padding: 20px;
 }
 
-.bg-dark-green {
+.bg-light-green {
     padding: 20px;
     background-color: #546A60;
 }
