@@ -5,7 +5,29 @@
     dark grey: #3F3F3F
     green: #818464
     beige: #FBF3E5
+
+
+    New palette:
+    almost white: #EAECEB
+    gray: #A0A8A4
+    light green: 546A60
+    dark green: 163E2A
 */
+nav {
+    box-shadow: none;
+    height: 70px;
+    border-bottom: 1px #A0A8A4 solid;
+    background-color: #EAECEB
+}
+
+nav ul a {
+    color: #A0A8A4
+}
+
+nav ul a:hover {
+    color: #9a9a9a;
+}
+
 
 .text-green {
     color: #818464;
@@ -33,18 +55,6 @@
     background-color: #3F3F3F;
     color: #D9DCDB;
     padding: 20px;
-}
-
-nav {
-    background-color: #FBF3E5;
-}
-
-nav ul a {
-    color: #3F3f3F;
-}
-
-nav ul a:hover {
-    color: #9a9a9a;
 }
 
 #index-banner{
@@ -116,12 +126,6 @@ main {
     border-radius: 15px;
 }
 
-nav {
-    box-shadow: none;
-    height: 70px;
-    border-bottom: 1px #3F3F3F solid;
-}
-
 .button-collapse {
     color: #3F3F3F;
 }
@@ -143,19 +147,19 @@ nav {
 
 @media screen and (min-width: 2881px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature4896x3264.jpg");
+        background-image: url("../imgs/pexels-photo-117370.jpg");
     }
 }
 
 @media screen and (max-width: 2880px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature2880x1920.jpg");
+        background-image: url("../imgs/pexels-photo-117370.jpg");
     }
 }
 
 @media screen and (max-width: 1600px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature1600x1067.jpg");
+        background-image: url("../imgs/pexels-photo-117370.jpg");
     }
 }
 

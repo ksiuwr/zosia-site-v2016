@@ -6,14 +6,16 @@
 <div id="index-banner">
     <div class="section flexbox center-items-horizontal full-height">
         <div class="container">
-            <h1 class="header center teal-text">
-                ZOSIA
+            <h1 class="header center grey-text text-lighten-4">
+                Zimowy Obóz Studentów Informatyki A
             </h1>
+            {% if zosia %}
             <div class="row center">
-                <h5 class="header col s12 light">
-                    Zimowy Obóz Studentów Informatyki A
+                <a class="waves-effect waves-light btn">zapisz się</a>
+                <h5 class="header col s12 green-text text-lighten-4 light">
                 </h5>
             </div>
+            {% endif %}
         </div>
     </div>
 </div>
@@ -45,6 +47,7 @@
                   <br>
                   <a href="{% url 'user_zosia_register' zosia.id %}"
                      class="waves-effect waves-light btn">{% trans "Register" %}</a>
+
                 </div>
             </div>
         </div>
