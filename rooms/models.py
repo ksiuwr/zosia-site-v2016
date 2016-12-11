@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 
 from django.db import models, transaction
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
 from conferences.models import Zosia
@@ -47,13 +49,37 @@ class Room(models.Model):
 
     @transaction.atomic
     def join(self, user, password=''):
-        if is_locked and not self.lock.unlocks(password):
-            return None
+        if self.is_locked and not self.lock.unlocks(password):
+            return ValidationError(_('Cannot join room %(room), is locked.'),
+                                   code='invalid',
+                                   params={
+                                       'room': self
+                                   })
 
+        # Ensure room is not full
+        if self.userroom_set.count() >= self.capacity:
+            return ValidationError(_('Cannot join room %(room), is full.'),
+                                   code='invalid',
+                                   params={
+                                       'room': self
+                                   })
+
+        # Remove user from previous rooms
+        prev_userroom = user.userroom_set.select_related('zosia').filter(room__zosia=self.zosia).first()
+        if prev_userroom:
+            prev_userroom.delete()
+
+        owner_lock = None
         if not self.lock or self.lock.is_expired:
-            self.lock = RoomLock.make(self, user)
+            owner_lock = RoomLock.make(self, user)
+            self.lock = owner_lock
 
         return UserRoom.objects.create(room=self, user=user)
+
+    @transaction.atomic
+    def unlock(self):
+        if self.is_locked:
+            self.lock.delete()
 
 
 class UserRoom(models.Model):
