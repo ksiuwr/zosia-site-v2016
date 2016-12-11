@@ -123,8 +123,10 @@ class Bus(models.Model):
 class UserPreferences(models.Model):
     user = models.ForeignKey(User)
     zosia = models.ForeignKey(Zosia)
-    organization = models.ForeignKey(Organization, null=True, blank=True)
-    bus = models.ForeignKey(Bus, null=True, blank=True)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    # NOTE: Deleting bus will render some payment information inaccessible
+    # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
+    bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL)
 
     # Day 1 (Coming)
     accomodation_day_1 = models.BooleanField(default=False)
