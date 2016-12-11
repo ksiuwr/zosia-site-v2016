@@ -1,11 +1,18 @@
-from datetime import datetime, timedelta
+import random
+import string
+from datetime import timedelta
 
+from django.utils import timezone
 from django.db import models, transaction
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
 from conferences.models import Zosia
+
+
+def random_string(length=10):
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 class RoomLock(models.Model):
@@ -15,18 +22,24 @@ class RoomLock(models.Model):
     expiration_date = models.DateTimeField()
     password = models.CharField(max_length=4)
 
+    user = models.ForeignKey(User)
+
     @classmethod
-    def make(cls, room, user):
-        return cls.objects.create(room=room,
-                                  user=user,
-                                  expiration_date=datetime.now() + cls.TIMEOUT)
+    def make(cls, user, expiration=None):
+        expiration = expiration or cls.TIMEOUT
+        return cls.objects.create(user=user,
+                                  password=random_string(4),
+                                  expiration_date=timezone.now() + expiration)
 
     @property
     def is_expired(self):
-        return self.expiration_date < datetime.now()
+        return self.expiration_date < timezone.now()
 
     def unlocks(self, password):
         return self.password == password
+
+    def owns(self, user):
+        return self.user == user
 
 
 class Room(models.Model):
@@ -37,7 +50,10 @@ class Room(models.Model):
     capacity = models.IntegerField()
     zosia = models.ForeignKey(Zosia)
 
-    lock = models.ForeignKey(RoomLock, blank=True, null=True)
+    lock = models.ForeignKey(RoomLock,
+                             on_delete=models.SET_NULL,
+                             blank=True,
+                             null=True)
 
     @property
     def free_places(self):
@@ -48,7 +64,7 @@ class Room(models.Model):
         return self.lock and not self.lock.is_expired
 
     @transaction.atomic
-    def join(self, user, password=''):
+    def join(self, user, password='', expiration=None):
         if self.is_locked and not self.lock.unlocks(password):
             return ValidationError(_('Cannot join room %(room), is locked.'),
                                    code='invalid',
@@ -65,20 +81,23 @@ class Room(models.Model):
                                    })
 
         # Remove user from previous rooms
-        prev_userroom = user.userroom_set.select_related('zosia').filter(room__zosia=self.zosia).first()
+        prev_userroom = user.userroom_set.select_related('room').filter(room__zosia=self.zosia).first()
         if prev_userroom:
+            if prev_userroom.room.is_locked:
+                prev_userroom.room.lock.delete()
             prev_userroom.delete()
 
         owner_lock = None
         if not self.lock or self.lock.is_expired:
-            owner_lock = RoomLock.make(self, user)
+            owner_lock = RoomLock.make(user, expiration=expiration)
             self.lock = owner_lock
 
+        self.save()
         return UserRoom.objects.create(room=self, user=user)
 
     @transaction.atomic
-    def unlock(self):
-        if self.is_locked:
+    def unlock(self, user):
+        if self.is_locked and self.lock.owns(user):
             self.lock.delete()
 
 

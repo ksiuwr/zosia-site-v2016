@@ -21,3 +21,10 @@ def join(request):
     # Ajax
     # Try to join given room
     pass
+
+
+# POST
+def unlock(request):
+    # Ajax
+    # Unlock (remove lock) given room, if user is owner
+    pass
