@@ -64,7 +64,7 @@ class Room(models.Model):
         return self.lock and not self.lock.is_expired
 
     @transaction.atomic
-    def join(self, user, password='', expiration=None):
+    def join(self, user, password='', expiration=None, lock=True):
         if self.is_locked and not self.lock.unlocks(password):
             return ValidationError(_('Cannot join room %(room), is locked.'),
                                    code='invalid',
@@ -83,14 +83,15 @@ class Room(models.Model):
         # Remove user from previous rooms
         prev_userroom = user.userroom_set.select_related('room').filter(room__zosia=self.zosia).first()
         if prev_userroom:
-            if prev_userroom.room.is_locked:
+            if prev_userroom.room.is_locked and prev_userroom.room.lock.owns(user):
                 prev_userroom.room.lock.delete()
             prev_userroom.delete()
 
         owner_lock = None
-        if not self.lock or self.lock.is_expired:
-            owner_lock = RoomLock.make(user, expiration=expiration)
-            self.lock = owner_lock
+        if lock:
+            if not self.lock or self.lock.is_expired:
+                owner_lock = RoomLock.make(user, expiration=expiration)
+                self.lock = owner_lock
 
         self.save()
         return UserRoom.objects.create(room=self, user=user)

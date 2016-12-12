@@ -59,6 +59,15 @@ class RoomTestCase(TestCase):
         self.room_1.join(self.normal_1)
         self.assertLocked(self.room_1)
 
+    def test_room_can_be_joined_without_locking(self):
+        self.room_1.join(self.normal_1, lock=False)
+        self.assertUnlocked(self.room_1)
+
+    def test_following_user_can_join_and_lock(self):
+        self.room_1.join(self.normal_1, lock=False)
+        self.room_1.join(self.normal_2)
+        self.assertLocked(self.room_1)
+
     def test_locked_room_cannot_be_joined(self):
         self.room_1.join(self.normal_1)
         self.assertLocked(self.room_1)
@@ -102,3 +111,11 @@ class RoomTestCase(TestCase):
         self.room_2.join(self.normal_1)
         self.refresh()
         self.assertUnlocked(self.room_1)
+
+    def test_room_is_not_unlocked_after_joining_other_by_not_owner(self):
+        self.room_1.join(self.normal_1)
+        result = self.room_1.join(self.normal_2, password=self.room_1.lock.password)
+        self.assertJoined(result, self.normal_2, self.room_1)
+        self.room_2.join(self.normal_2)
+        self.refresh()
+        self.assertLocked(self.room_1)
