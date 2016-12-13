@@ -100,3 +100,6 @@ bower_components
 
 # Node
 node_modules
+
+# Databases
+*.sqlite3

@@ -9,12 +9,14 @@ from sponsors.forms import SponsorForm
 
 
 @staff_member_required()
+@require_http_methods(['GET'])
 def index(request):
     ctx = {'objects': Sponsor.objects.all()}
     return render(request, 'sponsors/index.html', ctx)
 
 
 @staff_member_required()
+@require_http_methods(['POST', 'GET'])
 def update(request, sponsor_id=None):
     ctx = {}
     kwargs = {}
