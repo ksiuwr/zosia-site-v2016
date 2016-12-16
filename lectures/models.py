@@ -15,7 +15,7 @@ class Lecture(models.Model):
     create_date = models.DateTimeField(verbose_name="Creation date",
                                        auto_now_add=True)
     accepted = models.BooleanField(verbose_name=_("Accepted"), default=False)
-    order = models.IntegerField(default=99)
+    priority = models.IntegerField(default=99, help_text=_("Define order of lectures on page"))
     # main data about lecture
     title = models.CharField(verbose_name=_("Title"), max_length=256)
     abstract = models.CharField(verbose_name=_("Abstract"), max_length=2048)
@@ -37,7 +37,7 @@ class Lecture(models.Model):
     class Meta:
         verbose_name = _("Lecture")
         verbose_name_plural = _("Lectures")
-        ordering = ['order', 'id']
+        ordering = ['priority', 'id']
 
     def toggle_accepted(self):
         self.accepted = not self.accepted
