@@ -15,7 +15,7 @@ class Lecture(models.Model):
     create_date = models.DateTimeField(verbose_name="Creation date",
                                        auto_now_add=True)
     accepted = models.BooleanField(verbose_name=_("Accepted"), default=False)
-    priority = models.IntegerField(default=99, help_text=_("Define order of lectures on page"))
+    priority = models.IntegerField(default=99, help_text=_("Set order on all lectures page"))
     # main data about lecture
     title = models.CharField(verbose_name=_("Title"), max_length=256)
     abstract = models.CharField(verbose_name=_("Abstract"), max_length=2048)

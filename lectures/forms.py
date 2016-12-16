@@ -13,7 +13,7 @@ class LectureForm(forms.ModelForm):
 class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        exclude = ['zosia', 'create_date', 'order']
+        exclude = ['zosia', 'create_date', 'priority']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
