@@ -2,7 +2,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, reverse
 from django.views.decorators.http import require_http_methods
 from django.utils.translation import ugettext_lazy as _
 from conferences.models import Zosia
@@ -51,8 +51,11 @@ def lecture_add(request):
     """
     participant can add his own lecture
     """
-    # FIXME: check if enrollment is open
     zosia = Zosia.objects.find_active()
+    if not zosia.lectures_open():
+        messages.error(request, _("Call for paper is not open right now!"))
+        return redirect(reverse('index'))
+
     ctx = {'form': LectureForm(request.POST or None)}
     if request.method == 'POST':
         if ctx['form'].is_valid():
