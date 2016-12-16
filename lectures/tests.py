@@ -15,10 +15,15 @@ User = get_user_model()
 
 class LectureTestCase(TestCase):
     def setUp(self):
+        now = datetime.now()
         place = Place.objects.create(name="Mieszko", address="foo")
         self.zosia = Zosia.objects.create(
             start_date=datetime.today() + timedelta(days=1),
-            active=True, place=place)
+            active=True, place=place, price_accomodation=23, registration_end=now,
+            registration_start=now, rooming_start=now, rooming_end=now, price_transport=0,
+            lecture_registration_start=now, lecture_registration_end=now,
+            price_accomodation_dinner=0, price_accomodation_breakfast=0,
+            price_whole_day=0)
         self.user = User.objects.create_user('john', 'john@thebeatles.com',
                                              'johnpassword')
 
