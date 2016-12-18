@@ -30,6 +30,10 @@ main {
   }
 
  /** HELPERS **/
+.dates {
+    margin-top: 2%;
+    margin-bottom: 2%
+}
 
 footer.page-footer {
     background-color: #818464;
@@ -101,6 +105,10 @@ footer.page-footer {
 .bg-light-green {
     padding: 20px;
     background-color: #546A60;
+}
+
+.bg-light-green a{
+    color:inherit;
 }
 
 .text-large {
