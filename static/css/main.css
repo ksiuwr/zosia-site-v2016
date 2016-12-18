@@ -36,7 +36,7 @@ main {
 }
 
 footer.page-footer {
-    background-color: #818464;
+    background-color: #546A60;
     margin-top: 0;
 }
 
@@ -59,13 +59,6 @@ footer.page-footer {
 
 .modal-table {
     display: inline-table;
-}
-
-.logo {
-    background-color: white;
-    border-radius: 15px;
-    padding: 10px;
-    height: 80px;
 }
 
 .error-modal {
@@ -107,8 +100,13 @@ footer.page-footer {
     background-color: #546A60;
 }
 
-.bg-light-green a{
+.bg-light-green a {
     color:inherit;
+}
+
+.bg-white {
+    background-color: #ffffff;
+    padding: 20px;
 }
 
 .text-large {
