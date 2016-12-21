@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from users.models import User
 
-from .models import Place, Zosia, Bus
+from .models import Place, Zosia, Bus, UserPreferences
 
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
@@ -16,7 +16,7 @@ PRICE_BONUS = 1 << 6
 
 
 def new_zosia(commit=True, **kwargs):
-    now = datetime.now() + timedelta(1)
+    now = datetime.now()
     place, _ = Place.objects.get_or_create(
         name='Mieszko',
         address='FooBar@Katowice'
@@ -57,6 +57,13 @@ def new_user(ind):
     return User.objects.create_user(*USER_DATA[ind])
 
 
+def user_login(user):
+    return {
+        'username': user.username,
+        'password': next(filter(lambda x: x[0] == user.username, USER_DATA))[2]
+    }
+
+
 def new_bus(commit=True, **override):
     zosia = override['zosia'] or new_zosia()
     defaults = {
@@ -70,3 +77,7 @@ def new_bus(commit=True, **override):
     if commit:
         bus.save()
     return bus
+
+
+def user_preferences(**kwargs):
+    return UserPreferences.objects.create(**kwargs)

@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from users.models import User, Organization
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -90,6 +90,15 @@ class Zosia(models.Model):
 
     def __str__(self):
         return 'Zosia {}'.format(self.start_date.year)
+
+    @property
+    def is_rooming_open(self):
+        return self.rooming_start <= datetime.now().date() <= self.rooming_end
+
+    def can_room(self, user):
+        time_with_bonus = datetime.now() + timedelta(0, 3600*user.bonus_minutes)
+        return user.payment_accepted and \
+            time_with_bonus >= datetime.combine(self.rooming_start, datetime.min.time())
 
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None

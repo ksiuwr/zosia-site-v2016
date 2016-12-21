@@ -42,12 +42,25 @@ class RoomLock(models.Model):
         return self.user == user
 
 
+class RoomManager(models.Manager):
+    def for_zosia(self, zosia, **override):
+        defaults = {
+            'zosia': zosia,
+            'hidden': False,
+        }
+        defaults.update(**override)
+        return self.filter(**defaults)
+
+
 class Room(models.Model):
+    objects = RoomManager()
+
     name = models.CharField(
         max_length=300)
     description = models.TextField(
         default='')
     capacity = models.IntegerField()
+    hidden = models.BooleanField(default=False)
     zosia = models.ForeignKey(Zosia)
 
     lock = models.ForeignKey(RoomLock,
@@ -100,6 +113,9 @@ class Room(models.Model):
     def unlock(self, user):
         if self.is_locked and self.lock.owns(user):
             self.lock.delete()
+
+    def __str__(self):
+        return 'Room ' + self.name
 
 
 class UserRoom(models.Model):
