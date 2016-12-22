@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% load cache %}
 
 {% block content %}
 <div class="section flexbox center-items-horizontal full-height">
@@ -23,14 +24,37 @@
 {% endblock %}
 
 {% block custom_scripts %}
+{% cache 600 rooms_scripts %}
+{% if debug %}
+<script type="text/javascript" src="{% static 'bower_components/react/react.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/react/react-dom.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/babel-standalone/babel.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/loglevel/dist/loglevel.js' %}"></script>
+<script type="text/javascript">
+log.setLevel('debug');
+</script>
+{% else %}
 <script type="text/javascript" src="{% static 'bower_components/react/react.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/react/react-dom.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/babel-standalone/babel.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/loglevel/dist/loglevel.min.js' %}"></script>
+{% endif %}
+{% endcache %}
 <script type="text/jsx" src="{% static 'script/room.js' %}"></script>
 <script type="text/jsx">
+{% autoescape off %}
+var rooms = {{ rooms_json }};
+var csrf_token = '{{ csrf_token }}';
+var urls = {
+  'status': '{% url 'rooms_status' %}',
+  'unlock': '{% url 'rooms_unlock' %}'
+};
+{% endautoescape %}
 $(document).ready(function() {
    ReactDOM.render(
-     <h1>Hello, world!</h1>,
+     <Main rooms={rooms} csrf={csrf_token} urls={urls} />,
      document.getElementById('react-root')
    );
 });

@@ -115,7 +115,7 @@ class Room(models.Model):
     @transaction.atomic
     def unlock(self, user):
         if self.is_locked and self.lock.owns(user):
-            self.lock.delete()
+            return self.lock.delete()
 
     def __str__(self):
         return 'Room ' + self.name

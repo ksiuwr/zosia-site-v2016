@@ -18,6 +18,8 @@
   "dependencies": {
     "materialize": "^0.97.8",
     "babel-standalone": "^6.19.0",
-    "react": "^15.4.1"
+    "react": "^15.4.1",
+    "underscore": "^1.8.3",
+    "loglevel": "^1.4.1"
   }
 }
