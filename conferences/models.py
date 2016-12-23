@@ -2,7 +2,10 @@ from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
-from datetime import timedelta, datetime
+from datetime import (
+    datetime,
+    timedelta
+)
 
 from users.models import User, Organization
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -95,8 +98,8 @@ class Zosia(models.Model):
     def is_rooming_open(self):
         return self.rooming_start <= datetime.now().date() <= self.rooming_end
 
-    def can_start_rooming(self, user):
-        time_with_bonus = datetime.now() + timedelta(0, 3600*user.bonus_minutes)
+    def can_start_rooming(self, user, now=datetime.now()):
+        time_with_bonus = now + timedelta(0, 60*user.bonus_minutes)
         return user.payment_accepted and \
             time_with_bonus >= datetime.combine(self.rooming_start, datetime.min.time())
 

@@ -9,9 +9,18 @@ from django.contrib.auth import get_user_model
 from users.models import Organization
 from .models import Zosia, Place, UserPreferences, Bus
 from .forms import UserPreferencesForm
-from .test_helpers import new_zosia, new_user, new_bus, PRICE_ACCOMODATION, PRICE_BASE, \
-    PRICE_BONUS, PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT
-
+from .test_helpers import (
+    new_zosia,
+    new_user,
+    new_bus,
+    user_preferences,
+    PRICE_ACCOMODATION,
+    PRICE_BASE,
+    PRICE_BONUS,
+    PRICE_BREAKFAST,
+    PRICE_DINNER,
+    PRICE_TRANSPORT
+)
 
 User = get_user_model()
 
@@ -34,6 +43,24 @@ class ZosiaTestCase(TestCase):
     def test_end_date(self):
         """Zosia has 4 days"""
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
+
+    def test_can_start_rooming(self):
+        self.active.rooming_start = datetime.now()
+        self.active.save()
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0), zosia=self.active)
+        self.assertTrue(self.active.can_start_rooming(user_prefs))
+
+    def test_can_start_rooming(self):
+        self.active.rooming_start = datetime(2016, 12, 23)
+        self.active.save()
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0), zosia=self.active)
+        self.assertFalse(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+
+    def test_can_start_rooming(self):
+        self.active.rooming_start = datetime(2016, 12, 23)
+        self.active.save()
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0), zosia=self.active)
+        self.assertTrue(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
 
 
 class BusTestCase(TestCase):
