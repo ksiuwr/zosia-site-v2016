@@ -1,13 +1,11 @@
 // TODO:
-// 1. After join password modal (unless no password)
-// 2. Before unlock confirmation modal
 // 4. Before join new room lock or not
 // 5. Refresh button + interval + callback instead of page reload
 // 6. Reduce request amount (return new data from join)
 const Links = (props) => {
   let {globals, room, can_join} = props;
   let {inside, owns, is_locked, people} = room;
-  let {can_room, join, join_password, unlock, show_people} = globals;
+  let {can_room, join, join_password, try_unlock, show_people} = globals;
   let join_link = <a />;
   let show_people_link = <a />;
   if(can_room) {
@@ -22,7 +20,7 @@ const Links = (props) => {
     }
     if(owns) {
       if(is_locked) {
-        join_link = <a href="#" onClick={unlock}> Unlock </a>;
+        join_link = <a href="#" onClick={try_unlock}> Unlock </a>;
       } else {
         join_link = <a />;
       }
@@ -49,7 +47,7 @@ const Card = ({room, globals}) => {
     color = 'brown';
   }
   if(free_places < capacity) {
-    status = <p>Someone's already inside</p>;
+    status = <p>Occupied</p>;
   }
   if(!can_join) {
     status = <p>Cannot join</p>;
@@ -114,6 +112,21 @@ const SimpleModal = () => {
       <a href="#!" className=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
       </div>
     </div>
+  );
+};
+
+const UnlockModal = ({unlock}) => {
+  return (
+      <div>
+      <div className="modal-content">
+      <h4>Unlock room</h4>
+      <p>Unlocking room means anybody will be able to join.</p>
+      <p> Are you sure?</p>
+      </div>
+      <div className="modal-footer">
+      <a href="#!" onClick={unlock} className=" modal-action modal-close waves-effect waves-green btn-flat">Unlock</a>
+      </div>
+      </div>
   );
 };
 
@@ -206,7 +219,7 @@ class Main extends React.Component {
         this.refresh();
       }).catch((err) => {
         log.error(err);
-        Materialize.toast(err.responseJSON['status'], 4000);
+        Materialize.toast(err.responseJSON['status'], 4000, 'red darken-4');
       });
     };
   }
@@ -216,6 +229,10 @@ class Main extends React.Component {
       log.info('Room unlock', data);
       this.refresh();
     });
+  }
+
+  try_unlock() {
+    this.setState({'modal': {'type': 'unlock'}});
   }
 
   componentDidMount() {
@@ -238,6 +255,9 @@ class Main extends React.Component {
     if(modal) {
       let wrapped = <SimpleModal />;
       switch(modal.type) {
+      case 'unlock':
+        wrapped = <UnlockModal unlock={this.unlock.bind(this)} />;
+        break;
       case 'members':
         wrapped = <MembersModal args={modal.args}/>;
         break;
@@ -254,7 +274,7 @@ class Main extends React.Component {
     let {has_room, rooms, can_room, urls, csrf} = this.state;
     let globals = {can_room};
     globals.join = this.join.bind(this);
-    globals.unlock = this.unlock.bind(this);
+    globals.try_unlock = this.try_unlock.bind(this);
     globals.show_people = this.show_people.bind(this);
     globals.join_password = this.join_password.bind(this);
     let rooms_view = rooms.map((room) => { return(<Card key={room.id} room={room} globals={globals} />); });
