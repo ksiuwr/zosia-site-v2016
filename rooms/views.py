@@ -69,7 +69,7 @@ def status(request):
     rooms_view = []
     for r in rooms:
         d = room_to_dict(r)
-        d['owns'] = r.is_locked and r.lock.owns(request.user)
+        d['owns'] = r.is_locked and r.lock.owns(request.user) and r.lock.password
         d['people'] = list(map(user_to_dict, r.users.all()))
         d['inside'] = request.user.pk in map(lambda x: x.pk, r.users.all())
         rooms_view.append(d)

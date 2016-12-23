@@ -42,6 +42,7 @@
             <ul id="navie" class="side-nav">
                 <li><a href="{% url 'blog_index' %}">Blog</a></li>
                 {% if user.is_authenticated %}
+                  <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
                   <li><a href="{% url 'accounts_profile' %}">{% trans 'Profile' %}</a></li>
                   <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
                 {% else %}

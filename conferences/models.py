@@ -211,3 +211,6 @@ class UserPreferences(models.Model):
                         payment += self._price_for(g)
 
         return payment
+
+    def __str__(self):
+        return str(self.user) + " preferences"
