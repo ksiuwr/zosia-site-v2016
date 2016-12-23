@@ -48,8 +48,8 @@ def index(request):
 
     rooms = Room.objects.for_zosia(zosia).all()
     context = {
-        'rooms': rooms,
-        'rooms_json': json.dumps(list(map(room_to_dict, rooms))),
+        'rooms': sorted(rooms, key=lambda x: x.pk),
+        'rooms_json': json.dumps(list(sorted(map(room_to_dict, rooms), key=lambda x: x['id']))),
     }
     return render(request, 'rooms/index.html', context)
 
