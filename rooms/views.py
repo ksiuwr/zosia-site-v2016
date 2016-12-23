@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Zosia, UserPreferences
 from .models import Room, UserRoom
-from .serializers import room_to_dict
+from .serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -46,10 +46,12 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
-    rooms = Room.objects.for_zosia(zosia).all()
+    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = sorted(rooms, key=lambda x: x.pk)
+    rooms_json = json.dumps(list(map(room_to_dict, rooms)))
     context = {
-        'rooms': sorted(rooms, key=lambda x: x.pk),
-        'rooms_json': json.dumps(list(sorted(map(room_to_dict, rooms), key=lambda x: x['id']))),
+        'rooms': rooms,
+        'rooms_json': rooms_json,
     }
     return render(request, 'rooms/index.html', context)
 
@@ -63,12 +65,13 @@ def status(request):
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
     can_start_rooming = zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
-    rooms = Room.objects.for_zosia(zosia).all()
+    rooms = Room.objects.for_zosia(zosia).select_related('lock').prefetch_related('users').all()
     rooms_view = []
-    own_room = UserRoom.objects.filter(user=request.user, room__zosia=zosia).first()
     for r in rooms:
         d = room_to_dict(r)
-        d['owns'] = own_room and own_room.room.pk is r.pk
+        d['owns'] = r.is_locked and r.lock.owns(request.user)
+        d['people'] = list(map(user_to_dict, r.users.all()))
+        d['inside'] = request.user.pk in map(lambda x: x.pk, r.users.all())
         rooms_view.append(d)
 
     view = {

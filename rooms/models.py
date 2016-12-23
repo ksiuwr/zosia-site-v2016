@@ -71,9 +71,7 @@ class Room(models.Model):
                              blank=True,
                              null=True)
 
-    @property
-    def free_places(self):
-        return self.capacity - self.userroom_set.count()
+    users = models.ManyToManyField(User, through='UserRoom')
 
     @property
     def is_locked(self):

@@ -1,5 +1,4 @@
 // TODO:
-// 0. Show people in room button
 // 1. After join password modal (unless no password)
 // 2. Before unlock confirmation modal
 // 3. Before join new room modal (unless empty)
@@ -8,15 +7,18 @@
 // 6. Reduce request amount (return new data from join)
 const Links = (props) => {
   let {globals, room, can_join} = props;
-  let {owns, is_locked} = room;
-  let {can_room, join, unlock} = globals;
+  let {inside, owns, is_locked, people} = room;
+  let {can_room, join, unlock, show_people} = globals;
   let join_link = <a />;
+  let show_people_link = <a />;
   if(can_room) {
     if(can_join) {
       if(is_locked) {
         join_link = <a href="#"> Join with password </a>;
       } else {
-        join_link = <a onClick={join(room)} href="#"> Join </a>;
+        if(!inside) {
+          join_link = <a onClick={join(room)} href="#"> Join </a>;
+        }
       }
     }
     if(owns) {
@@ -27,15 +29,19 @@ const Links = (props) => {
       }
     }
   }
+  if(people && people.length > 0) {
+    show_people_link = <a href='#' onClick={show_people(room)}> Members</a>;
+  }
   return (
       <div className="card-action">
         {join_link}
+        {show_people_link}
       </div>
   );
 };
 
 const Card = ({room, globals}) => {
-  let {name, owns, free_places, description, capacity, is_locked, join} = room;
+  let {inside, name, owns, free_places, description, capacity, is_locked, join} = room;
   let can_join = free_places > 0;
   let color = 'blue-grey';
   if(is_locked) {
@@ -43,6 +49,9 @@ const Card = ({room, globals}) => {
   }
   if(!can_join) {
     color = 'grey';
+  }
+  if(inside) {
+    color = 'teal';
   }
   if(owns) {
     color = 'green';
@@ -61,27 +70,59 @@ const Card = ({room, globals}) => {
   );
 };
 
-class SimpleModal extends React.Component {
+class MaterializeCSSModal extends React.Component {
+  constructor(props) {
+    super(props);
+    let {close, children} = props;
+    this.close = close;
+    this.children = children;
+  }
+
   componentDidMount() {
-    let id = '#modal1';
-    $(id).modal();
+    let id = this.ref;
+    $(id).modal({
+      'complete': this.close
+    });
     $(id).modal('open');
   }
 
   render() {
     return (
-        <div id="modal1" className="modal">
-        <div className="modal-content">
-        <h4>Modal Header</h4>
-        <p>A bunch of text</p>
-        </div>
-        <div className="modal-footer">
-        <a href="#!" className=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
-        </div>
+        <div className="modal" ref={(ref) => {this.ref = ref;}}>
+          {this.children}
         </div>
     );
   };
 }
+
+const SimpleModal = () => {
+  return (
+    <div>
+      <div className="modal-content">
+      <h4>Modal Header</h4>
+      <p>A bunch of text</p>
+      </div>
+      <div className="modal-footer">
+      <a href="#!" className=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+      </div>
+    </div>
+  );
+};
+
+const Man = ({name}) => {
+  return <p>{name}</p>;
+};
+
+const MembersModal = ({args}) => {
+  let {people, name} = args;
+  let people_view = people.map(({name}, i) => { return <Man key={i} name={name} />;});
+  return (
+      <div className="modal-content">
+      <h4>Members of room {name}</h4>
+      {people_view}
+      </div>
+  );
+};
 
 class Main extends React.Component {
   constructor(props) {
@@ -108,8 +149,10 @@ class Main extends React.Component {
   shouldComponentUpdate(nextProps, nextState) {
     if(window.DeepDiff) {
       let delta = DeepDiff.diff(this.state, nextState);
-      log.debug('Change:');
-      delta.map((ch)=> { log.debug(ch.path, ch.kind, ch.rhs);});
+      if(delta) {
+        log.debug('Change:');
+        delta.map((ch)=> { log.debug(ch.path, ch.kind, ch.rhs);});
+      }
     } else {
       log.debug('State:', this.state);
     };
@@ -137,13 +180,25 @@ class Main extends React.Component {
     this.refresh();
   }
 
+  show_people(room) {
+    return () => {
+      this.setState({'modal': {'type': 'members', 'args': room }});
+    };
+  }
+
+  close_modal() {
+    this.setState({'modal': null});
+  }
+
   modal() {
     let modal = this.state.modal;
     if(modal) {
+      let wrapped = <SimpleModal />;
       switch(modal.type) {
-      case 'simple':
-        return <SimpleModal />;
+      case 'members':
+        wrapped = <MembersModal args={modal.args}/>;
       };
+      return <MaterializeCSSModal close={this.close_modal.bind(this)}> {wrapped} </MaterializeCSSModal>;
     };
     return <div />;
   }
@@ -153,6 +208,7 @@ class Main extends React.Component {
     let globals = {can_room};
     globals.join = this.join.bind(this);
     globals.unlock = this.unlock.bind(this);
+    globals.show_people = this.show_people.bind(this);
     let rooms_view = rooms.map((room) => { return(<Card key={room.id} room={room} globals={globals} />); });
     let modal = this.modal();
     return (
