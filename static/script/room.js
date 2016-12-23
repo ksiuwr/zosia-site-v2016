@@ -1,5 +1,4 @@
 // TODO:
-// 5. Refresh button + interval + callback instead of page reload
 // 6. Reduce request amount (return new data from join)
 const Links = (props) => {
   let {globals, room, can_join} = props;
@@ -175,6 +174,44 @@ const MembersModal = ({args}) => {
   );
 };
 
+class Notice extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      'hide': false
+    };
+  }
+
+  componentDidMount() {
+    $(this.ref).collapsible({
+      'onClose': () => { this.setState({'hide': true}); }
+    });
+  }
+
+  render () {
+    if(this.state.hide) {
+      return <div />;
+    }
+    return (
+        <div className="row">
+        <div className="col s10 m8 offset-s1 offset-m2 offset-l2">
+        <ul ref={(ref) => {this.ref = ref;}} className="collapsible" data-collapsible="accordion">
+        <li>
+        <div className="collapsible-header active">
+        <i className="material-icons">visibility_off</i>
+        Notice
+      </div>
+        <div className="collapsible-body"><p>
+        This page refreshes automatically every 60s
+      </p></div>
+        </li>
+        </ul>
+        </div>
+        </div>
+    );
+  }
+};
+
 class Main extends React.Component {
   constructor(props) {
     super(props);
@@ -191,6 +228,7 @@ class Main extends React.Component {
   }
 
   refresh() {
+    Materialize.toast('Refreshing..', 1000);
     $.getJSON(this.state.urls.status, (data) => {
       data.rooms = this.sortRooms(data.rooms);
       this.setState(data);
@@ -289,6 +327,7 @@ class Main extends React.Component {
     let modal = this.modal();
     return (
         <div>
+          <Notice />
           {modal}
           <div className="section flexbox center-items-horizontal full-height">
             <div className="container">
