@@ -95,7 +95,7 @@ class Zosia(models.Model):
     def is_rooming_open(self):
         return self.rooming_start <= datetime.now().date() <= self.rooming_end
 
-    def can_room(self, user):
+    def can_start_rooming(self, user):
         time_with_bonus = datetime.now() + timedelta(0, 3600*user.bonus_minutes)
         return user.payment_accepted and \
             time_with_bonus >= datetime.combine(self.rooming_start, datetime.min.time())

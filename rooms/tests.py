@@ -252,11 +252,11 @@ class StatusViewTestCase(RoomsViewTestCase):
         self.assertEqual(self.room_1.pk, room)
 
     def test_status_returns_can_room(self):
-        can = self.load_response()['can_room']
+        can = self.load_response()['can_start_rooming']
         self.assertEqual(can, True)
 
     def test_status_returns_can_room_false_before_user_rooming(self):
-        can = self.load_response(bonus_minutes=-60*24*2)['can_room']
+        can = self.load_response(bonus_minutes=-60*24*2)['can_start_rooming']
         self.assertEqual(can, False)
 
 

@@ -41,14 +41,14 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
-    can_room = zosia.can_room(preferences)
+    can_start_rooming = zosia.can_start_rooming(preferences)
     rooms = Room.objects.for_zosia(zosia).all()
     context = {
         'zosia': zosia,
         'is_registered':  preferences,
         'has_paid': paid,
         'rooming_open': rooming_open,
-        'can_room': can_room,
+        'can_start_rooming': can_start_rooming,
         'rooms': rooms,
     }
     return render(request, 'rooms/index.html', context)
@@ -64,7 +64,7 @@ def status(request):
     # Ajax
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
-    can_room = zosia.can_room(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
+    can_start_rooming = zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
     rooms = Room.objects.for_zosia(zosia).all()
     rooms_view = []
     for r in rooms:
@@ -74,7 +74,7 @@ def status(request):
         rooms_view.append(d)
 
     view = {
-        'can_room': can_room,
+        'can_start_rooming': can_start_rooming,
         'rooms': rooms_view,
     }
     own_room = UserRoom.objects.filter(user=request.user, room__zosia=zosia).first()
@@ -89,7 +89,7 @@ def join(request, room_id):
     zosia = get_object_or_404(Zosia, active=True)
     room = get_object_or_404(Room, zosia=zosia, pk=room_id)
     password = request.POST.get('password', '')
-    if not zosia.can_room(get_object_or_404(UserPreferences, zosia=zosia, user=request.user)):
+    if not zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user)):
         return JsonResponse({'error': 'cannot_room_yet'}, status=400)
 
     should_lock = request.POST.get('lock', True) in [True, 'True', '1', 'on', 'true']
