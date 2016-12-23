@@ -1,11 +1,11 @@
 // TODO:
-// 4. Before join new room lock or not
 // 5. Refresh button + interval + callback instead of page reload
 // 6. Reduce request amount (return new data from join)
 const Links = (props) => {
   let {globals, room, can_join} = props;
   let {inside, owns, is_locked, people} = room;
-  let {can_room, join, join_password, try_unlock, show_people} = globals;
+  let {can_room, join, join_password, join_unlock, try_unlock, show_people} = globals;
+  let has_people = people && people.length > 0;
   let join_link = <a />;
   let show_people_link = <a />;
   if(can_room) {
@@ -14,7 +14,11 @@ const Links = (props) => {
         join_link = <a href="#" onClick={join_password(room)}> Join </a>;
       } else {
         if(!inside) {
-          join_link = <a onClick={join(room)} href="#"> Join </a>;
+          if(has_people) {
+            join_link = <a onClick={join_unlock(room)} href="#"> Join </a>;
+          } else {
+            join_link = <a onClick={join(room)} href="#"> Join </a>;
+          }
         }
       }
     }
@@ -26,7 +30,7 @@ const Links = (props) => {
       }
     }
   }
-  if(people && people.length > 0) {
+  if(has_people) {
     show_people_link = <a href='#' onClick={show_people(room)}> Members</a>;
   }
   return (
@@ -133,7 +137,7 @@ const UnlockModal = ({unlock}) => {
 const PasswordModal = ({args, try_join}) => {
   let ref = null;
   let grab_input_and_try_join = () => {
-    let prepared = try_join(args, ref.value);
+    let prepared = try_join(args, {'password': ref.value});
     prepared();
   };
   return (
@@ -212,9 +216,12 @@ class Main extends React.Component {
     };
   }
 
-  join({join}, password) {
+  join({join}, opts) {
+    opts = opts || {};
+    let {password, lock} = opts;
     return () => {
-      $.post(join, {'csrfmiddlewaretoken': this.state.csrf, password}, (data) => {
+      log.debug('Joining', join, 'with', {password, lock});
+      $.post(join, {'csrfmiddlewaretoken': this.state.csrf, password, lock}, (data) => {
         log.info('Room join', data);
         this.refresh();
       }).catch((err) => {
@@ -277,6 +284,7 @@ class Main extends React.Component {
     globals.try_unlock = this.try_unlock.bind(this);
     globals.show_people = this.show_people.bind(this);
     globals.join_password = this.join_password.bind(this);
+    globals.join_unlock = (arg) => { return this.join(arg, {'lock': false}); };
     let rooms_view = rooms.map((room) => { return(<Card key={room.id} room={room} globals={globals} />); });
     let modal = this.modal();
     return (
