@@ -16,6 +16,8 @@
     "tests"
   ],
   "dependencies": {
-    "materialize": "^0.97.8"
+    "materialize": "^0.97.8",
+    "babel-standalone": "^6.19.0",
+    "react": "^15.4.1"
   }
 }

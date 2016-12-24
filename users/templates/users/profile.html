@@ -37,6 +37,13 @@
       <div class="row">
         <div class="col l6 m6 s6">{% trans "Payment accepted :)" %}</div>
       </div>
+      <div class="row">
+        <div class="col l6 m6 s6">
+        {% trans "You have" %}
+          {{ current_prefs.bonus_minutes|stringformat:"i" }}
+        {% trans " bonus minutes" %}.
+        </div>
+      </div>
     {% else %}
       <div class="row">
         <div class="col l6 m6 s6">{% trans "You should pay" %} <b>{{ current_prefs.price }}</b> zł to</div>

@@ -1,67 +1,32 @@
 import os
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 
-from django.test import TestCase
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
-from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 from users.models import Organization
-from .models import Zosia, Place, UserPreferences, Bus
-from .forms import UserPreferencesForm
 
+from .forms import UserPreferencesForm
+from .models import Bus, Place, UserPreferences, Zosia
+from .test_helpers import (PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
+                           PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
+                           new_bus, new_user, new_zosia, user_preferences)
 
 User = get_user_model()
 
 
-# NOTE: Using powers of 2 makes it easier to test if sums are precise
-PRICE_ACCOMODATION = 1 << 1
-PRICE_BREAKFAST = 1 << 2
-PRICE_DINNER = 1 << 3
-PRICE_BASE = 1 << 4
-PRICE_TRANSPORT = 1 << 5
-PRICE_BONUS = 1 << 6
-
-
-def new_zosia(**kwargs):
-    now = datetime.now() + timedelta(1)
-    place, _ = Place.objects.get_or_create(
-        name='Mieszko',
-        address='FooBar@Katowice'
-    )
-    defaults = {
-        'active': False,
-        'start_date': now,
-        'place': place,
-        'registration_start': now,
-        'registration_end': now,
-        'rooming_start': now,
-        'rooming_end': now,
-        'lecture_registration_start': now,
-        'lecture_registration_end': now,
-        'price_accomodation': PRICE_ACCOMODATION,
-        'price_accomodation_breakfast': PRICE_BREAKFAST,
-        'price_accomodation_dinner': PRICE_DINNER,
-        'price_whole_day': PRICE_BONUS,
-        'price_base': PRICE_BASE,
-        'price_transport': PRICE_TRANSPORT,
-        'account_number': '',
-    }
-    defaults.update(kwargs)
-    return Zosia(**defaults)
-
-
 class ZosiaTestCase(TestCase):
     def setUp(self):
-        new_zosia().save()
+        new_zosia()
         self.active = new_zosia(active=True)
-        self.active.save()
-        new_zosia().save()
+        new_zosia()
 
     def test_only_one_active_Zosia_can_exist(self):
         """Creating another active Zosia throws an error"""
         with self.assertRaises(ValidationError):
-            new_zosia(active=True).full_clean()
+            new_zosia(active=True, commit=False).full_clean()
 
     def test_find_active(self):
         """Zosia.find_active returns active Zosia"""
@@ -71,27 +36,35 @@ class ZosiaTestCase(TestCase):
         """Zosia has 4 days"""
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
 
+    def test_can_start_rooming(self):
+        self.active.rooming_start = datetime.now()
+        self.active.save()
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0), zosia=self.active)
+        self.assertTrue(self.active.can_start_rooming(user_prefs))
+
+    def test_can_start_rooming(self):
+        self.active.rooming_start = datetime(2016, 12, 23)
+        self.active.save()
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0), zosia=self.active)
+        self.assertFalse(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+
+    def test_can_start_rooming(self):
+        self.active.rooming_start = datetime(2016, 12, 23)
+        self.active.save()
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0), zosia=self.active)
+        self.assertTrue(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+
 
 class BusTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
-
-        self.normal2 = User.objects.create_user('ringo', 'starr@thebeatles.com',
-                                                'ringopassword')
-        self.normal2.save()
-
+        self.normal = new_user(0)
+        self.normal2 = new_user(1)
         self.zosia = new_zosia()
-        self.zosia.save()
 
-        self.bus1 = Bus(zosia=self.zosia, capacity=0, time=time(1))
-        self.bus1.save()
-        self.bus2 = Bus(zosia=self.zosia, capacity=1, time=time(2))
-        self.bus2.save()
-        self.bus3 = Bus(zosia=self.zosia, capacity=2, time=time(3))
-        self.bus3.save()
+        self.bus1 = new_bus(zosia=self.zosia, capacity=0)
+        self.bus2 = new_bus(zosia=self.zosia, capacity=1)
+        self.bus3 = new_bus(zosia=self.zosia, capacity=2)
 
     def test_find_buses_with_free_places(self):
         buses = Bus.objects.find_with_free_places(self.zosia)
@@ -109,12 +82,8 @@ class BusTestCase(TestCase):
 class UserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
-
+        self.normal = new_user(0)
         self.zosia = new_zosia()
-        self.zosia.save()
 
     def makeUserPrefs(self, **override):
         defaults = {
@@ -203,13 +172,8 @@ class UserPreferencesFormTestCase(TestCase):
 class RegisterViewTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
-
+        self.normal = new_user(0)
         self.zosia = new_zosia()
-        self.zosia.save()
-
         self.url = reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk})
 
     def test_get_no_user(self):

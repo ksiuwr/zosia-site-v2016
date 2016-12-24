@@ -1,11 +1,12 @@
+from datetime import datetime, timedelta
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
-from django.core.exceptions import ValidationError
-from datetime import timedelta
 
-from users.models import User, Organization
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from users.models import Organization, User
 
 
 class Place(models.Model):
@@ -91,6 +92,15 @@ class Zosia(models.Model):
     def __str__(self):
         return 'Zosia {}'.format(self.start_date.year)
 
+    @property
+    def is_rooming_open(self):
+        return self.rooming_start <= datetime.now().date() <= self.rooming_end
+
+    def can_start_rooming(self, user, now=datetime.now()):
+        time_with_bonus = now + timedelta(0, 60*user.bonus_minutes)
+        return user.payment_accepted and \
+            time_with_bonus >= datetime.combine(self.rooming_start, datetime.min.time())
+
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None
         # So this query will take all active objects from db
@@ -123,8 +133,10 @@ class Bus(models.Model):
 class UserPreferences(models.Model):
     user = models.ForeignKey(User)
     zosia = models.ForeignKey(Zosia)
-    organization = models.ForeignKey(Organization, null=True, blank=True)
-    bus = models.ForeignKey(Bus, null=True, blank=True)
+    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+    # NOTE: Deleting bus will render some payment information inaccessible
+    # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
+    bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL)
 
     # Day 1 (Coming)
     accomodation_day_1 = models.BooleanField(default=False)
