@@ -1,14 +1,12 @@
+from datetime import datetime, timedelta
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
-from django.core.exceptions import ValidationError
-from datetime import (
-    datetime,
-    timedelta
-)
 
-from users.models import User, Organization
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from users.models import Organization, User
 
 
 class Place(models.Model):

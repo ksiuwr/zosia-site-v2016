@@ -1,26 +1,18 @@
 import os
-from datetime import datetime, timedelta, time
+from datetime import datetime, time, timedelta
 
-from django.test import TestCase
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
-from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 from users.models import Organization
-from .models import Zosia, Place, UserPreferences, Bus
+
 from .forms import UserPreferencesForm
-from .test_helpers import (
-    new_zosia,
-    new_user,
-    new_bus,
-    user_preferences,
-    PRICE_ACCOMODATION,
-    PRICE_BASE,
-    PRICE_BONUS,
-    PRICE_BREAKFAST,
-    PRICE_DINNER,
-    PRICE_TRANSPORT
-)
+from .models import Bus, Place, UserPreferences, Zosia
+from .test_helpers import (PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
+                           PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
+                           new_bus, new_user, new_zosia, user_preferences)
 
 User = get_user_model()
 
