@@ -15,21 +15,24 @@ def random_string(length=10):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
-class RoomLock(models.Model):
+class RoomLockManager(models.Manager):
     # 3 hours
     TIMEOUT = timedelta(0, 3*3600)
+
+    def make(self, user, expiration=None):
+        expiration = expiration or self.TIMEOUT
+        return self.create(user=user,
+                           password=random_string(4),
+                           expiration_date=timezone.now() + expiration)
+
+
+class RoomLock(models.Model):
+    objects = RoomLockManager()
 
     expiration_date = models.DateTimeField()
     password = models.CharField(max_length=4)
 
     user = models.ForeignKey(User)
-
-    @classmethod
-    def make(cls, user, expiration=None):
-        expiration = expiration or cls.TIMEOUT
-        return cls.objects.create(user=user,
-                                  password=random_string(4),
-                                  expiration_date=timezone.now() + expiration)
 
     @property
     def is_expired(self):
@@ -103,7 +106,7 @@ class Room(models.Model):
         owner_lock = None
         if lock:
             if not self.lock or self.lock.is_expired:
-                owner_lock = RoomLock.make(user, expiration=expiration)
+                owner_lock = RoomLock.objects.make(user, expiration=expiration)
                 self.lock = owner_lock
 
         self.save()
