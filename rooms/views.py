@@ -21,13 +21,15 @@ from .models import Room, UserRoom
 @require_http_methods(['GET'])
 def index(request):
     # Return HTML w/ rooms layout
-    zosia = Zosia.objects.find_active()
-    if not zosia:
+    try:
+        zosia = Zosia.objects.get(active=True)
+    except Zosia.DoesNotExist:
         messages.error(request, _('There is no active conference'))
         return redirect(reverse('index'))
 
-    preferences = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
-    if not preferences:
+    try:
+        preferences = UserPreferences.objects.get(zosia=zosia, user=request.user)
+    except UserPreferences.DoesNotExist:
         messages.error(request, _('Please register first'))
         return redirect(reverse('user_zosia_register', kwargs={'zosia_id': zosia.pk}))
 
