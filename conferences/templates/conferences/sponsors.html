@@ -1,0 +1,19 @@
+{% load i18n %}
+{% load static %}
+
+<div id="sponsors" class="bg-white light-green-text text-darken-3">
+    <div class="container">
+        <div class="row">
+            <div class="col l12 s12 m12">
+                <h3>{% trans "Sponsors" %}</h3>
+            </div>
+        </div>
+        <div class="row">
+            {% for sponsor in sponsors %}
+                <div class="col l6 m6 s12">
+                    <img src="{{ sponsor.logo.url }}" alt="{{ sponsor }}" width="100%"/>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

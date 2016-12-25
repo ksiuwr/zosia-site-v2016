@@ -10,6 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from .models import Zosia, UserPreferences
 from .forms import UserPreferencesForm
+from sponsors.models import Sponsor
 
 
 GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
@@ -18,8 +19,10 @@ GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 @require_http_methods(['GET'])
 def index(request):
     zosia = Zosia.objects.find_active()
+    sponsors = Sponsor.objects.filter(is_active=True)
     context = {
         'zosia': zosia,
+        'sponsors': sponsors
     }
     if zosia:
         query = {
