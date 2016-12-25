@@ -4,6 +4,7 @@
 {% if user.is_authenticated %}
 <ul id="logged" class="dropdown-content">
     <li><a href="{% url 'accounts_profile' %}">{% trans "Profile" %}</a></li>
+    <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
     {% if user.is_staff %}
     <li class="divider"></li>
     <li><a href="{% url 'blog_create' %}">{% trans "Add blog post" %}</a></li>
@@ -48,6 +49,12 @@
             </li>
             {% if user.is_staff %}
             <li class="divider"></li>
+            <li>
+                <a href="{% url 'rooms_index' %}">
+                    <i class="fa fa-bed" aria-hidden="true"></i>
+                    {% trans 'Rooms' %}
+                </a>
+            </li>
             <li><a href="{% url 'blog_create' %}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
                 {% trans "Add blog post" %}
