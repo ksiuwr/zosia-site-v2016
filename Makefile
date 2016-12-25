@@ -4,7 +4,7 @@ test:
 
 
 deps: static/bower.json static/script/room.js
-	cd static && ../node_modules/.bin/bower install
+	npm run deps
 	npm run build
 
 .PHONY: test deps
