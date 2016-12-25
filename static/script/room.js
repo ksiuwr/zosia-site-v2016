@@ -1,13 +1,35 @@
 // TODO:
 // 6. Reduce request amount (return new data from join)
+class MembersTooltip extends React.Component {
+  constructor(props) {
+    super(props);
+    let {room, onClick} = props;
+    this.onClick=onClick;
+    this.members = room.people;
+  }
+
+  componentDidMount() {
+    $(this.ref).tooltip({'delay': 50});
+  }
+
+  render() {
+    let members_view = _(this.members).pluck('name').join();
+    if(members_view.length > 20) {
+      members_view = _(members_view).first(17).join('') + '...';
+    }
+    return (<a href='#' ref={(ref) => {this.ref=ref;}} className="tooltipped"
+            data-tooltip={members_view} onClick={this.onClick}>Members</a>);
+  }
+}
+
 const Links = (props) => {
   let {globals, room, can_join} = props;
   let {inside, owns, is_locked, people} = room;
-  let {can_room, join, join_password, join_unlock, try_unlock, show_people} = globals;
+  let {can_start_rooming, join, join_password, join_unlock, try_unlock, show_people} = globals;
   let has_people = people && people.length > 0;
   let join_link = <a />;
   let show_people_link = <a />;
-  if(can_room) {
+  if(can_start_rooming) {
     if(can_join) {
       if(is_locked) {
         join_link = <a href="#" onClick={join_password(room)}> Join </a>;
@@ -30,7 +52,7 @@ const Links = (props) => {
     }
   }
   if(has_people) {
-    show_people_link = <a href='#' onClick={show_people(room)}> Members</a>;
+    show_people_link = <MembersTooltip room={room} onClick={show_people(room)} />;
   }
   return (
       <div className="card-action">
@@ -221,6 +243,7 @@ class Main extends React.Component {
       csrf,
       urls
     };
+    log.debug('State:', this.state);
   }
 
   sortRooms(rooms) {
@@ -316,8 +339,8 @@ class Main extends React.Component {
   }
 
   render () {
-    let {has_room, rooms, can_room, urls, csrf} = this.state;
-    let globals = {can_room};
+    let {has_room, rooms, can_start_rooming, urls, csrf} = this.state;
+    let globals = {can_start_rooming};
     globals.join = this.join.bind(this);
     globals.try_unlock = this.try_unlock.bind(this);
     globals.show_people = this.show_people.bind(this);
