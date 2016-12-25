@@ -363,3 +363,13 @@ class Main extends React.Component {
     );
   };
 }
+
+const init = (globals, rooms, csrf_token, urls) => {
+  let {ReactDOM} = globals;
+  ReactDOM.render(
+      <Main rooms={rooms} csrf={csrf_token} urls={urls} />,
+    document.getElementById('react-root')
+  );
+};
+
+window.Init = init;

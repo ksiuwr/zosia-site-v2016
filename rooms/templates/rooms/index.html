@@ -40,16 +40,16 @@
 <script type="text/javascript">
 log.setLevel('debug');
 </script>
+<script type="text/jsx" src="{% static 'script/room.js' %}"></script>
 {% else %}
 <script type="text/javascript" src="{% static 'bower_components/react/react.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/react/react-dom.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bower_components/babel-standalone/babel.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/loglevel/dist/loglevel.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'script/room.min.js' %}"></script>
 {% endif %}
 {% endcache %}
-<script type="text/jsx" src="{% static 'script/room.js' %}"></script>
-<script type="text/jsx">
+<script type="text/javascript">
 {% autoescape off %}
 var rooms = {{ rooms_json }};
 var csrf_token = '{{ csrf_token }}';
@@ -58,11 +58,11 @@ var urls = {
   'unlock': '{% url 'rooms_unlock' %}'
 };
 {% endautoescape %}
-$(document).ready(function() {
-   ReactDOM.render(
-     <Main rooms={rooms} csrf={csrf_token} urls={urls} />,
-     document.getElementById('react-root')
-   );
+ $(document).ready(function() {
+  var globals = {
+    'ReactDOM': ReactDOM
+  };
+  window.Init(globals, rooms, csrf_token, urls);
 });
 </script>
 {% endblock custom_scripts %}
