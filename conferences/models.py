@@ -115,7 +115,8 @@ class Zosia(models.Model):
             )
         super(Zosia, self).validate_unique(**kwargs)
 
-    def lectures_open(self):
+    @property
+    def is_lectures_open(self):
         now = datetime.now().date()
         return self.lecture_registration_start <= now <= self.lecture_registration_start
 
