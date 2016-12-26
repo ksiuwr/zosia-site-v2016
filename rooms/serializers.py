@@ -13,7 +13,7 @@ def room_to_dict(room):
 
 def user_to_dict(user):
     name = user.username
-    if user.first_name or user.last_name:
+    if user.first_name and user.last_name:
         name = "{} {}".format(user.first_name, user.last_name)
     dic = {
         'name': name
