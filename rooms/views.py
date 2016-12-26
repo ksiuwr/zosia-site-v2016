@@ -67,12 +67,12 @@ def status(request):
     can_start_rooming = zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
     rooms = Room.objects.for_zosia(zosia).select_related('lock').prefetch_related('users').all()
     rooms_view = []
-    for r in rooms:
-        d = room_to_dict(r)
-        d['owns'] = r.is_locked and r.lock.owns(request.user) and r.lock.password
-        d['people'] = list(map(user_to_dict, r.users.all()))
-        d['inside'] = request.user.pk in map(lambda x: x.pk, r.users.all())
-        rooms_view.append(d)
+    for room in rooms:
+        dic = room_to_dict(room)
+        dic['owns'] = room.is_locked and room.lock.owns(request.user) and room.lock.password
+        dic['people'] = list(map(user_to_dict, room.users.all()))
+        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.users.all())
+        rooms_view.append(dic)
 
     view = {
         'can_start_rooming': can_start_rooming,
