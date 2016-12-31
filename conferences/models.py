@@ -176,8 +176,8 @@ class UserPreferences(models.Model):
     # Set by admin after checking payment
     payment_accepted = models.BooleanField(default=False)
 
-    shirt_size = models.CharField(max_length=5, choices=SHIRT_SIZE_CHOICES, default=SHIRT_SIZE_CHOICES[0])
-    shirt_type = models.CharField(max_length=1, choices=SHIRT_TYPES_CHOICES, default=SHIRT_TYPES_CHOICES[0])
+    shirt_size = models.CharField(max_length=5, choices=SHIRT_SIZE_CHOICES, default=SHIRT_SIZE_CHOICES[0][0])
+    shirt_type = models.CharField(max_length=1, choices=SHIRT_TYPES_CHOICES, default=SHIRT_TYPES_CHOICES[0][0])
 
     # Assigned by admin for various reasons (early registration / payment, help, etc)
     # Should allow some users to book room earlier
