@@ -145,6 +145,9 @@ class ViewsTestCase(SponsorTestCase):
         self.client.login(username='paul', password='paulpassword')
         sponsor = Sponsor(name='foo', url='http://google.com', logo=self.image)
         sponsor.save()
+        self.assertFalse(sponsor.is_active)
         response = self.client.post(reverse('sponsors_toggle_active'),
                                     {'key': sponsor.id}, follow=True)
+        sponsor.refresh_from_db()
         self.assertEqual(response.status_code, 200)
+        self.assertTrue(sponsor.is_active)

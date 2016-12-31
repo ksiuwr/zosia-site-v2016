@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^rooms/', include('rooms.urls')),
     url(r'^blog/', include('blog.urls')),
     url(r'^sponsors/', include('sponsors.urls')),
+    url(r'^lectures/', include('lectures.urls')),
 ]

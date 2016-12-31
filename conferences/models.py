@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ValidationError
 
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
@@ -113,6 +114,11 @@ class Zosia(models.Model):
                 _(u'Only one Zosia may be active at any given time')
             )
         super(Zosia, self).validate_unique(**kwargs)
+
+    @property
+    def is_lectures_open(self):
+        now = datetime.now().date()
+        return self.lecture_registration_start <= now <= self.lecture_registration_start
 
 
 class BusManager(models.Manager):
