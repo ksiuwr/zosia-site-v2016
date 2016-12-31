@@ -71,9 +71,7 @@ class Room(models.Model):
                              blank=True,
                              null=True)
 
-    @property
-    def free_places(self):
-        return self.capacity - self.userroom_set.count()
+    users = models.ManyToManyField(User, through='UserRoom')
 
     @property
     def is_locked(self):
@@ -115,7 +113,7 @@ class Room(models.Model):
     @transaction.atomic
     def unlock(self, user):
         if self.is_locked and self.lock.owns(user):
-            self.lock.delete()
+            return self.lock.delete()
 
     def __str__(self):
         return 'Room ' + self.name

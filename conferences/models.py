@@ -30,6 +30,10 @@ class ZosiaManager(models.Manager):
 
 # NOTE: Zosia has 4 days. Period.
 class Zosia(models.Model):
+    class Meta:
+        verbose_name = 'Conference'
+        verbose_name_plural = 'Conferences'
+
     objects = ZosiaManager()
 
     start_date = models.DateField(
@@ -120,6 +124,8 @@ class BusManager(models.Manager):
 
 
 class Bus(models.Model):
+    class Meta:
+        verbose_name_plural = 'Buses'
     objects = BusManager()
 
     zosia = models.ForeignKey(Zosia)
@@ -131,6 +137,8 @@ class Bus(models.Model):
 
 
 class UserPreferences(models.Model):
+    class Meta:
+        verbose_name_plural = 'Users preferences'
     user = models.ForeignKey(User)
     zosia = models.ForeignKey(Zosia)
     organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
@@ -211,3 +219,6 @@ class UserPreferences(models.Model):
                         payment += self._price_for(g)
 
         return payment
+
+    def __str__(self):
+        return str(self.user) + " preferences"

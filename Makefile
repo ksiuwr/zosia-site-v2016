@@ -3,7 +3,8 @@ test:
 	python ./manage.py test --settings=zosia16.settings.test
 
 
-deps: static/bower.json
-	cd static && ../node_modules/.bin/bower install
+deps: static/bower.json static/script/room.js
+	npm run deps
+	npm run build
 
 .PHONY: test deps

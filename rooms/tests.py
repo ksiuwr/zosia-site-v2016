@@ -248,7 +248,8 @@ class StatusViewTestCase(RoomsViewTestCase):
 
     def test_status_returns_own_room(self):
         self.room_1.join(self.normal_1)
-        room = self.load_response()['owns']
+        rooms = self.load_response()['rooms']
+        room = list(filter(lambda x: x['owns'], rooms))[0]['id']
         self.assertEqual(self.room_1.pk, room)
 
     def test_status_returns_can_room(self):

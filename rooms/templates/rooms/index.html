@@ -1,38 +1,68 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% load cache %}
 
 {% block content %}
-<div class="section flexbox center-items-horizontal full-height">
-  <div class="container">
-    <div class="row" id="react-root">
-      {% for r in rooms %}
-      <div class="col s6 m4">
-        <div class="card blue-grey darken-1">
-          <div class="card-content white-text">
-            <span class="card-title">{{ r }}</span>
-            <p>{{ r.description }}</p>
-            <p> ? / {{ r.capacity }}</p>
+<div id="react-root">
+  <div class="section flexbox center-items-horizontal full-height">
+    <div class="container">
+      <div class="row">
+        {% for r in rooms %}
+        <div class="col s6 m4">
+          <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+              <span class="card-title">{{ r }}</span>
+              <p>{{ r.description }}</p>
+              <p> ? / {{ r.capacity }}</p>
+            </div>
+          <div class="card-action">
+            <a />
+          </div>
           </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
   </div>
 </div>
 {% endblock %}
 
 {% block custom_scripts %}
+{% cache 600 rooms_scripts %}
+{% if debug %}
+<script type="text/javascript" src="{% static 'bower_components/react/react.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/react/react-dom.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/babel-standalone/babel.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/underscore/underscore.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/loglevel/dist/loglevel.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/deep-diff/releases/deep-diff-debug.min.js' %}"></script>
+<script type="text/javascript">
+log.setLevel('debug');
+</script>
+<script type="text/jsx" src="{% static 'script/room.js' %}"></script>
+{% else %}
 <script type="text/javascript" src="{% static 'bower_components/react/react.min.js' %}"></script>
 <script type="text/javascript" src="{% static 'bower_components/react/react-dom.min.js' %}"></script>
-<script type="text/javascript" src="{% static 'bower_components/babel-standalone/babel.min.js' %}"></script>
-<script type="text/jsx" src="{% static 'script/room.js' %}"></script>
-<script type="text/jsx">
-$(document).ready(function() {
-   ReactDOM.render(
-     <h1>Hello, world!</h1>,
-     document.getElementById('react-root')
-   );
+<script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
+<script type="text/javascript" src="{% static 'bower_components/loglevel/dist/loglevel.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'script/room.min.js' %}"></script>
+{% endif %}
+{% endcache %}
+<script type="text/javascript">
+{% autoescape off %}
+var rooms = {{ rooms_json }};
+var csrf_token = '{{ csrf_token }}';
+var urls = {
+  'status': '{% url 'rooms_status' %}',
+  'unlock': '{% url 'rooms_unlock' %}'
+};
+{% endautoescape %}
+ $(document).ready(function() {
+  var globals = {
+    'ReactDOM': ReactDOM
+  };
+  window.Init(globals, rooms, csrf_token, urls);
 });
 </script>
 {% endblock custom_scripts %}

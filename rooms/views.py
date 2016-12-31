@@ -1,3 +1,5 @@
+import json
+
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
@@ -12,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Zosia, UserPreferences
 from .models import Room, UserRoom
+from .serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -43,23 +46,18 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
-    can_start_rooming = zosia.can_start_rooming(preferences)
-    rooms = Room.objects.for_zosia(zosia).all()
+    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = sorted(rooms, key=lambda x: x.pk)
+    rooms_json = json.dumps(list(map(room_to_dict, rooms)))
     context = {
-        'zosia': zosia,
-        'is_registered':  preferences,
-        'has_paid': paid,
-        'rooming_open': rooming_open,
-        'can_start_rooming': can_start_rooming,
         'rooms': rooms,
+        'rooms_json': rooms_json,
     }
     return render(request, 'rooms/index.html', context)
 
 
 # GET
-# Don't cache (1min)
 @vary_on_cookie
-@cache_page(60)
 @login_required
 @require_http_methods(['GET'])
 def status(request):
@@ -67,21 +65,19 @@ def status(request):
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
     can_start_rooming = zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
-    rooms = Room.objects.for_zosia(zosia).all()
+    rooms = Room.objects.for_zosia(zosia).select_related('lock').prefetch_related('users').all()
     rooms_view = []
-    for r in rooms:
-        d = model_to_dict(r)
-        d['free_places'] = r.free_places
-        d['is_locked'] = r.is_locked
-        rooms_view.append(d)
+    for room in rooms:
+        dic = room_to_dict(room)
+        dic['owns'] = room.is_locked and room.lock.owns(request.user) and room.lock.password
+        dic['people'] = list(map(user_to_dict, room.users.all()))
+        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.users.all())
+        rooms_view.append(dic)
 
     view = {
         'can_start_rooming': can_start_rooming,
         'rooms': rooms_view,
     }
-    own_room = UserRoom.objects.filter(user=request.user, room__zosia=zosia).first()
-    if own_room:
-        view['owns'] = model_to_dict(own_room)['room']
     return JsonResponse(view)
 
 
