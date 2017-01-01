@@ -37,6 +37,15 @@
     <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bower_components/materialize/dist/js/materialize.min.js' %}"></script>
 
+    <!-- MESSAGES -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+            {% for message in messages %}
+            Materialize.toast('{{ message }}', 4000);
+            {% endfor %}
+        });
+    </script>
+
     {% block custom_scripts %}
     {% endblock %}
     <script type="text/javascript" src="{% static 'script/main.js' %}"></script>
