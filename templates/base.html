@@ -12,6 +12,7 @@
     <!-- CSS -->
     <link type="text/css" rel="stylesheet" href="{% static 'bower_components/materialize/dist/css/materialize.min.css' %}"  media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="{% static 'css/main.css' %}"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/navbar.css' %}" media="screen,projection" />
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'imgs/favicon-32x32.png' %}">
@@ -23,58 +24,7 @@
 </head>
 <body>
     {% block navbar %}
-    <nav>
-        <div class="nav-wrapper container">
-            <a href="{% url 'index' %}" class="brand-logo">
-                <img src="{% static 'imgs/zosia.png' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
-            </a>
-            <ul class="right hide-on-med-and-down">
-                <li><a href="{% url 'blog_index' %}">Blog</a></li>
-                <li><a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a></li>
-                <li><a href="{% url 'lectures_schedule' %}">{% trans "Schedule" %}</a></li>
-                {% if user.is_authenticated %}
-                  <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
-                  <li><a href="{% url 'accounts_profile' %}">{% trans 'Profile' %}</a></li>
-                  <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
-                {% else %}
-                  <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
-                  <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
-                {% endif %}
-                {% if user.is_staff %}
-                <li><a class="dropdown-button" href="#" data-activates='dropdown1'>{% trans "Admin" %}</a></li>
-                {% endif %}
-            </ul>
-            {% if user.is_staff %}
-            <ul id='dropdown1' class='dropdown-content'>
-                <li><a href="{% url 'blog_create' %}">{% trans "Add post" %}</a></li>
-                <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
-                <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
-                <li><a href="{% url 'lectures_schedule_add' %}">{% trans "Update schedule" %}</a></li>
-            </ul>
-            {% endif %}
-            <ul id="navie" class="side-nav">
-                <li><a href="{% url 'blog_index' %}">Blog</a></li>
-                <li><a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a></li>
-                <li><a href="{% url 'lectures_schedule' %}">{% trans "Schedule" %}</a></li>
-                {% if user.is_authenticated %}
-                  <li><a href="{% url 'lectures_add' %}">{% trans "Add lecture" %}</a></li>
-                  <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
-                  <li><a href="{% url 'accounts_profile' %}">{% trans 'Profile' %}</a></li>
-                  <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
-                {% else %}
-                  <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
-                  <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
-                {% endif %}
-                {% if user.is_staff %}
-                <li><a href="{% url 'blog_create' %}">{% trans "Add post" %}</a></li>
-                <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
-                <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
-                <li><a href="{% url 'lectures_schedule_add' %}">{% trans "Update schedule" %}</a></li>
-                {% endif %}
-            </ul>
-            <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>
-        </div>
-    </nav>
+        {% include "navbar.html" %}
     {% endblock %}
     <main>
     {% block content %}
@@ -86,6 +36,15 @@
     <!--Import jQuery before materialize.js-->
     <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bower_components/materialize/dist/js/materialize.min.js' %}"></script>
+
+    <!-- MESSAGES -->
+    <script type="text/javascript">
+        $(document).ready(function(){
+            {% for message in messages %}
+            Materialize.toast('{{ message }}', 4000);
+            {% endfor %}
+        });
+    </script>
 
     {% block custom_scripts %}
     {% endblock %}

@@ -5,66 +5,23 @@
     dark grey: #3F3F3F
     green: #818464
     beige: #FBF3E5
+
+
+    New palette:
+    almost white: #EAECEB
+    gray: #A0A8A4
+    light green: #546A60
+    dark green: #163E2A
 */
 
-.text-green {
-    color: #818464;
-}
+/** BODY **/
 
-.text-light-gray {
-    color: #D9DCDB;
-}
-
-.text-dark-gray{
-    color: #3F3F3F;
-}
-
-.bg-beige {
-    padding: 20px;
-    background-color: #818464;
-}
-
-.bg-salmon {
-    padding: 20px;
-    background-color: #E4AE85;
-}
-
-.bg-dark-gray{
-    background-color: #3F3F3F;
-    color: #D9DCDB;
-    padding: 20px;
-}
-
-nav {
-    background-color: #FBF3E5;
-}
-
-nav ul a {
-    color: #3F3f3F;
-}
-
-nav ul a:hover {
-    color: #9a9a9a;
-}
-
-#index-banner{
-    width: 100%;
-    height: 200px;
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-attachment: fixed;
-}
-
-footer.page-footer {
-    background-color: #818464;
-    margin-top: 0;
-}
 
 body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
-    background-color: #FBF3E5;
+    background-color: #EAECEB;
 }
 
 main {
@@ -72,15 +29,20 @@ main {
     margin-bottom: 0;
   }
 
+ /** HELPERS **/
+.dates {
+    margin-top: 2%;
+    margin-bottom: 2%
+}
 
-.flexbox {
-    display: flex;
+footer.page-footer {
+    background-color: #546A60;
+    margin-top: 0;
 }
 
 
-.center-items-horizontal {
-    align-items: center;
-    justify-content: center;
+.flexbox {
+    display: flex;
 }
 
 .full-height {
@@ -99,13 +61,6 @@ main {
     display: inline-table;
 }
 
-.logo {
-    background-color: white;
-    border-radius: 15px;
-    padding: 10px;
-    height: 80px;
-}
-
 .error-modal {
     background-color: rgba(255, 0, 0, 0.48);
     border-radius: 15px;
@@ -116,15 +71,6 @@ main {
     border-radius: 15px;
 }
 
-nav {
-    box-shadow: none;
-    height: 70px;
-    border-bottom: 1px #3F3F3F solid;
-}
-
-.button-collapse {
-    color: #3F3F3F;
-}
 
 .text-danger {
     background-color: rgba(255, 0, 0, 0.48);
@@ -138,24 +84,68 @@ nav {
     padding: 1px;
     margin: 2px;
 }
+
+/** NEW **/
+
+.button-collapse {
+    color: #A0A8A4;
+}
+
+.bg-transparent {
+    padding: 20px;
+}
+
+.bg-light-green {
+    padding: 20px;
+    background-color: #546A60;
+}
+
+.bg-light-green a {
+    color:inherit;
+}
+
+.bg-white {
+    background-color: #ffffff;
+    padding: 20px;
+}
+
+.text-large {
+    font-size: large;
+}
+
+/** INDEX PAGE **/
+
+#index-banner{
+    width: 100%;
+    height: 200px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.center-items-horizontal {
+    align-items: center;
+    justify-content: center;
+}
+
 /*      MEDIA DEFINTION         */
 
 
 @media screen and (min-width: 2881px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature4896x3264.jpg");
+        background-image: url("../imgs/pexels-photo-117370.jpg");
     }
 }
 
 @media screen and (max-width: 2880px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature2880x1920.jpg");
+        background-image: url("../imgs/pexels-photo-117370.jpg");
     }
 }
 
 @media screen and (max-width: 1600px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature1600x1067.jpg");
+        background-image: url("../imgs/pexels-photo-117370.jpg");
     }
 }
 
