@@ -85,6 +85,20 @@ footer.page-footer {
     margin: 2px;
 }
 
+
+/** MESSAGES CLASSES **/
+.success {
+    color: #1de9b6;
+}
+
+.error {
+    color: #ff8a80;
+}
+
+.warning {
+    color: #ffd740;
+}
+
 /** NEW **/
 
 .button-collapse {
