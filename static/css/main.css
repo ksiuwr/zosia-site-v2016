@@ -147,19 +147,19 @@ footer.page-footer {
 
 @media screen and (min-width: 2881px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-117370.jpg");
+        background-image: url("../imgs/pexels-photo-4896x3264.jpeg");
     }
 }
 
 @media screen and (max-width: 2880px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-117370.jpg");
+        background-image: url("../imgs/pexels-photo-2880x1920.jpeg");
     }
 }
 
 @media screen and (max-width: 1600px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-117370.jpg");
+        background-image: url("../imgs/pexels-photo-1600x1067.jpeg");
     }
 }
 
@@ -171,13 +171,13 @@ footer.page-footer {
 
 @media screen and (max-width: 992px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature992x661.jpg");
+        background-image: url("../imgs/pexels-photo-992x661.jpeg");
     }
 }
 
 @media screen and (max-width: 600px){
     #index-banner{
-        background-image: url("../imgs/dawn-landscape-mountains-nature600x900.png");
+        background-image: url("../imgs/pexels-photo-600x900.jpeg");
     }
 
     .flexbox {
