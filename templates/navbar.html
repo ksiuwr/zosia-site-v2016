@@ -23,10 +23,10 @@
         <ul class="right hide-on-med-and-down">
             <li><a href="{% url 'blog_index' %}">Blog</a></li>
             <li>
-                <a href="#">{% trans "Lectures" %}</a>
+                <a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a>
             </li>
             <li>
-                <a href="#">{% trans "Schedule" %}</a>
+                <a href="{% url 'lectures_schedule' %}">{% trans "Schedule" %}</a>
             </li>
             {% if user.is_authenticated %}
               <li>
@@ -87,10 +87,10 @@
             <li><div class="divider"></div></li>
             <li><a href="{% url 'blog_index' %}">Blog</a></li>
             <li>
-                <a href="#">{% trans "Schedule" %}</a>
+                <a href="{% url 'lectures_schedule' %}">{% trans "Schedule" %}</a>
             </li>
             <li>
-                <a href="#">{% trans "Lectures" %}</a>
+                <a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a>
             </li>
         </ul>
         <a href="#" data-activates="navie" class="button-collapse"><i class="material-icons">menu</i></a>
