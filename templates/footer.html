@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 
 <footer class="page-footer">
     <div class="container">
@@ -16,7 +17,7 @@
             </div>
             <div class="col l4 s12">
                 <ul>
-                    <li> <a href="#" class="grey-text text-lighten-4">Regulamin</a></li>
+                    <li> <a href="{% url 'terms_and_conditions' %}" class="grey-text text-lighten-4">{% trans 'Terms and conditions' %}</a></li>
                     <li> <a href="#" class="grey-text text-lighten-4">FAQ</a></li>
                 </ul>
             </div>
