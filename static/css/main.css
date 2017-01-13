@@ -1,11 +1,4 @@
 /*
-    Color palette:
-    light grey: #D9DCDB
-    salmon color: #E4AE85
-    dark grey: #3F3F3F
-    green: #818464
-    beige: #FBF3E5
-
 
     New palette:
     almost white: #EAECEB
@@ -15,6 +8,9 @@
 */
 
 /** BODY **/
+.text-gray {
+    color: #A0A8A4;
+}
 
 
 body {

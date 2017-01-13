@@ -2,7 +2,7 @@ from urllib.parse import urlencode
 
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -66,3 +66,12 @@ def register(request, zosia_id):
             messages.error(request, _("There were errors"))
 
     return render(request, 'conferences/register.html', ctx)
+
+
+@require_http_methods(['GET'])
+def terms_and_conditions(request):
+    zosia = Zosia.objects.find_active()
+    if not zosia:
+        raise Http404
+    ctx = {'zosia': zosia}
+    return render(request, 'conferences/terms_and_conditions.html', ctx)
