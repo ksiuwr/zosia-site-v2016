@@ -66,3 +66,8 @@ def register(request, zosia_id):
             messages.error(request, _("There were errors"))
 
     return render(request, 'conferences/register.html', ctx)
+
+
+@require_http_methods(['GET'])
+def terms_and_conditions(request):
+    return render(request, 'conferences/terms_and_conditions.html')
