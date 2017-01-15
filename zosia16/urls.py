@@ -13,9 +13,18 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
+from django.conf import settings
 from django.contrib import admin
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-]
+    url(r'^accounts/', include('users.urls')),
+    url(r'', include('conferences.urls')),
+    url(r'^rooms/', include('rooms.urls')),
+    url(r'^blog/', include('blog.urls')),
+    url(r'^sponsors/', include('sponsors.urls')),
+    url(r'^lectures/', include('lectures.urls')),
+    # NOTE: It only server static files when debug=True
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

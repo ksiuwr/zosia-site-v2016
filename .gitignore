@@ -87,3 +87,19 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+# Dev settings
+zosia16/settings/dev.py
+media/
+
+.idea/
+
+
+# Bower
+bower_components
+
+# Node
+node_modules
+
+# Databases
+*.sqlite3

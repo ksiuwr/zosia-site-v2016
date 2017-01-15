@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+{% if next %}
+<div class="row">
+  <div class="col s8 offset-s1 offset-m2 offset-l3">
+  {% if user.is_authenticated %}
+    <p>
+      {% blocktrans %}
+      Your account doesn't have access to this page. To proceed,
+      please login with an account that has access.
+      {% endblocktrans %}
+    </p>
+    {% else %}
+    <p>
+      {% blocktrans %}
+      Please login to see this page.
+      {% endblocktrans %}
+    </p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+
+<form method="post" action="{% url 'login' %}">
+  {% csrf_token %}
+  <div class="container">
+      <h3>{% trans "Log in" %}</h3>
+      {% if form.non_field_errors %}
+      <div class="row">
+        <div class="col s10 m8 offset-s1 offset-m2 offset-l2">
+          <ul class="collapsible error-modal" data-collapsible="accordion">
+            <li>
+              <div class="collapsible-header active">
+                <i class="material-icons">report_problem</i>
+                {% trans 'Error' %}
+              </div>
+              <div class="collapsible-body"><p>
+                {{ form.non_field_errors|first }}
+              </p></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+      {% for field in form %}
+          <div class="row">
+            <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
+              {{ field.label_tag }}
+              {{ field }}
+            </div>
+          </div>
+      {% endfor %}
+      <div class="row">
+        <div class="col m6 s6 offset-s3 offset-m4">
+          <div class="row">
+              <input type="submit" value="{% trans 'login' %}"  class="waves-effect waves-light btn"/>
+              <input type="hidden" name="next" value="{{ next }}"  />
+          </div>
+
+
+          <div class="row">
+            <p><a href="{% url 'password_reset' %}">
+              {% trans 'Lost password?' %}
+            </a></p>
+          </div>
+        </div>
+      </div>
+  </div>
+</form>
+
+{% endblock %}

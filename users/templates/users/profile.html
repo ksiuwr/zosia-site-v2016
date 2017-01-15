@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col l6 m6 s12 offset-m3">
+      <h2>{% trans "Profile" %}</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col l6 m6 s12">
+      <p>{% trans "username" %}</p>
+    </div>
+    <div class="col l6 m6 s12">
+      <p>{{ user }}</p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col l6 m6 s6">{% trans "email" %}:</div>
+    <div class="col l6 m6 s6 right">{{ user.email }}</div>
+  </div>
+  <div class="row">
+      <p><a href="{% url 'password_change' %}">{% trans 'Change password?' %}</a></p>
+  </div>
+  {% if current_prefs %}
+    <div class="row">
+      <div class="col l6 m6 s6">{% trans "You are registered for current ZOSIA" %}</div>
+      <div class="col l6 m6 s6 right">
+        <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">
+          {% trans "Preferences" %}
+        </a>
+      </div>
+    </div>
+
+    {% if current_prefs.payment_accepted %}
+      <div class="row">
+        <div class="col l6 m6 s6">{% trans "Payment accepted :)" %}</div>
+      </div>
+      <div class="row">
+        <div class="col l6 m6 s6">
+        {% trans "You have" %}
+          {{ current_prefs.bonus_minutes|stringformat:"i" }}
+        {% trans " bonus minutes" %}.
+        </div>
+      </div>
+    {% else %}
+      <div class="row">
+        <div class="col l6 m6 s6">{% trans "You should pay" %} <b>{{ current_prefs.price }}</b> zł to</div>
+        <div class="col l6 m6 s6 right">
+          <p>{{ current_prefs.zosia.account_number }}</p>
+          <p>{{ current_prefs.zosia.account_details }}</p>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {% if all_prefs %}
+    <div class="row">
+        <p>{% trans 'You were on' %}:</p>
+        {% for pref in all_prefs %}
+          {{ pref.zosia }}
+        {% endfor %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

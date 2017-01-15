@@ -1,0 +1,182 @@
+/*
+
+    New palette:
+    almost white: #EAECEB
+    gray: #A0A8A4
+    light green: #546A60
+    dark green: #163E2A
+*/
+
+/** BODY **/
+.text-gray {
+    color: #A0A8A4;
+}
+
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #EAECEB;
+}
+
+main {
+    flex: 1 0 auto;
+    margin-bottom: 0;
+  }
+
+ /** HELPERS **/
+.dates {
+    margin-top: 2%;
+    margin-bottom: 2%
+}
+
+footer.page-footer {
+    background-color: #546A60;
+    margin-top: 0;
+}
+
+
+.flexbox {
+    display: flex;
+}
+
+.full-height {
+    height: 100%;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.text-block {
+    padding: 0.5em;
+}
+
+.modal-table {
+    display: inline-table;
+}
+
+.error-modal {
+    background-color: rgba(255, 0, 0, 0.48);
+    border-radius: 15px;
+}
+
+.error-modal li .collapsible-header {
+    background-color: rgba(255, 0, 0, 0.48);
+    border-radius: 15px;
+}
+
+
+.text-danger {
+    background-color: rgba(255, 0, 0, 0.48);
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.text-help ul li {
+    background-color: hsla(36, 100%, 50%, 0.48);
+    border-radius: 5px;
+    padding: 1px;
+    margin: 2px;
+}
+
+
+/** MESSAGES CLASSES **/
+.success {
+    color: #1de9b6;
+}
+
+.error {
+    color: #ff8a80;
+}
+
+.warning {
+    color: #ffd740;
+}
+
+/** NEW **/
+
+.button-collapse {
+    color: #A0A8A4;
+}
+
+.bg-transparent {
+    padding: 20px;
+}
+
+.bg-light-green {
+    padding: 20px;
+    background-color: #546A60;
+}
+
+.bg-light-green a {
+    color:inherit;
+}
+
+.bg-white {
+    background-color: #ffffff;
+    padding: 20px;
+}
+
+.text-large {
+    font-size: large;
+}
+
+/** INDEX PAGE **/
+
+#index-banner{
+    width: 100%;
+    height: 200px;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+}
+
+.center-items-horizontal {
+    align-items: center;
+    justify-content: center;
+}
+
+/*      MEDIA DEFINTION         */
+
+
+@media screen and (min-width: 2881px){
+    #index-banner{
+        background-image: url("../imgs/pexels-photo-4896x3264.jpeg");
+    }
+}
+
+@media screen and (max-width: 2880px){
+    #index-banner{
+        background-image: url("../imgs/pexels-photo-2880x1920.jpeg");
+    }
+}
+
+@media screen and (max-width: 1600px){
+    #index-banner{
+        background-image: url("../imgs/pexels-photo-1600x1067.jpeg");
+    }
+}
+
+@media screen and (min-width: 600px) {
+    #index-banner {
+        height: 500px;
+    }
+}
+
+@media screen and (max-width: 992px){
+    #index-banner{
+        background-image: url("../imgs/pexels-photo-992x661.jpeg");
+    }
+}
+
+@media screen and (max-width: 600px){
+    #index-banner{
+        background-image: url("../imgs/pexels-photo-600x900.jpeg");
+    }
+
+    .flexbox {
+        display: initial;
+    }
+}
