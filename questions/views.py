@@ -1,5 +1,5 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_http_methods
 
 from questions.models import QA
@@ -18,4 +18,3 @@ def index_for_staff(request):
     qas = QA.objects.all()
     ctx = {'questions': qas}
     return render(request, 'questions/index_staff.html', ctx)
-
