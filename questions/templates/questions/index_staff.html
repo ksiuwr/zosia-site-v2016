@@ -3,4 +3,27 @@
 {% load i18n %}
 
 {% block content %}
+<div class="container">
+    <h3>{% trans 'Questions & Answers' %}</h3>
+    <a href="{% url 'lectures_staff_add' %}" class="waves-effect waves-light btn-floating secondary-content">
+        <i class="material-icons">add</i>
+    </a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>{% trans 'Question' %}</th>
+                <th>{% trans 'Actions' %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+            {% empty %}
+                <tr>
+                    <td colspan="2">{% trans "Nothing to display" %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
