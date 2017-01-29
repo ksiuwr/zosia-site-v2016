@@ -1,11 +1,13 @@
 import json
-from datetime import timedelta, datetime
+from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase, TransactionTestCase
 from django.core.urlresolvers import reverse
+from django.test import TestCase, TransactionTestCase, override_settings
 
-from conferences.test_helpers import new_zosia, new_user, user_login, user_preferences
+from conferences.test_helpers import (new_user, new_zosia, user_login,
+                                      user_preferences)
+
 from .models import Room, UserRoom
 
 

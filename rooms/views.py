@@ -18,8 +18,8 @@ from .serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
-@vary_on_cookie
 @cache_page(60 * 15)
+@vary_on_cookie
 @login_required
 @require_http_methods(['GET'])
 def index(request):
