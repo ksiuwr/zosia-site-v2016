@@ -17,7 +17,7 @@
     <div class="row">
       <div class="col m6 s6 offset-s3 offset-m4">
         <div class="row">
-            <input type="submit" value="{% trans 'Confirm' %}" class="waves-effect waves-light btn"/>
+            <input id="submit" type="submit" value="{% trans 'Confirm' %}" class="waves-effect waves-light btn"/>
         </div>
       </div>
     </div>
@@ -30,6 +30,11 @@
   $(document).ready(function() {
     $('select').material_select();
     $('textarea').addClass("materialize-textarea");
+
+    var terms_and_conditions_link = $('<a/>')
+                                            .attr('href', "{% url 'terms_and_conditions' %}")
+                                            .text(" {% trans 'terms and conditions' %}");
+    $("label[for='id_accepted']").after(terms_and_conditions_link);
 
     {% for field_groups in field_dependencies %}
       {%  for field in field_groups|slice:"1:" %}

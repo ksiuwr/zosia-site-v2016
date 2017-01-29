@@ -11,9 +11,11 @@
             </h1>
             {% if zosia %}
             <div class="row center">
-                <a class="waves-effect waves-light btn">{% trans "Register" %}</a>
-                <h5 class="header col s12 green-text text-lighten-4 light">
-                </h5>
+              <a class="waves-effect waves-light btn" href="{% url 'user_zosia_register' zosia.pk %}">
+                {% trans "Register" %}
+              </a>
+              <h5 class="header col s12 green-text text-lighten-4 light">
+              </h5>
             </div>
             {% endif %}
         </div>

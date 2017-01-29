@@ -1,7 +1,7 @@
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import UserCreationForm
-
+from django import forms
 
 from .actions import SendActivationEmail
 from .models import User
@@ -10,7 +10,7 @@ from .models import User
 class UserForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'email']
+        fields = ['username', 'email', 'first_name', 'last_name']
 
     def save(self, request):
         user = super().save(commit=False)
