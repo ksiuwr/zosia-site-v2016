@@ -2,7 +2,7 @@ import json
 from datetime import timedelta, datetime
 
 from django.core.exceptions import ValidationError
-from django.test import TestCase, TransactionTestCase
+from django.test import TestCase, TransactionTestCase, override_settings
 from django.core.urlresolvers import reverse
 
 from conferences.test_helpers import new_zosia, new_user, user_login, user_preferences
