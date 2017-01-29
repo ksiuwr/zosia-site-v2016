@@ -25,7 +25,7 @@ def index_for_staff(request):
 
 @require_http_methods(['GET', 'POST'])
 @staff_member_required()
-def update(request, question_id):
+def update(request, question_id=None):
     kwargs = {}
     if question_id:
         question = get_object_or_404(QA, pk=question_id)
