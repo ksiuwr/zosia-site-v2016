@@ -29,7 +29,7 @@ def update(request, question_id=None):
     kwargs = {}
     if question_id:
         question = get_object_or_404(QA, pk=question_id)
-        kwargs['question'] = question
+        kwargs['instance'] = question
     else:
         question = None
 

@@ -19,7 +19,9 @@
             <i class="material-icons">person_pin</i>
             {{ question.question }}
             <span class="right">
-                <i class="material-icons">mode_edit</i>
+                <a href="{% url 'questions_edit' question.id %}"
+                    <i class="material-icons">mode_edit</i>
+                </a>
                 <i class="material-icons red-text text-darken-3">delete</i>
             </span>
         </div>
