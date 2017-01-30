@@ -43,3 +43,11 @@ def update(request, question_id=None):
             messages.error(request, _('There has been error'))
     ctx = {'form': form, 'question': question}
     return render(request, 'questions/update.html', ctx)
+
+
+@require_http_methods(['GET'])
+@staff_member_required()
+def delete(request, question_id):
+    question = get_object_or_404(QA, pk=question_id)
+    question.delete()
+    return redirect('questions_index_staff')
