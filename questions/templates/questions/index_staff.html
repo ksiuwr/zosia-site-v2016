@@ -9,21 +9,8 @@
         <i class="material-icons">add</i>
     </a>
 
-    <table>
-        <thead>
-            <tr>
-                <th>{% trans 'Question' %}</th>
-                <th>{% trans 'Actions' %}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for question in questions %}
-            {% empty %}
-                <tr>
-                    <td colspan="2">{% trans "Nothing to display" %}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    {% for question in questions %}
+    {% empty %}
+    {% endfor %}
 </div>
 {% endblock %}
