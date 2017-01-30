@@ -12,6 +12,9 @@
     color: #A0A8A4;
 }
 
+a {
+    color: #757575;
+}
 
 body {
     display: flex;
