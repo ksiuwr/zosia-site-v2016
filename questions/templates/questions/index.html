@@ -1,1 +1,27 @@
 {% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h3>{% trans 'Questions & Answers' %}</h3>
+
+{% if questions %}
+    <ul class="collapsible" data-collapsible="accordion">
+    {% for question in questions %}
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">person_pin</i>
+            {{ question.question }}
+        </div>
+        <div class="collapsible-body">
+            <span>{{ question.answer }}</span>
+        </div>
+    </li>
+    {% endfor %}
+    </ul>
+{% else %}
+
+{% endif %}
+</div>
+{% endblock %}

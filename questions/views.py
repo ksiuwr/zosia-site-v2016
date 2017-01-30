@@ -11,7 +11,7 @@ from questions.forms import QAForm
 @require_http_methods(['GET'])
 def index(request):
     qas = QA.objects.all()
-    ctx = {'objects': qas}
+    ctx = {'questions': qas}
     return render(request, 'questions/index.html', ctx)
 
 
