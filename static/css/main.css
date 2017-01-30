@@ -58,6 +58,10 @@ footer.page-footer {
     display: inline-table;
 }
 
+.collapsible-body {
+    padding: 2%;
+}
+
 .error-modal {
     background-color: rgba(255, 0, 0, 0.48);
     border-radius: 15px;
