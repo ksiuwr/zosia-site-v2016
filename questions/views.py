@@ -38,7 +38,7 @@ def update(request, question_id=None):
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            return redirect('questions_index')
+            return redirect('questions_index_staff')
         else:
             messages.error(request, _('There has been error'))
     ctx = {'form': form, 'question': question}
