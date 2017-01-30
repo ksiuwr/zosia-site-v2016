@@ -5,9 +5,11 @@
 {% block content %}
 <div class="container">
     <h3>{% trans 'Questions & Answers' %}</h3>
-    <a href="{% url 'questions_add' %}" class="waves-effect waves-light btn-floating secondary-content">
-        <i class="material-icons">add</i>
-    </a>
+    <div class="fixed-action-btn">
+        <a href="{% url 'questions_add' %}" class="waves-effect waves-light btn-floating secondary-content btn-large">
+            <i class="material-icons">add</i>
+        </a>
+    </div>
 
 {% if questions %}
     <ul class="collapsible" data-collapsible="accordion">
