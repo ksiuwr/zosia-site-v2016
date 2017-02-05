@@ -3,11 +3,13 @@ from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.cache import cache_page
 
 from questions.models import QA
 from questions.forms import QAForm
 
 
+@cache_page(60*60*24)
 @require_http_methods(['GET'])
 def index(request):
     qas = QA.objects.all()
