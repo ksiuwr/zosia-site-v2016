@@ -52,7 +52,7 @@ def lecture_add(request):
     participant can add his own lecture
     """
     zosia = Zosia.objects.find_active()
-    if not zosia.lectures_open():
+    if not zosia.is_lectures_open:
         messages.error(request, _("Call for paper is not open right now!"))
         return redirect(reverse('index'))
 
