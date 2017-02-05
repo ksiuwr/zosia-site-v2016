@@ -9,6 +9,7 @@
     <li class="divider"></li>
     <li><a href="{% url 'blog_create' %}">{% trans "Add blog post" %}</a></li>
     <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
+    <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
     {% endif %}
     <li class="divider"></li>
     <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
@@ -67,6 +68,10 @@
             <li><a href="{% url 'sponsors_index' %}">
                 <i class="fa fa-building" aria-hidden="true"></i>
                 {% trans "Sponsors" %}
+            </a></li>
+            <li><a href="{% url 'lectures_all_staff' %}">
+                <i class="fa fa-graduation-cap" aria-hidden="true"></i>
+                {% trans "Lectures" %}
             </a></li>
             {% endif %}
             {% if zosia.is_lectures_open %}
