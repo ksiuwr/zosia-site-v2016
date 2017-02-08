@@ -153,6 +153,7 @@ class UserPreferencesFormTestCase(TestCase):
             'contact': 'fb: me',
             'shirt_size': 'S',
             'shirt_type': 'f',
+            'accepted': True
         }
         defaults.update(**override)
         return UserPreferencesForm(defaults)
@@ -220,6 +221,7 @@ class RegisterViewTestCase(TestCase):
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
                                         'shirt_type': 'f',
+                                        'accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
@@ -234,6 +236,7 @@ class RegisterViewTestCase(TestCase):
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
                                         'shirt_type': 'f',
+                                        'accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
@@ -243,6 +246,7 @@ class RegisterViewTestCase(TestCase):
         UserPreferences.objects.create(user=self.normal,
                                        zosia=self.zosia,
                                        accomodation_day_1=False,
+                                       shirt_size='M',
                                        payment_accepted=True)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
         self.client.login(username="john", password="johnpassword")
@@ -252,6 +256,7 @@ class RegisterViewTestCase(TestCase):
                                         'shirt_size': 'M',
                                         'shirt_type': 'f',
                                         'contact': 'fb: me',
+                                        'accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)

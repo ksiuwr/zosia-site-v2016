@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load materializecss %}
 
 {% block content %}
 <div class="container">
@@ -10,27 +11,13 @@
   </div>
   <form method="post">
     {% csrf_token %}
-    {% for field in form %}
-        <div class="row">
-          <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
-            {{ field.label_tag }}
-            {{ field }}
-            {% if field.errors %}
-              <span class="text-danger">
-                {{ field.errors|first }}
-              </span>
-              {% else %}
-              <span class="text-help">
-                {{ field.help_text|safe }}
-              </span>
-            {% endif %}
-          </div>
-        </div>
-    {% endfor %}
+    {{ form | materializecss }}
     <div class="row">
       <div class="col m6 s6 offset-s3 offset-m4">
         <div class="row">
-            <input type="submit" value="{% trans 'Create account' %}" class="waves-effect waves-light btn"/>
+            <button type="submit" class="waves-effect waves-light btn">
+              {% trans 'Create account' %}
+            </button>
         </div>
       </div>
     </div>

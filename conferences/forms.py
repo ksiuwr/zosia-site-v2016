@@ -19,6 +19,9 @@ class UserPreferencesForm(forms.ModelForm):
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
 
+    # Yes, it's required by default. But it's insane - better be verbose than misunderstood.
+    accepted = forms.BooleanField(required=True)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].queryset = Organization.objects.filter(accepted=True)
