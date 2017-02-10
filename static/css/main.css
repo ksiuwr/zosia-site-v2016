@@ -12,12 +12,16 @@
     color: #A0A8A4;
 }
 
+a {
+    color: #757575;
+}
 
 body {
     display: flex;
     min-height: 100vh;
     flex-direction: column;
     background-color: #EAECEB;
+    color: #757575;
 }
 
 main {
@@ -55,6 +59,10 @@ footer.page-footer {
 
 .modal-table {
     display: inline-table;
+}
+
+.collapsible-body {
+    padding: 2%;
 }
 
 .error-modal {

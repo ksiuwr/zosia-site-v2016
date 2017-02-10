@@ -7,8 +7,6 @@ from django.views.decorators.vary import vary_on_cookie
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.forms.models import model_to_dict
-from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
