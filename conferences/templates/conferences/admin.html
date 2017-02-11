@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <div class="container">
+        <h3>{% trans 'Admin panel' %}</h3>
+
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s2"><a href="#blog">{% trans 'Blog' %}</a></li>
+                    <li class="tab col s2"><a class="active" href="#sponsors">{% trans 'Sponsors' %}</a></li>
+                    <li class="tab col s2"><a href="#qa">{% trans 'Q&A' %}</a></li>
+                    <li class="tab col s2"><a href="#lectures">{% trans 'Lectures' %}</a></li>
+                    <li class="tab col s2"><a href="#schedule">{% trans 'Schedule' %}</a></li>
+                </ul>
+            </div>
+            <div id="blog" class="col s12">Test 1</div>
+            <div id="sponsors" class="col s12">Test 2</div>
+            <div id="qa" class="col s12">Test 3</div>
+            <div id="lectures" class="col s12">Test 4</div>
+            <div id="schedule" class="col s12">Test 4</div>
+        </div>
+    </div>
+{% endblock %}

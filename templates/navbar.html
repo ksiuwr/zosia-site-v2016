@@ -12,6 +12,7 @@
     <li><a href="{% url 'questions_index_staff' %}">{% trans 'Q&A' %}</a></li>
     <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
     <li><a href="{% url 'lectures_schedule_add' %}">{% trans "Update schedule" %}</a></li>
+    <li><a href="{% url 'admin' %}">{% trans "Admin" %}</a></li>
     {% endif %}
     <li class="divider"></li>
     <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
@@ -78,6 +79,12 @@
                 <a href="{% url 'questions_index_staff' %}">
                     <i class="fa fa-question" aria-hidden="true"></i>
                     {% trans 'Q&A' %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin' %}">
+                    <i class="large material-icons">lock-open</i>
+                    {% trans 'Admin' %}
                 </a>
             </li>
             {% endif %}

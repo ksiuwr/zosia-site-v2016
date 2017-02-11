@@ -16,6 +16,30 @@ a {
     color: #757575;
 }
 
+.tabs {
+    background-color: inherit;
+}
+
+.tabs .tab a {
+    color: #546A60;
+}
+
+.tabs .tab a:hover {
+    color: #163E2A;
+}
+
+.tabs .tab a.active{
+    color: #163E2A;
+}
+
+.tabs .indicator {
+    background-color: #163E2A;
+}
+
+.tabs .indicator .velocity-animating{
+    background-color: #546A60;
+}
+
 body {
     display: flex;
     min-height: 100vh;
