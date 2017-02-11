@@ -3,13 +3,16 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container">
-    <h3>{% trans "Lectures" %}</h3>
-    <a href="{% url 'lectures_staff_add' %}" class="waves-effect waves-light btn-floating secondary-content">
-        <i class="material-icons">add</i>
-    </a>
-    <table>
-        <thead>
+    <div class="container">
+        <h3>{% trans "Lectures" %}</h3>
+
+        <div class="fixed-action-btn">
+            <a href="{% url 'lectures_staff_add' %}" class="waves-effect waves-light btn-floating secondary-content btn-large">
+                <i class="material-icons">add</i>
+            </a>
+        </div>
+        <table>
+            <thead>
             <tr>
                 <th>{% trans "Author" %}</th>
                 <th>{% trans "Title" %}</th>
@@ -17,8 +20,8 @@
                 <th>{% trans "Lecture type" %}</th>
                 <th>{% trans "Active" %}</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             {% for object in objects %}
                 <tr>
                     <td>{{ object.author }}</td>
@@ -36,33 +39,33 @@
                         </div>
                     </td>
                 </tr>
-            {% empty %}
+                {% empty %}
                 <tr>
                     <td colspan="5">{% trans "Nothing to display" %}</td>
                 </tr>
             {% endfor %}
 
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
 
 {% block custom_scripts %}
-<script type="text/javascript">
-$(document).ready(function(){
-    $('.lever').on('click', function(){
-        $.ajax({
-            type: "POST",
-            url: '{% url 'lectures_toggle_accept' %}',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'key': $(this).data('id')
-            },
-            error: function(){
-                alert("Error occured!");
-            }
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.lever').on('click', function(){
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'lectures_toggle_accept' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'key': $(this).data('id')
+                    },
+                    error: function(){
+                        alert("Error occured!");
+                    }
+                });
+            });
         });
-    });
-});
-</script>
+    </script>
 {% endblock %}
