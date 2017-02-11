@@ -7,11 +7,6 @@
     <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
     {% if user.is_staff %}
     <li class="divider"></li>
-    <li><a href="{% url 'blog_create' %}">{% trans "Add blog post" %}</a></li>
-    <li><a href="{% url 'sponsors_index' %}">{% trans "Sponsors" %}</a></li>
-    <li><a href="{% url 'questions_index_staff' %}">{% trans 'Q&A' %}</a></li>
-    <li><a href="{% url 'lectures_all_staff' %}">{% trans "Lectures" %}</a></li>
-    <li><a href="{% url 'lectures_schedule_add' %}">{% trans "Update schedule" %}</a></li>
     <li><a href="{% url 'admin' %}">{% trans "Admin" %}</a></li>
     {% endif %}
     <li class="divider"></li>
@@ -51,36 +46,13 @@
                     <a href="#"><span class="email">{{ user.email }}</span></a>
                 </div>
             </li>
-            {% if user.is_staff %}
-            <li class="divider"></li>
             <li>
                 <a href="{% url 'rooms_index' %}">
-                    <i class="fa fa-bed" aria-hidden="true"></i>
                     {% trans 'Rooms' %}
                 </a>
             </li>
-            <li><a href="{% url 'blog_create' %}">
-                <i class="fa fa-plus" aria-hidden="true"></i>
-                {% trans "Add blog post" %}
-            </a></li>
-            <li><a href="{% url 'sponsors_index' %}">
-                <i class="fa fa-building" aria-hidden="true"></i>
-                {% trans "Sponsors" %}
-            </a></li>
-            <li><a href="{% url 'lectures_all_staff' %}">
-                <i class="fa fa-graduation-cap" aria-hidden="true"></i>
-                {% trans "Lectures" %}
-            </a></li>
-            <li><a href="{% url 'lectures_schedule_add' %}">
-                <i class="fa fa-tasks" aria-hidden="true"></i>
-                {% trans "Update schedule" %}
-            </a></li>
-            <li>
-                <a href="{% url 'questions_index_staff' %}">
-                    <i class="fa fa-question" aria-hidden="true"></i>
-                    {% trans 'Q&A' %}
-                </a>
-            </li>
+            {% if user.is_staff %}
+            <li class="divider"></li>
             <li>
                 <a href="{% url 'admin' %}">
                     <i class="large material-icons">lock-open</i>
