@@ -12,6 +12,11 @@
     color: #A0A8A4;
 }
 
+#index-banner .header {
+    margin-top: 0;
+}
+
+
 a {
     color: #757575;
 }
@@ -206,6 +211,7 @@ footer.page-footer {
 @media screen and (max-width: 600px){
     #index-banner{
         background-image: url("../imgs/pexels-photo-600x900.jpeg");
+        height: 400px;
     }
 
     .flexbox {
