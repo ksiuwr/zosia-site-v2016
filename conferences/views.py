@@ -1,11 +1,12 @@
 from urllib.parse import urlencode
 
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.http import require_http_methods
-from django.http import HttpResponse, Http404
+from django.http import Http404
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.utils.translation import ugettext_lazy as _
 
 from .models import Zosia, UserPreferences
@@ -75,3 +76,9 @@ def terms_and_conditions(request):
         raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/terms_and_conditions.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def admin_panel(request):
+    return render(request, 'conferences/admin.html')
