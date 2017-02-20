@@ -5,6 +5,13 @@ from .models import UserPreferences, Zosia, Bus
 from users.models import Organization
 
 
+def bus_queryset(**kwargs):
+        bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
+        if 'instance' in kwargs:
+            bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=kwargs['instance'])
+        return bus_queryset
+
+
 class UserPreferencesForm(forms.ModelForm):
     # NOTE: I'm not sure if that's how it should be:
     DEPENDENCIES = [
@@ -25,10 +32,7 @@ class UserPreferencesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].queryset = Organization.objects.filter(accepted=True)
-        bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
-        if 'instance' in kwargs:
-            bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=kwargs['instance'])
-        self.fields['bus'].queryset = bus_queryset
+        self.fields['bus'].queryset = bus_queryset(**kwargs)
 
     def call(self, zosia, user):
         user_preferences = self.save(commit=False)
@@ -61,3 +65,29 @@ class UserPreferencesForm(forms.ModelForm):
         for field in self.fields:
             if field not in ['contact', 'shirt_size', 'shirt_type']:
                 self.fields[field].disabled = True
+
+
+class UserPreferencesAdminForm(forms.ModelForm):
+    class Meta:
+        model = UserPreferences
+        exclude = [
+            'user',
+            'zosia',
+            'organization',
+            'accomodation_day_1',
+            'dinner_1',
+            'accomodation_day_2',
+            'dinner_2',
+            'breakfast_2',
+            'accomodation_day_3',
+            'dinner_3',
+            'breakfast_3',
+            'breakfast_4',
+            'vegetarian'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bus'].queryset = bus_queryset(**kwargs)
+        # NOTE: Seems like it's not working?
+        self.fields['contact'].disabled = True

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col l12 m12 s12">
+                <h3>
+                    {% trans "User preferences" %}
+                </h3>
+
+            </div>
+        </div>
+        {% for object in objects %}
+            <div class="row">
+                <div class="col l8 m6 s6">
+                    <a href="{% url 'user_preferences_edit' object.id %}">{{ object }}</a>
+                </div>
+                <div class="col l4 m6 s6">
+                    <div class="switch">
+                        <label>
+                            <input type="checkbox" {% if object.payment_accepted %}checked{% endif %}>
+                            <span class="lever" data-id="{{ object.id }}"></span>
+                            Payment accepted
+                        </label>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block custom_scripts %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.lever').on('click', function(){
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'user_preferences_toggle_payment_accepted' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'key': $(this).data('id')
+                    },
+                    error: function(){
+                        alert("Error occured!");
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
