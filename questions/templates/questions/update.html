@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% load i18n %}
-{% load materializecss %}
 
 {% block content %}
 <form method="post" action="">
@@ -12,15 +11,7 @@
     {% else %}
         <h3>{% trans "Add question" %}</h3>
     {% endif %}
-        <div class="row">
-            {{ form|materializecss:'l7 m10 s12' }}
-        </div>
-        <div class="row">
-            <div class="col m6 s6 offset-s3 offset-m4">
-                <button type="submit" class="waves-effect waves-light btn">{% trans 'Submit' %}</button>
-            </div>
-        </div>
-      </div>
+        {% include '_form.html' %}
     </div>
 </form>
 {% endblock %}
