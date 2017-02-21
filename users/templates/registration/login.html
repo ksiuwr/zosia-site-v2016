@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load materializecss %}
 
 {% block content %}
 
@@ -49,8 +50,7 @@
       {% for field in form %}
           <div class="row">
             <div class="input-field col l6 m8 s10 offset-s2 offset-l3 offset-m2">
-              {{ field.label_tag }}
-              {{ field }}
+              {{ field|materializecss }}
             </div>
           </div>
       {% endfor %}
