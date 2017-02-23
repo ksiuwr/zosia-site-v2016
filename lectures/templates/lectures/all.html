@@ -3,69 +3,64 @@
 {% load i18n %}
 
 {% block content %}
-    <div class="container">
-        <h3>{% trans "Lectures" %}</h3>
+  <div class="container">
+    <h3>{% trans "Lectures" %}</h3>
 
-        <div class="fixed-action-btn">
-            <a href="{% url 'lectures_staff_add' %}" class="waves-effect waves-light btn-floating secondary-content btn-large">
-                <i class="material-icons">add</i>
-            </a>
-        </div>
-        <table>
-            <thead>
-            <tr>
-                <th>{% trans "Author" %}</th>
-                <th>{% trans "Title" %}</th>
-                <th>{% trans "Duration" %}</th>
-                <th>{% trans "Lecture type" %}</th>
-                <th>{% trans "Active" %}</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for object in objects %}
-                <tr>
-                    <td>{{ object.author }}</td>
-                    <td><a href="{% url 'lectures_edit' object.id %}">{{ object.title }}</a></td>
-                    <td>{{ object.get_duration_display }}</td>
-                    <td>{{ object.get_lecture_type_display }}</td>
-                    <td>
-                        <div class="switch">
-                            <label>
-                                Off
-                                <input type="checkbox" {% if object.accepted %}checked{% endif %}>
-                                <span class="lever" data-id="{{ object.id }}"></span>
-                                On
-                            </label>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5">{% trans "Nothing to display" %}</td>
-                </tr>
-            {% endfor %}
-
-            </tbody>
-        </table>
+    <div class="fixed-action-btn">
+      <a href="{% url 'lectures_staff_add' %}" class="waves-effect waves-light btn-floating secondary-content btn-large">
+        <i class="material-icons">add</i>
+      </a>
     </div>
+    {% if objects %}
+      <ul class="collapsible" data-collapsible="accordion">
+        {% for object in objects %}
+          <li>
+            <div class="collapsible-header">
+              <div class="chip">{{ object.get_lecture_type_display }} - {{ object.duration }}</div>
+              {{ object.author }} <strong>{{ object.title }}</strong>
+              <div class="switch right">
+                <a href="{% url 'lectures_edit' object.id %}">
+                  <i class="material-icons">mode_edit</i>
+                </a>
+                <label>
+                  <input type="checkbox" {% if object.accepted %}checked{% endif %}>
+                  <span class="lever" data-id="{{ object.id }}"></span>
+                </label>
+              </div>
+            </div>
+            <div class="collapsible-body">
+              <strong>{% trans 'Abstract' %}:</strong><br />
+              {{ object.abstract }}
+              <br /><br />
+              <strong>{% trans 'Author description' %}:</strong><br />
+              {{ object.description }}
+              <br /><br />
+              <strong>{% trans 'Info' %}:</strong><br />
+              {{ object.info }}
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
 {% endblock %}
 
 {% block custom_scripts %}
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('.lever').on('click', function(){
-                $.ajax({
-                    type: "POST",
-                    url: '{% url 'lectures_toggle_accept' %}',
-                    data: {
-                        'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        'key': $(this).data('id')
-                    },
-                    error: function(){
-                        alert("Error occured!");
-                    }
-                });
-            });
-        });
-    </script>
+  <script type="text/javascript">
+      $(document).ready(function(){
+          $('.lever').on('click', function(){
+              $.ajax({
+                  type: "POST",
+                  url: '{% url 'lectures_toggle_accept' %}',
+                  data: {
+                      'csrfmiddlewaretoken': '{{ csrf_token }}',
+                      'key': $(this).data('id')
+                  },
+                  error: function(){
+                      alert("Error occured!");
+                  }
+              });
+          });
+      });
+  </script>
 {% endblock %}
