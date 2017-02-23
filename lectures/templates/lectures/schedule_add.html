@@ -4,12 +4,9 @@
 
 {% block content %}
 <div class="container">
-    <h3>
-        {% trans "Add post" %}
-    </h3>
     <form method="post">
         {% csrf_token %}
-        {% include '_form.html' %}
+        {% include '_form.html' with form_name='Add schedule' %}
     </form>
 </div>
 {% endblock content %}

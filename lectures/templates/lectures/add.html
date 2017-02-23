@@ -8,11 +8,11 @@
     {% csrf_token %}
     <div class="container">
     {% if object %}
-        <h3>{{ object }} - {% trans "Edit" %}</h3>
+      {% include '_form.html' with form_name=object %}
     {% else %}
-        <h3>{% trans "Add lecture" %}</h3>
+      {% include '_form.html' with form_name='Add lecture' %}
     {% endif %}
-        {% include '_form.html' %}
+
       </div>
     </div>
 </form>
