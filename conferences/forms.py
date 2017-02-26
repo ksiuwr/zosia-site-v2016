@@ -5,14 +5,19 @@ from .models import UserPreferences, Zosia, Bus
 from users.models import Organization
 
 
-def bus_queryset(**kwargs):
+class UserPreferencesBaseForm(forms.ModelForm):
+    def bus_queryset(self, instance=None):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
-        if 'instance' in kwargs:
-            bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=kwargs['instance'])
+        if instance:
+            bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=instance)
         return bus_queryset
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
 
-class UserPreferencesForm(forms.ModelForm):
+
+class UserPreferencesForm(UserPreferencesBaseForm):
     # NOTE: I'm not sure if that's how it should be:
     DEPENDENCIES = [
         # This means you need to check accomodation_1 before you can check dinner_1
@@ -32,7 +37,6 @@ class UserPreferencesForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['organization'].queryset = Organization.objects.filter(accepted=True)
-        self.fields['bus'].queryset = bus_queryset(**kwargs)
 
     def call(self, zosia, user):
         user_preferences = self.save(commit=False)
@@ -67,7 +71,7 @@ class UserPreferencesForm(forms.ModelForm):
                 self.fields[field].disabled = True
 
 
-class UserPreferencesAdminForm(forms.ModelForm):
+class UserPreferencesAdminForm(UserPreferencesBaseForm):
     class Meta:
         model = UserPreferences
         exclude = [
@@ -88,6 +92,6 @@ class UserPreferencesAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['bus'].queryset = bus_queryset(**kwargs)
         # NOTE: Seems like it's not working?
+        # Probably because JS overwrites HTML attr. Argh.
         self.fields['contact'].disabled = True
