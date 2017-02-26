@@ -20,7 +20,8 @@ GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 @staff_member_required()
 @require_http_methods(['GET'])
 def user_preferences_index(request):
-    ctx = {'objects': UserPreferences.objects.all()}
+    zosia = get_object_or_404(Zosia, active=True)
+    ctx = {'objects': UserPreferences.objects.filter(zosia=zosia).all()}
     return render(request, 'conferences/user_preferences_index.html', ctx)
 
 
