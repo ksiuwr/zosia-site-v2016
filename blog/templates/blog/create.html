@@ -2,22 +2,19 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container">
-    <h3>
-        {% trans "Add post" %}
-    </h3>
+  <div class="container">
     <form method="post">
-        {% csrf_token %}
-        {% include '_form.html' %}
+      {% csrf_token %}
+      {% include '_form.html' with form_name='Add post' %}
     </form>
-</div>
+  </div>
 {% endblock content %}
 
 {% block custom_scripts %}
-<script type="text/javascript">
-$(document).ready(function() {
-    $('select').material_select();
-    $('textarea').addClass("materialize-textarea");
-});
-</script>
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('select').material_select();
+      $('textarea').addClass("materialize-textarea");
+    });
+  </script>
 {% endblock custom_scripts %}
