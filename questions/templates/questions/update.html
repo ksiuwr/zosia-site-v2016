@@ -7,11 +7,10 @@
     {% csrf_token %}
     <div class="container">
     {% if question %}
-        <h3>{{ question }} - {% trans "Edit" %}</h3>
+        {% include '_form.html' with form_name='Edit question' %}
     {% else %}
-        <h3>{% trans "Add question" %}</h3>
+        {% include '_form.html' with form_name='Add question' %}
     {% endif %}
-        {% include '_form.html' %}
     </div>
 </form>
 {% endblock %}

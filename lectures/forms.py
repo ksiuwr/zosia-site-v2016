@@ -3,7 +3,6 @@ from .models import Lecture, Schedule
 
 
 class LectureForm(forms.ModelForm):
-
     class Meta:
         model = Lecture
         fields = ['title', 'abstract', 'duration', 'info', 'lecture_type',
@@ -11,6 +10,10 @@ class LectureForm(forms.ModelForm):
 
 
 class LectureAdminForm(forms.ModelForm):
+    field_order = ['title', 'abstract', 'duration', 'lecture_type',
+                   'author', 'person_type', 'description',
+                   'accepted', 'info']
+
     class Meta:
         model = Lecture
         exclude = ['zosia', 'create_date', 'priority']
