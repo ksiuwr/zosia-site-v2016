@@ -1,20 +1,18 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load materializecss %}
 
 {% block content %}
 
 <form method="post" action="" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="container">
+  {% csrf_token %}
+  <div class="container">
     {% if object %}
-        <h3>{{ object }} - {% trans "Edit" %}</h3>
+      {% include '_form.html' with form_name='Edit sponsor' %}
     {% else %}
-        <h3>{% trans "Add sponsor" %}</h3>
+      {% include '_form.html' with form_name='Add sponsor' %}
     {% endif %}
-        {% include '_form.html' %}
-      </div>
-    </div>
+  </div>
+  </div>
 </form>
 
 {% endblock %}
