@@ -54,9 +54,10 @@ def user_preferences_edit(request, user_preferences_id=None):
 def toggle_payment_accepted(request):
     user_preferences_id = request.POST.get('key', None)
     user_preferences = get_object_or_404(UserPreferences, pk=user_preferences_id)
-    user_preferences.toggle_payment_accepted()
+    status = user_preferences.toggle_payment_accepted()
     user_preferences.save()
-    return JsonResponse({'msg': "{} changed status!".format(user_preferences.user.get_full_name())})
+    return JsonResponse({'msg': "{} changed status!".format(user_preferences.user.get_full_name()),
+                         'status': status})
 
 
 @require_http_methods(['GET'])

@@ -16,13 +16,18 @@
                 <div class="col l8 m6 s6">
                     <a href="{% url 'user_preferences_edit' object.id %}">{{ object }}</a>
                 </div>
-                <div class="col l4 m6 s6">
+                <div class="col l2 m3 s3">
                     <div class="switch">
                         <label>
                             <input type="checkbox" {% if object.payment_accepted %}checked{% endif %}>
                             <span class="lever" data-id="{{ object.id }}"></span>
                             Payment accepted
                         </label>
+                    </div>
+                </div>
+                <div id="set-bonus-{{ object.id }}" class="col l2 m3 s3 {% if not object.payment_accepted %}hide{% endif %}">
+                    <div class="switch">
+                      Bonus: {{ object.bonus_minutes }}
                     </div>
                 </div>
             </div>
@@ -34,12 +39,17 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $('.lever').on('click', function(){
+                var id = $(this).data('id');
                 $.ajax({
                     type: "POST",
                     url: '{% url 'user_preferences_toggle_payment_accepted' %}',
                     data: {
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        'key': $(this).data('id')
+                        'key': id
+                    },
+                    success: function(data) {
+                        console.log(data, $('#set-bonus-' + id));
+                        $('#set-bonus-' + id).toggleClass('hide');
                     },
                     error: function(){
                         alert("Error occured!");
