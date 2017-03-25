@@ -21,7 +21,10 @@ GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 @require_http_methods(['GET'])
 def user_preferences_index(request):
     zosia = get_object_or_404(Zosia, active=True)
-    ctx = {'objects': UserPreferences.objects.filter(zosia=zosia).all()}
+    # TODO: paging?
+    user_preferences = UserPreferences.objects.filter(zosia=zosia).all()
+    user_preferences = sorted(user_preferences, key=lambda x: x.pk)
+    ctx = {'objects': user_preferences}
     return render(request, 'conferences/user_preferences_index.html', ctx)
 
 
@@ -51,14 +54,22 @@ def user_preferences_edit(request, user_preferences_id=None):
 
 @staff_member_required()
 @require_http_methods(['POST'])
-def toggle_payment_accepted(request):
+def admin_edit(request):
     user_preferences_id = request.POST.get('key', None)
     user_preferences = get_object_or_404(UserPreferences, pk=user_preferences_id)
-    status = user_preferences.toggle_payment_accepted()
-    user_preferences.save()
-    return JsonResponse({'msg': "{} changed status!".format(user_preferences.user.get_full_name()),
-                         'status': status})
+    command = request.POST.get('command', False)
+    if command == 'toggle_payment_accepted':
+        status = user_preferences.toggle_payment_accepted()
+        user_preferences.save()
+        return JsonResponse({'msg': "{} changed status!".format(user_preferences.user.get_full_name()),
+                            'status': status})
+    if command == 'change_bonus':
+        user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
+        user_preferences.save()
+        return JsonResponse({'msg': "{} changed bonus!".format(user_preferences.user.get_full_name()),
+                             'bonus': user_preferences.bonus_minutes})
 
+    return Http404()
 
 @require_http_methods(['GET'])
 def index(request):

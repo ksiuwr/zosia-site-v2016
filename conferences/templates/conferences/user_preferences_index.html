@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load i18n %}
 
 {% block content %}
@@ -26,8 +27,8 @@
                     </div>
                 </div>
                 <div id="set-bonus-{{ object.id }}" class="col l2 m3 s3 {% if not object.payment_accepted %}hide{% endif %}">
-                    <div class="switch">
-                      Bonus: {{ object.bonus_minutes }}
+                  Bonus:
+                    <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}">
                     </div>
                 </div>
             </div>
@@ -36,19 +37,62 @@
 {% endblock %}
 
 {% block custom_scripts %}
+    <link type="text/css" rel="stylesheet" href="{% static 'bower_components/materialize/extras/noUiSlider/nouislider.css' %}"  media="screen,projection"/>
+    <script type="text/javascript" src="{% static 'bower_components/materialize/extras/noUiSlider/nouislider.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
+            $('.range').each(function(_index, obj) {
+              var firstUpdate = true;
+              noUiSlider.create(obj, {
+                start: [$(obj).data('bonus')],
+                step: 1,
+                range: {
+                  'min': -100,
+                  'max': 100
+                },
+                format: wNumb({
+                  decimals: 0
+                })
+              });
+              obj.noUiSlider.on('update', _.debounce(function(values) {
+                if (firstUpdate) {
+                  firstUpdate = false;
+                  return
+                }
+                var id = $(obj).data('id');
+                var value = parseInt(values[0]);
+                $.ajax({
+                    type: "POST",
+                    url: '{% url 'user_preferences_admin_edit' %}',
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}',
+                        'key': id,
+                        'command': 'change_bonus',
+                        'bonus': value
+                    },
+                    success: function(data) {
+                        console.log('new bonus of', id, data);
+                    },
+                    error: function(){
+                        alert("Error occured!");
+                    }
+                });
+              }, 1000));
+            });
+
             $('.lever').on('click', function(){
                 var id = $(this).data('id');
                 $.ajax({
                     type: "POST",
-                    url: '{% url 'user_preferences_toggle_payment_accepted' %}',
+                    url: '{% url 'user_preferences_admin_edit' %}',
                     data: {
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
-                        'key': id
+                        'key': id,
+                        'command': 'toggle_payment_accepted'
                     },
                     success: function(data) {
-                        console.log(data, $('#set-bonus-' + id));
+                        console.log('new status of payment:', id, data);
                         $('#set-bonus-' + id).toggleClass('hide');
                     },
                     error: function(){
