@@ -155,9 +155,6 @@ class UserPreferencesTestCase(TestCase):
 
 
 class UserPreferencesFormTestCase(TestCase):
-    def setUp(self):
-        pass
-
     def makeUserPrefsForm(self, **override):
         defaults = {
             'contact': 'fb: me',
@@ -275,13 +272,17 @@ class RegisterViewTestCase(TestCase):
         # Sanity check ;)
         self.assertEqual(prefs.shirt_size, 'M')
 
-
-class UserPreferencesIndexTestCase(TestCase):
+class AdminUserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.normal = new_user(0)
         self.staff = new_user(1, is_staff=True)
         self.zosia = new_zosia(active=True)
+
+
+class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
+    def setUp(self):
+        super().setUp()
         self.url = reverse('user_preferences_index')
 
     def test_index_get_no_user(self):
@@ -314,12 +315,9 @@ class UserPreferencesIndexTestCase(TestCase):
         self.assertEqual(list(context['objects']), list(UserPreferences.objects.filter(zosia=self.zosia).all()))
 
 
-class TogglePaymentAcceptedTestCase(TestCase):
+class TogglePaymentAcceptedTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.staff = new_user(1, is_staff=True)
-        self.zosia = new_zosia(active=True)
         self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
         self.url = reverse('user_preferences_toggle_payment_accepted')
 
@@ -345,12 +343,9 @@ class TogglePaymentAcceptedTestCase(TestCase):
         self.assertTrue(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
 
 
-class UserPreferencesEditTestCase(TestCase):
+class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.staff = new_user(1, is_staff=True)
-        self.zosia = new_zosia(active=True)
         self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia, contact='foo')
         self.url = reverse('user_preferences_edit', kwargs={'user_preferences_id': self.user_prefs.pk})
 

@@ -51,9 +51,7 @@ USER_DATA = [
 
 
 def new_user(ind, **kwargs):
-    user = User.objects.create_user(*USER_DATA[ind], **kwargs)
-    user.save()
-    return user
+    return User.objects.create_user(*USER_DATA[ind], **kwargs)
 
 
 def user_login(user):
