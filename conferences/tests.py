@@ -272,6 +272,7 @@ class RegisterViewTestCase(TestCase):
         # Sanity check ;)
         self.assertEqual(prefs.shirt_size, 'M')
 
+
 class AdminUserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
@@ -315,16 +316,16 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         self.assertEqual(list(context['objects']), list(UserPreferences.objects.filter(zosia=self.zosia).all()))
 
 
-class TogglePaymentAcceptedTestCase(AdminUserPreferencesTestCase):
+class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
         self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
-        self.url = reverse('user_preferences_toggle_payment_accepted')
+        self.url = reverse('user_preferences_admin_edit')
 
     def test_post_no_user(self):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, '/admin/login/?next=/user_preferences_toggle_payment_accepted/')
+        self.assertRedirects(response, '/admin/login/?next=/user_preferences_admin_edit/')
 
     def test_post_normal_user(self):
         self.client.login(username="john", password="johnpassword")
@@ -332,15 +333,26 @@ class TogglePaymentAcceptedTestCase(AdminUserPreferencesTestCase):
                                     {'key': self.user_prefs.pk},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, '/admin/login/?next=/user_preferences_toggle_payment_accepted/')
+        self.assertRedirects(response, '/admin/login/?next=/user_preferences_admin_edit/')
 
-    def test_post_staff_user(self):
+    def test_post_staff_user_can_change_payment_status(self):
         self.client.login(username='ringo', password='ringopassword')
         response = self.client.post(self.url,
-                                    {'key': self.user_prefs.pk},
+                                    {'key': self.user_prefs.pk,
+                                     'command': 'toggle_payment_accepted'},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
+
+    def test_post_staff_user_can_bonus(self):
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.post(self.url,
+                                    {'key': self.user_prefs.pk,
+                                     'command': 'change_bonus',
+                                     'bonus': 20},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().bonus_minutes, 20)
 
 
 class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):

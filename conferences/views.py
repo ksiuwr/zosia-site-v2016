@@ -71,6 +71,7 @@ def admin_edit(request):
 
     return Http404()
 
+
 @require_http_methods(['GET'])
 def index(request):
     zosia = Zosia.objects.find_active()
