@@ -228,3 +228,7 @@ class UserPreferences(models.Model):
 
     def __str__(self):
         return str(self.user) + " preferences"
+
+    def toggle_payment_accepted(self):
+        self.payment_accepted = not self.payment_accepted
+        return self.payment_accepted

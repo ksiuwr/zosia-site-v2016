@@ -8,10 +8,17 @@
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s3"><a href="#blog">{% trans 'Blog' %}</a></li>
-                    <li class="tab col s3"><a class="active" href="#sponsors">{% trans 'Sponsors' %}</a></li>
-                    <li class="tab col s3"><a href="#qa">{% trans 'Q&A' %}</a></li>
-                    <li class="tab col s3"><a href="#lectures">{% trans 'Lectures' %}</a></li>
+                    <li class="tab col s2"><a href="#blog">{% trans 'Blog' %}</a></li>
+                    <li class="tab col s2"><a href="#sponsors">{% trans 'Sponsors' %}</a></li>
+                    <li class="tab col s2"><a class="active" href="#users">{% trans 'Users' %}</a></li>
+                    <li class="tab col s2"><a href="#qa">{% trans 'Q&A' %}</a></li>
+                    <li class="tab col s2"><a href="#lectures">{% trans 'Lectures' %}</a></li>
+                </ul>
+            </div>
+
+            <div id="users" class="col s12">
+                <ul class="collection">
+                    <a href="{% url 'user_preferences_index' %}" class="collection-item">{% trans 'Preferences' %}</a>
                 </ul>
             </div>
 

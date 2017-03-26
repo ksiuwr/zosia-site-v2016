@@ -8,7 +8,7 @@ from django.test import TestCase
 
 from users.models import Organization
 
-from .forms import UserPreferencesForm
+from .forms import UserPreferencesForm, UserPreferencesAdminForm
 from .models import Bus, Place, UserPreferences, Zosia
 from .test_helpers import (PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
                            PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
@@ -143,11 +143,18 @@ class UserPreferencesTestCase(TestCase):
         self.assertEqual(user_prefs.price,
                          PRICE_BASE + PRICE_DINNER)
 
+    def test_toggle_payment_accepted(self):
+        user_prefs = self.makeUserPrefs(
+            payment_accepted=True
+        )
+        self.assertTrue(user_prefs.payment_accepted)
+        user_prefs.toggle_payment_accepted()
+        self.assertFalse(user_prefs.payment_accepted)
+        user_prefs.toggle_payment_accepted()
+        self.assertTrue(user_prefs.payment_accepted)
+
 
 class UserPreferencesFormTestCase(TestCase):
-    def setUp(self):
-        pass
-
     def makeUserPrefsForm(self, **override):
         defaults = {
             'contact': 'fb: me',
@@ -264,3 +271,126 @@ class RegisterViewTestCase(TestCase):
         self.assertFalse(prefs.accomodation_day_1)
         # Sanity check ;)
         self.assertEqual(prefs.shirt_size, 'M')
+
+
+class AdminUserPreferencesTestCase(TestCase):
+    def setUp(self):
+        super().setUp()
+        self.normal = new_user(0)
+        self.staff = new_user(1, is_staff=True)
+        self.zosia = new_zosia(active=True)
+
+
+class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse('user_preferences_index')
+
+    def test_index_get_no_user(self):
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/user_preferences/')
+
+    def test_index_get_normal_user(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/user_preferences/')
+
+    def test_index_get_staff_user(self):
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        context = response.context[-1]
+        self.assertEqual(list(context['objects']), list(UserPreferences.objects.all()))
+
+    def test_index_get_staff_user_multiple_zosias(self):
+        another_zosia = new_zosia()
+        UserPreferences.objects.create(user=self.normal, zosia=another_zosia)
+        UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        UserPreferences.objects.create(user=self.staff, zosia=self.zosia)
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        context = response.context[-1]
+        self.assertEqual(list(context['objects']), list(UserPreferences.objects.filter(zosia=self.zosia).all()))
+
+
+class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
+    def setUp(self):
+        super().setUp()
+        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        self.url = reverse('user_preferences_admin_edit')
+
+    def test_post_no_user(self):
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/user_preferences_admin_edit/')
+
+    def test_post_normal_user(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.post(self.url,
+                                    {'key': self.user_prefs.pk},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=/user_preferences_admin_edit/')
+
+    def test_post_staff_user_can_change_payment_status(self):
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.post(self.url,
+                                    {'key': self.user_prefs.pk,
+                                     'command': 'toggle_payment_accepted'},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
+
+    def test_post_staff_user_can_bonus(self):
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.post(self.url,
+                                    {'key': self.user_prefs.pk,
+                                     'command': 'change_bonus',
+                                     'bonus': 20},
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().bonus_minutes, 20)
+
+
+class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
+    def setUp(self):
+        super().setUp()
+        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia, contact='foo')
+        self.url = reverse('user_preferences_edit', kwargs={'user_preferences_id': self.user_prefs.pk})
+
+    def test_get_no_user(self):
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=' + self.url)
+
+    def test_get_normal_user(self):
+        self.client.login(username="john", password="johnpassword")
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, '/admin/login/?next=' + self.url)
+
+    def test_get_staff_user_returns_admin_form(self):
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        context = response.context[-1]
+        self.assertEqual(context['object'], self.user_prefs)
+        self.assertEqual(context['form'].__class__, UserPreferencesAdminForm)
+
+    def test_post_staff_user_will_change_prefs(self):
+        self.client.login(username='ringo', password='ringopassword')
+        response = self.client.post(self.url,
+                                    data={
+                                        'shirt_size': 'XXL',
+                                        'shirt_type': 'f',
+                                        'contact': self.user_prefs.contact,
+                                        'bonus_minutes': 0
+                                    },
+                                    follow=True)
+        self.assertEqual(response.status_code, 200)
+        prefs = UserPreferences.objects.filter(pk=self.user_prefs.pk).first()
+        self.assertEqual(prefs.shirt_size, 'XXL')
+        self.assertEqual(prefs.shirt_type, 'f')

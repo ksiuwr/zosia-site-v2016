@@ -47,12 +47,11 @@ def new_zosia(commit=True, **kwargs):
 USER_DATA = [
     ['john', 'lennon@thebeatles.com', 'johnpassword'],
     ['ringo', 'starr@thebeatles.com', 'ringopassword']
-
 ]
 
 
-def new_user(ind):
-    return User.objects.create_user(*USER_DATA[ind])
+def new_user(ind, **kwargs):
+    return User.objects.create_user(*USER_DATA[ind], **kwargs)
 
 
 def user_login(user):
