@@ -121,15 +121,18 @@ footer.page-footer {
 
 /** MESSAGES CLASSES **/
 .success {
-    color: #1de9b6;
+    background-color: #1de9b6;
+    color: black;
 }
 
 .error {
-    color: #ff8a80;
+    background-color: #ff8a80;
+    color: black;
 }
 
 .warning {
-    color: #ffd740;
+    background-color: #ffd740;
+    color: black;
 }
 
 /** NEW **/

@@ -27,7 +27,7 @@
                     </div>
                 </div>
                 <div id="set-bonus-{{ object.id }}" class="col l2 m3 s3 {% if not object.payment_accepted %}hide{% endif %}">
-                  Bonus:
+                    <div  id="bonus-value-{{ object.id }}"> Bonus: {{ object.bonus_minutes }} </div>
                     <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}">
                     </div>
                 </div>
@@ -46,10 +46,10 @@
               var firstUpdate = true;
               noUiSlider.create(obj, {
                 start: [$(obj).data('bonus')],
-                step: 1,
+                step: {{ bonus_step }},
                 range: {
-                  'min': -100,
-                  'max': 100
+                  'min': {{ min_bonus }},
+                  'max': {{ max_bonus }}
                 },
                 format: wNumb({
                   decimals: 0
@@ -68,14 +68,15 @@
                     data: {
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                         'key': id,
-                        'command': 'change_bonus',
+                        'command': '{{ change_bonus }}',
                         'bonus': value
                     },
                     success: function(data) {
-                        console.log('new bonus of', id, data);
+                        $('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
+                        Materialize.toast(data['msg'], 1000, "success");
                     },
                     error: function(){
-                        alert("Error occured!");
+                        Materialize.toast("Error setting bonus.", 1000, "error");
                     }
                 });
               }, 1000));
@@ -89,14 +90,14 @@
                     data: {
                         'csrfmiddlewaretoken': '{{ csrf_token }}',
                         'key': id,
-                        'command': 'toggle_payment_accepted'
+                        'command': '{{ toggle_payment }}'
                     },
                     success: function(data) {
-                        console.log('new status of payment:', id, data);
+                        Materialize.toast(data['msg'], 1000, "success");
                         $('#set-bonus-' + id).toggleClass('hide');
                     },
                     error: function(){
-                        alert("Error occured!");
+                        Materialize.toast("Error setting payment status.", 1000, "error");
                     }
                 });
             });

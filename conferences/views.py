@@ -1,20 +1,21 @@
 from urllib.parse import urlencode
 
-from django.shortcuts import render, get_object_or_404, redirect, reverse
-from django.views.decorators.http import require_http_methods
-from django.http import Http404, JsonResponse
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
-from .models import Zosia, UserPreferences
-from .forms import UserPreferencesForm, UserPreferencesAdminForm
 from sponsors.models import Sponsor
 
-
-GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
+from .constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
+                        ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
+                        BONUS_STEP, GAPI_PLACE_BASE_URL, MAX_BONUS, MIN_BONUS)
+from .forms import UserPreferencesAdminForm, UserPreferencesForm
+from .models import UserPreferences, Zosia
 
 
 @staff_member_required()
@@ -22,9 +23,13 @@ GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 def user_preferences_index(request):
     zosia = get_object_or_404(Zosia, active=True)
     # TODO: paging?
-    user_preferences = UserPreferences.objects.filter(zosia=zosia).all()
-    user_preferences = sorted(user_preferences, key=lambda x: x.pk)
-    ctx = {'objects': user_preferences}
+    user_preferences = UserPreferences.objects.filter(zosia=zosia).order_by('pk').all()
+    ctx = {'objects': user_preferences,
+           'change_bonus': ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
+           'toggle_payment': ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
+           'min_bonus': MIN_BONUS,
+           'max_bonus': MAX_BONUS,
+           'bonus_step': BONUS_STEP}
     return render(request, 'conferences/user_preferences_index.html', ctx)
 
 
@@ -47,7 +52,7 @@ def user_preferences_edit(request, user_preferences_id=None):
             messages.success(request, _("Form saved!"))
             return redirect(reverse('user_preferences_index'))
         else:
-            messages.error(request, _("There has been errors"))
+            messages.error(request, _("Errors occured during validation"))
 
     return render(request, 'conferences/user_preferences_edit.html', ctx)
 
@@ -58,15 +63,19 @@ def admin_edit(request):
     user_preferences_id = request.POST.get('key', None)
     user_preferences = get_object_or_404(UserPreferences, pk=user_preferences_id)
     command = request.POST.get('command', False)
-    if command == 'toggle_payment_accepted':
+    if command == ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT:
         status = user_preferences.toggle_payment_accepted()
         user_preferences.save()
-        return JsonResponse({'msg': "{} changed status!".format(user_preferences.user.get_full_name()),
-                            'status': status})
-    if command == 'change_bonus':
+        return JsonResponse({'msg': _("Changed payment status of {} to {}").format(
+            user_preferences.user.get_full_name(),
+            status),
+                             'status': status})
+    if command == ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS:
         user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
         user_preferences.save()
-        return JsonResponse({'msg': "{} changed bonus!".format(user_preferences.user.get_full_name()),
+        return JsonResponse({'msg': _("Changed bonus of {} to {}").format(
+            user_preferences.user.get_full_name(),
+            user_preferences.bonus_minutes),
                              'bonus': user_preferences.bonus_minutes})
 
     return Http404()
@@ -86,7 +95,7 @@ def index(request):
             'q': zosia.place.address,
         }
         context['gapi_place_src'] = GAPI_PLACE_BASE_URL + '?' + urlencode(query)
-        # FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http
+        # FIXME: Make sure this url starts with http. Django WILL try to make it relative otherwise
         context['zosia_url'] = zosia.place.url
     return render(request, 'conferences/index.html', context)
 
