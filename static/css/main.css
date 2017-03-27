@@ -99,13 +99,11 @@ footer.page-footer {
 }
 
 .error-modal {
-    background-color: rgba(255, 0, 0, 0.48);
-    border-radius: 15px;
+    color: #d32f2f;
 }
 
 .error-modal li .collapsible-header {
-    background-color: rgba(255, 0, 0, 0.48);
-    border-radius: 15px;
+    color: #b71c1c;
 }
 
 
