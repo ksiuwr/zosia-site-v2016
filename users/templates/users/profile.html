@@ -2,66 +2,74 @@
 {% load i18n %}
 
 {% block content %}
-<div class="container">
-  <div class="row">
-    <div class="col l6 m6 s12 offset-m3">
-      <h2>{% trans "Profile" %}</h2>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col l6 m6 s12">
-      <p>{% trans "username" %}</p>
-    </div>
-    <div class="col l6 m6 s12">
-      <p>{{ user }}</p>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col l6 m6 s6">{% trans "email" %}:</div>
-    <div class="col l6 m6 s6 right">{{ user.email }}</div>
-  </div>
-  <div class="row">
-      <p><a href="{% url 'password_change' %}">{% trans 'Change password?' %}</a></p>
-  </div>
-  {% if current_prefs %}
+  <div class="container">
     <div class="row">
-      <div class="col l6 m6 s6">{% trans "You are registered for current ZOSIA" %}</div>
-      <div class="col l6 m6 s6 right">
-        <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">
-          {% trans "Preferences" %}
-        </a>
+      <div class="col s12">
+        <ul class="tabs">
+          <li class="tab col s2"><a class="active" href="#info">{% trans 'Information' %}</a></li>
+          <li class="tab col s2"><a href="#zosia">{% trans 'ZOSIA' %}</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="row" id="info">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <div class="card-title">{{ user }} - {% trans "profile" %}</div>
+            <div class="row">
+              <div class="col s12">
+                {{ user.email }}
+              </div>
+            </div>
+          </div>
+          <div class="card-action">
+            <a href="#">{% trans "Edit" %}</a>
+            <a href="{% url 'password_change' %}">{% trans "Change password" %}</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    {% if current_prefs.payment_accepted %}
-      <div class="row">
-        <div class="col l6 m6 s6">{% trans "Payment accepted :)" %}</div>
-      </div>
-      <div class="row">
-        <div class="col l6 m6 s6">
-        {% trans "You have" %}
-          {{ current_prefs.bonus_minutes|stringformat:"i" }}
-        {% trans " bonus minutes" %}.
+    <div class="row" id="zosia">
+      <div class="col s12">
+        {% if current_prefs %}
+        <div class="card">
+          <div class="card-content">
+            <div class="card-title">{{ current_prefs.zosia }}</div>
+            {% if current_prefs.payment_accepted %}
+              <blockquote>
+                {% trans "Your payment has been accepted :)" %}
+              </blockquote>
+              <div class="row">
+                <div class="col s12">
+                  <p>{% trans "Your bonus for rooms assigment" %}: {{ current_prefs.bonus_minutes|stringformat:"i" }}</p>
+                </div>
+              </div>
+            {% else %}
+              <blockquote>
+              {% trans "Payment information" %} <br />
+                <span>{% trans "Total" %}: {{ current_prefs.price }} PLN</span><br />
+                {{ current_prefs.zosia.account_number }}<br />
+                {{ current_prefs.zosia.account_details }}
+              </blockquote>
+            {% endif %}
+            {% if all_prefs %}
+              <h6>{% trans "Your previous conferences" %}</h6>
+              <p>
+              {% for zosia in all_prefs %}
+                <div class="chip">{{ zosia }}</div>
+              {% endfor %}
+              </p>
+            {% endif %}
+          </div>
+          <div class="card-action">
+            <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">{% trans "Update preferences" %}</a>
+          </div>
         </div>
+        {% endif %}
       </div>
-    {% else %}
-      <div class="row">
-        <div class="col l6 m6 s6">{% trans "You should pay" %} <b>{{ current_prefs.price }}</b> zł to</div>
-        <div class="col l6 m6 s6 right">
-          <p>{{ current_prefs.zosia.account_number }}</p>
-          <p>{{ current_prefs.zosia.account_details }}</p>
-        </div>
-      </div>
-    {% endif %}
-  {% endif %}
 
-  {% if all_prefs %}
-    <div class="row">
-        <p>{% trans 'You were on' %}:</p>
-        {% for pref in all_prefs %}
-          {{ pref.zosia }}
-        {% endfor %}
+      {% if all_prefs %}
+      {% endif %}
     </div>
-  {% endif %}
-</div>
 {% endblock %}

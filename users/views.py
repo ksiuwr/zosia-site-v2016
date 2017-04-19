@@ -20,14 +20,9 @@ def profile(request):
         if current_prefs:
             ctx['current_prefs'] = current_prefs
 
-    all_prefs = (
-        UserPreferences
-        .objects
-        .select_related('zosia')
-        .filter(user=request.user)
-        .exclude(zosia=current_zosia)
-        .all()
-    )
+    all_prefs = UserPreferences.objects.select_related(
+        'zosia').filter(user=request.user).exclude(zosia=current_zosia)
+    all_prefs = all_prefs.values_list('zosia', flat=True)
     if all_prefs:
         ctx['all_prefs'] = all_prefs
     return render(request, 'users/profile.html', ctx)
