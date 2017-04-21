@@ -37,9 +37,20 @@ def signup(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            user = form.save(request)
+            form.save(request)
             return render(request, 'users/signup_done.html', ctx)
 
+    return render(request, 'users/signup.html', ctx)
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def account_edit(request):
+    form = forms.EditUserForm(request.POST or None, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return redirect('accounts_profile')
+    ctx = {'form': form}
     return render(request, 'users/signup.html', ctx)
 
 

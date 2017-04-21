@@ -23,7 +23,7 @@
             </div>
           </div>
           <div class="card-action">
-            <a href="#">{% trans "Edit" %}</a>
+            <a href="{% url 'accounts_edit' %}">{% trans "Edit" %}</a>
             <a href="{% url 'password_change' %}">{% trans "Change password" %}</a>
           </div>
         </div>
@@ -53,6 +53,19 @@
                 {{ current_prefs.zosia.account_details }}
               </blockquote>
             {% endif %}
+
+            <div class="row">
+              <div class="col s6">
+                <h6>{{ current_prefs.organization }}</h6>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col s12">
+                {% trans "Bus?" %} {{ current_prefs.bus|yesno:'true,false' }}
+              </div>
+            </div>
+
             {% if all_prefs %}
               <h6>{% trans "Your previous conferences" %}</h6>
               <p>

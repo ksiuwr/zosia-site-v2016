@@ -26,3 +26,9 @@ class UserForm(UserCreationForm):
 
         self.user = user
         return user
+
+
+class EditUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
