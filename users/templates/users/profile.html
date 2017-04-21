@@ -8,6 +8,12 @@
       <ul class="tabs">
         <li class="tab col s2"><a href="#info" class="active">{% trans 'Information' %}</a></li>
         <li class="tab col s2"><a href="#zosia">{% trans 'ZOSIA' %}</a></li>
+        {% if zosia and zosia.is_lectures_open %}
+        <li class="tab col s2"><a href="{% url 'lectures_add' %}" target="_self">{% trans 'Add lecture' %}</a></li>
+        {% endif %}
+        {% if zosia and zosia.is_rooming_open %}
+        <li class="tab col s2"><a href="{% url 'rooms_index' %}" target="_self">{% trans 'Rooms' %}</a></li>
+        {% endif %}
       </ul>
     </div>
   </div>
