@@ -3,43 +3,48 @@
 
 {% block content %}
   <div class="container">
-    <div class="row">
-      <div class="col s12">
-        <ul class="tabs">
-          <li class="tab col s2"><a href="#info">{% trans 'Information' %}</a></li>
-          <li class="tab col s2"><a href="#zosia" class="active">{% trans 'ZOSIA' %}</a></li>
-        </ul>
-      </div>
+  <div class="row">
+    <div class="col s12">
+      <ul class="tabs">
+        <li class="tab col s2"><a href="#info" class="active">{% trans 'Information' %}</a></li>
+        <li class="tab col s2"><a href="#zosia">{% trans 'ZOSIA' %}</a></li>
+      </ul>
     </div>
-    <div class="row" id="info">
-      <div class="col s12">
-        <div class="card">
-          <div class="card-content">
-            <div class="card-title">{{ user.display_name }} - {% trans "profile" %}</div>
-            <div class="row">
-              <div class="col s12">
-                {{ user.email }}
-              </div>
+  </div>
+  <div class="row" id="info">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <div class="card-title">{{ user.display_name }} - {% trans "profile" %}</div>
+          <div class="row">
+            <div class="col s12">
+              {{ user.email }}
             </div>
           </div>
-          <div class="card-action">
-            <a href="{% url 'accounts_edit' %}">{% trans "Edit" %}</a>
-            <a href="{% url 'password_change' %}">{% trans "Change password" %}</a>
-          </div>
+        </div>
+        <div class="card-action">
+          <a href="{% url 'accounts_edit' %}">{% trans "Edit" %}</a>
+          <a href="{% url 'password_change' %}">{% trans "Change password" %}</a>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="row" id="zosia">
-      <div class="col s12">
-        {% if current_prefs %}
-        <div class="card">
-          <div class="card-content">
-            <div class="card-title">{{ current_prefs.zosia }}
-            <div class="chip">
+  <div class="row" id="zosia">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <div class="card-title">
+            {% if current_prefs %}
+              {{ current_prefs.zosia }}
+              <div class="chip">
                 <h6>{{ current_prefs.organization }}</h6>
               </div>
-            </div>
+            {% else %}
+              ZOSIA
+            {% endif %}
+          </div>
+          {% if current_prefs %}
             {% if current_prefs.payment_accepted %}
               <blockquote>
                 {% trans "Your payment has been accepted :)" %}
@@ -67,13 +72,13 @@
             <div class="row">
               {% if current_prefs.vegetarian %}
                 <div class="teal-text col s12">
-                <i class="fa fa-leaf" aria-hidden="true"></i>
-                {% trans "Vegetarian" %}
+                  <i class="fa fa-leaf" aria-hidden="true"></i>
+                  {% trans "Vegetarian" %}
                 </div>
               {% endif %}
 
               <div class="col s12">
-              <i class="fa fa-bus" aria-hidden="true"></i>
+                <i class="fa fa-bus" aria-hidden="true"></i>
                 {% if current_prefs.bus %}
                   {{ current_prefs.bus }}
                 {% else %}
@@ -84,14 +89,14 @@
 
             <div class="row">
               <div class="col l3 m3 s6">
-              <p>
-                <input type="checkbox" class="filled-in" id="filled-in-box" {% if current_prefs.accomodation_day_1 %}checked="checked"{% endif %} />
-                <label for="filled-in-box">{% trans "Day 1" %}</label>
-              </p>
-              <p>
-                <input type="checkbox" class="filled-in" id="filled-in-box" {% if current_prefs.dinner_1 %}checked="checked"{% endif %} />
-                <label for="filled-in-box">{% trans "Day 1 - dinner" %}</label>
-              </p>
+                <p>
+                  <input type="checkbox" class="filled-in" id="filled-in-box" {% if current_prefs.accomodation_day_1 %}checked="checked"{% endif %} />
+                  <label for="filled-in-box">{% trans "Day 1" %}</label>
+                </p>
+                <p>
+                  <input type="checkbox" class="filled-in" id="filled-in-box" {% if current_prefs.dinner_1 %}checked="checked"{% endif %} />
+                  <label for="filled-in-box">{% trans "Day 1 - dinner" %}</label>
+                </p>
               </div>
               <div class="col l3 m3 s6">
                 <p>
@@ -129,29 +134,29 @@
               </div>
             </div>
 
-          <h5>
-            <i class="fa fa-user-md" aria-hidden="true"></i>
-            {{ current_prefs.get_shirt_type_display }}
-            {{ current_prefs.get_shirt_size_display }}
-          </h5>
+            <h5>
+              <i class="fa fa-user-md" aria-hidden="true"></i>
+              {{ current_prefs.get_shirt_type_display }}
+              {{ current_prefs.get_shirt_size_display }}
+            </h5>
+          {% endif %}
 
-            {% if all_prefs %}
-              <h6>{% trans "Your previous conferences" %}</h6>
-              <p>
+          {% if all_prefs %}
+            <h6>{% trans "Your previous conferences" %}</h6>
+            <p>
               {% for zosia in all_prefs %}
                 <div class="chip">{{ zosia }}</div>
               {% endfor %}
-              </p>
-            {% endif %}
-          </div>
-          <div class="card-action">
-            <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">{% trans "Update preferences" %}</a>
-          </div>
+            </p>
+          {% endif %}
         </div>
-        {% endif %}
+        <div class="card-action">
+          {% if current_prefs %}
+            <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">{% trans "Update preferences" %}</a>
+          {% endif %}
+        </div>
       </div>
-
-      {% if all_prefs %}
-      {% endif %}
     </div>
+
+  </div>
 {% endblock %}
