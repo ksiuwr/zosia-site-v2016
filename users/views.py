@@ -13,23 +13,19 @@ from conferences.models import Zosia, UserPreferences
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
-    ctx = {}
     current_zosia = Zosia.objects.find_active()
-    if current_zosia:
-        current_prefs = UserPreferences.objects.filter(zosia=current_zosia, user=request.user).first()
-        if current_prefs:
-            ctx['current_prefs'] = current_prefs
+    user_preferences = UserPreferences.objects.select_related(
+        'bus', 'zosia').filter(user=request.user)
 
-    all_prefs = (
-        UserPreferences
-        .objects
-        .select_related('zosia')
-        .filter(user=request.user)
-        .exclude(zosia=current_zosia)
-        .all()
-    )
-    if all_prefs:
-        ctx['all_prefs'] = all_prefs
+    current_prefs = user_preferences.filter(zosia=current_zosia).first()
+    all_prefs = user_preferences.exclude(zosia=current_zosia).values_list(
+        'zosia', flat=True)
+
+    ctx = {
+        'zosia': current_zosia,
+        'current_prefs': current_prefs,
+        'all_prefs': all_prefs
+    }
     return render(request, 'users/profile.html', ctx)
 
 
@@ -42,9 +38,20 @@ def signup(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            user = form.save(request)
+            form.save(request)
             return render(request, 'users/signup_done.html', ctx)
 
+    return render(request, 'users/signup.html', ctx)
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def account_edit(request):
+    form = forms.EditUserForm(request.POST or None, instance=request.user)
+    if form.is_valid():
+        form.save()
+        return redirect('accounts_profile')
+    ctx = {'form': form}
     return render(request, 'users/signup.html', ctx)
 
 

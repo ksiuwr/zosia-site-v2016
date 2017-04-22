@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     url('^profile/$', views.profile, name='accounts_profile'),
     url('^signup/$', views.signup, name='accounts_signup'),
+    url(r'^edit/$', views.account_edit, name='accounts_edit'),
     url('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='accounts_activate'),
     url('^', include('django.contrib.auth.urls')),

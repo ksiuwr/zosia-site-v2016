@@ -12,6 +12,10 @@
     color: #A0A8A4;
 }
 
+.text-dark-green {
+    color: #546A60;
+}
+
 #index-banner .header {
     margin-top: 0;
 }
@@ -95,13 +99,11 @@ footer.page-footer {
 }
 
 .error-modal {
-    background-color: rgba(255, 0, 0, 0.48);
-    border-radius: 15px;
+    color: #d32f2f;
 }
 
 .error-modal li .collapsible-header {
-    background-color: rgba(255, 0, 0, 0.48);
-    border-radius: 15px;
+    color: #b71c1c;
 }
 
 
