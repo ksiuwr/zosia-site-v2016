@@ -142,9 +142,21 @@ class Bus(models.Model):
         return str('Bus {}'.format(self.time))
 
 
+class UserPreferencesManager(models.Manager):
+    def for_zosia(self, zosia, **override):
+        defaults = {
+            'zosia': zosia
+        }
+        defaults.update(**override)
+        return self.filter(**defaults)
+
+
 class UserPreferences(models.Model):
     class Meta:
         verbose_name_plural = 'Users preferences'
+
+    objects = UserPreferencesManager()
+
     user = models.ForeignKey(User)
     zosia = models.ForeignKey(Zosia)
     organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
@@ -232,3 +244,7 @@ class UserPreferences(models.Model):
     def toggle_payment_accepted(self):
         self.payment_accepted = not self.payment_accepted
         return self.payment_accepted
+
+    @property
+    def room(self):
+        return self.user.room_set.for_zosia(self.zosia).first()

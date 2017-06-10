@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load cache %}
+
+{% block content %}
+      <div class="container">
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s6"><a href="#by-room">{% trans 'By room' %}</a></li>
+                    <li class="tab col s6"><a href="#by-user">{% trans 'By user' %}</a></li>
+                </ul>
+            </div>
+
+            <div id="by-room" class="col s12">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{% trans 'Room' %}</th>
+                    <th>{% trans 'Capacity' %}</th>
+                    <th>{% trans 'Occupied' %}</th>
+                    <th>{% trans 'Users' %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in rooms %}
+                  <tr>
+                    <td>{{r.name}}</td>
+                    <td>{{r.capacity}}</td>
+                    <td>{{r.occupied}}</td>
+                    <td>{{r.occupants}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <div id="by-user" class="col s12">
+              <table>
+                <thead>
+                  <tr>
+                    <th>{% trans 'User' %}</th>
+                    <th>{% trans 'Room' %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for r in user_preferences %}
+                  <tr>
+                    <td>{{r.user}}</td>
+                    <td>{{r.room.name}}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block custom_scripts %}
+{% endblock custom_scripts %}

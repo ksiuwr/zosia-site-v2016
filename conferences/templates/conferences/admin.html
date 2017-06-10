@@ -13,6 +13,7 @@
                     <li class="tab col s2"><a class="active" href="#users">{% trans 'Users' %}</a></li>
                     <li class="tab col s2"><a href="#qa">{% trans 'Q&A' %}</a></li>
                     <li class="tab col s2"><a href="#lectures">{% trans 'Lectures' %}</a></li>
+                    <li class="tab col s2"><a href="#rooms">{% trans 'Rooms' %}</a></li>
                 </ul>
             </div>
 
@@ -41,11 +42,19 @@
                     <a href="{% url 'questions_add' %}" class="collection-item">{% trans 'Q&A add' %}</a>
                 </ul>
             </div>
+
             <div id="lectures" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'lectures_all_staff' %}" class="collection-item">{% trans 'Lectures' %}</a>
                     <a href="{% url 'lectures_staff_add' %}" class="collection-item">{% trans 'Add lecture' %}</a>
                     <a href="{% url 'lectures_schedule_add' %}" class="collection-item">{% trans 'Update schedule' %}</a>
+                </ul>
+            </div>
+
+            <div id="rooms" class="col s12">
+                <ul class="collection">
+                    <a href="{% url 'rooms_report' %}" class="collection-item">{% trans 'Rooms' %}</a>
+                    <a href="{% url 'rooms_import' %}" class="collection-item">{% trans 'Add room' %}</a>
                 </ul>
             </div>
         </div>

@@ -77,6 +77,14 @@ class Room(models.Model):
     def is_locked(self):
         return self.lock and not self.lock.is_expired
 
+    @property
+    def occupied(self):
+        return self.userroom_set.count()
+
+    @property
+    def occupants(self):
+        return  ", ".join(map(lambda x: str(x), self.users.all()))
+
     @transaction.atomic
     def join(self, user, password='', expiration=None, lock=True):
         if self.is_locked and not self.lock.unlocks(password):
@@ -87,7 +95,7 @@ class Room(models.Model):
                                    })
 
         # Ensure room is not full
-        if self.userroom_set.count() >= self.capacity:
+        if self.occupied >= self.capacity:
             return ValidationError(_('Cannot join room %(room), is full.'),
                                    code='invalid',
                                    params={

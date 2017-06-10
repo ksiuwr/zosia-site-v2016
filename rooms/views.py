@@ -6,6 +6,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -108,3 +109,20 @@ def unlock(request):
         return JsonResponse({'status': 'ok'})
     else:
         return JsonResponse({'status': 'not_changed'})
+
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def report(request):
+    zosia = get_object_or_404(Zosia, active=True)
+    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = sorted(rooms, key=lambda x: x.pk)
+    users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
+    users = sorted(users, key=lambda x: x.pk)
+    ctx = {
+        'zosia':  zosia,
+        'rooms': rooms,
+        'user_preferences': users
+    }
+    return render(request, 'rooms/report.html', ctx)
