@@ -1,10 +1,12 @@
 import json
+import csv
+from io import TextIOWrapper
 
 from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
@@ -15,6 +17,7 @@ from django.template import loader, Context
 from conferences.models import Zosia, UserPreferences
 from .models import Room, UserRoom
 from .serializers import room_to_dict, user_to_dict
+from .forms import UploadFileForm
 
 
 # Cache hard (15mins)
@@ -143,3 +146,30 @@ def report(request):
         return csv_response(rooms, template='rooms/rooms.txt', filename='rooms')
 
     return render(request, 'rooms/report.html', ctx)
+
+
+def handle_uploaded_file(zosia, csvfile):
+    for row in csv.reader(csvfile, delimiter=','):
+        print(row, len(row))
+        name, desc, cap, hidden = row
+        if name != "Name":
+            Room.objects.get_or_create(
+                zosia=zosia,
+                name=name,
+                description=desc,
+                capacity=cap,
+                hidden=hidden)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def import_room(request):
+    zosia = get_object_or_404(Zosia, active=True)
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            handle_uploaded_file(zosia, TextIOWrapper(request.FILES['file'].file, encoding=request.encoding))
+            return HttpResponseRedirect(reverse('rooms_report'))
+    else:
+        form = UploadFileForm()
+    return render(request, 'rooms/import.html', {'form': form})

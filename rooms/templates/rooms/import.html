@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+{% load cache %}
+{% load materializecss %}
+
+{% block content %}
+      <div class="container">
+        <div class="col s12">
+          <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% include '_form.html' with form_name="Upload rooms" %}
+          </form>
+        </div>
+        <div class="col s12">
+          {% trans 'Please upload CSV file looking as below' %}:
+        </div>
+        <pre>
+        Name,Description,Capacity,Hidden
+        189,Ladny pokoj na koncu korytarza,3,False
+        213,Z balkonem,2,False
+        217,Z jacuzzi,4,True
+        </pre>
+        <div class="col s12">
+          <table class="highlight responsive-table bg-table">
+            <thead>
+              <tr>
+                <th>{% trans 'Name' %}</th>
+                <th>{% trans 'Description' %}</th>
+                <th>{% trans 'Capacity' %}</th>
+                <th>{% trans 'Hidden' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>189</td>
+                <td>Ladny pokoj na koncu korytarz</td>
+                <td>3</td>
+                <td>False</td>
+              </tr>
+              <tr>
+                <td>213</td>
+                <td>Z balkonem</td>
+                <td>2</td>
+                <td>False</td>
+              </tr>
+              <tr>
+                <td>217</td>
+                <td>Z jacuzzi</td>
+                <td>4</td>
+                <td>True</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+{% endblock %}
+
+{% block custom_scripts %}
+{% endblock custom_scripts %}
