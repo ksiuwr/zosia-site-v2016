@@ -8,7 +8,10 @@ class User(AbstractUser):
     @property
     def display_name(self):
         full_name = self.get_full_name()
-        return full_name or str(self)
+        return full_name or self.get_username()
+
+    def __str__(self):
+        return self.display_name
 
 
 class Organization(models.Model):
