@@ -223,3 +223,11 @@ footer.page-footer {
         display: initial;
     }
 }
+
+.download-btn {
+    margin: 0.1em;
+}
+
+.bg-table {
+    background-color: #EAECEB;
+}

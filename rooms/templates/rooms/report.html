@@ -14,7 +14,8 @@
             </div>
 
             <div id="by-room" class="col s12">
-              <table>
+              <a class="btn-floating btn waves-effect waves-light blue download-btn" href="{% url 'rooms_report' %}?download=rooms"><i class="material-icons">file_download</i></a>
+              <table class="highlight responsive-table bg-table">
                 <thead>
                   <tr>
                     <th>{% trans 'Room' %}</th>
@@ -37,10 +38,12 @@
             </div>
 
             <div id="by-user" class="col s12">
-              <table>
+              <a class="btn-floating btn waves-effect waves-light blue download-btn" href="{% url 'rooms_report' %}?download=users"><i class="material-icons">file_download</i></a>
+              <table class="highlight responsive-table bg-table">
                 <thead>
                   <tr>
                     <th>{% trans 'User' %}</th>
+                    <th>{% trans 'Paid' %}</th>
                     <th>{% trans 'Room' %}</th>
                   </tr>
                 </thead>
@@ -48,6 +51,7 @@
                   {% for r in user_preferences %}
                   <tr>
                     <td>{{r.user}}</td>
+                    <td>{{r.payment_accepted}}</td>
                     <td>{{r.room.name}}</td>
                   </tr>
                   {% endfor %}

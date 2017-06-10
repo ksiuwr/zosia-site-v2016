@@ -4,12 +4,13 @@ from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.cache import cache_page
 from django.views.decorators.vary import vary_on_cookie
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.template import loader, Context
 
 from conferences.models import Zosia, UserPreferences
 from .models import Room, UserRoom
@@ -111,18 +112,34 @@ def unlock(request):
         return JsonResponse({'status': 'not_changed'})
 
 
+def csv_response(data, template, filename='file'):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+    t = loader.get_template(template)
+    c = Context({
+        'data': data,
+    })
+    response.write(t.render(c))
+    return response
 
 @staff_member_required
 @require_http_methods(['GET'])
 def report(request):
     zosia = get_object_or_404(Zosia, active=True)
     rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
-    rooms = sorted(rooms, key=lambda x: x.pk)
+    rooms = sorted(rooms, key=lambda x: str(x))
     users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
-    users = sorted(users, key=lambda x: x.pk)
+    users = sorted(users, key=lambda x: str(x))
     ctx = {
         'zosia':  zosia,
         'rooms': rooms,
         'user_preferences': users
     }
+
+    download = request.GET.get('download', False)
+    if download == 'users':
+        return csv_response(users, template='rooms/users.txt', filename='users')
+    if download == 'rooms':
+        return csv_response(rooms, template='rooms/rooms.txt', filename='rooms')
+
     return render(request, 'rooms/report.html', ctx)
