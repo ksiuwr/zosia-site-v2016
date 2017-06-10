@@ -125,6 +125,7 @@ def csv_response(data, template, filename='file'):
     response.write(t.render(c))
     return response
 
+
 @staff_member_required
 @require_http_methods(['GET'])
 def report(request):

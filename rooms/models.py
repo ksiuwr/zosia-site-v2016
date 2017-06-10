@@ -83,7 +83,7 @@ class Room(models.Model):
 
     @property
     def occupants(self):
-        return  ", ".join(map(lambda x: str(x), self.users.all()))
+        return ", ".join(map(lambda x: str(x), self.users.all()))
 
     @transaction.atomic
     def join(self, user, password='', expiration=None, lock=True):

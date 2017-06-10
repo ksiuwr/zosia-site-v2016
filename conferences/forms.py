@@ -27,10 +27,10 @@ class UserPreferencesForm(UserPreferencesBaseForm):
         ['accomodation_day_3', 'breakfast_3', 'dinner_3']
     ]
 
-
-    # NOTE: In hindsight, this sucks. Forget about this whitelist after adding fields and weird stuff happens when someone tries to update preferences.
+    # NOTE: In hindsight, this sucks.
+    # Forget about this whitelist after adding fields
+    # and weird stuff happens when someone tries to update preferences.
     CAN_CHANGE_AFTER_PAYMENT_ACCEPTED = ['contact', 'shirt_size', 'shirt_type']
-
 
     class Meta:
         model = UserPreferences
