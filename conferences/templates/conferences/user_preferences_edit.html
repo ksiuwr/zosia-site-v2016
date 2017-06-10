@@ -3,32 +3,20 @@
 {% load materializecss %}
 
 {% block content %}
-<div class="container">
-  <h3>
-    {% trans "Update preferences" %}
-  </h3>
   <form method="post">
     {% csrf_token %}
-    {{ form | materializecss }}
-    <div class="row">
-      <div class="col m6 s6 offset-s3 offset-m4">
-        <div class="row">
-            <button id="submit" type="submit" class="waves-effect waves-light btn">
-              {% trans 'Confirm' %}
-            </button>
-        </div>
-      </div>
+    <div class="container">
+      {% include '_form.html' with form_name="Update preferences" %}
     </div>
   </form>
-</div>
 {% endblock content %}
 
 {% block custom_scripts %}
-<script type="text/javascript">
-  $(document).ready(function() {
-    $('select').material_select();
-    $('textarea').addClass('materialize-textarea');
-    $('#id_contact').prop('disabled', true);
-  });
-</script>
+  <script type="text/javascript">
+      $(document).ready(function() {
+          $('select').material_select();
+          $('textarea').addClass('materialize-textarea');
+          $('#id_contact').prop('disabled', true);
+      });
+  </script>
 {% endblock custom_scripts %}
