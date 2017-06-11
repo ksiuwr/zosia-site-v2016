@@ -115,6 +115,8 @@ def unlock(request):
         return JsonResponse({'status': 'not_changed'})
 
 
+# https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
+# NOTE: Might not be the best approach - consider using csv module instead
 def csv_response(data, template, filename='file'):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
@@ -151,7 +153,6 @@ def report(request):
 
 def handle_uploaded_file(zosia, csvfile):
     for row in csv.reader(csvfile, delimiter=','):
-        print(row, len(row))
         name, desc, cap, hidden = row
         if name != "Name":
             Room.objects.get_or_create(
