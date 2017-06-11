@@ -23,7 +23,8 @@ from .models import UserPreferences, Zosia
 def user_preferences_index(request):
     zosia = get_object_or_404(Zosia, active=True)
     # TODO: paging?
-    user_preferences = UserPreferences.objects.filter(zosia=zosia).order_by('pk').all()
+    user_preferences = UserPreferences.objects.filter(
+        zosia=zosia).select_related('user').order_by('pk').all()
     ctx = {'objects': user_preferences,
            'change_bonus': ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
            'toggle_payment': ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
