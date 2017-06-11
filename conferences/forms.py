@@ -27,6 +27,11 @@ class UserPreferencesForm(UserPreferencesBaseForm):
         ['accomodation_day_3', 'breakfast_3', 'dinner_3']
     ]
 
+    # NOTE: In hindsight, this sucks.
+    # Forget about this whitelist after adding fields
+    # and weird stuff happens when someone tries to update preferences.
+    CAN_CHANGE_AFTER_PAYMENT_ACCEPTED = ['contact', 'shirt_size', 'shirt_type']
+
     class Meta:
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
@@ -66,8 +71,9 @@ class UserPreferencesForm(UserPreferencesBaseForm):
             raise forms.ValidationError(errs)
 
     def disable(self):
+        self.fields['accepted'].initial = True
         for field in self.fields:
-            if field not in ['contact', 'shirt_size', 'shirt_type']:
+            if field not in self.CAN_CHANGE_AFTER_PAYMENT_ACCEPTED:
                 self.fields[field].disabled = True
 
 
