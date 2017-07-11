@@ -3,6 +3,7 @@ Django 1.10 version of ZOSIA registration page - v2016 edition.
 
 ## Development
 
+### Localhost approach
 #### Static components (bower)
 * Ensure you have `npm` installed
 * Install dependencies with: `npm i`
@@ -38,3 +39,28 @@ Use docker:
 * `bash tools/setup_db.sh`
 Connect to db by setting '127.0.0.1' host in dev settings:
 * `echo 'DATABASES['default']['HOST'] = '127.0.0.1'' >> zosia16/settings/dev.py`
+
+### Full in-docker development (if you are on Windows)
+#### Setup settings/dev.py
+Use `dev.examaple.py` and add:
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
+        'HOST': 'db',
+        'PORT': 5432,
+    }
+}
+
+ALLOWED_HOSTS = ['*']
+```
+#### Build and run docker containers:
+`docker-compose up --build -d`
+#### Setup node modules
+`docker exec -it zosia16site_web_1 ln -s ../node_modules ./`
+#### Run migrations
+`docker exec -it zosia16site_web_1 python manage.py migrate`
+#### Pull frontend deps
+`docker exec -it zosia16site_web_1 make deps`
