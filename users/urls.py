@@ -1,16 +1,19 @@
 from django.conf.urls import url, include
+from django.contrib.auth.views import login
 
 from . import views
+from .utils import anonymous_required
+
 
 urlpatterns = [
     url('^profile/$', views.profile, name='accounts_profile'),
-    url('^signup/$', views.signup, name='accounts_signup'),
+    url('^signup/$', anonymous_required(views.signup), name='accounts_signup'),
     url(r'^edit/$', views.account_edit, name='accounts_edit'),
     url('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='accounts_activate'),
+    url(r'^login/$', anonymous_required(login), name='login'),
     url('^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
-    # ^login/$ [name='login']
     # ^logout/$ [name='logout']
     # ^password_change/$ [name='password_change']
     # ^password_change/done/$ [name='password_change_done']
