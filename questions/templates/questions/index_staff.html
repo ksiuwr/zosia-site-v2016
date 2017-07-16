@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <h3>{% trans 'Questions & Answers' %}</h3>
+    <div class="fixed-action-btn">
+        <a href="{% url 'questions_add' %}" class="waves-effect waves-light btn-floating secondary-content btn-large">
+            <i class="material-icons">add</i>
+        </a>
+    </div>
+
+{% if questions %}
+    <ul class="collapsible" data-collapsible="accordion">
+    {% for question in questions %}
+    <li>
+        <div class="collapsible-header">
+            <i class="material-icons">person_pin</i>
+            {{ question.question }}
+            <span class="right">
+                <a href="{% url 'questions_edit' question.id %}">
+                    <i class="material-icons">mode_edit</i>
+                </a>
+                <a href="{% url 'questions_delete' question.id %}">
+                    <i class="material-icons red-text text-darken-3">delete</i>
+                </a>
+            </span>
+        </div>
+        <div class="collapsible-body">
+            <span>{{ question.answer }}</span>
+        </div>
+    </li>
+    {% endfor %}
+    </ul>
+{% else %}
+
+{% endif %}
+</div>
+{% endblock %}

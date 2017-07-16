@@ -1,0 +1,3 @@
+{% load i18n %}"{% trans 'User' %}", "{% trans 'Paid' %}", "{% trans 'Room' %}"
+{% for row in data %}"{{ row.user|addslashes }}", "{{ row.payment_accepted|addslashes }}", "{{ row.room.name|addslashes }}"
+{% endfor %}
