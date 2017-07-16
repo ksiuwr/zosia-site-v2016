@@ -184,16 +184,16 @@ class UserPreferences(models.Model):
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
     contact = models.TextField(default='')
-    information = models.TextField(default='', blank=True,
+    information = models.TextField(
+        default='', blank=True,
         help_text=_('Here is where you can give us information about yourself'
-        'that may be important during your trip.'))
+                    'that may be important during your trip.'))
     vegetarian = models.BooleanField(default=False)
     # Set by admin after checking payment
     payment_accepted = models.BooleanField(default=False)
 
     shirt_size = models.CharField(max_length=5, choices=SHIRT_SIZE_CHOICES, default=SHIRT_SIZE_CHOICES[0][0])
     shirt_type = models.CharField(max_length=1, choices=SHIRT_TYPES_CHOICES, default=SHIRT_TYPES_CHOICES[0][0])
-
 
     # Assigned by admin for various reasons (early registration / payment, help, etc)
     # Should allow some users to book room earlier
