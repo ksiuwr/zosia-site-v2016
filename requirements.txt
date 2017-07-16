@@ -8,6 +8,7 @@ contextlib2==0.5.4
 decorator==4.0.10
 Django==1.10.2
 django-anymail==0.6.1
+django-debug-toolbar=1.8
 django-materializecss-form==1.0.1
 gunicorn==19.6.0
 hy==0.11.1
