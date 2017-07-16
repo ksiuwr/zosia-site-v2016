@@ -3,10 +3,12 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.tokens import default_token_generator
+from django.http import JsonResponse, HttpResponseBadRequest
 
 from . import forms
 from .actions import ActivateUser
 from conferences.models import Zosia, UserPreferences
+from .models import Organization
 
 
 # Create your views here.
@@ -72,3 +74,14 @@ def activate(request, uidb64, token):
         'user': action.user,
     }
     return render(request, 'users/activate.html', ctx)
+
+
+@login_required
+@require_http_methods(['POST'])
+def create_organization(request):
+    user = request.user
+    name = request.POST.get('name', None)
+    if name is None:
+        return HttpResponseBadRequest()
+    org, _ = Organization.objects.get_or_create(user=user, name=name, accepted=False)
+    return JsonResponse({'status': 'OK', 'html': name, 'value': org.pk})

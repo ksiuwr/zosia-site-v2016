@@ -116,7 +116,8 @@ def register(request, zosia_id):
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
 
-    form = UserPreferencesForm(request.POST or None,
+    form = UserPreferencesForm(request.user,
+                               request.POST or None,
                                **form_args)
 
     if user_prefs and user_prefs.payment_accepted:
@@ -125,7 +126,7 @@ def register(request, zosia_id):
     ctx['form'] = form
     if request.method == 'POST':
         if form.is_valid():
-            form.call(zosia, request.user)
+            form.call(zosia)
             messages.success(request, _("Form saved!"))
             return redirect('accounts_profile')
         else:

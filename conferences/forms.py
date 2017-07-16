@@ -1,11 +1,12 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from .widgets import SelectWithAjaxAdd
 from .models import UserPreferences, Zosia, Bus
 from users.models import Organization
 
 
-class UserPreferencesBaseForm(forms.ModelForm):
+class UserPreferencesWithBusForm(forms.ModelForm):
     def bus_queryset(self, instance=None):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
         if instance:
@@ -17,9 +18,21 @@ class UserPreferencesBaseForm(forms.ModelForm):
         self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
 
 
-class UserPreferencesForm(UserPreferencesBaseForm):
-    use_required_attribute = False
+class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
+    def org_queryset(self, user):
+        org_queryset = Organization.objects.filter(accepted=True)
+        org_queryset = org_queryset | Organization.objects.filter(user=user)
+        return org_queryset
 
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        org_form = self.fields['organization']
+        org_form.widget = SelectWithAjaxAdd()
+        org_form.queryset = self.org_queryset(user)
+
+
+class UserPreferencesForm(UserPreferencesWithOrgForm):
+    use_required_attribute = False
     # NOTE: I'm not sure if that's how it should be:
     DEPENDENCIES = [
         # This means you need to check accomodation_1 before you can check dinner_1
@@ -41,13 +54,13 @@ class UserPreferencesForm(UserPreferencesBaseForm):
     # Yes, it's required by default. But it's insane - better be verbose than misunderstood.
     accepted = forms.BooleanField(required=True)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['organization'].queryset = Organization.objects.filter(accepted=True)
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(user, *args, **kwargs)
+        self.user = user
 
-    def call(self, zosia, user):
+    def call(self, zosia):
         user_preferences = self.save(commit=False)
-        user_preferences.user = user
+        user_preferences.user = self.user
         user_preferences.zosia = zosia
         user_preferences.save()
         return user_preferences
@@ -79,7 +92,7 @@ class UserPreferencesForm(UserPreferencesBaseForm):
                 self.fields[field].disabled = True
 
 
-class UserPreferencesAdminForm(UserPreferencesBaseForm):
+class UserPreferencesAdminForm(UserPreferencesWithBusForm):
     class Meta:
         model = UserPreferences
         exclude = [

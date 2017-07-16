@@ -24,6 +24,9 @@
     {% endblock %}
 </head>
 <body>
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+    
     {% block navbar %}
         {% include "navbar.html" %}
     {% endblock %}
@@ -33,9 +36,6 @@
     </main>
     <!-- FOOTER -->
     {% include 'footer.html' %}
-
-    <!--Import jQuery before materialize.js-->
-    <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bower_components/materialize/dist/js/materialize.min.js' %}"></script>
 
     <!-- MESSAGES -->

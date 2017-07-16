@@ -156,6 +156,7 @@ class UserPreferencesTestCase(TestCase):
 
 class UserPreferencesFormTestCase(TestCase):
     def makeUserPrefsForm(self, **override):
+        self.normal = new_user(0)
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
@@ -163,7 +164,7 @@ class UserPreferencesFormTestCase(TestCase):
             'accepted': True
         }
         defaults.update(**override)
-        return UserPreferencesForm(defaults)
+        return UserPreferencesForm(self.normal, defaults)
 
     def test_basic_form(self):
         self.assertTrue(self.makeUserPrefsForm().is_valid())

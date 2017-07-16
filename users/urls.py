@@ -12,6 +12,7 @@ urlpatterns = [
     url('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='accounts_activate'),
     url(r'^login/$', anonymous_required(login), name='login'),
+    url('^ajax/organization/create', views.create_organization, name='create_organization'),
     url('^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
     # ^logout/$ [name='logout']
