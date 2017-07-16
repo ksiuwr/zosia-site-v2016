@@ -2,6 +2,7 @@ from functools import wraps
 
 from django.shortcuts import redirect
 
+
 def anonymous_required(view):
     @wraps(view)
     def func(request, *args, **kwargs):
