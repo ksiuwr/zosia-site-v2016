@@ -7,6 +7,7 @@ class LectureForm(forms.ModelForm):
         model = Lecture
         fields = ['title', 'abstract', 'duration', 'info', 'lecture_type',
                   'person_type']
+        widgets = {'abstract': forms.Textarea}
 
 
 class LectureAdminForm(forms.ModelForm):
@@ -17,6 +18,7 @@ class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
         exclude = ['zosia', 'create_date', 'priority']
+        widgets = {'abstract': forms.Textarea}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
