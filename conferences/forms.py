@@ -20,7 +20,7 @@ class UserPreferencesWithBusForm(forms.ModelForm):
 
 class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
     class Meta:
-        widgets = { 'organization': OrgSelectWithAjaxAdd }
+        widgets = {'organization': OrgSelectWithAjaxAdd}
 
     def org_queryset(self, user):
         org_queryset = Organization.objects.filter(accepted=True)

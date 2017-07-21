@@ -35,6 +35,7 @@ MODAL_BODY = """
   </div>
 """
 
+
 # NOTE: Don't try to use more than one at the same time.
 class OrgSelectWithAjaxAdd(Select):
     class Media:
