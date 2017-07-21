@@ -184,6 +184,10 @@ class UserPreferences(models.Model):
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
     contact = models.TextField(default='')
+    information = models.TextField(
+        default='', blank=True,
+        help_text=_('Here is where you can give us information about yourself'
+                    'that may be important during your trip.'))
     vegetarian = models.BooleanField(default=False)
     # Set by admin after checking payment
     payment_accepted = models.BooleanField(default=False)

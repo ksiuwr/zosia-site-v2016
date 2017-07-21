@@ -18,6 +18,8 @@ class UserPreferencesBaseForm(forms.ModelForm):
 
 
 class UserPreferencesForm(UserPreferencesBaseForm):
+    use_required_attribute = False
+
     # NOTE: I'm not sure if that's how it should be:
     DEPENDENCIES = [
         # This means you need to check accomodation_1 before you can check dinner_1
