@@ -8,7 +8,7 @@ $(document).ready(function(){
       var url = $this.attr('data-url');
       var target = $this.attr('data-target');
       // TODO: This won't work with multiple select_with_ajax_add on one page.
-      var $fields = $('#select_with_ajax_add :input');
+      var $fields = $('#org_select_with_ajax_add_form :input');
       var data = {};
       $fields.each(function() {
         var $this = $(this);
@@ -30,6 +30,6 @@ $(document).ready(function(){
         console.error("ASSERT ERROR: Empty url for select_with_ajax_add");
       }
     };
-    $('#org-save').on('click', save_org);
+    $('#org_select_with_ajax_add_save').on('click', save_org);
   }());
 });

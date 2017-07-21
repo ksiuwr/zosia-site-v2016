@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from .widgets import SelectWithAjaxAdd
+from .widgets import OrgSelectWithAjaxAdd
 from .models import UserPreferences, Zosia, Bus
 from users.models import Organization
 
@@ -19,6 +19,9 @@ class UserPreferencesWithBusForm(forms.ModelForm):
 
 
 class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
+    class Meta:
+        widgets = { 'organization': OrgSelectWithAjaxAdd }
+
     def org_queryset(self, user):
         org_queryset = Organization.objects.filter(accepted=True)
         org_queryset = org_queryset | Organization.objects.filter(user=user)
@@ -27,7 +30,6 @@ class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         org_form = self.fields['organization']
-        org_form.widget = SelectWithAjaxAdd()
         org_form.queryset = self.org_queryset(user)
 
 
@@ -47,7 +49,7 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
     # and weird stuff happens when someone tries to update preferences.
     CAN_CHANGE_AFTER_PAYMENT_ACCEPTED = ['contact', 'shirt_size', 'shirt_type']
 
-    class Meta:
+    class Meta(UserPreferencesWithOrgForm.Meta):
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
 
