@@ -21,6 +21,17 @@ class Organization(models.Model):
     accepted = models.BooleanField(
         default=False
     )
+    user = models.ForeignKey(
+        User,
+        null=True,
+        blank=True)
+
+    @property
+    def owner(self):
+        if self.accepted:
+            return ''
+        else:
+            return '({})'.format(str(self.user))
 
     def __str__(self):
-        return self.name
+        return "{} {}".format(self.name, self.owner)
