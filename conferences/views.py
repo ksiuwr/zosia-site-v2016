@@ -154,8 +154,18 @@ def admin_panel(request):
 @require_http_methods(['GET'])
 def bus_admin(request):
     zosia = Zosia.objects.find_active()
-    ctx = {'zosia': zosia}
+    active_buses = Bus.objects.filter(zosia=zosia)
+    ctx = {'zosia': zosia, 'buses': active_buses}
     return render(request, 'conferences/bus.html', ctx)
+
+@staff_member_required
+@require_http_methods(['GET'])
+def bus_people(request, pk):
+    bus = get_object_or_404(Bus, pk=pk)
+    users = UserPreferences.objects.select_related('user').filter(bus=bus)
+    ctx = {'bus': bus, 'users': users}
+    return render(request, 'conferences/bus_users.html', ctx)
+
 
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
