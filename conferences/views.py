@@ -15,7 +15,7 @@ from .constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
                         ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
                         BONUS_STEP, GAPI_PLACE_BASE_URL, MAX_BONUS, MIN_BONUS)
 from .forms import UserPreferencesAdminForm, UserPreferencesForm
-from .models import UserPreferences, Zosia
+from .models import UserPreferences, Zosia, Bus
 
 
 @staff_member_required()
@@ -148,3 +148,16 @@ def terms_and_conditions(request):
 @require_http_methods(['GET'])
 def admin_panel(request):
     return render(request, 'conferences/admin.html')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def bus_admin(request):
+    zosia = Zosia.objects.find_active()
+    ctx = {'zosia': zosia}
+    return render(request, 'conferences/bus.html', ctx)
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def bus_add(request):
+    pass

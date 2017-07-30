@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <h3>{% trans "Bus" %}</h3>
+
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s6"><a href="#">{% trans 'Add' %}</a></li>
+                <li class="tab col s6"><a href="#buses">{% trans 'Buses' %}</a></li>
+            </ul>
+        </div>
+
+        <div id="buses" class="col s12">
+            <ul class="collection">
+                <a href="{% url 'user_preferences_index' %}" class="collection-item">{% trans 'Preferences' %}</a>
+            </ul>
+        </div>
+
+  </div>
+{% endblock %}
