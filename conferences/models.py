@@ -141,6 +141,14 @@ class Bus(models.Model):
     def __str__(self):
         return str('Bus {}'.format(self.time))
 
+    @property
+    def free_seats(self):
+        return self.capacity - self.taken
+
+    @property
+    def taken(self):
+        return UserPreferences.objects.filter(bus=self).count()
+
 
 class UserPreferencesManager(models.Manager):
     def for_zosia(self, zosia, **override):
