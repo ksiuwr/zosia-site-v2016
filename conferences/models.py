@@ -134,7 +134,7 @@ class Bus(models.Model):
         verbose_name_plural = 'Buses'
     objects = BusManager()
 
-    zosia = models.ForeignKey(Zosia)
+    zosia = models.ForeignKey(Zosia, related_name='buses')
     capacity = models.IntegerField()
     time = models.TimeField()
 
