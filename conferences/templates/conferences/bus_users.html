@@ -1,1 +1,18 @@
 {% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <h3>{{ bus }}</h3>
+        <div class="col s12">
+            <ul class="collection">
+              {% for user in users %}
+              <li class='collection-item'>
+                  {{ forloop.counter }}.
+                  {{ user.user }}
+              </li>
+              {% endfor %}
+            </ul>
+        </div>
+  </div>
+{% endblock %}
