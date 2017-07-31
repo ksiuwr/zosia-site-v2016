@@ -14,7 +14,8 @@ from sponsors.models import Sponsor
 from .constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
                         ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
                         BONUS_STEP, GAPI_PLACE_BASE_URL, MAX_BONUS, MIN_BONUS)
-from .forms import UserPreferencesAdminForm, UserPreferencesForm, BusForm
+from .forms import (UserPreferencesAdminForm, UserPreferencesForm, BusForm,
+                    ZosiaForm)
 from .models import UserPreferences, Zosia, Bus
 
 
@@ -190,8 +191,26 @@ def bus_add(request, pk=None):
 
 
 @staff_member_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def conferences(request):
     conferences = Zosia.objects.all()
     ctx = {'conferences': conferences}
     return render(request, 'conferences/conferences.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def update_zosia(request, pk=None):
+    if pk:
+        zosia = get_object_or_404(Zosia, pk=pk)
+        form = ZosiaForm(request.POST or None, instance=zosia)
+    else:
+        zosia = None
+        form =  ZosiaForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, _('Zosia has been saved'))
+        return redirect('conferences')
+    ctx ={'form': form, 'zosia': zosia}
+    return render(request, 'conferences/conference_add.html', ctx)

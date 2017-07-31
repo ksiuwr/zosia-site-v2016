@@ -9,7 +9,7 @@
         <div class="col s12">
             <ul class="tabs">
               <li class="tab col s6"><a href="#buses">{% trans 'Conferences' %}</a></li>
-              <li class="tab col s6"><a href="#" target='_self'>{% trans 'Add' %}</a></li>
+              <li class="tab col s6"><a href="{% url 'zosia_add' %}" target='_self'>{% trans 'Add' %}</a></li>
             </ul>
         </div>
 
@@ -20,7 +20,7 @@
                   <i class="fa fa-calendar" aria-hidden="true"></i>
                   {{ zosia }}
                 <div class='right'>
-                  <a href="#">
+                  <a href="{% url 'zosia_update' zosia.pk %}">
                     <i class="material-icons">mode_edit</i>
                   </a>
                 </div>
