@@ -206,11 +206,11 @@ def update_zosia(request, pk=None):
         form = ZosiaForm(request.POST or None, instance=zosia)
     else:
         zosia = None
-        form =  ZosiaForm(request.POST or None)
+        form = ZosiaForm(request.POST or None)
 
     if form.is_valid():
         form.save()
         messages.success(request, _('Zosia has been saved'))
         return redirect('conferences')
-    ctx ={'form': form, 'zosia': zosia}
+    ctx = {'form': form, 'zosia': zosia}
     return render(request, 'conferences/conference_add.html', ctx)
