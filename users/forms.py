@@ -10,7 +10,7 @@ from .models import User
 class UserForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['email', 'first_name', 'last_name']
 
     def save(self, request):
         user = super().save(commit=False)

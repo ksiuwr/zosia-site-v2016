@@ -11,11 +11,11 @@ User = get_user_model()
 
 class BlogTests(TestCase):
     def setUp(self):
-        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
+        self.normal = User.objects.create_user('lennon@thebeatles.com',
                                                'johnpassword')
         self.normal.save()
 
-        self.staff = User.objects.create_user('paul', 'paul@thebeatles.com',
+        self.staff = User.objects.create_user('paul@thebeatles.com',
                                               'paulpassword')
         self.staff.is_staff = True
         self.staff.save()
@@ -77,7 +77,7 @@ class ViewTestCase(BlogTests):
         self.assertRedirects(response, '/admin/login/?next=/blog/create')
 
     def test_create_get_staff_user(self):
-        self.client.login(username="paul", password="paulpassword")
+        self.client.login(email="paul@thebeatles.com", password="paulpassword")
         response = self.client.get(reverse('blog_create'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'blog/create.html')

@@ -45,8 +45,8 @@ def new_zosia(commit=True, **kwargs):
 
 
 USER_DATA = [
-    ['john', 'lennon@thebeatles.com', 'johnpassword'],
-    ['ringo', 'starr@thebeatles.com', 'ringopassword']
+    ['lennon@thebeatles.com', 'johnpassword'],
+    ['starr@thebeatles.com', 'ringopassword']
 ]
 
 
@@ -56,8 +56,8 @@ def new_user(ind, **kwargs):
 
 def user_login(user):
     return {
-        'username': user.username,
-        'password': next(filter(lambda x: x[0] == user.username, USER_DATA))[2]
+        'email': user.email,
+        'password': next(filter(lambda x: x[0] == user.email, USER_DATA))[1]
     }
 
 

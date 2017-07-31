@@ -25,12 +25,12 @@ class FormTestCase(TestCase):
 class ViewsTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.staff = User.objects.create_user('paul', 'paul@thebeatles.com',
+        self.staff = User.objects.create_user('paul@thebeatles.com',
                                               'paulpassword')
         self.staff.is_staff = True
         self.staff.save()
 
-        self.normal = User.objects.create_user('john', 'lennon@thebeatles.com',
+        self.normal = User.objects.create_user('lennon@thebeatles.com',
                                                'johnpassword')
         self.normal.save()
 
@@ -41,14 +41,14 @@ class ViewsTestCase(TestCase):
         self.assertRedirects(response, '/admin/login/?next=/questions/all/')
 
     def test_index_get_normal_user(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(reverse('questions_index_staff'),
                                    follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/questions/all/')
 
     def test_index_get_staff_user(self):
-        self.client.login(username='paul', password='paulpassword')
+        self.client.login(email='paul@thebeatles.com', password='paulpassword')
         response = self.client.get(reverse('questions_index_staff'),
                                    follow=True)
         self.assertEqual(response.status_code, 200)
@@ -56,7 +56,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual(list(context['questions']), list(QA.objects.all()))
 
     def test_add_get_staff_user(self):
-        self.client.login(username='paul', password='paulpassword')
+        self.client.login(email='paul@thebeatles.com', password='paulpassword')
         response = self.client.get(reverse('questions_add'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
@@ -64,7 +64,7 @@ class ViewsTestCase(TestCase):
 
     def test_add_post(self):
         questions = QA.objects.count()
-        self.client.login(username='paul', password='paulpassword')
+        self.client.login(email='paul@thebeatles.com', password='paulpassword')
         response = self.client.post(reverse('questions_add'),
                                     {'question': 'foo', 'answer': 'bar'},
                                     follow=True)
@@ -72,7 +72,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual(questions + 1, QA.objects.count())
 
     def test_edit_get_staff_user(self):
-        self.client.login(username='paul', password='paulpassword')
+        self.client.login(email='paul@thebeatles.com', password='paulpassword')
         qa = QA.objects.create(question='foo', answer='http://google.com')
         response = self.client.get(reverse('questions_edit',
                                            kwargs={'question_id': qa.id}),

@@ -112,7 +112,6 @@ def create_zosia(**kwargs):
 def create_admin_user():
     data = {
         'email': 'zosia@example.com',
-        'username': 'zosia',
         'first_name': 'ZOSIA',
         'last_name': 'KSIOWA',
         'password': 'admin'

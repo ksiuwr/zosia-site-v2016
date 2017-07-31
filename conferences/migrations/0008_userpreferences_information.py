@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='userpreferences',
             name='information',
-            field=models.TextField(blank=True, default='', help_text='Here is where you can give us information about yourselfthat may be important during your trip.'),
+            field=models.TextField(blank=True, default='', help_text='Here is where you can give us information about yourself that may be important during your trip.'),
         ),
     ]

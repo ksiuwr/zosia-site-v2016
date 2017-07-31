@@ -191,7 +191,7 @@ class RegisterViewTestCase(TestCase):
         self.assertRedirects(response, '/accounts/login/?next={}'.format(self.url))
 
     def test_get_regular_user_not_registered(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -200,7 +200,7 @@ class RegisterViewTestCase(TestCase):
         self.assertFalse('object' in context)
 
     def test_get_regular_user_already_registered(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         org = Organization.objects.create(name='ksi', accepted=True)
         user_prefs = UserPreferences.objects.create(zosia=self.zosia,
                                                     user=self.normal,
@@ -214,7 +214,7 @@ class RegisterViewTestCase(TestCase):
 
     def test_post_user_not_registered_empty_data(self):
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
                                     data={},
                                     follow=True)
@@ -223,7 +223,7 @@ class RegisterViewTestCase(TestCase):
 
     def test_post_user_not_registered_with_data(self):
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
                                     data={
                                         'contact': 'fb: me',
@@ -238,7 +238,7 @@ class RegisterViewTestCase(TestCase):
     def test_post_user_already_registered(self):
         UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
                                     data={
                                         'contact': 'fb: me',
@@ -257,7 +257,7 @@ class RegisterViewTestCase(TestCase):
                                        shirt_size='M',
                                        payment_accepted=True)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
                                     data={
                                         'accomodation_day_1': True,
@@ -293,13 +293,13 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         self.assertRedirects(response, '/admin/login/?next=/user_preferences/')
 
     def test_index_get_normal_user(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/user_preferences/')
 
     def test_index_get_staff_user(self):
-        self.client.login(username='ringo', password='ringopassword')
+        self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
@@ -310,7 +310,7 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         UserPreferences.objects.create(user=self.normal, zosia=another_zosia)
         UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
         UserPreferences.objects.create(user=self.staff, zosia=self.zosia)
-        self.client.login(username='ringo', password='ringopassword')
+        self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
@@ -329,7 +329,7 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
         self.assertRedirects(response, '/admin/login/?next=/user_preferences_admin_edit/')
 
     def test_post_normal_user(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
                                     {'key': self.user_prefs.pk},
                                     follow=True)
@@ -337,7 +337,7 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
         self.assertRedirects(response, '/admin/login/?next=/user_preferences_admin_edit/')
 
     def test_post_staff_user_can_change_payment_status(self):
-        self.client.login(username='ringo', password='ringopassword')
+        self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.post(self.url,
                                     {'key': self.user_prefs.pk,
                                      'command': 'toggle_payment_accepted'},
@@ -346,7 +346,7 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
         self.assertTrue(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
 
     def test_post_staff_user_can_bonus(self):
-        self.client.login(username='ringo', password='ringopassword')
+        self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.post(self.url,
                                     {'key': self.user_prefs.pk,
                                      'command': 'change_bonus',
@@ -368,13 +368,13 @@ class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
         self.assertRedirects(response, '/admin/login/?next=' + self.url)
 
     def test_get_normal_user(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=' + self.url)
 
     def test_get_staff_user_returns_admin_form(self):
-        self.client.login(username='ringo', password='ringopassword')
+        self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
@@ -382,7 +382,7 @@ class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
         self.assertEqual(context['form'].__class__, UserPreferencesAdminForm)
 
     def test_post_staff_user_will_change_prefs(self):
-        self.client.login(username='ringo', password='ringopassword')
+        self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.post(self.url,
                                     data={
                                         'shirt_size': 'XXL',
