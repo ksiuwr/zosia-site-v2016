@@ -187,3 +187,11 @@ def bus_add(request, pk=None):
         return redirect('bus_admin')
     ctx = {'form': form, 'object': instance}
     return render(request, 'conferences/bus_add.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def conferences(request):
+    conferences = Zosia.objects.all()
+    ctx = {'conferences': conferences}
+    return render(request, 'conferences/conferences.html', ctx)

@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^bus/add/$', views.bus_add, name='bus_add'),
     url(r'^bus/(?P<pk>\d+)/update/$', views.bus_add, name='bus_update'),
     url(r'^bus/(?P<pk>\d+)/people/$', views.bus_people, name='bus_people'),
+    url(r'^conferences/$', views.conferences, name='conferences')
 ]
