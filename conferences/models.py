@@ -134,12 +134,20 @@ class Bus(models.Model):
         verbose_name_plural = 'Buses'
     objects = BusManager()
 
-    zosia = models.ForeignKey(Zosia)
+    zosia = models.ForeignKey(Zosia, related_name='buses')
     capacity = models.IntegerField()
     time = models.TimeField()
 
     def __str__(self):
         return str('Bus {}'.format(self.time))
+
+    @property
+    def free_seats(self):
+        return self.capacity - self.taken
+
+    @property
+    def taken(self):
+        return UserPreferences.objects.filter(bus=self).count()
 
 
 class UserPreferencesManager(models.Manager):

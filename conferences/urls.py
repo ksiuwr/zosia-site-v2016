@@ -11,4 +11,8 @@ urlpatterns = [
         views.admin_edit, name='user_preferences_admin_edit'),
     url(r'^conference/(?P<zosia_id>\d+)/register/$', views.register, name='user_zosia_register'),
     url(r'^user_preferences/(?P<user_preferences_id>\d+)/$', views.user_preferences_edit, name='user_preferences_edit'),
+    url(r'^bus/$', views.bus_admin, name='bus_admin'),
+    url(r'^bus/add/$', views.bus_add, name='bus_add'),
+    url(r'^bus/(?P<pk>\d+)/update/$', views.bus_add, name='bus_update'),
+    url(r'^bus/(?P<pk>\d+)/people/$', views.bus_people, name='bus_people'),
 ]

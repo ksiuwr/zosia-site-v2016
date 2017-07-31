@@ -118,3 +118,9 @@ class UserPreferencesAdminForm(UserPreferencesWithBusForm):
         # NOTE: Seems like it's not working?
         # Probably because JS overwrites HTML attr. Argh.
         self.fields['contact'].disabled = True
+
+
+class BusForm(forms.ModelForm):
+    class Meta:
+        model = Bus
+        exclude = []

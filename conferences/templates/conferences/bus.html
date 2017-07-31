@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <h3>{% trans "Bus" %}</h3>
+
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+              <li class="tab col s6"><a href="#buses">{% trans 'Buses' %}</a></li>
+              <li class="tab col s6"><a href="{% url 'bus_add' %}" target='_self'>{% trans 'Add' %}</a></li>
+            </ul>
+        </div>
+
+        <div id="buses" class="col s12">
+            <ul class="collection">
+              {% for bus in buses %}
+              <li class='collection-item'>
+                  <div class='chip'>
+                    <i class="fa fa-bus" aria-hidden="true"></i>
+                    {{ bus.taken }} / {{ bus.capacity }}
+                  </div>
+                  {{ bus }}
+                <div class='right'>
+                  <a href="{% url 'bus_update' bus.id %}">
+                    <i class="material-icons">mode_edit</i>
+                  </a>
+                  <a href="{% url 'bus_people' bus.id %}">
+                    <i class="fa fa-users" aria-hidden="true"></i>
+                  </a>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+        </div>
+
+  </div>
+{% endblock %}
