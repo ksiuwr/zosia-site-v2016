@@ -124,3 +124,9 @@ class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
         exclude = []
+
+
+class ZosiaForm(forms.ModelForm):
+    class Meta:
+        model = Zosia
+        exclude = []
