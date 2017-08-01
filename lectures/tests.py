@@ -24,8 +24,9 @@ class LectureTestCase(TestCase):
             lecture_registration_start=now, lecture_registration_end=now,
             price_accomodation_dinner=0, price_accomodation_breakfast=0,
             price_whole_day=0)
-        self.user = User.objects.create_user('john', 'john@thebeatles.com',
-                                             'johnpassword')
+        self.user = User.objects.create_user('john@thebeatles.com',
+                                             'johnpassword',
+                                             first_name='john')
 
 
 class ModelTestCase(LectureTestCase):
@@ -189,7 +190,7 @@ class FormTestCase(LectureTestCase):
 class ViewsTestCase(LectureTestCase):
     def setUp(self):
         super().setUp()
-        self.superuser = User.objects.create_user('paul', 'paul@thebeatles.com',
+        self.superuser = User.objects.create_user('paul@thebeatles.com',
                                                   'paulpassword')
 
     def test_index_get(self):
@@ -205,13 +206,13 @@ class ViewsTestCase(LectureTestCase):
         self.assertRedirects(response, '/admin/login/?next=/lectures/all')
 
     def test_display_all_normal(self):
-        self.client.login(username="john", password="johnpassword")
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(reverse('lectures_all_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/lectures/all')
 
     def test_display_all_staff(self):
-        self.client.login(username='paul', password='paulpassword')
+        self.client.login(email='paul@thebeatles.com', password='paulpassword')
         response = self.client.get(reverse('lectures_all_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('lectures/all.html')
