@@ -6,6 +6,14 @@ from .models import UserPreferences, Zosia, Bus
 from users.models import Organization
 
 
+class DateWidget(forms.TextInput):
+    def __init__(self, attrs=None):
+        if attrs is None:
+            attrs = {}
+        attrs.update({'class': 'datepicker'})
+        super(DateWidget, self).__init__(attrs)
+
+
 class UserPreferencesWithBusForm(forms.ModelForm):
     def bus_queryset(self, instance=None):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
@@ -124,3 +132,21 @@ class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
         exclude = []
+
+
+class ZosiaForm(forms.ModelForm):
+    class Meta:
+        model = Zosia
+        exclude = []
+        widgets = {
+            'start_date': DateWidget,
+            'registration_start': DateWidget,
+            'registration_end': DateWidget,
+            'rooming_start': DateWidget,
+            'rooming_end': DateWidget,
+            'lecture_registration_start': DateWidget,
+            'lecture_registration_end': DateWidget,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(ZosiaForm, self).__init__(*args, **kwargs)
