@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
@@ -113,3 +113,13 @@ def update_organization(request, pk=None):
         messages.success(request, _('Organization updated'))
     ctx = {'form': form, 'organization': organization}
     return render(request, 'users/organization_form.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['POST'])
+def toggle_organization(request):
+    organization_id = request.POST.get('key', None)
+    organization = get_object_or_404(Organization, pk=organization_id)
+    organization.accepted = not organization.accepted
+    organization.save(update_fields=['accepted'])
+    return JsonResponse({'msg': "{} changed status!".format(organization)})

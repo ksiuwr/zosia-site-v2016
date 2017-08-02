@@ -33,3 +33,23 @@
 
   </div>
 {% endblock %}
+
+{% block custom_scripts %}
+  <script type="text/javascript">
+      $(document).ready(function(){
+          $('.lever').on('click', function(){
+              $.ajax({
+                  type: "POST",
+                  url: '{% url 'toggle_organization' %}',
+                  data: {
+                      'csrfmiddlewaretoken': '{{ csrf_token }}',
+                      'key': $(this).data('id')
+                  },
+                  error: function(){
+                      alert("Error occured!");
+                  }
+              });
+          });
+      });
+  </script>
+{% endblock %}
