@@ -1,4 +1,6 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
@@ -9,6 +11,7 @@ from . import forms
 from .actions import ActivateUser
 from conferences.models import Zosia, UserPreferences
 from .models import Organization
+from .forms import OrganizationForm
 
 
 # Create your views here.
@@ -85,3 +88,28 @@ def create_organization(request):
         return HttpResponseBadRequest()
     org, _ = Organization.objects.get_or_create(user=user, name=name, accepted=False)
     return JsonResponse({'status': 'OK', 'html': name, 'value': org.pk})
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def organizations(request):
+    organizations = Organization.objects.all()
+    ctx = {'organizations': organizations}
+    return render(request, 'users/organizations.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def update_organization(request, pk=None):
+    if pk:
+        organization = get_object_or_404(Organization, pk=pk)
+        form = OrganizationForm(request.POST or None, instance=organization)
+    else:
+        organization = None
+        form = OrganizationForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, _('Organization updated'))
+    ctx = {'form': form, 'organization': organization}
+    return render(request, 'users/organization_form.html', ctx)

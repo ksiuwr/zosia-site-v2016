@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django import forms
 
 from .actions import SendActivationEmail
-from .models import User
+from .models import User, Organization
 
 
 class UserForm(UserCreationForm):
@@ -32,3 +32,9 @@ class EditUserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name']
+
+
+class OrganizationForm(forms.ModelForm):
+    class Meta:
+        model = Organization
+        fields = ['name', 'accepted']
