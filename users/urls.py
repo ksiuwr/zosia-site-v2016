@@ -16,7 +16,7 @@ urlpatterns = [
     url(r'^organizations/$', views.organizations, name='organizations'),
     url(r'^organizations/accept/$', views.toggle_organization, name='toggle_organization'),
     url(r'^organizations/add/$', views.update_organization, name='organization_add'),
-    url(r'^organizations/(?P<pk>\d+)/edit/$', views.update_organization, name='organizations_update'),
+    url(r'^organizations/(?P<pk>\d+)/edit/$', views.update_organization, name='organization_update'),
     url('^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
     # ^logout/$ [name='logout']

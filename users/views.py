@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.tokens import default_token_generator
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.utils.translation import ugettext_lazy as _
 
 from . import forms
 from .actions import ActivateUser
@@ -111,6 +112,7 @@ def update_organization(request, pk=None):
     if form.is_valid():
         form.save()
         messages.success(request, _('Organization updated'))
+        return redirect('organizations')
     ctx = {'form': form, 'organization': organization}
     return render(request, 'users/organization_form.html', ctx)
 

@@ -9,7 +9,7 @@
         <div class="col s12">
             <ul class="tabs">
               <li class="tab col s6"><a href="#orgs">{% trans 'Organizations' %}</a></li>
-              <li class="tab col s6"><a href="{% url 'bus_add' %}" target='_self'>{% trans 'Add' %}</a></li>
+              <li class="tab col s6"><a href="{% url 'organization_add' %}" target='_self'>{% trans 'Add' %}</a></li>
             </ul>
         </div>
 
@@ -18,7 +18,8 @@
             {% for organization in organizations %}
               <li>
                 <div class="collapsible-header">
-                  {{ organization }}
+                  <a href={% url 'organization_update' organization.pk %}>
+                  {{ organization }}</a>
                   <div class="switch right">
                     <label>
                       <input type="checkbox" {% if organization.accepted %}checked{% endif %}>
