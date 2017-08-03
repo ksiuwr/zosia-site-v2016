@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<form method="post" action="" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="container">
+    {% if object %}
+      {% include '_form.html' with form_name='Edit sponsor' %}
+    {% else %}
+      {% include '_form.html' with form_name='Add sponsor' %}
+    {% endif %}
+  </div>
+  </div>
+</form>
+
+{% endblock %}

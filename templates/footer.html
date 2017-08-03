@@ -1,0 +1,49 @@
+{% load static %}
+{% load i18n %}
+
+<footer class="page-footer">
+    <div class="container">
+        <div class="row">
+            <div class="col l4 s6">
+                <div class="grey-text text-lighten-4">
+                    <strong>Koło Studentów Informatyki</strong><br />
+                    <p>
+                        {% trans 'Room 24A' %}<br />
+                        Fryderyka Joliot-Curie 15<br />
+                        51-137 Wrocław
+                    </p>
+                </div>
+            </div>
+            <div class="col l4 s6">
+                <ul>
+                    <li>
+                        <a href="{% url 'terms_and_conditions' %}" class="grey-text text-lighten-4">
+                            {% trans 'Terms and conditions' %}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'questions_index' %}" class="grey-text text-lighten-4">
+                            {% trans 'Q&A' %}
+                        </a>
+                    </li>
+                    <li class="flow-text">
+                        <a href="https://www.facebook.com/ZOSIA.KSI" target="_blank">
+                            <i class="fa fa-facebook white-text"></i>
+                        </a>
+                        <a href="https://github.com/ksiuwr" target="_blank">
+                            <i class="fa fa-github white-text" aria-hidden="true"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="footer-copyright">
+        <div class="container">
+            © 2016 Copyright Koło Studentów Informatyki
+            <a href="mailto:ksi@cs.uni.wroc.pl" target="_blank" class="white-text right">
+                <i class="fa fa-envelope-o white-text"></i> ksi@cs.uni.wroc.pl
+            </a>
+        </div>
+    </div>
+</footer>

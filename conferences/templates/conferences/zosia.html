@@ -1,0 +1,56 @@
+{% load i18n %}
+{% if zosia %}
+<div id="active-zosia" class="bg-light-green grey-text text-lighten-2">
+    <div class="container">
+        <div class="row">
+            <div class="col l12 m12 s12 center-align">
+                <h3>
+                    ZOSIA {{ zosia.start_date }} - {{ zosia.end_date }}
+                </h3>
+            </div>
+        </div>
+        <div class="row center-items-horizontal">
+            <div class="col l4 m6 s12 offset-l3">
+                <div class="text-block">
+                  <!-- FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http -->
+                  <a href="{{ zosia.place.url }}" target="_blank">
+                      <strong>{{ zosia.place.name }}</strong>
+                  </a>
+                  <br>
+                    {% trans "Address" %}:
+                    <br />
+                    {{ zosia.place.address }}
+                  <br>
+                </div>
+            </div>
+            <div class="col l4 m6 s12">
+                <div class="dates">
+                    <span>{% trans "Registration" %}:</span>
+                    <br />
+                    <span>{{ zosia.registration_start }} - {{ zosia.registration_end }}</span>
+                </div>
+
+                <div class="dates">
+                    <span>{% trans "Rooms enrollment" %}:</span>
+                    <br />
+                    <span>{{ zosia.rooming_start }} - {{ zosia.rooming_end }}</span>
+                </div>
+                <div class="dates">
+                    <span>{% trans "Call for papers" %}:</span>
+                    <br />
+                    <span>{{ zosia.lecture_registration_start }} - {{ zosia.lecture_registration_end }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div style="height: 15%">
+    <iframe
+        class="full-width full-height"
+        frameborder="0" style="border:0"
+        src={{ gapi_place_src }}
+        allowfullscreen>
+    </iframe>
+</div>
+{% endif %}

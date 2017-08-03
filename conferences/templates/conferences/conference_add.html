@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load materializecss %}
+
+{% block content %}
+
+<form method="post" action="">
+    {% csrf_token %}
+    <div class="container">
+    {% if zosia %}
+      {% include '_form.html' with form_name='Update' %}
+    {% else %}
+      {% include '_form.html' with form_name='Add' %}
+    {% endif %}
+
+      </div>
+    </div>
+</form>
+
+{% endblock %}
+
+
+{% block custom_scripts %}
+<script type="text/javascript">
+$(document).ready(function() {
+    $('select').material_select();
+});
+</script>
+{% endblock custom_scripts %}
