@@ -114,10 +114,11 @@ def create_admin_user():
         'email': 'zosia@example.com',
         'first_name': 'ZOSIA',
         'last_name': 'KSIOWA',
-        'password': 'admin'
     }
-
-    return User.objects.get_or_create(**data)[0]
+    u = User.objects.get_or_create(**data)[0]
+    u.set_password('admin')
+    u.save()
+    return u
 
 
 def create_room(zosia):
