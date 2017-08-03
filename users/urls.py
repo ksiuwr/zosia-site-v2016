@@ -12,7 +12,11 @@ urlpatterns = [
     url('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='accounts_activate'),
     url(r'^login/$', anonymous_required(login), name='login'),
-    url('^ajax/organization/create', views.create_organization, name='create_organization'),
+    url(r'^ajax/organization/create', views.create_organization, name='create_organization'),
+    url(r'^organizations/$', views.organizations, name='organizations'),
+    url(r'^organizations/accept/$', views.toggle_organization, name='toggle_organization'),
+    url(r'^organizations/add/$', views.update_organization, name='organization_add'),
+    url(r'^organizations/(?P<pk>\d+)/edit/$', views.update_organization, name='organization_update'),
     url('^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
     # ^logout/$ [name='logout']

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <h3>{% trans "Organizations" %}</h3>
+
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+              <li class="tab col s6"><a href="#orgs">{% trans 'Organizations' %}</a></li>
+              <li class="tab col s6"><a href="{% url 'organization_add' %}" target='_self'>{% trans 'Add' %}</a></li>
+            </ul>
+        </div>
+
+        <div id="orgs" class="col s12">
+          <ul class="collapsible" data-collapsible="accordion">
+            {% for organization in organizations %}
+              <li>
+                <div class="collapsible-header">
+                  <a href={% url 'organization_update' organization.pk %}>
+                  {{ organization }}</a>
+                  <div class="switch right">
+                    <label>
+                      <input type="checkbox" {% if organization.accepted %}checked{% endif %}>
+                      <span class="lever" data-id="{{ organization.id }}"></span>
+                    </label>
+                  </div>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+  </div>
+{% endblock %}
+
+{% block custom_scripts %}
+  <script type="text/javascript">
+      $(document).ready(function(){
+          $('.lever').on('click', function(){
+              $.ajax({
+                  type: "POST",
+                  url: '{% url 'toggle_organization' %}',
+                  data: {
+                      'csrfmiddlewaretoken': '{{ csrf_token }}',
+                      'key': $(this).data('id')
+                  },
+                  error: function(){
+                      alert("Error occured!");
+                  }
+              });
+          });
+      });
+  </script>
+{% endblock %}
