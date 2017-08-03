@@ -97,9 +97,14 @@ def lecture_update(request, lecture_id=None):
 
 def schedule_display(request):
     zosia = Zosia.objects.find_active()
-    schedule = get_object_or_404(Schedule, zosia=zosia)
-    ctx = {'schedule': schedule}
-    return render(request, 'lectures/schedule.html', ctx)
+    try:
+        schedule = Schedule.objects.get(zosia=zosia)
+        ctx = {'schedule': schedule}
+        return render(request, 'lectures/schedule.html', ctx)
+    except Schedule.DoesNotExist as e:
+         messages.warning(request, _("Schedule is not defined yet."))
+         return redirect('lectures_index')
+
 
 
 @staff_member_required()
