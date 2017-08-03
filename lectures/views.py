@@ -102,9 +102,8 @@ def schedule_display(request):
         ctx = {'schedule': schedule}
         return render(request, 'lectures/schedule.html', ctx)
     except Schedule.DoesNotExist as e:
-         messages.warning(request, _("Schedule is not defined yet."))
-         return redirect('lectures_index')
-
+        messages.warning(request, _("Schedule is not defined yet."))
+        return redirect('lectures_index')
 
 
 @staff_member_required()
