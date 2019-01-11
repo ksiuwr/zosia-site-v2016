@@ -6,7 +6,7 @@ autoflake==0.6.6
 clint==0.5.1
 contextlib2==0.5.4
 decorator==4.0.10
-Django==1.10.2
+Django==1.10.8
 django-anymail==3.*
 django-debug-toolbar==1.8
 django-materializecss-form==1.0.1
