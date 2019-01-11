@@ -44,6 +44,9 @@ EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
 DEFAULT_FROM_EMAIL = "admin@" + ALLOWED_HOSTS[0]
 
 # Sentry (https://getsentry.io)
+# FIXME this variable (`sentry_dsn`) isn't set anywhere and raven isn't
+# integrated in any place anyway, so if you feel like it it would be
+# really cool if you added the support
 sentry_dsn = os.environ.get('SENTRY_DSN')
 if sentry_dsn:
     RAVEN_CONFIG = {

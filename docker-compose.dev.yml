@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=zosia
+      - POSTGRES_USER=zosia
+      - POSTGRES_PASSWORD=zosia
+  web:
+    build:
+      context: ./app
+      args:
+        DJANGO_ENV: "dev"
+    image: "zosia_dev_web:${TAG}"
+    # FIXME The migrations could be done in another ephemeral container
+    # which would be a little bit cleaner, but it's OK for now
+    # FIXME moving the FE directories around could be simplified
+    # when the FE build process gets simplified
+    command: >
+      bash -c "python3 manage.py migrate
+      && mv /node_modules /code/node_modules
+      && mv /bower_components /code/static/bower_components
+      && python3 manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./app:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    links:
+      - db

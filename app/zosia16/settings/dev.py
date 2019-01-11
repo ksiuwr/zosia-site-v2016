@@ -47,6 +47,9 @@ CACHES = {
     }
 }
 
+DATABASES['default']['HOST'] = 'db'
+DATABASES['default']['PASSWORD'] = 'zosia'
+
 # This, in conjunction with DEBUG=True enables 'debug' directives in templates
 # Especially room.js makes heavy use of it
 INTERNAL_IPS = ['127.0.0.1']
