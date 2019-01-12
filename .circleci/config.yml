@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run:
           name: Install awscli
-          command: pip3 install awscli
+          command: sudo pip3 install awscli
       - run:
           name: Build docker images
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/build.sh --prod
