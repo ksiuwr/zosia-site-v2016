@@ -120,6 +120,14 @@ footer.page-footer {
     margin: 2px;
 }
 
+.stroke_black
+{
+    text-shadow:
+            -2px -2px 0 #000,
+            2px -2px 0 #000,
+            -2px 2px 0 #000,
+            2px 2px 0 #000 !important;
+}
 
 /** MESSAGES CLASSES **/
 .success {
