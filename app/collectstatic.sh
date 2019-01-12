@@ -3,6 +3,6 @@
 {
 
 sleep 30
-python manage.py collectstatic
+python manage.py collectstatic --no-input
 
 } &
