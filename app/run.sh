@@ -1,4 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
+
+python manage.py collectstatic --no-input
 
 # it's a dirty hack, but it has to suffice for now
 python ./manage.py migrate
