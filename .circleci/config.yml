@@ -6,12 +6,13 @@ jobs:
       AWS_ACCOUNT_ID: "463715963173"
       AWS_DEFAULT_REGION: "eu-central-1"
     docker:
-      - image: circleci/python:3.6-jessie
+      - image: docker:git
     steps:
-      - checkout
       - run:
           name: Install awscli
-          command: sudo pip3 install awscli
+          command: |
+            apk add --no-cache py-pip
+            pip install awscli
       - run:
           name: Build docker images
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/build.sh --prod
