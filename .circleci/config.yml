@@ -15,9 +15,7 @@ jobs:
             pip install awscli
             pip install docker-compose
       - checkout
-      - run: 
-          name: Docker info
-          command: docker info
+      - setup_remote_docker
       - run:
           name: Build docker images
           command: TAG="latest" docker-compose -f docker-compose.prod.yml build
