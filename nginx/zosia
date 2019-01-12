@@ -13,4 +13,9 @@ server {
         add_header Content-Type text/plain;
         return 200 'healthcheck';
     }
+
+    location /static/ {    
+        autoindex on;    
+        alias /static/; 
+    }
 }
