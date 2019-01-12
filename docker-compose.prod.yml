@@ -10,6 +10,7 @@ services:
     command: >
       bash -c "python3 manage.py collectstatic --no-input
       && python3 manage.py migrate
+      && collectstatic.sh
       && uwsgi --ini /code/uwsgi.ini"
     expose:
       - "8000"
