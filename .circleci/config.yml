@@ -14,6 +14,7 @@ jobs:
             apk add --no-cache py-pip
             pip install awscli
             pip install docker-compose
+      - checkout
       - run:
           name: Build docker images
           command: docker-compose -f docker-compose.prod.yml build
