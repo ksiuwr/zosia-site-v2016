@@ -1,0 +1,26 @@
+version: 2.1
+
+jobs:
+  build_and_push_to_ecr:
+    environment:
+      AWS_ACCOUNT_ID: "463715963173"
+      AWS_DEFAULT_REGION: "eu-central-1"
+    docker:
+      - image: circleci/python:3.6-jessie
+    steps:
+      - checkout
+      - run:
+          name: Build docker images
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/build.sh --prod
+      - run:
+          name: Push image to ECR
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload.sh
+
+workflows:
+  version: 2.1
+  build:
+    jobs:
+      - build_and_push_to_ecr:
+          filters:
+            branches:
+              only: aws_deployment

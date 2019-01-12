@@ -16,6 +16,7 @@ Options:
 "
 
 DOCKER_REPO_URI_BASE="463715963173.dkr.ecr.eu-central-1.amazonaws.com"
+AWS_REGION="eu-central-1"
 
 TAG="latest"
 
@@ -52,20 +53,17 @@ case $key in
 esac
 done
 
-# ./install_awscli.sh
-
-# if [[ ${BUILD} -eq 1 ]]; then
-#     ./build.sh --prod ${NO_CACHE} ${VERBOSE} --tag ${TAG}
-#     if [[ $? -ne 0 ]]; then
-#         echo "ERROR while building images"
-#         exit 1
-#     fi
-# fi
-
-# DOCKER_LOGIN_CMD=`aws ecr get-login --no-include-email --profile zosia | sed 's|https://||'`
-# echo "Logging to remote registry with command"
-# echo ${DOCKER_LOGIN_CMD}
-# eval ${DOCKER_LOGIN_CMD}
+if [[ ${BUILD} -eq 1 ]]; then
+    ./build.sh --prod ${NO_CACHE} ${VERBOSE} --tag ${TAG}
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR while building images"
+        exit 1
+    fi
+fi
+   
+DOCKER_LOGIN_CMD=`aws ecr get-login --region ${AWS_REGION} --no-include-email`
+echo "Logging to remote registry with command"
+eval ${DOCKER_LOGIN_CMD}
 
 # upload zosia_web image
 ZOSIA_IMG_NAME="zosia_prod_web:${TAG}"
