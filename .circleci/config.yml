@@ -15,9 +15,12 @@ jobs:
             pip install awscli
             pip install docker-compose
       - checkout
+      - run: 
+          name: Docker info
+          command: docker info
       - run:
           name: Build docker images
-          command: docker-compose -f docker-compose.prod.yml build
+          command: TAG="latest" docker-compose -f docker-compose.prod.yml build
       - run:
           name: Push image to ECR
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload_circle.sh
