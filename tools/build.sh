@@ -58,4 +58,4 @@ COMPOSE_FILENAME="docker-compose.${COMPOSE_FILE_REMINDER}.yml"
 
 CONTAINER_NAME="zosia_${COMPOSE_FILE_REMINDER}_web:${TAG}"
 echo "Running build using ${COMPOSE_FILENAME} and tagging containers with ${CONTAINER_NAME}"
-docker-compose ${VERBOSE} -f ${COMPOSE_FILENAME} build ${NO_CACHE}
+docker-compose ${VERBOSE} -f ../${COMPOSE_FILENAME} build ${NO_CACHE}

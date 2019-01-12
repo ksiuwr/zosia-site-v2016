@@ -15,10 +15,10 @@ jobs:
             pip install awscli
       - run:
           name: Build docker images
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/build.sh --prod
+          command: docker-compose -f docker-compose.prod.yml build
       - run:
           name: Push image to ECR
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload.sh
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload_circle.sh
 
 workflows:
   version: 2.1
