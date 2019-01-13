@@ -40,7 +40,7 @@ ANYMAIL = {
     "MAILGUN_API_KEY": os.environ.get('MAILGUN_API_KEY'),
     "MAILGUN_SENDER_DOMAIN": ALLOWED_HOSTS[0],  # your Mailgun domain, if needed
 }
-EMAIL_BACKEND = "anymail.backends.mailgun.MailgunBackend"
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 DEFAULT_FROM_EMAIL = "admin@" + ALLOWED_HOSTS[0]
 
 # Sentry (https://getsentry.io)
