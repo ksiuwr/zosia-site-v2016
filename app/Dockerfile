@@ -24,7 +24,6 @@ ADD webpack.config.js /code/
 ADD static /code/static
 RUN npm install && make deps
 RUN cp -R /code/static/bower_components /bower_components && cp -R /code/node_modules /node_modules
-RUN ln -s /dev/stderr /var/log/django.log
 
 ADD . /code/
 
