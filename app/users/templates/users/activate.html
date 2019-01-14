@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <div class="col s8 m7">
+      <h2 class="header center-align text-dark-green">{% trans 'Email activated' %}</h2>
+      <div class="card horizontal">
+        <div class="card-stacked">
+          <div class="card-content">
+            <p>{% blocktrans %}
+            Your email has been activated successfully! You may now proceed to the website.
+            {% endblocktrans %}</p>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'index' %}">{% trans 'Back to homepage' %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
