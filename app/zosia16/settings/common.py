@@ -38,7 +38,8 @@ AUTH_USER_MODEL = "users.User"
 # Mailgun (https://github.com/anymail/django-anymail)
 ANYMAIL = {
     "MAILGUN_API_KEY": os.environ.get('MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": ALLOWED_HOSTS[0],  # your Mailgun domain, if needed
+    # TODO: this shouldn't be hardcoded
+    "MAILGUN_SENDER_DOMAIN": 'mail.zosia.org',
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 DEFAULT_FROM_EMAIL = "admin@" + ALLOWED_HOSTS[0]
