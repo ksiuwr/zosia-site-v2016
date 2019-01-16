@@ -57,7 +57,7 @@
               </blockquote>
               <div class="row">
                 <div class="col s12">
-                  <p>{% trans "Your bonus for rooms assigment" %}: {{ current_prefs.bonus_minutes|stringformat:"i" }}</p>
+                  <p>{% trans "Your bonus for rooms assignment" %}: {{ current_prefs.bonus_minutes|stringformat:"i" }}</p>
                 </div>
               </div>
             {% else %}
@@ -73,7 +73,7 @@
 
             </div>
 
-            <h5>{% trans "Accomodation" %}</h5>
+            <h5>{% trans "Accommodation" %}</h5>
 
             <div class="row">
               {% if current_prefs.vegetarian %}
@@ -96,45 +96,45 @@
             <div class="row">
               <div class="col l3 m3 s6">
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-1-0" {% if current_prefs.accomodation_day_1 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-1-0" {% if current_prefs.accomodation_day_1 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-1-0">{% trans "Day 1" %}</label>
                 </p>
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-1-2" {% if current_prefs.dinner_1 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-1-2" {% if current_prefs.dinner_1 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-1-2">{% trans "Day 1 - dinner" %}</label>
                 </p>
               </div>
               <div class="col l3 m3 s6">
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-0" {% if current_prefs.accomodation_day_2 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-2-0" {% if current_prefs.accomodation_day_2 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-2-0">{% trans "Day 2" %}</label>
                 </p>
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-1" {% if current_prefs.breakfast_2 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-2-1" {% if current_prefs.breakfast_2 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-2-1">{% trans "Day 2 - breakfast" %}</label>
                 </p>
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-2" {% if current_prefs.dinner_2 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-2-2" {% if current_prefs.dinner_2 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-2-2">{% trans "Day 2 - dinner" %}</label>
                 </p>
               </div>
               <div class="col l3 m3 s6">
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-0" {% if current_prefs.accomodation_day_3 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-3-0" {% if current_prefs.accomodation_day_3 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-3-0">{% trans "Day 3" %}</label>
                 </p>
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-1" {% if current_prefs.breakfast_3 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-3-1" {% if current_prefs.breakfast_3 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-3-1">{% trans "Day 3 - breakfast" %}</label>
                 </p>
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-2" {% if current_prefs.dinner_3 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-3-2" {% if current_prefs.dinner_3 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-3-2">{% trans "Day 3 - dinner" %}</label>
                 </p>
               </div>
               <div class="col l3 m3 s6">
                 <p>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-4-1" {% if current_prefs.breakfast_4 %}checked="checked"{% endif %} />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-4-1" {% if current_prefs.breakfast_4 %}checked="checked"{% endif %} disabled />
                   <label for="filled-in-box-4-1">{% trans "Day 4 - breakfast" %}</label>
                 </p>
               </div>
