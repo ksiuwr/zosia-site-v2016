@@ -17,11 +17,11 @@ LOGGING = {
     'handlers': {
         'console': {
             'level': 'INFO',
-            'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
         },
         'file': {
             'level': 'INFO',
+            'filters': ['require_debug_true'],
             'class': 'logging.FileHandler',
             'filename': '/var/log/django.log'
         }
