@@ -157,7 +157,7 @@ def handle_uploaded_file(zosia, csvfile):
         name, desc, cap, hidden = row
         if name != "Name":
             rooms.append(Room(zosia=zosia, name=name, description=desc, capacity=cap, hidden=hidden))
-    Rooms.objects.bulk_create(rooms)
+    Room.objects.bulk_create(rooms)
 
 
 @staff_member_required
