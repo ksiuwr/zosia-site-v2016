@@ -5,25 +5,25 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 
-
 from .actions import SendActivationEmail
 from .models import User, Organization
 
-_CONSENT_LABEL = 'I agree to <a href="{}">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
-    reverse_lazy('conferences:terms_and_conditions'),
-    reverse_lazy('conferences:privacy_policy')
-)
-
-
 class UserForm(UserCreationForm):
     privacy_consent = forms.BooleanField(
-        label=mark_safe(_CONSENT_LABEL),
         required=True
     )
 
     class Meta:
         model = User
         fields = ['email', 'first_name', 'last_name']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs);
+        label = 'I agree to <a href="">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
+                reverse('terms_and_conditions'),
+                reverse('privacy_policy')
+            )
+        privacy_consent = self.fields['privacy_consent'].label = mark_safe(label)
 
     def save(self, request):
         user = super().save(commit=False)
