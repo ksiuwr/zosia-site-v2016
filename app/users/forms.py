@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 
 
@@ -10,10 +10,8 @@ from .actions import SendActivationEmail
 from .models import User, Organization
 
 _CONSENT_LABEL = 'I agree to <a href="{}">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
-    # reverse('conferences:terms_and_conditions'),
-    # reverse('conferences:privacy_policy')
-    "url_to_terms_and_conditions",
-    "url_to_privacy_policy"
+    reverse_lazy('conferences:terms_and_conditions'),
+    reverse_lazy('conferences:privacy_policy')
 )
 
 
