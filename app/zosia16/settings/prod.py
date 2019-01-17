@@ -2,9 +2,8 @@ from .common import *
 
 DEBUG = False
 
-# uncomment when HTTPS is enabled
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 # Logs SQL queries. Should be enough, since we can check docker logs
 LOGGING = {
