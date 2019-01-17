@@ -10,8 +10,8 @@ from .actions import SendActivationEmail
 from .models import User, Organization
 
 _CONSENT_LABEL = 'I agree to <a href="{}">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
-    reverse('terms_and_conditions'),
-    reverse('privacy_policy')
+    reverse('conferences:terms_and_conditions'),
+    reverse('conferences:privacy_policy')
 )
 
 
