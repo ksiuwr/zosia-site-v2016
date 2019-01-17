@@ -19,7 +19,7 @@ class UserForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs);
-        label = 'I agree to <a href="">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
+        label = 'I agree to <a href="{}">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
                 reverse('terms_and_conditions'),
                 reverse('privacy_policy')
             )
