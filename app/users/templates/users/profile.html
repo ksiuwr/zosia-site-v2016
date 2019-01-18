@@ -7,7 +7,9 @@
     <div class="col s12">
       <ul class="tabs">
         <li class="tab col s2"><a href="#info" class="active">{% trans 'Information' %}</a></li>
+        {% if zosia %}
         <li class="tab col s2"><a href="#zosia">{% trans 'ZOSIA' %}</a></li>
+        {% endif %}
         {% if zosia and zosia.is_lectures_open %}
         <li class="tab col s2"><a href="{% url 'lectures_add' %}" target="_self">{% trans 'Add lecture' %}</a></li>
         {% endif %}
@@ -36,6 +38,7 @@
     </div>
   </div>
 
+  {% if zosia %}
   <div class="row" id="zosia">
     <div class="col s12">
       <div class="card">
@@ -145,6 +148,10 @@
               {{ current_prefs.get_shirt_type_display }}
               {{ current_prefs.get_shirt_size_display }}
             </h5>
+          {% else %}
+            <div class="card-content">
+              <p> No preferences set. </p>
+            </div>
           {% endif %}
 
           {% if all_prefs %}
@@ -157,12 +164,11 @@
           {% endif %}
         </div>
         <div class="card-action">
-          {% if current_prefs %}
-            <a href="{% url 'user_zosia_register' current_prefs.zosia.id %}">{% trans "Update preferences" %}</a>
-          {% endif %}
+          <a href="{% url 'user_zosia_register' zosia.id %}">{% trans "Update preferences" %}</a>
         </div>
       </div>
     </div>
+    {% endif %}
 
   </div>
 {% endblock %}
