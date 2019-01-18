@@ -74,7 +74,9 @@ def activate(request, uidb64, token):
         login(request, action.user)
         return redirect('index')
 
+    current_zosia = Zosia.objects.find_active()
     ctx = {
+        'zosia': current_zosia,
         'user': action.user,
     }
     return render(request, 'users/activate.html', ctx)
