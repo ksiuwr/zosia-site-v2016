@@ -30,9 +30,17 @@
     $("label[for='id_accepted']").after(terms_and_conditions_link);
 
     {% for field_groups in field_dependencies %}
-      {%  for field in field_groups|slice:"1:" %}
-      $('#id_{{ field }}').attr('disabled', true);
-      {% endfor %}
+      {% if object %}
+        {% if True %}
+          {%  for field in field_groups|slice:"1:" %}
+              $('#id_{{ field }}').attr('disabled', true);
+          {% endfor %}
+        {% endif %}
+      {% else %}
+        {%  for field in field_groups|slice:"1:" %}
+            $('#id_{{ field }}').attr('disabled', true);
+        {% endfor %}
+      {% endif %}
 
       $('#id_{{ field_groups|first }}').change(function(event) {
         {%  for field in field_groups|slice:"1:" %}
