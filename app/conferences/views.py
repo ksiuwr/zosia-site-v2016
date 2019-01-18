@@ -131,7 +131,7 @@ def register(request, zosia_id):
             messages.success(request, _("Form saved!"))
             return redirect('accounts_profile')
         else:
-            messages.error(request, _("There were errors"))
+            messages.error(request, _("There are some mistakes in your registration form."))
 
     return render(request, 'conferences/register.html', ctx)
 

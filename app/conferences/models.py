@@ -194,7 +194,7 @@ class UserPreferences(models.Model):
     contact = models.TextField(default='')
     information = models.TextField(
         default='', blank=True,
-        help_text=_('Here is where you can give us information about yourself'
+        help_text=_('Here is where you can give us information about yourself '
                     'that may be important during your trip.'))
     vegetarian = models.BooleanField(default=False)
     # Set by admin after checking payment

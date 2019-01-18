@@ -42,7 +42,7 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": 'mail.zosia.org',
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "admin@" + ALLOWED_HOSTS[0]
+DEFAULT_FROM_EMAIL = "admin@" + ANYMAIL["MAILGUN_SENDER_DOMAIN"] 
 
 # Sentry (https://getsentry.io)
 # FIXME this variable (`sentry_dsn`) isn't set anywhere and raven isn't
