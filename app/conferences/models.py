@@ -191,7 +191,7 @@ class UserPreferences(models.Model):
 
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
-    contact = models.TextField(default='')
+    contact = models.TextField(default='', help_text='For example your phone number')
     information = models.TextField(
         default='', blank=True,
         help_text=_('Here is where you can give us information about yourself '
