@@ -9,6 +9,7 @@ urlpatterns = [
     url('^profile/$', views.profile, name='accounts_profile'),
     url('^signup/$', anonymous_required(views.signup), name='accounts_signup'),
     url(r'^edit/$', views.account_edit, name='accounts_edit'),
+    url(r'^mail/$', views.mail_to_all, name='mail_all'),
     url('^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='accounts_activate'),
     url(r'^login/$', anonymous_required(login), name='login'),

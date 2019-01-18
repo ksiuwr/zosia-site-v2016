@@ -60,6 +60,23 @@ def account_edit(request):
     ctx = {'form': form}
     return render(request, 'users/signup.html', ctx)
 
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def mail_to_all(request):
+    form = forms.MailForm(request.POST or None)
+    print (request.method)
+    if request.method == 'POST':
+        print (form.errors)
+        if form.is_valid():
+            form.send_mail()
+            text = form.cleaned_data.get('text')
+            subject = form.cleaned_data.get('subject')
+
+            ctx = {'text': text, 'subject': subject}
+            return render(request, 'users/mail_sent.html', ctx)
+
+    ctx = {'form': form }
+    return render(request, 'users/mail.html', ctx)
 
 @require_http_methods(['GET', 'POST'])
 def activate(request, uidb64, token):
@@ -127,3 +144,4 @@ def toggle_organization(request):
     organization.accepted = not organization.accepted
     organization.save(update_fields=['accepted'])
     return JsonResponse({'msg': "{} changed status!".format(organization)})
+

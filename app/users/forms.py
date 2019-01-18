@@ -5,8 +5,20 @@ from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
 
-from .actions import SendActivationEmail
+from .actions import SendActivationEmail, SendEmailToAll
 from .models import User, Organization
+
+class MailForm(forms.Form):
+    subject = forms.CharField()
+    text = forms.CharField(widget=forms.Textarea)
+    def send_mail(self):
+        users = User.objects.filter(is_staff=True)
+        SendEmailToAll(users=users).call(
+            self.cleaned_data['subject'],
+            self.cleaned_data['text']
+        )
+        print (users)
+
 
 class UserForm(UserCreationForm):
     privacy_consent = forms.BooleanField(
