@@ -3,6 +3,7 @@ from django.template import loader
 from django.core.mail import EmailMultiAlternatives
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.conf import settings
 
 
 EMAIL_TEMPLATE_NAME = 'users/signup_email.html'
@@ -29,8 +30,7 @@ class SendActivationEmail:
         }
 
         to_email = self.user.email
-        # FIXME: proper email?
-        from_email = None
+        from_email = settings.DEFAULT_FROM_EMAIL
         # NOTE: Copied from django/contrib/auth/forms.py, with adjustments
         subject = loader.render_to_string(SUBJECT_TEMPLATE_NAME, context)
         # Email subject *must not* contain newlines
