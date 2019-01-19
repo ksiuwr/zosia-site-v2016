@@ -39,11 +39,8 @@
 
     const onChange = changedIds => {
       changedIds.forEach(par => {
-        console.log(par);
         const isParentChecked = $(par).is(':checked')
-        console.log(isParentChecked);
         dependencies[par].forEach(child => {
-          console.log(child);
           $(child).attr('disabled', !isParentChecked);
           if (!isParentChecked) {
             $(child).prop('checked', false);
@@ -54,7 +51,6 @@
 
     for (par in dependencies) {
       $(par).change(event => {
-        console.log(event.currentTarget.id);
         onChange(["#" + event.currentTarget.id])
       })
     }
