@@ -29,28 +29,37 @@
                                             .text(" {% trans 'terms and conditions' %}");
     $("label[for='id_accepted']").after(terms_and_conditions_link);
 
-    {% for field_groups in field_dependencies %}
-      {% if object %}
-        {% if True %}
-          {%  for field in field_groups|slice:"1:" %}
-              $('#id_{{ field }}').attr('disabled', true);
-          {% endfor %}
-        {% endif %}
-      {% else %}
-        {%  for field in field_groups|slice:"1:" %}
-            $('#id_{{ field }}').attr('disabled', true);
-        {% endfor %}
-      {% endif %}
+    const dependencies = 
+    {   {% for field_groups in field_dependencies %}
+        "#id_{{ field_groups|first }}" :
+          [ {%  for field in field_groups|slice:"1:" %}
+            "#id_{{ field }}", {% endfor %}
+          ], {% endfor %}
+    }
 
-      $('#id_{{ field_groups|first }}').change(function(event) {
-        {%  for field in field_groups|slice:"1:" %}
-        $('#id_{{ field }}').attr('disabled', !event.currentTarget.checked);
-        if(!event.currentTarget.checked) {
-          $('#id_{{ field }}').prop('checked', false);
-        }
-        {% endfor %}
-      });
-    {% endfor %}
+    const onChange = changedIds => {
+      changedIds.forEach(par => {
+        console.log(par);
+        const isParentChecked = $(par).is(':checked')
+        console.log(isParentChecked);
+        dependencies[par].forEach(child => {
+          console.log(child);
+          $(child).attr('disabled', !isParentChecked);
+          if (!isParentChecked) {
+            $(child).prop('checked', false);
+          }
+        })
+      })
+    }
+
+    for (par in dependencies) {
+      $(par).change(event => {
+        console.log(event.currentTarget.id);
+        onChange(["#" + event.currentTarget.id])
+      })
+    }
+
+    onChange(Object.keys(dependencies));
   });
 </script>
 {% endblock custom_scripts %}
