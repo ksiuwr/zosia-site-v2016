@@ -16,7 +16,7 @@ def reject_organization(modeladmin, request, queryset):
         organ.accepted = False
         organ.save()
         
-accept_organization.short_description = 'Reject selected organizations'
+reject_organization.short_description = 'Reject selected organizations'
 
 
 class OrganizationAdmin(admin.ModelAdmin):
