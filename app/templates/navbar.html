@@ -2,7 +2,6 @@
 {% load i18n %}
 
 
-<h1 style="color: red"> Development in progress. Registration begins in a couple of days... </h1>
 {% if user.is_authenticated %}
 <ul id="logged" class="dropdown-content">
     <li><a href="{% url 'accounts_profile' %}">{% trans "Profile" %}</a></li>
