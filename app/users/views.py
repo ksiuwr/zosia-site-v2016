@@ -71,8 +71,8 @@ def mail_to_all(request):
             form.send_mail()
             text = form.cleaned_data.get('text')
             subject = form.cleaned_data.get('subject')
-
-            ctx = {'text': text, 'subject': subject}
+            receivers = form.receivers()
+            ctx = {'text': text, 'subject': subject, 'receivers': receivers}
             return render(request, 'users/mail_sent.html', ctx)
 
     ctx = {'form': form }

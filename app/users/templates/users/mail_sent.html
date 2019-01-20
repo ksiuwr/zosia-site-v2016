@@ -14,8 +14,15 @@
     <div class="card">
 
       <div class="card-content">
-      <div class="card-title">Subject: {{ subject}}</div>
-          <p>{% trans text %}</p>
+      <div class="card-title">Subject: {{ subject }}</div>
+        <h5> Receivers </h5>
+        <p>
+        {% for user in receivers %}
+          {{ user.email }},
+        {% endfor %}
+        </p>
+        <h5> Text </h5>
+        <p>{{ text }}</p>
       </div>
       <div class="card-action">
         <form action="{% url 'mail_all' %}">

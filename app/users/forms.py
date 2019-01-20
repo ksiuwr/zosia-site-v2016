@@ -8,11 +8,68 @@ from django.utils.safestring import mark_safe
 from .actions import SendActivationEmail, SendEmailToAll
 from .models import User, Organization
 
+GROUPS = (
+        ('pick', 'Pick users'),
+        ('all_Users', 'All users'),
+        ('staff', 'Staff'), 
+        ('active', 'Active'),
+        ('registered', 'Registered to zosia'),
+        ('payed', 'Payed for zosia'),
+        ('not_Payed', 'Didn`t pay for zosia'),
+    )
+
 class MailForm(forms.Form):
     subject = forms.CharField()
     text = forms.CharField(widget=forms.Textarea)
+    select_groups = forms.ChoiceField(choices=GROUPS)
+    pick = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(), to_field_name="email", required=False)
+    all_Users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(), to_field_name="email", required=False)
+    staff = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_staff=True),
+        to_field_name="email", required=False)
+    active = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_active=True),
+        to_field_name="email", required=False)
+    registered = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(userpreferences__isnull=False).distinct(),
+        to_field_name="email", required=False)
+    payed = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(userpreferences__payment_accepted=True).distinct(),
+        to_field_name="email", required=False)
+    not_Payed = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(userpreferences__payment_accepted=False).distinct(),
+        to_field_name="email", required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(forms.Form, self).__init__(*args, **kwargs)
+        self.fields["all_Users"].initial = (
+            User.objects.all().values_list('email', flat=True)
+        )
+        self.fields["staff"].initial = (
+            User.objects.filter(is_staff=True).values_list('email', flat=True)
+        )
+        self.fields["active"].initial = (
+            User.objects.filter(is_active=True).values_list('email', flat=True)
+        )
+        self.fields["registered"].initial = (
+            User.objects.filter(userpreferences__isnull=False).distinct()
+            .values_list('email', flat=True)
+        )
+        self.fields["payed"].initial = (
+            User.objects.filter(userpreferences__payment_accepted=True).distinct()
+            .values_list('email', flat=True)
+        )
+        self.fields["not_Payed"].initial = (
+            User.objects.filter(userpreferences__payment_accepted=False).distinct()
+            .values_list('email', flat=True)
+        )
+    def receivers(self):
+        return self.cleaned_data[self.cleaned_data["select_groups"]]
+
     def send_mail(self):
-        users = User.objects.filter(is_staff=True)
+        users = self.receivers()
         SendEmailToAll(users=users).call(
             self.cleaned_data['subject'],
             self.cleaned_data['text']

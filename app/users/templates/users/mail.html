@@ -18,4 +18,50 @@
 
 {% endblock %}
 
+{% block custom_scripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('select').material_select();
 
+    const selectGroup = document.getElementById("id_select_groups");
+    const emailList = document.createElement("div");
+    emailList.setAttribute("id", "email_list");
+    emailList.setAttribute("class", "col s12");
+    selectGroup.parentNode.parentNode.parentNode.appendChild(emailList);
+
+    const onGroupChange = () => {
+      const selectedGroupId = selectGroup.options[selectGroup.selectedIndex].value;
+      for (let i = 0; i < selectGroup.options.length; i++) {
+          const option = selectGroup.options[i];
+          const disp = (option.value == selectedGroupId ? "inherit" : "none")
+          document.getElementById("id_" + option.value)
+            .parentNode.parentNode.style.display = disp
+      }
+      onUsersChange();
+    }
+
+    const onUsersChange = () => {
+      emailList.innerHTML = "<h4> Selected receivers </h4>"
+      const selectedGroupId = selectGroup.options[selectGroup.selectedIndex].value;
+      const selectUsers = document.getElementById("id_" + selectedGroupId);
+      for (let i = 0; i < selectUsers.options.length; i++) {
+        const option = selectUsers.options[i];
+        if (option.selected) {
+          const email = document.createElement("p");
+          email.innerText = option.innerText + "<" + option.value + ">" + ", ";
+          emailList.appendChild(email);
+        }
+      }
+    }
+
+    onUsersChange();
+    onGroupChange();
+    selectGroup.onchange = onGroupChange;
+    const selectedGroupId = selectGroup.options[selectGroup.selectedIndex].value;
+    for (let i = 0; i < selectGroup.options.length; i++) {
+        const option = selectGroup.options[i];
+        document.getElementById("id_" + option.value).onchange = onUsersChange;
+    }
+  });
+</script>
+{% endblock custom_scripts %}
