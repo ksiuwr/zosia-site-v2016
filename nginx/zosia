@@ -3,6 +3,8 @@ server {
 
     server_name zosia.org www.zosia.org;
 
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+
     location / {
         include uwsgi_params;
         uwsgi_pass zosia-web:8000;
