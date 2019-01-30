@@ -19,7 +19,7 @@ class UserPreferencesWithBusForm(forms.ModelForm):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
         if instance:
             bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=instance)
-        return bus_queryset
+        return bus_queryset.distinct()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
