@@ -13,6 +13,7 @@ GROUPS = (
         ('all_Users', 'All users'),
         ('staff', 'Staff'), 
         ('active', 'Active'),
+        ('inactive', 'Don\'t activate their account yet'),
         ('registered', 'Registered to zosia'),
         ('payed', 'Payed for zosia'),
         ('not_Payed', 'Didn`t pay for zosia'),
@@ -31,6 +32,9 @@ class MailForm(forms.Form):
         to_field_name="email", required=False)
     active = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(is_active=True),
+        to_field_name="email", required=False)
+    inactive = forms.ModelMultipleChoiceField(
+        queryset=User.objects.filter(is_active=False),
         to_field_name="email", required=False)
     registered = forms.ModelMultipleChoiceField(
         queryset=User.objects.filter(userpreferences__isnull=False).distinct(),
@@ -52,6 +56,9 @@ class MailForm(forms.Form):
         )
         self.fields["active"].initial = (
             User.objects.filter(is_active=True).values_list('email', flat=True)
+        )
+        self.fields["inactive"].initial = (
+            User.objects.filter(is_active=False).values_list('email', flat=True)
         )
         self.fields["registered"].initial = (
             User.objects.filter(userpreferences__isnull=False).distinct()
