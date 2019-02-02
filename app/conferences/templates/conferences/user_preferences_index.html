@@ -18,11 +18,12 @@
           <div class="col l6 m6 s12">
             <a href="{% url 'user_preferences_edit' object.id %}">
               {{ object.user }}
+              ({{object.price }} zł)
             </a>
           </div>
           <div class="switch col l3 m3 s6">
             <label>
-              <input type="checkbox" {% if object.payment_accepted %}checked{% endif %}>
+              <input type="checkbox" id="set-accepted-{{ object.id }}" {% if object.payment_accepted %}checked{% endif %}>
               <span class="lever" data-id="{{ object.id }}"></span>
               Payment accepted
             </label>
@@ -35,6 +36,25 @@
         </li>
       {% endfor %}
     </ul>
+    <div class="row">
+      <div class="col l12 m12 s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">
+              Import payments (JSON)
+            </span>
+            </p>
+              <input type="file" id="payments" name="payments" accept="application/json text/x-json">
+            </p>
+            <ul class="collection" id="report">
+            </ul>
+          </div>
+          <div class="card-action">
+            <a class="waves-effect waves-light btn" id="import_payments">import</a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
 
@@ -43,15 +63,177 @@
   <script type="text/javascript" src="{% static 'bower_components/materialize/extras/noUiSlider/nouislider.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
   <script type="text/javascript">
-      $(document).ready(function(){
+			const max_bonus = {{ max_bonus }}
+			const min_bonus = {{ min_bonus }}
+			let paymentInfo = {
+				{% for object in objects %}
+				"{{ object.id }}": {
+					"id": {{ object.id }},
+					"firstName": "{{ object.user.first_name }}",
+					"lastName": "{{ object.user.last_name}}",
+					"price": {{ object.price }},
+					"isPayed": {% if object.payment_accepted %} true {% else %} false {% endif %},
+					"bonus": {{ object.bonus_minutes }},
+				},
+				{% endfor %}
+			}
+
+			const setBonus = (id, value) => {
+				if (value > max_bonus) {
+					value = max_bonus
+				}
+
+				if (value < min_bonus) {
+					value = min_bonus
+				}
+
+				$.ajax({
+						type: "POST",
+						url: '{% url 'user_preferences_admin_edit' %}',
+						data: {
+								'csrfmiddlewaretoken': '{{ csrf_token }}',
+								'key': id,
+								'command': '{{ change_bonus }}',
+								'bonus': value
+						},
+						success: function(data) {
+								paymentInfo[id].bonus = data['bonus']
+								$('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
+								Materialize.toast(data['msg'], 1000, "success");
+						},
+						error: function(){
+								Materialize.toast("Error setting bonus.", 1000, "error");
+						}
+				});
+			}
+
+      const setPaymentStatus = (id, payment_status) => {
+        paymentInfo[id].isPayed = payment_status;
+        $('#set-accepted-' + id).attr("checked", payment_status);
+        console.log(payment_status);
+        if (payment_status)
+        {
+          $('#set-bonus-' + id).removeClass('hide');
+        }
+        else
+        {
+          $('#set-bonus-' + id).addClass('hide');
+        }
+      }
+
+			const togglePayment = (id) => {
+				$.ajax({
+						type: "POST",
+						url: '{% url 'user_preferences_admin_edit' %}',
+						data: {
+								'csrfmiddlewaretoken': '{{ csrf_token }}',
+								'key': id,
+								'command': '{{ toggle_payment }}'
+						},
+						success: function(data) {
+								Materialize.toast(data['msg'], 1000, "success");
+                setPaymentStatus(id, data['status']);
+						},
+						error: function(){
+								Materialize.toast("Error setting payment status.", 1000, "error");
+						}
+				});
+			}
+
+			const findPaymentInfoByName = (firstName, lastName) => {
+				for (let id in paymentInfo)
+				{
+					const info = paymentInfo[id];
+					if (info.firstName.toLowerCase() == firstName &&
+							info.lastName.toLowerCase() == lastName) {
+						return info;	
+					}
+				}
+			}
+
+      const updateBonuses = (entries) => {
+        const ratio = (max_bonus - min_bonus)*0.8/entries.length;
+        for (let i = 0; i < entries.length; i++)
+        {
+          const entry = entries[i];
+          const bonus = Math.floor(ratio * (entries.length - i));
+          setBonus(entry.id, bonus);
+          reportSuccess("Bonus for " + entry.firstName + " " + entry.lastName + " set to " + bonus);
+        }
+      }
+
+      const report = $('#report');
+
+      const reportError = (msg) => {
+        const element = $('<li class="collection-item red lighten-3">' + msg + '</li>');
+        report.append(element);
+      }
+
+      const reportSuccess = (msg) => {
+        const element = $('<li class="collection-item green lighten-3">' + msg + '</li>');
+        report.append(element);
+      }
+
+      const clearReport = (msg) => {
+        report.empty();
+      }
+
+			const updatePayments = (data) => {
+				console.log(data);
+        bonus = []
+				for (let i = 0; i < data.length; i++)
+				{
+					const entry = data[i]
+					const info = findPaymentInfoByName(entry.firstName, entry.lastName);
+					if (!info)
+					{
+            reportError("Didn't found user: " + entry.firstName + " " + entry.lastName);
+						continue;
+					}
+
+					if (info.price == entry.payment)
+					{
+						if (!info.isPayed)
+						{
+              reportSuccess("Accepted payment for " + info.firstName + " " + info.lastName + ".");
+							togglePayment(info.id)
+						}
+            else
+            {
+              reportSuccess(info.firstName + " " + info.lastName + " already payed")
+            }
+            bonus.push(info);
+					}
+          else
+          {
+            reportError("Pay mismatch for " + info.firstName + " " + info.lastName + " (payed=" + entry.payment + ",price=" + info.price + ")")
+          }
+				}
+        updateBonuses(bonus);
+			}
+
+      const importPaymentFile = (file) => {
+        var reader = new FileReader();
+        reader.readAsText(file, "UTF-8");
+        reader.onload = function (evt) {
+          reportSuccess("Read file " + file.name);
+          const json = JSON.parse(evt.target.result);
+          updatePayments(json);
+        }
+        reader.onerror = function (evt) {
+          reportError("Error reading " + file.name);
+        }
+      }
+
+      $(document).ready(function(){	
           $('.range').each(function(_index, obj) {
-              var firstUpdate = true;
+              let firstUpdate = true;
               noUiSlider.create(obj, {
                   start: [$(obj).data('bonus')],
                   step: {{ bonus_step }},
                   range: {
-                      'min': {{ min_bonus }},
-                      'max': {{ max_bonus }}
+                      'min': min_bonus,
+                      'max': max_bonus
                   },
                   format: wNumb({
                       decimals: 0
@@ -62,46 +244,25 @@
                       firstUpdate = false;
                       return
                   }
-                  var id = $(obj).data('id');
-                  var value = parseInt(values[0]);
-                  $.ajax({
-                      type: "POST",
-                      url: '{% url 'user_preferences_admin_edit' %}',
-                      data: {
-                          'csrfmiddlewaretoken': '{{ csrf_token }}',
-                          'key': id,
-                          'command': '{{ change_bonus }}',
-                          'bonus': value
-                      },
-                      success: function(data) {
-                          $('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
-                          Materialize.toast(data['msg'], 1000, "success");
-                      },
-                      error: function(){
-                          Materialize.toast("Error setting bonus.", 1000, "error");
-                      }
-                  });
+                  let id = $(obj).data('id');
+                  let value = parseInt(values[0]);
+									setBonus(id, value);
               }, 1000));
           });
-
-          $('.lever').on('click', function(){
-              var id = $(this).data('id');
-              $.ajax({
-                  type: "POST",
-                  url: '{% url 'user_preferences_admin_edit' %}',
-                  data: {
-                      'csrfmiddlewaretoken': '{{ csrf_token }}',
-                      'key': id,
-                      'command': '{{ toggle_payment }}'
-                  },
-                  success: function(data) {
-                      Materialize.toast(data['msg'], 1000, "success");
-                      $('#set-bonus-' + id).toggleClass('hide');
-                  },
-                  error: function(){
-                      Materialize.toast("Error setting payment status.", 1000, "error");
-                  }
-              });
+          
+          $('#import_payments').on('click', function(event){
+            clearReport();
+            const files = document.getElementById("payments").files;
+            for (let i = 0; i < files.length; i++)
+            {
+              const file = files[i];
+              importPaymentFile(file);
+            }
+          });
+          $('.lever').on('click', function(event){
+            event.preventDefault();
+						let id = $(this).data('id');
+						togglePayment(id);
           });
       });
   </script>
