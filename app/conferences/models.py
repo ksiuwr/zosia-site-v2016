@@ -137,9 +137,10 @@ class Bus(models.Model):
     zosia = models.ForeignKey(Zosia, related_name='buses')
     capacity = models.IntegerField()
     time = models.TimeField()
+    name = models.TextField(default="Bus");
 
     def __str__(self):
-        return str('Bus {}'.format(self.time))
+        return str('{} {}'.format(self.name, self.time))
 
     @property
     def free_seats(self):
