@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, JsonResponse
+from django.http import Http404, JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -13,12 +13,35 @@ from sponsors.models import Sponsor
 
 from .constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
                         ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
-                        BONUS_STEP, GAPI_PLACE_BASE_URL, MAX_BONUS, MIN_BONUS)
+                        BONUS_STEP, GAPI_PLACE_BASE_URL, MAX_BONUS, MIN_BONUS,
+                        SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES)
 from .forms import (UserPreferencesAdminForm, UserPreferencesForm, BusForm,
                     ZosiaForm)
 from .models import UserPreferences, Zosia, Bus
+import csv
 
+@staff_member_required()
+@require_http_methods(['GET'])
+def export_shirts(request):
+    zosia = get_object_or_404(Zosia, active=True)
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="shirts.csv"'
 
+    writer = csv.writer(response)
+    writer.writerow(['Size', 'Type', 'Registered', 'Payed'])
+    for shirt_size in SHIRT_SIZE_CHOICES:
+        for shirt_type in SHIRT_TYPES_CHOICES:
+            reg_count = UserPreferences.objects.filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0]).count()
+            pay_count = UserPreferences.objects.filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0]).count()
+            writer.writerow([shirt_size, shirt_type, reg_count, pay_count])
+
+    return response
+
+@staff_member_required()
+@require_http_methods(['GET'])
+def export_data(request):
+    ctx = {}
+    return render(request, 'conferences/export_data.html', ctx)
 @staff_member_required()
 @require_http_methods(['GET'])
 def user_preferences_index(request):
