@@ -102,7 +102,7 @@ class Zosia(models.Model):
         return self.rooming_start <= datetime.now().date() <= self.rooming_end
 
     def can_start_rooming(self, user, now=datetime.now()):
-        time_with_bonus = now + timedelta(0, 60*user.bonus_minutes)
+        time_with_bonus = now + timedelta(0, 3*60*user.bonus_minutes)
         return user.payment_accepted and \
             time_with_bonus >= datetime.combine(self.rooming_start, datetime.min.time())
 
@@ -261,3 +261,7 @@ class UserPreferences(models.Model):
     @property
     def room(self):
         return self.user.room_set.for_zosia(self.zosia).first()
+
+    def convert_bonus_to_time(self):
+        opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
+        return opening_time - timedelta(0, 3*60*self.bonus_minutes)
