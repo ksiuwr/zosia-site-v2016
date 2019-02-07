@@ -262,7 +262,10 @@ class UserPreferences(models.Model):
     def room(self):
         return self.user.room_set.for_zosia(self.zosia).first()
 
-    @property
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
         return opening_time - timedelta(0, 3*60*self.bonus_minutes)
+
+    @property
+    def rooming_time(self):
+        return self.convert_bonus_to_time().strftime("%d.%m.%Y %H:%M")
