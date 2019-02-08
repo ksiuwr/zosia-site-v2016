@@ -21,4 +21,5 @@ urlpatterns = [
     url(r'^conferences/(?P<pk>\d+)/update/$', views.update_zosia, name='zosia_update'),
     url(r'^conferences/export_data/$', views.export_data, name='export_data'),
     url(r'^conferences/export_shirts/$', views.export_shirts, name='export_shirts'),
+    url(r'^conferences/export_json/$', views.export_json, name='export_json'),
 ]

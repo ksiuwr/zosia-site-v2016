@@ -10,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from sponsors.models import Sponsor
+from lectures.models import Lecture
+from rooms.models import Room
 
 from .constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
                         ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
@@ -19,6 +21,34 @@ from .forms import (UserPreferencesAdminForm, UserPreferencesForm, BusForm,
                     ZosiaForm)
 from .models import UserPreferences, Zosia, Bus
 import csv
+
+
+@staff_member_required()
+@require_http_methods(['GET'])
+def export_json(request):
+    zosia = get_object_or_404(Zosia, active=True)
+    prefs = UserPreferences.objects \
+        .filter(zosia=zosia) \
+        .values('user__first_name', 'user__last_name', 'user__email', \
+                'organization_id__name', 'bus_id', 'accomodation_day_1', \
+                'dinner_1', 'accomodation_day_2', 'breakfast_2', 'dinner_2', \
+                'accomodation_day_3', 'breakfast_3', 'dinner_3', 'breakfast_4',
+                'contact', 'information', 'vegetarian', 'payment_accepted',
+                'shirt_size', 'shirt_type')
+
+    rooms  = Room.objects \
+        .filter(zosia=zosia) \
+        .values('users__first_name', 'users__last_name', 'name')
+
+    lectures = Lecture.objects.filter(zosia=zosia).values()
+        
+    data = {
+        "lectures": list(lectures),
+        "preferences": list(prefs),
+        "rooms": list(rooms),
+    };
+    
+    return JsonResponse(data);
 
 @staff_member_required()
 @require_http_methods(['GET'])
@@ -31,9 +61,13 @@ def export_shirts(request):
     writer.writerow(['Size', 'Type', 'Registered', 'Payed'])
     for shirt_size in SHIRT_SIZE_CHOICES:
         for shirt_type in SHIRT_TYPES_CHOICES:
-            reg_count = UserPreferences.objects.filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0]).count()
-            pay_count = UserPreferences.objects.filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0]).count()
-            writer.writerow([shirt_size, shirt_type, reg_count, pay_count])
+            reg_count = UserPreferences.objects \
+                .filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0]) \
+                .count()
+            pay_count = UserPreferences.objects. \
+                filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0], payment_accepted=True) \
+                .count()
+            writer.writerow([shirt_size[1], shirt_type[1], reg_count, pay_count])
 
     return response
 
