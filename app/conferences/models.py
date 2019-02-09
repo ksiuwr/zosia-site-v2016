@@ -9,6 +9,8 @@ from django.core.exceptions import ValidationError
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
 
+from pytz import timezone
+
 
 class Place(models.Model):
     name = models.CharField(
@@ -270,4 +272,6 @@ class UserPreferences(models.Model):
 
     @property
     def rooming_time(self):
-        return self.convert_bonus_to_time().strftime("%d.%m.%Y %H:%M")
+        return self.convert_bonus_to_time() \
+                .astimezone(timezone('Europe/Warsaw')) \
+                .strftime("%d.%m.%Y %H:%M")
