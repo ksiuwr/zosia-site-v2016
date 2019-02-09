@@ -99,7 +99,11 @@ class Zosia(models.Model):
 
     @property
     def is_rooming_open(self):
-        return self.rooming_start <= datetime.now().date() <= self.rooming_end
+        # XXX: bonuses will not work, because they subtract time from
+        # the T0 `rooming_start` date, meaning that the below condition will
+        # be fulfilled for everyone at the same time, exactly at the rooming_start
+        # return self.rooming_start <= datetime.now().date() <= self.rooming_end
+        return datetime.now().date() <= self.rooming_end
 
     def can_start_rooming(self, user, now=datetime.now()):
         time_with_bonus = now + timedelta(0, 3*60*user.bonus_minutes)
