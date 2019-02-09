@@ -106,9 +106,7 @@ class Zosia(models.Model):
         return datetime.now().date() <= self.rooming_end
 
     def can_start_rooming(self, user, now=datetime.now()):
-        time_with_bonus = now + timedelta(0, 3*60*user.bonus_minutes)
-        return user.payment_accepted and \
-            time_with_bonus >= datetime.combine(self.rooming_start, datetime.min.time())
+        return user.payment_accepted and now >= user.convert_bonus_to_time()
 
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None
