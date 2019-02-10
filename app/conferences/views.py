@@ -40,7 +40,10 @@ def export_json(request):
         .filter(zosia=zosia) \
         .values('users__first_name', 'users__last_name', 'name')
 
-    lectures = Lecture.objects.filter(zosia=zosia).values()
+    lectures = Lecture.objects \
+        .filter(zosia=zosia) \
+        .values('author__first_name', 'author__last_name', 'title', \
+                'abstract', 'description')
         
     data = {
         "lectures": list(lectures),
