@@ -107,8 +107,10 @@ class Zosia(models.Model):
         # return self.rooming_start <= datetime.now().date() <= self.rooming_end
         return datetime.now().date() <= self.rooming_end
 
-    def can_start_rooming(self, user, now=datetime.now()):
-        return user.payment_accepted and (now + timedelta(hours=2)) >= user.convert_bonus_to_time()
+    def can_start_rooming(self, user, now=None):
+        if now is None:
+            now = datetime.now()
+        return user.payment_accepted and now >= user.convert_bonus_to_time()
 
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None
@@ -268,7 +270,7 @@ class UserPreferences(models.Model):
 
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
-        return opening_time - timedelta(0, 3*60*self.bonus_minutes) # TODO: 2h hack 
+        return opening_time - timedelta(0, 3*60*self.bonus_minutes)
 
     @property
     def rooming_time(self):
