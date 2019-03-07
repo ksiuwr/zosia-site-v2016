@@ -18,9 +18,8 @@ services:
     # FIXME moving the FE directories around could be simplified
     # when the FE build process gets simplified
     command: >
-      bash -c "python3 manage.py migrate
-      && mv /node_modules /code/node_modules
-      && mv /bower_components /code/static/bower_components
+      bash -c "
+      python3 manage.py migrate
       && python3 manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./app:/code
