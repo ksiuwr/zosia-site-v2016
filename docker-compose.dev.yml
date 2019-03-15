@@ -10,21 +10,15 @@ services:
   web:
     build:
       context: ./app
-      args:
-        DJANGO_ENV: "dev"
-    image: "zosia_dev_web:${TAG}"
-    # FIXME The migrations could be done in another ephemeral container
-    # which would be a little bit cleaner, but it's OK for now
-    # FIXME moving the FE directories around could be simplified
-    # when the FE build process gets simplified
-    command: >
-      bash -c "
-      python3 manage.py migrate
-      && python3 manage.py runserver 0.0.0.0:8000"
+      dockerfile: DockerfileDev
+    image: zosia_dev
+    command: /bin/bash
+    stdin_open: true
+    tty: true
     volumes:
-      - ./app:/code
+      - ./app:/app
     ports:
-      - "8000:8000"
+      - "0.0.0.0:8000:8000"
     depends_on:
       - db
     links:
