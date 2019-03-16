@@ -18,10 +18,5 @@ WORKDIR /tmp
 ADD ./requirements.txt /tmp/
 RUN pip install -r requirements.txt
 
-WORKDIR /tmp
-ADD ./package.json /tmp/
-ADD ./package-lock.json /tmp/
-RUN npm install -g
-
 WORKDIR /app
 

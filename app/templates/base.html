@@ -11,7 +11,7 @@
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- CSS -->
-    <link type="text/css" rel="stylesheet" href="{% static 'bower_components/materialize/dist/css/materialize.min.css' %}"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="{% static 'css/main.css' %}"  media="screen,projection"/>
     <link type="text/css" rel="stylesheet" href="{% static 'css/navbar.css' %}" media="screen,projection" />
 
@@ -25,7 +25,7 @@
 </head>
 <body>
     <!--Import jQuery before materialize.js-->
-    <script type="text/javascript" src="{% static 'bower_components/jquery/dist/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
     
     {% block navbar %}
         {% include "navbar.html" %}
@@ -36,7 +36,7 @@
     </main>
     <!-- FOOTER -->
     {% include 'footer.html' %}
-    <script type="text/javascript" src="{% static 'bower_components/materialize/dist/js/materialize.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/materialize.min.js' %}"></script>
 
     <!-- MESSAGES -->
     <script type="text/javascript">
