@@ -1,27 +1,32 @@
-const BabiliPlugin = require("babili-webpack-plugin");
+const webpack = require('webpack');
+const path = require('path');
 
 const config = {
-  entry: './static/script/room.js',
-  output: {
-    path: './static/script/',
-    filename: 'room.min.js'
+  entry: {
+    room: './static/script/room.js',
   },
-  module: {
-    loaders: [
-      {
-        test: /\.js$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'babel-loader',
-        query: {
-          plugins: ['transform-react-jsx'],
-          presets: ['es2015']
-        }
-      }
-    ]
+  output: {
+    filename: '[name].min.js',
+    path: path.resolve(__dirname, 'static/script/')
   },
   plugins: [
-    new BabiliPlugin()
-  ]
+    new webpack.ProgressPlugin(),
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: [
+          'babel-loader',
+        ],
+      },
+    ],
+  },
+  resolve: {
+    extensions: ['.js', '.jsx'],
+  },
 };
+ 
 
 module.exports = config;
