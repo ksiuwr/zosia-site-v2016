@@ -3,8 +3,7 @@ test:
 	python ./manage.py test --settings=zosia16.settings.test
 
 
-deps: static/bower.json static/script/room.js
-	npm run deps
-	npm run build
+deps: static/script/room.js
+	yarn build
 
 .PHONY: test deps

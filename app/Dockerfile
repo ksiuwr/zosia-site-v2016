@@ -9,7 +9,10 @@ ENV DJANGO_SETTINGS_MODULE="zosia16.settings.${DJANGO_ENV}"
 WORKDIR /code
 
 RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get update && apt-get upgrade -y && apt-get -y install nodejs
+RUN apt-get update 
+RUN apt-get upgrade -y 
+RUN apt-get -y install nodejs
+RUN npm install -g yarn
 
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt
@@ -22,8 +25,9 @@ ADD package.json /code/
 ADD Makefile /code/
 ADD webpack.config.js /code/
 ADD static /code/static
-RUN npm install && make deps
-RUN cp -R /code/static/bower_components /bower_components && cp -R /code/node_modules /node_modules
+RUN yarn install
+RUN yarn build
+RUN cp -R /code/node_modules /node_modules
 
 ADD . /code/
 
