@@ -1,18 +1,24 @@
 FROM python:3.6
-ARG DJANGO_ENV
 
+RUN set -x \
+    && curl -sL https://deb.nodesource.com/setup_8.x | bash - \
+	&& apt-get update \
+    && apt-get install --no-install-recommends --no-install-suggests -y nodejs \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /root/.cache* \
+    && rm -rf /tmp/* \
+;
+
+RUN npm install -g yarn
+
+ARG DJANGO_ENV
 ENV PYTHONUNBUFFERED 1
 ENV NODE_PATH=/node_modules
 ENV DJANGO_ENV=${DJANGO_ENV}
 ENV DJANGO_SETTINGS_MODULE="zosia16.settings.${DJANGO_ENV}"
 
 WORKDIR /code
-
-RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
-RUN apt-get update 
-RUN apt-get upgrade -y 
-RUN apt-get -y install nodejs
-RUN npm install -g yarn
 
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt
