@@ -66,7 +66,8 @@ class Organization(models.Model):
     user = models.ForeignKey(
         User,
         null=True,
-        blank=True)
+        blank=True,
+        on_delete=models.SET_NULL)
 
     @property
     def owner(self):

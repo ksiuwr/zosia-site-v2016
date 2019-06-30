@@ -32,7 +32,7 @@ class RoomLock(models.Model):
     expiration_date = models.DateTimeField()
     password = models.CharField(max_length=4)
 
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     @property
     def is_expired(self):
@@ -64,7 +64,7 @@ class Room(models.Model):
         default='')
     capacity = models.IntegerField()
     hidden = models.BooleanField(default=False)
-    zosia = models.ForeignKey(Zosia)
+    zosia = models.ForeignKey(Zosia, models.CASCADE)
 
     lock = models.ForeignKey(RoomLock,
                              on_delete=models.SET_NULL,
@@ -128,5 +128,5 @@ class Room(models.Model):
 
 
 class UserRoom(models.Model):
-    room = models.ForeignKey(Room)
-    user = models.ForeignKey(User)
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
