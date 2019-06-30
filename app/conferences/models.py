@@ -46,7 +46,7 @@ class Zosia(models.Model):
         default=False
     )
     banner = models.ImageField(blank=True, null=True)
-    place = models.ForeignKey(Place)
+    place = models.ForeignKey(Place, on_delete=models.PROTECT)
     description = models.TextField(default='')
 
     registration_start = models.DateField(
@@ -140,7 +140,7 @@ class Bus(models.Model):
         verbose_name_plural = 'Buses'
     objects = BusManager()
 
-    zosia = models.ForeignKey(Zosia, related_name='buses')
+    zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
     capacity = models.IntegerField()
     time = models.TimeField()
     name = models.TextField(default="Bus");
@@ -172,8 +172,8 @@ class UserPreferences(models.Model):
 
     objects = UserPreferencesManager()
 
-    user = models.ForeignKey(User)
-    zosia = models.ForeignKey(Zosia)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
     # NOTE: Deleting bus will render some payment information inaccessible
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
