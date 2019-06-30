@@ -3,8 +3,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 
-from .models import BlogPost
-from .forms import BlogPostForm
+from blog.models import BlogPost
+from blog.forms import BlogPostForm
 
 User = get_user_model()
 

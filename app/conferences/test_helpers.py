@@ -2,7 +2,7 @@ from datetime import datetime, time, timedelta
 
 from users.models import User
 
-from .models import Bus, Place, UserPreferences, Zosia
+from conferences.models import Bus, Place, UserPreferences, Zosia
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
 PRICE_ACCOMODATION = 1 << 1

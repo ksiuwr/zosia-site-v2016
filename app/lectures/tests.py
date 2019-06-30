@@ -5,8 +5,8 @@ from django.db.utils import IntegrityError
 from django.forms import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
-from .models import Lecture
-from .forms import LectureForm, LectureAdminForm
+from lectures.models import Lecture
+from lectures.forms import LectureForm, LectureAdminForm
 from conferences.models import Zosia, Place
 
 

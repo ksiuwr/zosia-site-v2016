@@ -8,9 +8,9 @@ from django.test import TestCase
 
 from users.models import Organization
 
-from .forms import UserPreferencesForm, UserPreferencesAdminForm
-from .models import Bus, Place, UserPreferences, Zosia
-from .test_helpers import (PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
+from conferences.forms import UserPreferencesForm, UserPreferencesAdminForm
+from conferences.models import Bus, Place, UserPreferences, Zosia
+from conferences.test_helpers import (PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
                            PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
                            new_bus, new_user, new_zosia, user_preferences)
 
