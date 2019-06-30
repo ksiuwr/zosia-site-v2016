@@ -8,6 +8,6 @@ def anonymous_required(view):
     def func(request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('index')
-        return view(request, *args, **kwargs)
+        return view(request, request.user, *args, **kwargs)
 
     return func
