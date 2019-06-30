@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from unittest import skip
 
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase, TransactionTestCase, override_settings
 
 from conferences.test_helpers import (new_user, new_zosia, user_login,
