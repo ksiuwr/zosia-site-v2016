@@ -11,13 +11,14 @@ from .models import User, Organization
 GROUPS = (
         ('pick', 'Pick users'),
         ('all_Users', 'All users'),
-        ('staff', 'Staff'), 
+        ('staff', 'Staff'),
         ('active', 'Active'),
         ('inactive', 'Don\'t activate their account yet'),
         ('registered', 'Registered to zosia'),
         ('payed', 'Payed for zosia'),
         ('not_Payed', 'Didn`t pay for zosia'),
     )
+
 
 class MailForm(forms.Form):
     subject = forms.CharField()
@@ -72,6 +73,7 @@ class MailForm(forms.Form):
             User.objects.filter(userpreferences__payment_accepted=False).distinct()
             .values_list('email', flat=True)
         )
+
     def receivers(self):
         return self.cleaned_data[self.cleaned_data["select_groups"]]
 
@@ -81,7 +83,7 @@ class MailForm(forms.Form):
             self.cleaned_data['subject'],
             self.cleaned_data['text']
         )
-        print (users)
+        print(users)
 
 
 class UserForm(UserCreationForm):
@@ -94,7 +96,7 @@ class UserForm(UserCreationForm):
         fields = ['email', 'first_name', 'last_name']
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs);
+        super().__init__(*args, **kwargs)
         label = 'I agree to <a href="{}">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
                 reverse('terms_and_conditions'),
                 reverse('privacy_policy')

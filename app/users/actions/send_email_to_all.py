@@ -7,6 +7,7 @@ from django.conf import settings
 
 EMAIL_TEMPLATE_NAME = 'users/generic_email.html'
 
+
 class SendEmailToAll:
     def __init__(self, users, use_https=False):
         self.users = users
@@ -16,4 +17,3 @@ class SendEmailToAll:
         from_email = settings.DEFAULT_FROM_EMAIL
         emails = [(subject, text, from_email, [user.email]) for user in self.users]
         send_mass_mail(emails, fail_silently=False)
-

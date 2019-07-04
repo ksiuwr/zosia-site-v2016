@@ -29,29 +29,30 @@ def export_json(request):
     zosia = get_object_or_404(Zosia, active=True)
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
-        .values('user__first_name', 'user__last_name', 'user__email', \
-                'organization_id__name', 'bus_id', 'accomodation_day_1', \
-                'dinner_1', 'accomodation_day_2', 'breakfast_2', 'dinner_2', \
+        .values('user__first_name', 'user__last_name', 'user__email',
+                'organization_id__name', 'bus_id', 'accomodation_day_1',
+                'dinner_1', 'accomodation_day_2', 'breakfast_2', 'dinner_2',
                 'accomodation_day_3', 'breakfast_3', 'dinner_3', 'breakfast_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
                 'shirt_size', 'shirt_type')
 
-    rooms  = Room.objects \
+    rooms = Room.objects \
         .filter(zosia=zosia) \
         .values('users__first_name', 'users__last_name', 'name')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
-        .values('author__first_name', 'author__last_name', 'title', \
+        .values('author__first_name', 'author__last_name', 'title',
                 'abstract', 'description')
-        
+
     data = {
         "lectures": list(lectures),
         "preferences": list(prefs),
         "rooms": list(rooms),
-    };
-    
-    return JsonResponse(data);
+    }
+
+    return JsonResponse(data)
+
 
 @staff_member_required()
 @require_http_methods(['GET'])
@@ -74,11 +75,14 @@ def export_shirts(request):
 
     return response
 
+
 @staff_member_required()
 @require_http_methods(['GET'])
 def export_data(request):
     ctx = {}
     return render(request, 'conferences/export_data.html', ctx)
+
+
 @staff_member_required()
 @require_http_methods(['GET'])
 def user_preferences_index(request):
@@ -203,6 +207,7 @@ def terms_and_conditions(request):
         raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/terms_and_conditions.html', ctx)
+
 
 @require_http_methods(['GET'])
 def privacy_policy(request):

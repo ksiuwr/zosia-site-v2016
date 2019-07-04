@@ -60,13 +60,14 @@ def account_edit(request):
     ctx = {'form': form}
     return render(request, 'users/signup.html', ctx)
 
+
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
 def mail_to_all(request):
     form = forms.MailForm(request.POST or None)
-    print (request.method)
+    print(request.method)
     if request.method == 'POST':
-        print (form.errors)
+        print(form.errors)
         if form.is_valid():
             form.send_mail()
             text = form.cleaned_data.get('text')
@@ -75,8 +76,9 @@ def mail_to_all(request):
             ctx = {'text': text, 'subject': subject, 'receivers': receivers}
             return render(request, 'users/mail_sent.html', ctx)
 
-    ctx = {'form': form }
+    ctx = {'form': form}
     return render(request, 'users/mail.html', ctx)
+
 
 @require_http_methods(['GET', 'POST'])
 def activate(request, uidb64, token):
@@ -106,7 +108,8 @@ def create_organization(request):
     name = request.POST.get('name', None)
     if name is None:
         return HttpResponseBadRequest()
-    org, _ = Organization.objects.get_or_create(user=user, name=name, accepted=False)
+    org, _ = Organization.objects.get_or_create(
+        user=user, name=name, accepted=False)
     return JsonResponse({'status': 'OK', 'html': name, 'value': org.pk})
 
 
@@ -144,4 +147,3 @@ def toggle_organization(request):
     organization.accepted = not organization.accepted
     organization.save(update_fields=['accepted'])
     return JsonResponse({'msg': "{} changed status!".format(organization)})
-

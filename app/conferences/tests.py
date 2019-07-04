@@ -10,9 +10,10 @@ from users.models import Organization
 
 from conferences.forms import UserPreferencesForm, UserPreferencesAdminForm
 from conferences.models import Bus, Place, UserPreferences, Zosia
-from conferences.test_helpers import (PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
-                           PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
-                           new_bus, new_user, new_zosia, user_preferences)
+from conferences.test_helpers import (
+    PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
+    PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
+    new_bus, new_user, new_zosia, user_preferences)
 
 User = get_user_model()
 
@@ -42,13 +43,13 @@ class ZosiaTestCase(TestCase):
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0), zosia=self.active)
         self.assertTrue(self.active.can_start_rooming(user_prefs))
 
-    def test_can_start_rooming(self):
+    def test_can_start_rooming_2(self):
         self.active.rooming_start = datetime(2016, 12, 23)
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0), zosia=self.active)
         self.assertFalse(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
 
-    def test_can_start_rooming(self):
+    def test_can_start_rooming_3(self):
         self.active.rooming_start = datetime(2016, 12, 23)
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0), zosia=self.active)

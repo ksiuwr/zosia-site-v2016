@@ -23,6 +23,7 @@ GAPI_KEY = os.environ.get('GAPI_KEY')
 def random_string(length=10):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
+
 SECRET_KEY = os.environ.get('SECRET_KEY', random_string(20))
 
 if "SECRET_KEY" not in os.environ:
@@ -42,7 +43,7 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": 'mail.zosia.org',
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "admin@" + ANYMAIL["MAILGUN_SENDER_DOMAIN"] 
+DEFAULT_FROM_EMAIL = "admin@" + ANYMAIL["MAILGUN_SENDER_DOMAIN"]
 
 # Sentry (https://getsentry.io)
 # FIXME this variable (`sentry_dsn`) isn't set anywhere and raven isn't

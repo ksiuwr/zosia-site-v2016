@@ -170,7 +170,6 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertRedirects(response, reverse('login') + '?next={}'.format(self.url))
         self.assertEqual(response.status_code, 200)
 
-
     @skip("API CHanged. Needs rewrite")
     def test_cannot_room_without_active_zosia(self):
         self.login()
@@ -181,7 +180,6 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
 
-
     @skip("API CHanged. Needs rewrite")
     def test_cannot_room_without_registration(self):
         self.login()
@@ -189,7 +187,6 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertRedirects(response, reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
-
 
     @skip("API CHanged. Needs rewrite")
     def test_cannot_room_without_payment(self):

@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
@@ -143,7 +142,7 @@ class Bus(models.Model):
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
     capacity = models.IntegerField()
     time = models.TimeField()
-    name = models.TextField(default="Bus");
+    name = models.TextField(default="Bus")
 
     def __str__(self):
         return str('{} {}'.format(self.name, self.time))
