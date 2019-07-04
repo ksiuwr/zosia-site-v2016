@@ -1,6 +1,23 @@
 version: 2.1
 
 jobs:
+  run_tests:
+    environment:
+      POSTGRES_DB: "zosia"
+      POSTGRES_USER: "zosia"
+      POSTGRES_PASSWORD: "zosia"
+    docker:
+      - image: python:3.6
+      - image: postgres
+    steps:
+      - checkout
+      - run:
+          name: Install requirements
+          command: pip install -r requirements.txt
+      - run:
+          name: Run run test
+          command: python3 ./manage.py test --settings=zosia16.settings.test
+
   build_and_push_to_ecr:
     environment:
       AWS_ACCOUNT_ID: "463715963173"
@@ -24,10 +41,16 @@ jobs:
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload_circle.sh
 
 workflows:
-  version: 2.1
+  version: 2
   build:
     jobs:
+      - run_tests:
+          filters:
+            branches:
+              only: aws_deployment
       - build_and_push_to_ecr:
+          requires:
+            - run_tests
           filters:
             branches:
               only: aws_deployment
