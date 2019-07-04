@@ -11,7 +11,9 @@ class BlogPost(models.Model):
         auto_now_add=True)
     author = models.ForeignKey(
         User, verbose_name=_("author"),
-        limit_choices_to={'is_staff': True})
+        limit_choices_to={'is_staff': True},
+        null=True,
+        on_delete=models.SET_NULL)
 
     class Meta:
         ordering = ['-publication']

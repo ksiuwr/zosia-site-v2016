@@ -7,7 +7,7 @@ from .constants import DURATION_CHOICES, LECTURE_TYPE, PERSON_TYPE
 
 class Lecture(models.Model):
     # organizational informations
-    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"))
+    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), on_delete=models.CASCADE)
     info = models.CharField(verbose_name=_("Information"), max_length=800,
                             help_text=_("Your suggestions, requests and "
                                         "comments intended for organizers and"
@@ -29,7 +29,8 @@ class Lecture(models.Model):
     description = models.CharField(verbose_name=_("Author description"),
                                    max_length=256, null=True, blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               verbose_name=_("Author"))
+                               verbose_name=_("Author"),
+                               on_delete=models.CASCADE)
 
     def __str__(self):
         return "{} - {}".format(self.author, self.title)
@@ -45,6 +46,6 @@ class Lecture(models.Model):
 
 
 class Schedule(models.Model):
-    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"))
+    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), on_delete=models.CASCADE)
     content = models.TextField(verbose_name=_("content"),
                                help_text=_("You can use html tags and materializecss classes"))
