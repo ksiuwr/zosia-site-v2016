@@ -94,6 +94,8 @@ media/
 
 .idea/
 
+#mypy
+.mypy_cache
 
 # Bower
 bower_components
