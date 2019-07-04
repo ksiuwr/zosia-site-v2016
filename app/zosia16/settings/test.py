@@ -1,3 +1,3 @@
 from .common import *
 
-DATABASES['default']['USER'] = 'postgres'
+DATABASES['default']['USER'] = 'zosia'

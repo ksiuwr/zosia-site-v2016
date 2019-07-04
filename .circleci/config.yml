@@ -2,22 +2,22 @@ version: 2.1
 
 jobs:
   run_tests:
-    environment:
-      POSTGRES_DB: "zosia"
-      POSTGRES_USER: "zosia"
-      POSTGRES_PASSWORD: "zosia"
     docker:
       - image: python:3.6
       - image: postgres
+        environment:
+          POSTGRES_DB: "zosia"
+          POSTGRES_USER: "zosia"
+          POSTGRES_PASSWORD: "zosia"
     steps:
       - checkout
-      - run: cd app && ls
       - run:
           name: Install requirements
-          command: pip install -r requirements.txt
+          command: |
+            pip install -r app/requirements.txt
       - run:
           name: Run run test
-          command: python3 ./manage.py test --settings=zosia16.settings.test
+          command: cd app && python3 ./manage.py test --settings=zosia16.settings.test
 
   build_and_push_to_ecr:
     environment:
