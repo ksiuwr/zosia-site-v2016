@@ -11,7 +11,7 @@ jobs:
       - image: postgres
     steps:
       - checkout
-      - run: cd app
+      - run: cd app && ls
       - run:
           name: Install requirements
           command: pip install -r requirements.txt
