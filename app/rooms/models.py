@@ -46,6 +46,16 @@ class RoomLock(models.Model):
         return self.user == user
 
 
+class RoomBeds(models.Model):
+    single = models.IntegerField(default=0)
+    double = models.IntegerField(default=0)
+    other = models.IntegerField(default=0)
+
+    @property
+    def capacity(self):
+        return self.single + 2 * self.double + self.other
+
+
 class RoomManager(models.Manager):
     def for_zosia(self, zosia, **override):
         defaults = {'zosia': zosia, 'hidden': False}
@@ -59,14 +69,21 @@ class Room(models.Model):
 
     name = models.CharField(max_length=300)
     description = models.TextField(default='')
-    capacity = models.IntegerField()
     hidden = models.BooleanField(default=False)
 
     zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
-    lock = models.ForeignKey(
-        RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
+    beds = models.OneToOneField(RoomBeds, related_name='actual_beds_in_room',
+                                on_delete=models.SET_NULL,
+                                blank=True, null=True)
+    available_beds = models.OneToOneField(RoomBeds, related_name='available_beds_in_room',
+                                          on_delete=models.SET_NULL, blank=True, null=True)
+    lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
     users = models.ManyToManyField(User, through='UserRoom')
+
+    @property
+    def capacity(self):
+        return self.available_beds.capacity
 
     @property
     def is_locked(self):
@@ -121,18 +138,6 @@ class Room(models.Model):
 
     def __str__(self):
         return 'Room ' + self.name
-
-
-class RoomBeds(models.Model):
-    single = models.IntegerField(default=0)
-    double = models.IntegerField(default=0)
-    other = models.IntegerField(default=0)
-
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-
-    @property
-    def capacity(self):
-        return self.single + 2 * self.double + self.other
 
 
 class UserRoom(models.Model):

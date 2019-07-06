@@ -2,28 +2,39 @@ import json
 from datetime import datetime, timedelta
 from unittest import skip
 
-from django.core.exceptions import ValidationError
-from django.urls import reverse
-from django.test import TestCase, TransactionTestCase, override_settings
-
 from conferences.test_helpers import (new_user, new_zosia, user_login,
                                       user_preferences)
+from django.core.exceptions import ValidationError
+from django.test import TestCase
+from django.urls import reverse
+from rooms.models import Room, RoomBeds, UserRoom
 
-from rooms.models import Room, UserRoom
+
+def new_room_beds(places, commit=True):
+    defaults = {'single': places, 'double': 0, 'other': 0}
+    room_beds = RoomBeds(**defaults)
+
+    if commit:
+        room_beds.save()
+
+    return room_beds
 
 
-def new_room(commit=True, **override):
+def new_room(capacity=0, commit=True, **override):
     zosia = override['zosia'] or new_zosia()
+    beds = new_room_beds(capacity)
     defaults = {
         'name': '109',
-        'capacity': 0,
+        'beds': beds,
+        'available_beds': beds,
         'zosia': zosia,
-
     }
     defaults.update(**override)
     room = Room(**defaults)
+
     if commit:
         room.save()
+
     return room
 
 
@@ -184,7 +195,8 @@ class IndexViewTestCase(RoomsViewTestCase):
     def test_cannot_room_without_registration(self):
         self.login()
         response = self.get()
-        self.assertRedirects(response, reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk}))
+        self.assertRedirects(response,
+                             reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
 
@@ -267,7 +279,7 @@ class StatusViewTestCase(RoomsViewTestCase):
         self.assertEqual(can, True)
 
     def test_status_returns_can_room_false_before_user_rooming(self):
-        can = self.load_response(bonus_minutes=-60*24*2)['can_start_rooming']
+        can = self.load_response(bonus_minutes=-60 * 24 * 2)['can_start_rooming']
         self.assertEqual(can, False)
 
 
