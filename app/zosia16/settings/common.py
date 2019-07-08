@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import random
 import string
+
 import raven
 
 # Google API key
@@ -21,7 +22,8 @@ GAPI_KEY = os.environ.get('GAPI_KEY')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):
-    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+    return ''.join(
+        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY', random_string(20))
@@ -66,6 +68,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INSTALLED_APPS = [
     'materializecssform',
     'anymail',
+    'rest_framework',
     'raven.contrib.django.raven_compat',
     'rooms.apps.RoomsConfig',
     'blog.apps.BlogConfig',
@@ -112,7 +115,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'zosia16.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -123,7 +125,6 @@ DATABASES = {
         'USER': 'zosia',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -143,7 +144,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -158,7 +158,6 @@ USE_L10N = False
 USE_TZ = True
 
 DATE_FORMAT = 'd.n.o'
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/

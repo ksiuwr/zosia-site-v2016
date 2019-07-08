@@ -10,6 +10,7 @@ Django==2.2.2
 django-anymail==3.*
 django-debug-toolbar==1.8
 django-materializecss-form==1.1.14
+djangorestframework==3.9.4
 gunicorn==19.6.0
 hy==0.11.1
 ipython==5.1.0

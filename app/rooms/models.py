@@ -73,10 +73,10 @@ class Room(models.Model):
 
     zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
     beds = models.OneToOneField(RoomBeds, related_name='actual_beds_in_room',
-                                on_delete=models.SET_NULL,
+                                on_delete=models.CASCADE,
                                 blank=True, null=True)
     available_beds = models.OneToOneField(RoomBeds, related_name='available_beds_in_room',
-                                          on_delete=models.SET_NULL, blank=True, null=True)
+                                          on_delete=models.CASCADE, blank=True, null=True)
     lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
     users = models.ManyToManyField(User, through='UserRoom')
@@ -90,12 +90,12 @@ class Room(models.Model):
         return self.lock and not self.lock.is_expired
 
     @property
-    def occupied(self):
+    def is_occupied(self):
         return self.userroom_set.count()
 
     @property
     def occupants(self):
-        return ", ".join(map(lambda x: str(x), self.users.all()))
+        return ", ".join(map(str, self.users.all()))
 
     @transaction.atomic
     def join(self, user, password='', expiration=None, lock=True):
@@ -105,7 +105,7 @@ class Room(models.Model):
                                    params={'room': self})
 
         # Ensure room is not full
-        if self.occupied >= self.capacity:
+        if self.is_occupied >= self.capacity:
             return ValidationError(_('Cannot join room %(room), is full.'),
                                    code='invalid',
                                    params={'room': self})

@@ -1,5 +1,8 @@
 from django.forms.models import model_to_dict
 from django.shortcuts import reverse
+from rest_framework import serializers
+
+from rooms.models import Room
 
 
 def room_to_dict(room):
@@ -18,3 +21,9 @@ def user_to_dict(user):
     dic = {'name': name}
 
     return dic
+
+
+class RoomSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Room
+        fields = ('id', 'name', 'hidden', 'beds', 'available_beds', 'lock', 'users')

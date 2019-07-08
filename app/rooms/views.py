@@ -1,23 +1,25 @@
-import json
 import csv
+import json
 from io import TextIOWrapper
 
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
+from conferences.models import UserPreferences, Zosia
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.template import Context, loader
 from django.utils.translation import ugettext_lazy as _
-from django.template import loader, Context
+from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.vary import vary_on_cookie
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from conferences.models import Zosia, UserPreferences
-from .models import Room, UserRoom
-from .serializers import room_to_dict, user_to_dict
 from .forms import UploadFileForm
+from .models import Room, UserRoom
+from .serializers import RoomSerializer, room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -67,7 +69,8 @@ def status(request):
     # Ajax
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
-    can_start_rooming = zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
+    can_start_rooming = zosia.can_start_rooming(
+        get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
     rooms = Room.objects.for_zosia(zosia).select_related('lock').prefetch_related('users').all()
     rooms_view = []
     for room in rooms:
@@ -90,7 +93,8 @@ def join(request, room_id):
     zosia = get_object_or_404(Zosia, active=True)
     room = get_object_or_404(Room, zosia=zosia, pk=room_id)
     password = request.POST.get('password', '')
-    if not zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user)):
+    if not zosia.can_start_rooming(
+            get_object_or_404(UserPreferences, zosia=zosia, user=request.user)):
         return JsonResponse({'error': 'cannot_room_yet'}, status=400)
 
     should_lock = request.POST.get('lock', True) in [True, 'True', '1', 'on', 'true']
@@ -137,7 +141,7 @@ def report(request):
     users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
     users = sorted(users, key=lambda x: str(x))
     ctx = {
-        'zosia':  zosia,
+        'zosia': zosia,
         'rooms': rooms,
         'user_preferences': users
     }
@@ -156,7 +160,8 @@ def handle_uploaded_file(zosia, csvfile):
     for row in csv.reader(csvfile, delimiter=','):
         name, desc, cap, hidden = row
         if name != "Name":
-            rooms.append(Room(zosia=zosia, name=name, description=desc, capacity=cap, hidden=hidden))
+            rooms.append(
+                Room(zosia=zosia, name=name, description=desc, capacity=cap, hidden=hidden))
     Room.objects.bulk_create(rooms)
 
 
@@ -167,8 +172,17 @@ def import_room(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(zosia, TextIOWrapper(request.FILES['file'].file, encoding=request.encoding))
+            handle_uploaded_file(zosia, TextIOWrapper(request.FILES['file'].file,
+                                                      encoding=request.encoding))
             return HttpResponseRedirect(reverse('rooms_report'))
     else:
         form = UploadFileForm()
     return render(request, 'rooms/import.html', {'form': form})
+
+
+class RoomListAPI(APIView):
+    def get(self, request, format=None):
+        rooms = Room.objects.all()
+        serializer = RoomSerializer(rooms, many=True)
+
+        return Response(serializer.data)
