@@ -72,10 +72,9 @@ class Room(models.Model):
     hidden = models.BooleanField(default=False)
 
     zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
-    beds = models.OneToOneField(RoomBeds, related_name='actual_beds_in_room',
-                                on_delete=models.CASCADE,
+    beds = models.OneToOneField(RoomBeds, related_name='actual_beds', on_delete=models.CASCADE,
                                 blank=True, null=True)
-    available_beds = models.OneToOneField(RoomBeds, related_name='available_beds_in_room',
+    available_beds = models.OneToOneField(RoomBeds, related_name='available_beds',
                                           on_delete=models.CASCADE, blank=True, null=True)
     lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
@@ -142,4 +141,4 @@ class Room(models.Model):
 
 class UserRoom(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
