@@ -97,10 +97,11 @@ class UserForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        label = 'I agree to <a href="{}">Terms & Conditions</a> and the <a href="{}">Privacy Policy</a>'.format(
-                reverse('terms_and_conditions'),
-                reverse('privacy_policy')
-            )
+        label = (
+            f'I agree to <a href="{reverse("terms_and_conditions")}">'
+            f'Terms & Conditions</a> and the '
+            f'<a href="{reverse("privacy_policy")}">Privacy Policy</a>'
+        )
         privacy_consent = self.fields['privacy_consent'].label = mark_safe(label)
 
     def save(self, request):

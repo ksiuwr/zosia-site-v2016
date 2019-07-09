@@ -11,8 +11,8 @@ from users.models import User
 
 
 def random_string(length=10):
-    return ''.join(
-        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+    return ''.join(random.SystemRandom().choice(
+        string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 class RoomLockManager(models.Manager):

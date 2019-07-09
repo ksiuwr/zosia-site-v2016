@@ -173,7 +173,12 @@ class UserPreferences(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
-    organization = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL)
+
+    organization = models.ForeignKey(
+        Organization,
+        null=True, blank=True,
+        on_delete=models.SET_NULL)
+
     # NOTE: Deleting bus will render some payment information inaccessible
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
     bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL)
@@ -206,8 +211,15 @@ class UserPreferences(models.Model):
     # Set by admin after checking payment
     payment_accepted = models.BooleanField(default=False)
 
-    shirt_size = models.CharField(max_length=5, choices=SHIRT_SIZE_CHOICES, default=SHIRT_SIZE_CHOICES[0][0])
-    shirt_type = models.CharField(max_length=1, choices=SHIRT_TYPES_CHOICES, default=SHIRT_TYPES_CHOICES[0][0])
+    shirt_size = models.CharField(
+        max_length=5,
+        choices=SHIRT_SIZE_CHOICES,
+        default=SHIRT_SIZE_CHOICES[0][0])
+
+    shirt_type = models.CharField(
+        max_length=1,
+        choices=SHIRT_TYPES_CHOICES,
+        default=SHIRT_TYPES_CHOICES[0][0])
 
     # Assigned by admin for various reasons (early registration / payment, help, etc)
     # Should allow some users to book room earlier
@@ -269,7 +281,7 @@ class UserPreferences(models.Model):
 
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
-        return opening_time - timedelta(0, 3*60*self.bonus_minutes)
+        return opening_time - timedelta(0, 60*self.bonus_minutes)
 
     @property
     def rooming_time(self):
