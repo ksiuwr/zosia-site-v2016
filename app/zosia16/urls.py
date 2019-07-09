@@ -31,7 +31,7 @@ urlpatterns = \
         re_path(r'^questions/', include('questions.urls')),
 
         # API URLs
-        re_path(r'^api/v1/rooms/', include('rooms.api.urls', namespace='v1')),
+        re_path(r'^api/v1/rooms/', include(('rooms.api.urls', 'rooms'), namespace='v1')),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # NOTE: It only serve static files when debug=True
 
