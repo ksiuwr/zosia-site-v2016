@@ -14,13 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.vary import vary_on_cookie
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from .forms import UploadFileForm
 from .models import Room, UserRoom
-from .serializers import RoomSerializer, room_to_dict, user_to_dict
+from .serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -66,7 +63,7 @@ def index(request):
 @vary_on_cookie
 @login_required
 @require_http_methods(['GET'])
-def get_status(request):
+def status(request):
     # Ajax
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
@@ -179,21 +176,3 @@ def import_room(request):
     else:
         form = UploadFileForm()
     return render(request, 'rooms/import.html', {'form': form})
-
-
-class RoomListAPI(APIView):
-    def get(self, request, format=None):
-        rooms = Room.objects.all()
-        serializer = RoomSerializer(rooms, many=True)
-
-        return Response(serializer.data)
-
-    def post(self, request, format=None):
-        serializer = RoomSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

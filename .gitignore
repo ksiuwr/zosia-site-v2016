@@ -109,3 +109,5 @@ node_modules
 # vim
 *.swp
 
+# Minified frontend files
+*.min.*
