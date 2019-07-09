@@ -60,6 +60,11 @@ if sentry_dsn:
         'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
     }
 
+# Django REST framework (https://www.django-rest-framework.org)
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
+}
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
