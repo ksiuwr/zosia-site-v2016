@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from conferences.models import Zosia
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -10,15 +9,9 @@ from .serializers import RoomSerializer
 from ..models import Room
 
 
-def get_room_by_id(id):
-    zosia = get_object_or_404(Zosia, active=True)
-    return get_object_or_404(Room, zosia=zosia, pk=id)
-
-
 class RoomListAPI(APIView):
     def get(self, request, format=None):
-        zosia = get_object_or_404(Zosia, active=True)
-        rooms = Room.objects.for_zosia(zosia)
+        rooms = Room.objects.all()
         serializer = RoomSerializer(rooms, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -36,13 +29,13 @@ class RoomListAPI(APIView):
 
 class RoomDetailsAPI(APIView):
     def get(self, request, id, format=None):
-        room = get_room_by_id(id)
+        room = get_object_or_404(Room, pk=id)
         serializer = RoomSerializer(room)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, id, format=None):
-        room = get_room_by_id(id)
+        room = get_object_or_404(Room, pk=id)
         serializer = RoomSerializer(room, data=request.data)
 
         if serializer.is_valid():
@@ -53,7 +46,7 @@ class RoomDetailsAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id, format=None):
-        room = get_room_by_id(id)
+        room = get_object_or_404(Room, pk=id)
         room.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
