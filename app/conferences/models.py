@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta
 
+from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.utils.translation import ugettext as _
-from django.core.exceptions import ValidationError
-
-from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-from users.models import Organization, User
-
 from pytz import timezone
+from users.models import Organization, User
 
 
 class Place(models.Model):
@@ -129,14 +127,15 @@ class Zosia(models.Model):
 class BusManager(models.Manager):
     def find_with_free_places(self, zosia):
         return self \
-                .filter(zosia=zosia) \
-                .annotate(seats_taken=Count('userpreferences')). \
-                filter(capacity__gt=F('seats_taken'))
+            .filter(zosia=zosia) \
+            .annotate(seats_taken=Count('userpreferences')). \
+            filter(capacity__gt=F('seats_taken'))
 
 
 class Bus(models.Model):
     class Meta:
         verbose_name_plural = 'Buses'
+
     objects = BusManager()
 
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
@@ -277,14 +276,14 @@ class UserPreferences(models.Model):
 
     @property
     def room(self):
-        return self.user.room_set.for_zosia(self.zosia).first()
+        return self.user.room_set.visible_for_zosia(self.zosia).first()
 
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
-        return opening_time - timedelta(0, 60*self.bonus_minutes)
+        return opening_time - timedelta(0, 60 * self.bonus_minutes)
 
     @property
     def rooming_time(self):
         return self.convert_bonus_to_time() \
-                .astimezone(timezone('Europe/Warsaw')) \
-                .strftime("%d.%m.%Y %H:%M")
+            .astimezone(timezone('Europe/Warsaw')) \
+            .strftime("%d.%m.%Y %H:%M")

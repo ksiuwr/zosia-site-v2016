@@ -49,7 +49,7 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
-    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = Room.objects.visible_for_zosia(zosia).prefetch_related('users').all()
     rooms = sorted(rooms, key=lambda x: x.pk)
     rooms_json = json.dumps(list(map(room_to_dict, rooms)))
     context = {
@@ -69,7 +69,8 @@ def status(request):
     zosia = get_object_or_404(Zosia, active=True)
     can_start_rooming = zosia.can_start_rooming(
         get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
-    rooms = Room.objects.for_zosia(zosia).select_related('lock').prefetch_related('users').all()
+    rooms = Room.objects.visible_for_zosia(zosia).select_related('lock').prefetch_related(
+        'users').all()
     rooms_view = []
     for room in rooms:
         dic = room_to_dict(room)
@@ -134,7 +135,7 @@ def csv_response(data, template, filename='file'):
 @require_http_methods(['GET'])
 def report(request):
     zosia = get_object_or_404(Zosia, active=True)
-    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = Room.objects.visible_for_zosia(zosia).prefetch_related('users').all()
     rooms = sorted(rooms, key=lambda x: str(x))
     users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
     users = sorted(users, key=lambda x: str(x))

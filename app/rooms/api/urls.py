@@ -6,4 +6,5 @@ from . import views
 
 urlpatterns = format_suffix_patterns([
     path('', views.RoomListAPI.as_view(), name='all_rooms'),
+    path('<int:id>/', views.RoomDetailsAPI.as_view(), name='single room'),
 ])

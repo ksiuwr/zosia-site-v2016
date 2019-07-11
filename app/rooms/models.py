@@ -57,11 +57,14 @@ class RoomBeds(models.Model):
 
 
 class RoomManager(models.Manager):
-    def for_zosia(self, zosia, **override):
-        defaults = {'zosia': zosia, 'hidden': False}
-        defaults.update(**override)
+    def for_zosia(self, zosia, **params):
+        defaults = {'zosia': zosia}
+        defaults.update(**params)
 
         return self.filter(**defaults)
+
+    def visible_for_zosia(self, zosia, **params):
+        return self.for_zosia(zosia, hidden=False, **params)
 
 
 class Room(models.Model):

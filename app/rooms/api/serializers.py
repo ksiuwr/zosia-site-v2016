@@ -17,6 +17,7 @@ class RoomBedsSerializer(serializers.ModelSerializer):
 
 
 class RoomSerializer(serializers.ModelSerializer):
+    zosia = serializers.PrimaryKeyRelatedField(read_only=True)
     beds = RoomBedsSerializer()
     available_beds = RoomBedsSerializer()
     lock = RoomLockSerializer(read_only=True)
@@ -24,7 +25,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Room
-        fields = ('id', 'name', 'hidden', 'beds', 'available_beds', 'lock', 'users')
+        fields = ('id', 'zosia', 'name', 'hidden', 'beds', 'available_beds', 'lock', 'users')
 
     def create(self, validated_data):
         beds_data = validated_data.pop('beds')
