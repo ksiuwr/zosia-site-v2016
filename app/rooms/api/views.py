@@ -2,6 +2,7 @@
 from conferences.models import Zosia
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -56,3 +57,18 @@ class RoomDetailsAPI(APIView):
         room.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+def leave(request, pk):
+    pass
+
+
+@api_view(["POST"])
+def join(request, pk):
+    pass
+
+
+@api_view(["POST"])
+def lock(request, pk):
+    pass

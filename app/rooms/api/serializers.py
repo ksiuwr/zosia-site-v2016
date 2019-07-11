@@ -36,3 +36,11 @@ class RoomSerializer(serializers.ModelSerializer):
                                    available_beds=available_beds_object)
 
         return room
+
+
+class LockMethodSerializer(serializers.BaseSerializer):
+    pass
+
+
+class JoinMethodSerializer(serializers.BaseSerializer):
+    pass
