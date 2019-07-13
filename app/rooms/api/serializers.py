@@ -45,7 +45,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class LockMethodSerializer(serializers.BaseSerializer):
-    pass
+    user = RoomingUserSerializer(read_only=True)
 
 
 class JoinMethodSerializer(serializers.BaseSerializer):
