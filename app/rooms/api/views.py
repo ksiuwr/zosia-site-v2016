@@ -76,3 +76,8 @@ def join(request, pk, format=None):
 @api_view(["POST"])
 def lock(request, pk, format=None):
     pass
+
+
+@api_view(["POST"])
+def unlock(request, pk, format=None):
+    pass
