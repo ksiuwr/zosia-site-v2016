@@ -19,11 +19,11 @@ def new_room_beds(places, commit=True):
     return room_beds
 
 
-def new_room(capacity=0, commit=True, **override):
+def new_room(number, capacity=0, commit=True, **override):
     zosia = override['zosia'] or new_zosia()
     beds = new_room_beds(capacity)
     defaults = {
-        'name': '109',
+        'name': str(number),
         'beds': beds,
         'available_beds': beds,
         'zosia': zosia,
@@ -64,8 +64,8 @@ class RoomTestCase(TestCase):
         self.normal_1 = new_user(0)
         self.normal_2 = new_user(1)
 
-        self.room_1 = new_room(zosia=self.zosia, capacity=2)
-        self.room_2 = new_room(zosia=self.zosia, capacity=1)
+        self.room_1 = new_room(111, zosia=self.zosia, capacity=2)
+        self.room_2 = new_room(222, zosia=self.zosia, capacity=1)
 
     def test_anyone_can_join_free_room(self):
         result = self.room_1.join(self.normal_1)
@@ -145,8 +145,8 @@ class RoomsViewTestCase(TestCase):
         self.normal_1 = new_user(0)
         self.normal_2 = new_user(1)
 
-        self.room_1 = new_room(zosia=self.zosia, capacity=2)
-        self.room_2 = new_room(zosia=self.zosia, capacity=1, hidden=True)
+        self.room_1 = new_room(111, zosia=self.zosia, capacity=2)
+        self.room_2 = new_room(222, zosia=self.zosia, capacity=1, hidden=True)
 
     def get(self, follow=True):
         return self.client.get(self.url, follow=follow)

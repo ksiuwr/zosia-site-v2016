@@ -119,7 +119,7 @@ class Room(models.Model):
             if prev_room.is_locked and prev_room.lock.owns(user):
                 prev_room.lock.delete()
 
-            prev_room.delete()
+            prev_room.users.remove(user)
 
         if lock:
             if not self.lock or self.lock.is_expired:
