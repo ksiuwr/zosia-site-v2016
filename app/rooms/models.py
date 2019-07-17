@@ -81,7 +81,7 @@ class Room(models.Model):
                                           on_delete=models.CASCADE, blank=True, null=True)
     lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
-    users = models.ManyToManyField(User, through='UserRoom')
+    users = models.ManyToManyField(User, through='UserRoom', related_name='user_room')
 
     @property
     def capacity(self):
@@ -93,7 +93,7 @@ class Room(models.Model):
 
     @property
     def is_occupied(self):
-        return self.userroom_set.count()
+        return self.users.count()
 
     @property
     def occupants(self):
@@ -113,16 +113,13 @@ class Room(models.Model):
                                    params={'room': self})
 
         # Remove user from previous rooms
-        prev_userroom = user.userroom_set.select_related(
-            'room').filter(room__zosia=self.zosia).first()
+        prev_room = user.user_room.filter(zosia=self.zosia).first()
 
-        if prev_userroom:
-            if prev_userroom.room.is_locked and prev_userroom.room.lock.owns(user):
-                prev_userroom.room.lock.delete()
+        if prev_room:
+            if prev_room.is_locked and prev_room.lock.owns(user):
+                prev_room.lock.delete()
 
-            prev_userroom.delete()
-
-        owner_lock = None
+            prev_room.delete()
 
         if lock:
             if not self.lock or self.lock.is_expired:

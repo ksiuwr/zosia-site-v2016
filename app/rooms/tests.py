@@ -2,8 +2,7 @@ import json
 from datetime import datetime, timedelta
 from unittest import skip
 
-from conferences.test_helpers import (new_user, new_zosia, user_login,
-                                      user_preferences)
+from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
@@ -121,7 +120,7 @@ class RoomTestCase(TestCase):
     def test_room_is_left_after_joining_other(self):
         self.room_1.join(self.normal_1)
         result = self.room_2.join(self.normal_1)
-        self.assertEqual(self.room_1.userroom_set.count(), 0)
+        self.assertEqual(self.room_1.users.count(), 0)
 
     def test_room_is_unlocked_after_joining_other(self):
         self.room_1.join(self.normal_1)
