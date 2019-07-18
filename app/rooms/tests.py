@@ -2,16 +2,16 @@ import json
 from datetime import datetime, timedelta
 from unittest import skip
 
-from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+
+from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from rooms.models import Room, RoomBeds, UserRoom
 
 
 def new_room_beds(places, commit=True):
-    defaults = {'single': places, 'double': 0, 'other': 0}
-    room_beds = RoomBeds(**defaults)
+    room_beds = RoomBeds(single=places, double=0)
 
     if commit:
         room_beds.save()
@@ -20,14 +20,8 @@ def new_room_beds(places, commit=True):
 
 
 def new_room(number, capacity=0, commit=True, **override):
-    zosia = override['zosia'] or new_zosia()
     beds = new_room_beds(capacity)
-    defaults = {
-        'name': str(number),
-        'beds': beds,
-        'available_beds': beds,
-        'zosia': zosia,
-    }
+    defaults = {'name': str(number), 'beds': beds, 'available_beds': beds}
     defaults.update(**override)
     room = Room(**defaults)
 
@@ -64,8 +58,8 @@ class RoomTestCase(TestCase):
         self.normal_1 = new_user(0)
         self.normal_2 = new_user(1)
 
-        self.room_1 = new_room(111, zosia=self.zosia, capacity=2)
-        self.room_2 = new_room(222, zosia=self.zosia, capacity=1)
+        self.room_1 = new_room(111, capacity=2)
+        self.room_2 = new_room(222, capacity=1)
 
     def test_anyone_can_join_free_room(self):
         result = self.room_1.join(self.normal_1)
@@ -120,7 +114,7 @@ class RoomTestCase(TestCase):
     def test_room_is_left_after_joining_other(self):
         self.room_1.join(self.normal_1)
         result = self.room_2.join(self.normal_1)
-        self.assertEqual(self.room_1.users.count(), 0)
+        self.assertEqual(self.room_1.members.count(), 0)
 
     def test_room_is_unlocked_after_joining_other(self):
         self.room_1.join(self.normal_1)
@@ -145,8 +139,8 @@ class RoomsViewTestCase(TestCase):
         self.normal_1 = new_user(0)
         self.normal_2 = new_user(1)
 
-        self.room_1 = new_room(111, zosia=self.zosia, capacity=2)
-        self.room_2 = new_room(222, zosia=self.zosia, capacity=1, hidden=True)
+        self.room_1 = new_room(111, capacity=2)
+        self.room_2 = new_room(222, capacity=1, hidden=True)
 
     def get(self, follow=True):
         return self.client.get(self.url, follow=follow)
@@ -277,7 +271,7 @@ class StatusViewTestCase(RoomsViewTestCase):
         can = self.load_response()['can_start_rooming']
         self.assertEqual(can, True)
 
-    def test_status_returns_can_room_false_before_user_rooming(self):
+    def test_status_returns_can_room_false_before_room_of_usering(self):
         can = self.load_response(bonus_minutes=-60 * 24 * 2)['can_start_rooming']
         self.assertEqual(can, False)
 

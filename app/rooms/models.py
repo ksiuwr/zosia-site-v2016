@@ -2,11 +2,11 @@ import random
 import string
 from datetime import timedelta
 
-from conferences.models import Zosia
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
 from users.models import User
 
 
@@ -49,22 +49,23 @@ class RoomLock(models.Model):
 class RoomBeds(models.Model):
     single = models.IntegerField(default=0)
     double = models.IntegerField(default=0)
-    other = models.IntegerField(default=0)
 
     @property
     def capacity(self):
-        return self.single + 2 * self.double + self.other
+        return self.single + 2 * self.double
 
 
 class RoomManager(models.Manager):
-    def for_zosia(self, zosia, **params):
-        defaults = {'zosia': zosia}
-        defaults.update(**params)
+    def all_visible(self):
+        return self.filter(hidden=False)
 
-        return self.filter(**defaults)
+    def filter_visible(self, **params):
+        if 'hidden' in params and params['hidden']:
+            return None
 
-    def visible_for_zosia(self, zosia, **params):
-        return self.for_zosia(zosia, hidden=False, **params)
+        params["hidden"] = False
+
+        return self.filter(**params)
 
 
 class Room(models.Model):
@@ -74,14 +75,13 @@ class Room(models.Model):
     description = models.TextField(default='')
     hidden = models.BooleanField(default=False)
 
-    zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
     beds = models.OneToOneField(RoomBeds, related_name='actual_beds', on_delete=models.CASCADE,
                                 blank=True, null=True)
     available_beds = models.OneToOneField(RoomBeds, related_name='available_beds',
                                           on_delete=models.CASCADE, blank=True, null=True)
     lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
-    users = models.ManyToManyField(User, through='UserRoom', related_name='user_room')
+    members = models.ManyToManyField(User, through='UserRoom', related_name='room_of_user')
 
     @property
     def capacity(self):
@@ -93,11 +93,11 @@ class Room(models.Model):
 
     @property
     def is_occupied(self):
-        return self.users.count()
+        return self.members.count()
 
     @property
     def occupants(self):
-        return ", ".join(map(str, self.users.all()))
+        return ", ".join(map(str, self.members.all()))
 
     @transaction.atomic
     def join(self, user, password='', expiration=None, lock=True):
@@ -113,13 +113,13 @@ class Room(models.Model):
                                    params={'room': self})
 
         # Remove user from previous rooms
-        prev_room = user.user_room.filter(zosia=self.zosia).first()
+        prev_room = user.room_of_user.all().first()
 
         if prev_room:
             if prev_room.is_locked and prev_room.lock.owns(user):
                 prev_room.lock.delete()
 
-            prev_room.users.remove(user)
+            prev_room.members.remove(user)
 
         if lock:
             if not self.lock or self.lock.is_expired:

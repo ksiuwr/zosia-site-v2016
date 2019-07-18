@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from users.models import User
 
+from users.models import User
 from .serializers import LeaveMethodSerializer, RoomSerializer
 from ..models import Room
 
@@ -61,7 +61,7 @@ def leave(request, pk, format=None):
     if serializer.is_valid():
         user_data = serializer.validated_data.user
         user = get_object_or_404(User, pk=user_data.id)
-        room.users.remove(user)
+        room.members.remove(user)
 
         return Response(status=status.HTTP_200_OK)
 
@@ -69,15 +69,34 @@ def leave(request, pk, format=None):
 
 
 @api_view(["POST"])
-def join(request, pk, format=None):
-    pass
+def join(request, pk, format=None):  # only room joining
+    room = get_object_or_404(Room, pk=pk)
 
 
 @api_view(["POST"])
-def lock(request, pk, format=None):
-    pass
+def lock(request, pk, format=None):  # only locks the room
+    room = get_object_or_404(Room, pk=pk)
 
 
 @api_view(["POST"])
 def unlock(request, pk, format=None):
-    pass
+    # user data is taken from session
+    room = get_object_or_404(Room, pk=pk)
+
+
+@api_view(["POST"])
+def hide(request, pk, format=None):
+    room = get_object_or_404(Room, pk=pk)
+    room.hidden = True
+    room.save()
+
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+def unhide(request, pk, format=None):
+    room = get_object_or_404(Room, pk=pk)
+    room.hidden = False
+    room.save()
+
+    return Response(status=status.HTTP_200_OK)
