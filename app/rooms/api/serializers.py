@@ -37,12 +37,11 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
     available_beds = RoomBedsSerializer()
     lock = RoomLockSerializer(read_only=True)
     members = RoomingUserSerializer(read_only=True, many=True)
-    zosia = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Room
-        fields = ("url", "zosia", "name", "description", "hidden", "beds", "available_beds",
-                  "lock", "members")
+        fields = ("url", "name", "description", "hidden", "beds", "available_beds", "lock",
+                  "members")
 
     def create(self, validated_data):
         beds_data = validated_data.pop("beds")

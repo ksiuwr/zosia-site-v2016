@@ -7,7 +7,6 @@ from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from conferences.models import Zosia
 from users.models import User
 
 
@@ -57,25 +56,16 @@ class RoomBeds(models.Model):
 
 
 class RoomManager(models.Manager):
-    def all_for_zosia(self, zosia, **params):
-        defaults = {'zosia': zosia}
-        defaults.update(**params)
+    def all_visible(self):
+        return self.filter(hidden=False)
 
-        return self.filter(**defaults)
-
-    def visible_for_zosia(self, zosia, **params):
-        return self.for_zosia(zosia, hidden=False, **params)
-
-    def all_for_active_zosia(self, **params):
-        zosia = Zosia.objects.find_active()
-
-        if not zosia:
+    def filter_visible(self, **params):
+        if 'hidden' in params and params['hidden']:
             return None
 
-        return self.for_zosia(zosia, **params)
+        params["hidden"] = False
 
-    def visible_for_active_zosia(self, **params):
-        return self.for_active_zosia(hidden=False, **params)
+        return self.filter(**params)
 
 
 class Room(models.Model):
@@ -85,7 +75,6 @@ class Room(models.Model):
     description = models.TextField(default='')
     hidden = models.BooleanField(default=False)
 
-    zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
     beds = models.OneToOneField(RoomBeds, related_name='actual_beds', on_delete=models.CASCADE,
                                 blank=True, null=True)
     available_beds = models.OneToOneField(RoomBeds, related_name='available_beds',
@@ -124,7 +113,7 @@ class Room(models.Model):
                                    params={'room': self})
 
         # Remove user from previous rooms
-        prev_room = user.room_of_user.filter(zosia=self.zosia).first()
+        prev_room = user.room_of_user.all().first()
 
         if prev_room:
             if prev_room.is_locked and prev_room.lock.owns(user):
