@@ -50,15 +50,14 @@ class RoomLock(models.Model):
 class RoomBeds(models.Model):
     single = models.IntegerField(default=0)
     double = models.IntegerField(default=0)
-    other = models.IntegerField(default=0)
 
     @property
     def capacity(self):
-        return self.single + 2 * self.double + self.other
+        return self.single + 2 * self.double
 
 
 class RoomManager(models.Manager):
-    def for_zosia(self, zosia, **params):
+    def all_for_zosia(self, zosia, **params):
         defaults = {'zosia': zosia}
         defaults.update(**params)
 
@@ -66,6 +65,17 @@ class RoomManager(models.Manager):
 
     def visible_for_zosia(self, zosia, **params):
         return self.for_zosia(zosia, hidden=False, **params)
+
+    def all_for_active_zosia(self, **params):
+        zosia = Zosia.objects.find_active()
+
+        if not zosia:
+            return None
+
+        return self.for_zosia(zosia, **params)
+
+    def visible_for_active_zosia(self, **params):
+        return self.for_active_zosia(hidden=False, **params)
 
 
 class Room(models.Model):
