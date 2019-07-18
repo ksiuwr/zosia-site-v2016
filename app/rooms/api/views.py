@@ -10,15 +10,15 @@ from .serializers import LeaveMethodSerializer, RoomSerializer
 from ..models import Room
 
 
-class RoomListAPI(APIView):
-    def get(self, request, format=None):
+class RoomList(APIView):
+    def get(self, request, version, format=None):
         rooms = Room.objects.all()
-        serializer = RoomSerializer(rooms, many=True)
+        serializer = RoomSerializer(rooms, many=True, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, format=None):
-        serializer = RoomSerializer(data=request.data)
+    def post(self, request, version, format=None):
+        serializer = RoomSerializer(data=request.data, context={'request': request})
 
         if serializer.is_valid():
             serializer.save()
@@ -28,16 +28,16 @@ class RoomListAPI(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class RoomDetailsAPI(APIView):
-    def get(self, request, pk, format=None):
+class RoomDetail(APIView):
+    def get(self, request, version, pk, format=None):
         room = get_object_or_404(Room, pk=pk)
-        serializer = RoomSerializer(room)
+        serializer = RoomSerializer(room, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, pk, format=None):
+    def put(self, request, version, pk, format=None):
         room = get_object_or_404(Room, pk=pk)
-        serializer = RoomSerializer(room, data=request.data)
+        serializer = RoomSerializer(room, data=request.data, context={'request': request})
 
         if serializer.is_valid():
             serializer.save()
@@ -46,7 +46,7 @@ class RoomDetailsAPI(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
+    def delete(self, request, version, pk, format=None):
         room = get_object_or_404(Room, pk=pk)
         room.delete()
 
@@ -54,7 +54,7 @@ class RoomDetailsAPI(APIView):
 
 
 @api_view(["POST"])
-def leave(request, pk, format=None):
+def leave(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     serializer = LeaveMethodSerializer(data=request.data)
 
@@ -69,23 +69,23 @@ def leave(request, pk, format=None):
 
 
 @api_view(["POST"])
-def join(request, pk, format=None):  # only room joining
+def join(request, version, pk, format=None):  # only room joining
     room = get_object_or_404(Room, pk=pk)
 
 
 @api_view(["POST"])
-def lock(request, pk, format=None):  # only locks the room
+def lock(request, version, pk, format=None):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
 
 
 @api_view(["POST"])
-def unlock(request, pk, format=None):
+def unlock(request, version, pk, format=None):
     # user data is taken from session
     room = get_object_or_404(Room, pk=pk)
 
 
 @api_view(["POST"])
-def hide(request, pk, format=None):
+def hide(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     room.hidden = True
     room.save()
@@ -94,7 +94,7 @@ def hide(request, pk, format=None):
 
 
 @api_view(["POST"])
-def unhide(request, pk, format=None):
+def unhide(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     room.hidden = False
     room.save()

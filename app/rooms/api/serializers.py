@@ -11,7 +11,7 @@ class RoomingUserSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("url", "first_name", "last_name")
 
 
-class RoomMemberSerializer(serializers.HyperlinkedModelSerializer):
+class RoomMemberSerializer(serializers.ModelSerializer):
     user = RoomingUserSerializer()
     joined_at = serializers.DateTimeField(input_formats=['iso-8601'])
 
@@ -36,7 +36,7 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
     beds = RoomBedsSerializer()
     available_beds = RoomBedsSerializer()
     lock = RoomLockSerializer(read_only=True)
-    members = RoomingUserSerializer(read_only=True, many=True)
+    members = RoomMemberSerializer(read_only=True, many=True)
 
     class Meta:
         model = Room

@@ -31,11 +31,11 @@ urlpatterns = \
         re_path(r'^questions/', include('questions.urls')),
 
         # API URLs
-        re_path(r'^api/v1/rooms/', include(('rooms.api.urls', 'rooms'), namespace='v1')),
+        re_path(r'^api/(?P<version>(v1))/rooms/', include(('rooms.api.urls', 'rooms'))),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # NOTE: It only serve static files when debug=True
 
 if settings.DEBUG:
     import debug_toolbar
 
-    urlpatterns += [re_path(r'^__debug__/', include(debug_toolbar.urls))]
+urlpatterns += [re_path(r'^__debug__/', include(debug_toolbar.urls))]

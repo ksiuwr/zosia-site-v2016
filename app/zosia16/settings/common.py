@@ -62,7 +62,7 @@ if sentry_dsn:
 
 # Django REST framework (https://www.django-rest-framework.org)
 REST_FRAMEWORK = {
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.NamespaceVersioning'
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning'
 }
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
