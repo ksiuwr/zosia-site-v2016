@@ -24,7 +24,6 @@ FROM python:3.6-buster
 
 ARG DJANGO_ENV
 ENV PYTHONUNBUFFERED 1
-ENV NODE_PATH=/node_modules
 ENV DJANGO_ENV=${DJANGO_ENV}
 ENV DJANGO_SETTINGS_MODULE="zosia16.settings.${DJANGO_ENV}"
 
@@ -33,7 +32,6 @@ WORKDIR /code
 ADD requirements.txt /code/
 RUN pip install -r requirements.txt
 
-COPY --from=node-builder /code/node_modules /node_modules
 COPY --from=node-builder /code/static /code/static
 
 ADD . /code/
