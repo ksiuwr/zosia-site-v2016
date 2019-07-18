@@ -2,11 +2,12 @@ import random
 import string
 from datetime import timedelta
 
-from conferences.models import Zosia
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+
+from conferences.models import Zosia
 from users.models import User
 
 
@@ -81,7 +82,7 @@ class Room(models.Model):
                                           on_delete=models.CASCADE, blank=True, null=True)
     lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
-    users = models.ManyToManyField(User, through='UserRoom', related_name='user_room')
+    members = models.ManyToManyField(User, through='UserRoom', related_name='room_of_user')
 
     @property
     def capacity(self):
@@ -93,11 +94,11 @@ class Room(models.Model):
 
     @property
     def is_occupied(self):
-        return self.users.count()
+        return self.members.count()
 
     @property
     def occupants(self):
-        return ", ".join(map(str, self.users.all()))
+        return ", ".join(map(str, self.members.all()))
 
     @transaction.atomic
     def join(self, user, password='', expiration=None, lock=True):
@@ -113,13 +114,13 @@ class Room(models.Model):
                                    params={'room': self})
 
         # Remove user from previous rooms
-        prev_room = user.user_room.filter(zosia=self.zosia).first()
+        prev_room = user.room_of_user.filter(zosia=self.zosia).first()
 
         if prev_room:
             if prev_room.is_locked and prev_room.lock.owns(user):
                 prev_room.lock.delete()
 
-            prev_room.users.remove(user)
+            prev_room.members.remove(user)
 
         if lock:
             if not self.lock or self.lock.is_expired:

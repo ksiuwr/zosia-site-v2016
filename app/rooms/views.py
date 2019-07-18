@@ -2,7 +2,6 @@ import csv
 import json
 from io import TextIOWrapper
 
-from conferences.models import UserPreferences, Zosia
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -15,6 +14,7 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.vary import vary_on_cookie
 
+from conferences.models import UserPreferences, Zosia
 from .forms import UploadFileForm
 from .models import Room, UserRoom
 from .serializers import room_to_dict, user_to_dict
@@ -49,7 +49,7 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
-    rooms = Room.objects.visible_for_zosia(zosia).prefetch_related('users').all()
+    rooms = Room.objects.visible_for_zosia(zosia).prefetch_related('members').all()
     rooms = sorted(rooms, key=lambda x: x.pk)
     rooms_json = json.dumps(list(map(room_to_dict, rooms)))
     context = {
@@ -70,13 +70,13 @@ def status(request):
     can_start_rooming = zosia.can_start_rooming(
         get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
     rooms = Room.objects.visible_for_zosia(zosia).select_related('lock').prefetch_related(
-        'users').all()
+        'members').all()
     rooms_view = []
     for room in rooms:
         dic = room_to_dict(room)
         dic['owns'] = room.is_locked and room.lock.owns(request.user) and room.lock.password
-        dic['people'] = list(map(user_to_dict, room.users.all()))
-        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.users.all())
+        dic['people'] = list(map(user_to_dict, room.members.all()))
+        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.members.all())
         rooms_view.append(dic)
 
     view = {
@@ -135,7 +135,7 @@ def csv_response(data, template, filename='file'):
 @require_http_methods(['GET'])
 def report(request):
     zosia = get_object_or_404(Zosia, active=True)
-    rooms = Room.objects.visible_for_zosia(zosia).prefetch_related('users').all()
+    rooms = Room.objects.visible_for_zosia(zosia).prefetch_related('members').all()
     rooms = sorted(rooms, key=lambda x: str(x))
     users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
     users = sorted(users, key=lambda x: str(x))

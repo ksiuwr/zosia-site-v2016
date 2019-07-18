@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from rest_framework import serializers
-from users.models import User
 
+from users.models import User
 from ..models import Room, RoomBeds, RoomLock
 
 
@@ -57,4 +57,12 @@ class LockMethodSerializer(serializers.BaseSerializer):
 
 
 class UnlockMethodSerializer(serializers.BaseSerializer):
+    user = RoomingUserSerializer(read_only=True)
+
+
+class HideMethodSerializer(serializers.BaseSerializer):
+    user = RoomingUserSerializer(read_only=True)
+
+
+class UnhideMethodSerializer(serializers.BaseSerializer):
     user = RoomingUserSerializer(read_only=True)

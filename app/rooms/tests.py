@@ -2,10 +2,11 @@ import json
 from datetime import datetime, timedelta
 from unittest import skip
 
-from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+
+from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from rooms.models import Room, RoomBeds, UserRoom
 
 
@@ -120,7 +121,7 @@ class RoomTestCase(TestCase):
     def test_room_is_left_after_joining_other(self):
         self.room_1.join(self.normal_1)
         result = self.room_2.join(self.normal_1)
-        self.assertEqual(self.room_1.users.count(), 0)
+        self.assertEqual(self.room_1.members.count(), 0)
 
     def test_room_is_unlocked_after_joining_other(self):
         self.room_1.join(self.normal_1)
@@ -277,7 +278,7 @@ class StatusViewTestCase(RoomsViewTestCase):
         can = self.load_response()['can_start_rooming']
         self.assertEqual(can, True)
 
-    def test_status_returns_can_room_false_before_user_rooming(self):
+    def test_status_returns_can_room_false_before_room_of_usering(self):
         can = self.load_response(bonus_minutes=-60 * 24 * 2)['can_start_rooming']
         self.assertEqual(can, False)
 

@@ -11,4 +11,6 @@ urlpatterns = format_suffix_patterns([
     path("<int:id>/join/", views.leave, name="join room"),
     path("<int:id>/lock/", views.leave, name="lock room"),
     path("<int:id>/unlock/", views.leave, name="unlock room"),
+    path("<int:id>/hide/", views.leave, name="lock room"),
+    path("<int:id>/unhide/", views.leave, name="unlock room"),
 ])

@@ -7,8 +7,8 @@ def room_to_dict(room):
     model['join'] = reverse('rooms_join', kwargs={'room_id': room.pk})
     model['capacity'] = room.capacity
     model['is_locked'] = room.is_locked
-    model['free_places'] = room.capacity - room.users.count()
-    model.pop('users')
+    model['free_places'] = room.capacity - room.members.count()
+    model.pop('members')
 
     return model
 
