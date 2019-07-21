@@ -14,8 +14,8 @@ jobs:
       - run:
           name: Install requirements
           command: |
-            pip install -r app/requirements.txt
-            pip install flake8
+            pip3 install -r app/requirements.txt
+            pip3 install flake8
       - run:
           name: Run run test
           command: cd app/src && python3 ./manage.py test --settings=zosia16.settings.test
@@ -33,9 +33,9 @@ jobs:
       - run:
           name: Install awscli and docker-compose
           command: |
-            apk add --no-cache py-pip
-            pip install awscli
-            pip install docker-compose~=1.23.0
+            apk add --no-cache python3
+            pip3 install awscli
+            pip3 install docker-compose~=1.23.0
       - checkout
       - setup_remote_docker
       - run:
