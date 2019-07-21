@@ -29,11 +29,13 @@ ENV DJANGO_SETTINGS_MODULE="zosia16.settings.${DJANGO_ENV}"
 
 WORKDIR /code
 
-ADD requirements.txt /code/
+COPY uwsgi.ini /code
+COPY run.sh /code
+COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 
-COPY --from=node-builder /code/static /code/static
+COPY --from=node-builder /code/static /static
 
-ADD . /code/
+COPY src /code/
 
 EXPOSE 8000
