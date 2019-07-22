@@ -64,7 +64,7 @@ def leave(request, version, pk, format=None):
         user = get_object_or_404(User, pk=user_data.id)
         room.members.remove(user)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -75,7 +75,7 @@ def join(request, version, pk, format=None):  # only room joining
     serializer = JoinMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        return Response(status=status.HTTP_200_OK)
+        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -86,7 +86,7 @@ def lock(request, version, pk, format=None):  # only locks the room
     serializer = LockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        return Response(status=status.HTTP_200_OK)
+        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -100,7 +100,7 @@ def unlock(request, version, pk, format=None):
     if serializer.is_valid():
         room.unlock(serializer.validated_data.user)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -111,7 +111,7 @@ def hide(request, version, pk, format=None):
     room.hidden = True
     room.save()
 
-    return Response(status=status.HTTP_200_OK)
+    return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -120,4 +120,4 @@ def unhide(request, version, pk, format=None):
     room.hidden = False
     room.save()
 
-    return Response(status=status.HTTP_200_OK)
+    return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
