@@ -18,6 +18,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, re_path
 
+# NOTE: It only serve static files when debug=True
 urlpatterns = \
     [
         # site URLs
@@ -32,8 +33,7 @@ urlpatterns = \
 
         # API URLs
         re_path(r'^api/(?P<version>(v1))/rooms/', include(('rooms.api.urls', 'rooms'))),
-    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# NOTE: It only serve static files when debug=True
+    ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
     import debug_toolbar

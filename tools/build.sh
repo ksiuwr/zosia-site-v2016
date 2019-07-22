@@ -6,15 +6,11 @@ Usage:
 
 Options:
     --no-cache  - don't use docker cache while building the images
-    --prod      - build prod images instead of dev (default). This basically
-                  means you're gonna be using docker-compose.prod.yml instead
-                  of docker-compose.dev.yml
     --tag TAG   - tag resulting images with zosia:<TAG> instead of zosia:latest
     --verbose   - verbose output, useful for debugging purposes
 "
 
 NO_CACHE=""
-COMPOSE_FILE_REMINDER="dev"
 TAG="latest"
 VERBOSE=""
 
@@ -29,10 +25,6 @@ case $key in
     ;;
     --no-cache)
     NO_CACHE="--no-cache"
-    shift
-    ;;
-    --prod)
-    COMPOSE_FILE_REMINDER="prod"
     shift
     ;;
     --tag)
@@ -54,8 +46,8 @@ done
 
 export TAG=${TAG}
 
-COMPOSE_FILENAME="docker-compose.${COMPOSE_FILE_REMINDER}.yml"
+COMPOSE_FILENAME="docker-compose.dev.yml"
+CONTAINER_NAME="zosia_dev:${TAG}"
 
-CONTAINER_NAME="zosia_${COMPOSE_FILE_REMINDER}_web:${TAG}"
 echo "Running build using ${COMPOSE_FILENAME} and tagging containers with ${CONTAINER_NAME}"
 docker-compose ${VERBOSE} -f ../${COMPOSE_FILENAME} build ${NO_CACHE}

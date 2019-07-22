@@ -22,8 +22,7 @@ GAPI_KEY = os.environ.get('GAPI_KEY')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):
-    return ''.join(
-        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY', random_string(20))
@@ -149,6 +148,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# List of hashing algorithm classes
+# https://docs.djangoproject.com/en/2.2/topics/auth/passwords/
+PASSWORD_HASHERS = [
+    'django.contrib.auth.hashers.Argon2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -169,9 +177,3 @@ DATE_FORMAT = 'd.n.o'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, '..', 'static'),
-)
-
-MEDIA_ROOT = os.path.join(os.environ.get('HOME', '/var/www'), 'media')
-MEDIA_URL = '/media/'
