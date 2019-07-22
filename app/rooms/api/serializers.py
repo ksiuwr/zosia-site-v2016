@@ -5,22 +5,25 @@ from users.models import User
 from ..models import Room, RoomBeds, RoomLock
 
 
-class RoomingUserSerializer(serializers.HyperlinkedModelSerializer):
+# class RoomingUserSerializer(serializers.HyperlinkedModelSerializer):
+class RoomingUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("url", "first_name", "last_name")
+        # fields = ("url", "first_name", "last_name")
+        fields = ("id", "first_name", "last_name")
 
 
-class RoomMemberSerializer(serializers.ModelSerializer):
+class RoomMemberSerializer(serializers.BaseSerializer):
     user = RoomingUserSerializer()
     joined_at = serializers.DateTimeField(input_formats=['iso-8601'])
 
-    class Meta:
-        model = User
-        fields = ("user", "joined_at")
+    def to_representation(self, instance):
+        return {"user": instance.user, "joined_at": instance.joined_at}
 
 
 class RoomLockSerializer(serializers.ModelSerializer):
+    user = RoomMemberSerializer()
+
     class Meta:
         model = RoomLock
         fields = ("user", "password", "expiration_date")
@@ -32,7 +35,8 @@ class RoomBedsSerializer(serializers.ModelSerializer):
         fields = ("single", "double")
 
 
-class RoomSerializer(serializers.HyperlinkedModelSerializer):
+# class RoomSerializer(serializers.HyperlinkedModelSerializer):
+class RoomSerializer(serializers.ModelSerializer):
     beds = RoomBedsSerializer()
     available_beds = RoomBedsSerializer()
     lock = RoomLockSerializer(read_only=True)
@@ -40,7 +44,8 @@ class RoomSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Room
-        fields = ("url", "name", "description", "hidden", "beds", "available_beds", "lock",
+        # fields = ("url", "name", "description", "hidden", "beds", "available_beds", "lock",
+        fields = ("id", "name", "description", "hidden", "beds", "available_beds", "lock",
                   "members")
 
     def create(self, validated_data):
