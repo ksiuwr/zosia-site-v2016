@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.models import User
-from .serializers import LeaveMethodSerializer, RoomSerializer
+from .serializers import JoinMethodSerializer, LeaveMethodSerializer, LockMethodSerializer, \
+    RoomSerializer, UnlockMethodSerializer
 from ..models import Room
 
 
@@ -23,7 +24,7 @@ class RoomList(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -42,7 +43,7 @@ class RoomDetail(APIView):
         if serializer.is_valid():
             serializer.save()
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.validated_data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -71,17 +72,37 @@ def leave(request, version, pk, format=None):
 @api_view(["POST"])
 def join(request, version, pk, format=None):  # only room joining
     room = get_object_or_404(Room, pk=pk)
+    serializer = JoinMethodSerializer(data=request.data)
+
+    if serializer.is_valid():
+        return Response(status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 def lock(request, version, pk, format=None):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
+    serializer = LockMethodSerializer(data=request.data)
+
+    if serializer.is_valid():
+        return Response(status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])
 def unlock(request, version, pk, format=None):
     # user data is taken from session
     room = get_object_or_404(Room, pk=pk)
+    serializer = UnlockMethodSerializer(data=request.data)
+
+    if serializer.is_valid():
+        room.unlock(serializer.validated_data.user)
+
+        return Response(status=status.HTTP_200_OK)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["POST"])

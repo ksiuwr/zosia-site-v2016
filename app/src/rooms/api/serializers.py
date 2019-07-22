@@ -20,6 +20,23 @@ class RoomMemberSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
         return {"user": instance.user, "joined_at": instance.joined_at}
 
+    def to_internal_value(self, data):
+        user = data.get("user")
+        joined_at = data.get("joined_at")
+
+        if not user:
+            raise serializers.ValidationError({"user": "This field is required."})
+
+        if not joined_at:
+            raise serializers.ValidationError({"joined_at": "This field is required."})
+
+        user_serializer = RoomingUserSerializer(user)
+
+        if not user_serializer.is_valid():
+            raise serializers.ValidationError(user_serializer.errors)
+
+        return {"user": user, "joined_at": joined_at}
+
 
 class RoomLockSerializer(serializers.ModelSerializer):
     user = RoomMemberSerializer()
@@ -59,19 +76,95 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer(read_only=True)
+    user = RoomingUserSerializer()
+
+    def to_representation(self, instance):
+        return {"user": instance.user}
+
+    def to_internal_value(self, data):
+        user = data.get("user")
+
+        if not user:
+            raise serializers.ValidationError({"user": "This field is required."})
+
+        user_serializer = RoomingUserSerializer(user)
+
+        if not user_serializer.is_valid():
+            raise serializers.ValidationError(user_serializer.errors)
+
+        return {"user": user}
 
 
 class JoinMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer(read_only=True)
-    password = serializers.CharField(max_length=300)  # optional
+    user = RoomingUserSerializer()
+    password = serializers.CharField(max_length=4)  # optional
+
+    def to_representation(self, instance):
+        representation = {"user": instance.user}
+
+        if instance.password:
+            representation["password"] = instance.password
+
+        return representation
+
+    def to_internal_value(self, data):
+        user = data.get("user")
+        password = data.get("password")
+
+        if not user:
+            raise serializers.ValidationError({"user": "This field is required."})
+
+        user_serializer = RoomingUserSerializer(user)
+
+        if not user_serializer.is_valid():
+            raise serializers.ValidationError(user_serializer.errors)
+
+        return {"user": user, "password": password}
 
 
 class LockMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer(read_only=True)
+    user = RoomingUserSerializer()
     expiration_time = \
         serializers.DateTimeField(input_formats=['iso-8601'])  # only for admin, optional
 
+    def to_representation(self, instance):
+        representation = {"user": instance.user}
+
+        if instance.expiration_time:
+            representation["expiration_time"] = instance.expiration_time
+
+        return representation
+
+    def to_internal_value(self, data):
+        user = data.get("user")
+        expiration_time = data.get("expiration_time")
+
+        if not user:
+            raise serializers.ValidationError({"user": "This field is required."})
+
+        user_serializer = RoomingUserSerializer(user)
+
+        if not user_serializer.is_valid():
+            raise serializers.ValidationError(user_serializer.errors)
+
+        return {"user": user, "expiration_time": expiration_time}
+
 
 class UnlockMethodSerializer(serializers.BaseSerializer):
-    pass
+    user = RoomingUserSerializer()
+
+    def to_representation(self, instance):
+        return {"user": instance.user}
+
+    def to_internal_value(self, data):
+        user = data.get("user")
+
+        if not user:
+            raise serializers.ValidationError({"user": "This field is required."})
+
+        user_serializer = RoomingUserSerializer(user)
+
+        if not user_serializer.is_valid():
+            raise serializers.ValidationError(user_serializer.errors)
+
+        return {"user": user}
