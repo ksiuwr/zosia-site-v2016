@@ -3,8 +3,9 @@
   "version": "2.0.0",
   "description": "Django 2.2 version of ZOSIA registration page",
   "scripts": {
-    "build": "webpack --mode production",
-    "watch": "webpack --watch"
+    "build": "webpack --mode development",
+    "watch": "webpack --watch --mode development",
+    "deps": "cd static && bower --allow-root install"
   },
   "repository": {
     "type": "git",

@@ -1,375 +1,266 @@
 // TODO:
 // 6. Reduce request amount (return new data from join)
-class MembersTooltip extends React.Component {
-  constructor(props) {
-    super(props);
-    let {room, onClick} = props;
-    this.onClick=onClick;
-    this.members = room.people;
-  }
+import React from "react";
+import ReactDOM from "react-dom";
+import styled from "styled-components";
+import { stringify } from "querystring";
 
-  componentDidMount() {
-    $(this.ref).tooltip({'delay': 50});
-  }
+const exists = (arr, f) =>
+  arr.reduce((acc, el) => f(el) | acc, false)
 
-  render() {
-    let members_view = _(this.members).pluck('name').join();
-    if(members_view.length > 20) {
-      members_view = _(members_view).first(17).join('') + '...';
-    }
-    return (<a href='#' ref={(ref) => {this.ref=ref;}} className="tooltipped"
-            data-tooltip={members_view} onClick={this.onClick}>Members</a>);
-  }
-}
-
-const Links = (props) => {
-  let {globals, room, can_join} = props;
-  let {inside, owns, is_locked, people} = room;
-  let {can_start_rooming, join, join_password, join_unlock, try_unlock, show_people} = globals;
-  let has_people = people && people.length > 0;
-  let join_link = <a />;
-  let show_people_link = <a />;
-  if(can_start_rooming) {
-    if(can_join) {
-      if(is_locked) {
-        join_link = <a href="#" onClick={join_password(room)}> Join </a>;
-      } else {
-        if(!inside) {
-          if(has_people) {
-            join_link = <a onClick={join_unlock(room)} href="#"> Join </a>;
-          } else {
-            join_link = <a onClick={join(room)} href="#"> Join </a>;
+const RoomsView = (props) =>
+{
+  const [rooms, setRooms] = React.useState(
+    [
+      {
+        uri: "/rooms/2",
+        name: "201",
+        beds: {
+          single: 4,
+          double: 1,
+          other: 1,
+        },
+        is_hidden: true,
+        available_beds: {
+          single: 4,
+          double: 1,
+          other: 0,
+        },
+        members: [],
+        lock: {
+          locked_by: {
+            uri: "/users/2",
+            fst_name: "Adam",
+            lst_name: "Adamski",
+          },
+          locked_until: Date.now()
+        },
+        neighbours: []
+      },
+      {
+        uri: "/rooms/1",
+        name: "202",
+        beds: {
+          single: 4,
+          double: 1,
+          other: 1,
+        },
+        is_hidden: true,
+        available_beds: {
+          single: 4,
+          double: 1,
+          other: 0,
+        },
+        members: [
+          {
+            user: {
+              uri: "/users/1",
+              fst_name: "Jakub",
+              lst_name: "Szczerbiński",
+            },
+            joined_at: Date.now(),
           }
-        }
-      }
+        ],
+        neighbours: []
+      },
+    ]
+  )
+
+  const [searchWords, setSearchWords] = React.useState([]);
+  const [showFull, setShowFull] = React.useState(true);
+
+  const onSearch = event =>
+  {
+    if (event.target.value == "")
+    {
+      setSearchWords([]);
     }
-    if(owns) {
-      if(is_locked) {
-        join_link = <a href="#" onClick={try_unlock}> Unlock </a>;
-      } else {
-        join_link = <a />;
-      }
+    else
+    {
+      const words = event.target.value.split(" ");
+      setSearchWords(words);
     }
   }
-  if(has_people) {
-    show_people_link = <MembersTooltip room={room} onClick={show_people(room)} />;
+
+  const onShowFullRoomsToggle = event =>
+  {
+    setShowFull(!showFull);
   }
+
+  const searchResults = rooms.filter(room => {
+    if (searchWords.length == 0)
+    {
+      return true;
+    }
+    return exists(searchWords, word => room.room_number.toString().includes(word))
+  })
+
+  const filterResults = searchResults.filter(room => {
+    if (showFull)
+    {
+      return true;
+    }
+    else
+    {
+      return room.room_size > room.people_in_room;
+    }
+  })
+
+  const sortResults = filterResults.sort((lhs, rhs) => {
+    return lhs.room_number - rhs.room_number
+  })
+  
   return (
-      <div className="card-action">
-        {join_link}
-        {show_people_link}
-      </div>
-  );
-};
-
-const Card = ({room, globals}) => {
-  let {inside, name, owns, free_places, description, capacity, is_locked, join} = room;
-  let can_join = free_places > 0;
-  let color = 'blue-grey';
-  let status = <p>Free</p>;
-  if(is_locked) {
-    status = <p>Locked</p>;
-    color = 'brown';
-  }
-  if(free_places < capacity) {
-    status = <p>Occupied</p>;
-  }
-  if(!can_join) {
-    status = <p>Cannot join</p>;
-    color = 'grey';
-  }
-  if(inside) {
-    status = <p>Your room</p>;
-    color = 'teal';
-  }
-  if(owns) {
-    color = 'green';
-    status = <p>Password {owns}</p>;
-  }
+    <div className="container">
+    <div className="row">
+      <SearchBar 
+        onSearch={onSearch}
+        onShowFullRoomsToggle={onShowFullRoomsToggle}
+       />
+      {sortResults.map(data => {
+        return (<RoomCard my_room={'/rooms/1'} {...data}/>);
+      })}
+    </div>
+    </div>
+  )
+}
+const SearchBar = (props) =>
+{
   return (
-      <div className="col s6 m4">
-      <div className={"card darken-2 " + color} >
-          <div className="card-content white-text">
-      <span className="card-title">Room {name}</span>
-      <p>{description}</p>
-      {status}
-      <p> Places: {free_places || 0} / {capacity}</p>
-          </div>
-      <Links room={room} globals={globals} can_join={can_join}/>
-        </div>
-      </div>
-  );
-};
-
-class MaterializeCSSModal extends React.Component {
-  constructor(props) {
-    super(props);
-    let {close, children} = props;
-    this.close = close;
-    this.children = children;
-  }
-
-  componentDidMount() {
-    let id = this.ref;
-    $(id).modal({
-      'complete': this.close
-    });
-    $(id).modal('open');
-  }
-
-  render() {
-    return (
-        <div className="modal" ref={(ref) => {this.ref = ref;}}>
-          {this.children}
-        </div>
-    );
-  };
+    <div className="col s12">
+      <ul style={{height: "50px", lineHeight: "45px"}}>
+        <li style={{float: "left", margin: "5px", marginTop: "12px"}}>
+            <i className="material-icons black-text">search</i>
+        </li>
+        <li style={{float: "left", margin: "5px"}}>
+          <input type="text" placeholder="search" onChange={props.onSearch}/>
+        </li>
+        <li className="hide-on-med-and-down"style={{float: "left", margin: "5px"}}>
+          <label>
+            <input type="checkbox" onChange={props.onShowFullRoomsToggle} defaultChecked={true}/>
+            <span> Show full rooms </span>
+          </label>
+        </li>
+        <li className="hide-on-small-only" style={{float: "right", margin: "5px"}}>
+          <select onChange={props.onSortingStrategyChange}>
+            <option value="1">Sort by room numbers</option>
+            <option value="2">Sort by fullness</option>
+          </select>
+        </li>
+      </ul>
+    </div>
+  )
 }
 
-const SimpleModal = () => {
+const OptionBar = (props) =>
+{
   return (
-    <div>
-      <div className="modal-content">
-      <h4>Modal Header</h4>
-      <p>A bunch of text</p>
-      </div>
-      <div className="modal-footer">
-      <a href="#!" className=" modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+    <div className="col s12">
+      <div className="row" id="optionbar">
       </div>
     </div>
-  );
-};
-
-const UnlockModal = ({unlock}) => {
-  return (
-      <div>
-      <div className="modal-content">
-      <h4>Unlock room</h4>
-      <p>Unlocking room means anybody will be able to join.</p>
-      <p> Are you sure?</p>
-      </div>
-      <div className="modal-footer">
-      <a href="#!" onClick={unlock} className=" modal-action modal-close waves-effect waves-green btn-flat">Unlock</a>
-      </div>
-      </div>
-  );
-};
-
-const PasswordModal = ({args, try_join}) => {
-  let ref = null;
-  let grab_input_and_try_join = () => {
-    let prepared = try_join(args, {'password': ref.value});
-    prepared();
-  };
-  return (
-      <div>
-      <div className="modal-content">
-      <h4>Join room</h4>
-      </div>
-      <div className="modal-footer">
-      <div>
-      Password:
-      <div className="input-field inline">
-      <input ref={(input)=>{ref=input;}} id="password" type="password" className="validate" />
-      <label htmlFor="password" data-error="wrong" data-success="right">Password</label>
-      </div>
-      </div>
-
-      <a href="#!" onClick={grab_input_and_try_join} className=" modal-action modal-close waves-effect waves-green btn-flat">Join</a>
-      </div>
-      </div>
-  );
-};
-
-const Man = ({name}) => {
-  return <p>{name}</p>;
-};
-
-const MembersModal = ({args}) => {
-  let {people, name} = args;
-  let people_view = people.map(({name}, i) => { return <Man key={i} name={name} />;});
-  return (
-      <div className="modal-content">
-      <h4>Members of room {name}</h4>
-      {people_view}
-      </div>
-  );
-};
-
-class Notice extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      'hide': false
-    };
-  }
-
-  componentDidMount() {
-    $(this.ref).collapsible({
-      'onClose': () => { this.setState({'hide': true}); }
-    });
-  }
-
-  render () {
-    if(this.state.hide) {
-      return <div />;
-    }
-    return (
-        <div className="row">
-        <div className="col s10 m8 offset-s1 offset-m2 offset-l2">
-        <ul ref={(ref) => {this.ref = ref;}} className="collapsible" data-collapsible="accordion">
-        <li>
-        <div className="collapsible-header active">
-        <i className="material-icons">visibility_off</i>
-        Notice
-      </div>
-        <div className="collapsible-body"><p>
-        This page refreshes automatically every 60s
-      </p></div>
-        </li>
-        </ul>
-        </div>
-        </div>
-    );
-  }
-};
-
-class Main extends React.Component {
-  constructor(props) {
-    super(props);
-    let {rooms, csrf, urls} = props;
-    this.state = {
-      rooms,
-      csrf,
-      urls
-    };
-    log.debug('State:', this.state);
-  }
-
-  sortRooms(rooms) {
-    return _(rooms).sortBy(({id}) => { return id; });
-  }
-
-  refresh() {
-    Materialize.toast('Refreshing..', 1000);
-    $.getJSON(this.state.urls.status, (data) => {
-      data.rooms = this.sortRooms(data.rooms);
-      this.setState(data);
-    });
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    if(window.DeepDiff) {
-      let delta = DeepDiff.diff(this.state, nextState);
-      if(delta) {
-        log.debug('Change:');
-        delta.map((ch)=> { log.debug(ch.path, ch.kind, ch.rhs);});
-      }
-    } else {
-      log.debug('State:', this.state);
-    };
-    return true;
-  }
-
-  join_password(room) {
-    return () => {
-      this.setState({'modal': {'type': 'password', 'args': room }});
-    };
-  }
-
-  join({join}, opts) {
-    opts = opts || {};
-    let {password, lock} = opts;
-    return () => {
-      log.debug('Joining', join, 'with', {password, lock});
-      $.post(join, {'csrfmiddlewaretoken': this.state.csrf, password, lock}, (data) => {
-        log.info('Room join', data);
-        this.refresh();
-      }).catch((err) => {
-        log.error(err);
-        Materialize.toast(err.responseJSON['status'], 4000, 'red darken-4');
-      });
-    };
-  }
-
-  unlock() {
-    $.post(this.state.urls.unlock, {'csrfmiddlewaretoken': this.state.csrf}, (data) => {
-      log.info('Room unlock', data);
-      this.refresh();
-    });
-  }
-
-  try_unlock() {
-    this.setState({'modal': {'type': 'unlock'}});
-  }
-
-  componentDidMount() {
-    this.refresh();
-    this.interval = setInterval(this.refresh.bind(this), 1000*60);
-  }
-
-  show_people(room) {
-    return () => {
-      this.setState({'modal': {'type': 'members', 'args': room }});
-    };
-  }
-
-  close_modal() {
-    this.setState({'modal': null});
-  }
-
-  modal() {
-    let modal = this.state.modal;
-    if(modal) {
-      let wrapped = <SimpleModal />;
-      switch(modal.type) {
-      case 'unlock':
-        wrapped = <UnlockModal unlock={this.unlock.bind(this)} />;
-        break;
-      case 'members':
-        wrapped = <MembersModal args={modal.args}/>;
-        break;
-      case 'password':
-        wrapped = <PasswordModal args={modal.args} try_join={this.join.bind(this)}/>;
-        break;
-      };
-      return <MaterializeCSSModal close={this.close_modal.bind(this)}> {wrapped} </MaterializeCSSModal>;
-    };
-    return <div />;
-  }
-
-  render () {
-    let {has_room, rooms, can_start_rooming, urls, csrf} = this.state;
-    let globals = {can_start_rooming};
-    globals.join = this.join.bind(this);
-    globals.try_unlock = this.try_unlock.bind(this);
-    globals.show_people = this.show_people.bind(this);
-    globals.join_password = this.join_password.bind(this);
-    globals.join_unlock = (arg) => { return this.join(arg, {'lock': false}); };
-    let rooms_view = rooms.map((room) => { return(<Card key={room.id} room={room} globals={globals} />); });
-    let modal = this.modal();
-    return (
-        <div>
-          <Notice />
-          {modal}
-          <div className="section flexbox center-items-horizontal full-height">
-            <div className="container">
-              <div className="row">
-                {rooms_view}
-              </div>
-            </div>
-          </div>
-        </div>
-    );
-  };
+  )
 }
 
-const init = (globals, rooms, csrf_token, urls) => {
-  let {ReactDOM} = globals;
-  ReactDOM.render(
-      <Main rooms={rooms} csrf={csrf_token} urls={urls} />,
-    document.getElementById('react-root')
-  );
-};
+const Wrapper = styled.div`
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  padding: 15px;
+`
 
-window.Init = init;
+const Action = styled.a`
+  color: #ffab40;
+  margin-right: 24px;
+  -webkit-transition: color .3s ease;
+  transition: color .3s ease;
+  text-transform: uppercase;
+`;
+
+const roomSizeOfBeds = beds => beds.single + beds.double * 2 + beds.other
+
+const Members = ({beds, members}) => {
+  const room_size = roomSizeOfBeds(beds);
+  const people_in_room = members.length
+  const free_places = room_size - people_in_room
+  const tenants = [];
+  for (let i = 0; i < people_in_room; i++)
+  {
+    tenants.push(<i className="material-icons"> person </i>);
+  }
+
+  for (let i = 0; i < free_places; i++)
+  {
+    tenants.push(<i className="material-icons"> person_outline </i>);
+  }
+
+  return (
+    <h5>
+      {tenants}
+    </h5>
+  )
+}
+
+const RoomCard = (props) => {
+  const color = "blue-gray";
+  console.log(props);
+  return (
+    <div className="col s12 m6">
+      <div className="card">
+        <Wrapper> 
+          <div className="col s2">
+            <h5> {props.name} </h5>
+          </div>
+          <div className="col s10 right-align">
+            <Members 
+              beds={props.available_beds}
+              members={props.members}
+            />
+          </div>
+        </Wrapper>
+        <div className="card-action">
+          <a href="#">Enter </a>
+        { 'lock' in props && 'password' in props.lock ?
+          <a href="#">Unlock </a> : '' }
+        { !('lock' in props) && props.my_room == props.uri ?
+          <a href="#"> lock </a> : '' }
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const App = (props) => (
+    <div className="container">
+    <div className="row">
+      <SearchBar/>
+      <RoomCard
+        room_number="101"
+        room_size={6}
+        people_in_room={2}
+      />
+      <RoomCard
+        room_number="102"
+        room_size={3}
+        people_in_room={2}
+      />
+      <RoomCard
+        room_number="103"
+        room_size={2}
+        people_in_room={0}
+      />
+      <RoomCard
+        room_number="104"
+        room_size={2}
+        people_in_room={2}
+      />
+    </div>
+    </div>
+)
+
+ReactDOM.render(
+    (<RoomsView/>),
+    document.getElementById('react-root')
+);
