@@ -74,7 +74,8 @@ def status(request):
     rooms_view = []
     for room in rooms:
         dic = room_to_dict(room)
-        dic['owns'] = room.is_locked and room.lock.owns(request.user) and room.lock.password
+        dic['is_owned_by'] = room.is_locked and room.lock.is_owned_by(
+            request.user) and room.lock.password
         dic['people'] = list(map(user_to_dict, room.members.all()))
         dic['inside'] = request.user.pk in map(lambda x: x.pk, room.members.all())
         rooms_view.append(dic)
@@ -97,7 +98,7 @@ def join(request, room_id):
         return JsonResponse({'error': 'cannot_room_yet'}, status=400)
 
     should_lock = request.POST.get('lock', True) in [True, 'True', '1', 'on', 'true']
-    result = room.join(request.user, password=password, lock=should_lock)
+    result = room.join_and_lock(request.user, password=password, lock=should_lock)
     if type(result) is ValidationError:
         return JsonResponse({'status': result.message}, status=400)
     else:

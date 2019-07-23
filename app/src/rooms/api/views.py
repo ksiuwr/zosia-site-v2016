@@ -62,7 +62,7 @@ def leave(request, version, pk, format=None):
     if serializer.is_valid():
         user_data = serializer.validated_data.user
         user = get_object_or_404(User, pk=user_data.id)
-        room.members.remove(user)
+        room.leave(user)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -75,6 +75,10 @@ def join(request, version, pk, format=None):  # only room joining
     serializer = JoinMethodSerializer(data=request.data)
 
     if serializer.is_valid():
+        user_data = serializer.validated_data.user
+        user = get_object_or_404(User, pk=user_data.id)
+        # room.join(user)
+
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -86,6 +90,11 @@ def lock(request, version, pk, format=None):  # only locks the room
     serializer = LockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
+        user_data = serializer.validated_data.user
+        expiration_time = serializer.validated_data.expiration_time
+        user = get_object_or_404(User, pk=user_data.id)
+        room.set_lock(user, expiration_time)
+
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -98,7 +107,9 @@ def unlock(request, version, pk, format=None):
     serializer = UnlockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        room.unlock(serializer.validated_data.user)
+        user_data = serializer.validated_data.user
+        user = get_object_or_404(User, pk=user_data.id)
+        room.unlock(user)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 

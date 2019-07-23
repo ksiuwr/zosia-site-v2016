@@ -19,12 +19,11 @@ class RoomLockManager(models.Manager):
     # 3 hours
     TIMEOUT = timedelta(0, 3 * 3600)
 
-    def make(self, user, expiration=None):
-        expiration = expiration or self.TIMEOUT
+    def make(self, user, expiration_time=None):
+        expiration_time = expiration_time or self.TIMEOUT
 
-        return self.create(user=user,
-                           password=random_string(4),
-                           expiration_date=timezone.now() + expiration)
+        return self.create(user=user, password=random_string(4),
+                           expiration_date=timezone.now() + expiration_time)
 
 
 class RoomLock(models.Model):
@@ -39,10 +38,10 @@ class RoomLock(models.Model):
     def is_expired(self):
         return self.expiration_date < timezone.now()
 
-    def unlocks(self, password):
+    def is_opened_by(self, password):
         return self.password == password
 
-    def owns(self, user):
+    def is_owned_by(self, user):
         return self.user == user
 
 
@@ -96,12 +95,19 @@ class Room(models.Model):
         return self.members.count()
 
     @property
+    def is_full(self):
+        return self.members.count() >= self.available_beds.capacity
+
+    @property
     def occupants(self):
         return ", ".join(map(str, self.members.all()))
 
+    def __str__(self):
+        return 'Room ' + self.name
+
     @transaction.atomic
-    def join(self, user, password='', expiration=None, lock=True):
-        if self.is_locked and not self.lock.unlocks(password):
+    def join_and_lock(self, user, password='', expiration=None, lock=True):
+        if self.is_locked and not self.lock.is_opened_by(password):
             return ValidationError(_('Cannot join room %(room), is locked.'),
                                    code='invalid',
                                    params={'room': self})
@@ -116,27 +122,58 @@ class Room(models.Model):
         prev_room = user.room_of_user.all().first()
 
         if prev_room:
-            if prev_room.is_locked and prev_room.lock.owns(user):
+            if prev_room.is_locked and prev_room.lock.is_owned_by(user):
                 prev_room.lock.delete()
 
             prev_room.members.remove(user)
 
         if lock:
             if not self.lock or self.lock.is_expired:
-                owner_lock = RoomLock.objects.make(user, expiration=expiration)
-                self.lock = owner_lock
+                self.lock = RoomLock.objects.make(user, expiration_time=expiration)
 
         self.save()
 
         return UserRoom.objects.create(room=self, user=user)
 
     @transaction.atomic
-    def unlock(self, user):
-        if self.is_locked and self.lock.owns(user):
-            return self.lock.delete()
+    def join(self, user, password=None):
+        if self.is_locked and not self.lock.is_opened_by(password):
+            return ValidationError(_('Cannot join room %(room), is locked.'),
+                                   code='invalid',
+                                   params={'room': self})
 
-    def __str__(self):
-        return 'Room ' + self.name
+        # Ensure room is not full
+        if self.is_full:
+            return ValidationError(_('Cannot join room %(room), is full.'),
+                                   code='invalid',
+                                   params={'room': self})
+
+        # Remove user from previous rooms
+        prev_room = user.room_of_user.all().first()
+
+        if prev_room:
+            prev_room.leave(user)
+
+        self.members.add(user)
+        self.save()
+
+    @transaction.atomic
+    def leave(self, user):
+        if self.is_locked and self.lock.is_owned_by(user):
+            self.lock.delete()
+
+        self.members.remove(user)
+        self.save()
+
+    @transaction.atomic
+    def set_lock(self, user, expiration_time=None):
+        self.lock = RoomLock.objects.make(user, expiration_time=expiration_time)
+        self.save()
+
+    @transaction.atomic
+    def unlock(self, user):
+        if self.is_locked and self.lock.is_owned_by(user):
+            return self.lock.delete()
 
 
 class UserRoom(models.Model):
