@@ -4,7 +4,9 @@ WORKDIR /code
 
 ADD package.json /code/
 ADD webpack.config.js /code/
+ADD yarn.lock /code/
 ADD static /code/static
+ADD js /code/js
 
 RUN yarn install
 RUN yarn build
@@ -39,3 +41,4 @@ COPY --from=node-builder /code/static /static
 COPY src /code/
 
 EXPOSE 8000
+
