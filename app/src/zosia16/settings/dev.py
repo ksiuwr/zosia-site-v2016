@@ -57,3 +57,5 @@ ALLOWED_HOSTS = ['127.0.0.1']
 
 INSTALLED_APPS.append('debug_toolbar')
 MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
+
+STATICFILES_DIRS = ('/code/static',)

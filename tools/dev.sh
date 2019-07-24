@@ -123,3 +123,4 @@ case $command in
   makemigrations
   ;;
 esac
+
