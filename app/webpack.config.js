@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const config = {
   entry: {
-    room: './static/script/room.js',
+    room: './js/room.js',
   },
   output: {
     filename: '[name].min.js',
