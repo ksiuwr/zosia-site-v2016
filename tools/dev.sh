@@ -5,6 +5,7 @@ Usage:
     ./dev.sh [command]
 
 Commands
+  one_click       - Runs zosia website (on 127.0.0.1:8000)
   setup           - Spins up the containers and prepares development enviromanet
   runserver       - Runs django development server inside of container 
   py_install      - Installs python dependencies specified in requirements.txt
@@ -24,10 +25,11 @@ function configure_env () {
   ROOT_PATH=$(pwd)
   cd "$cwd"
   DOCKER_COMPOSE="$ROOT_PATH/docker-compose.dev.yml"
-  WEB_CONTAINER_NAME="zosia16-site_web_1"
+  WEB_CONTAINER_NAME=$(basename $cwd)"_web_1"
 }
 
 configure_env
+
 
 function build() {
   docker-compose -f $DOCKER_COMPOSE build
@@ -77,10 +79,19 @@ function shutdown () {
   docker-compose -f docker-compose.dev.yml down
 }
 
+function one_click () {
+  setup
+  migrate
+  runserver
+}
+
 command="$1"
 shift
 
 case $command in
+  one_click)
+  one_click
+  ;;
   setup)
   setup
   ;;
