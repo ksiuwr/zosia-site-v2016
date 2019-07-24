@@ -173,3 +173,5 @@ DATE_FORMAT = 'd.n.o'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
+
+STATICFILES_DIRS = ('/code/static',)

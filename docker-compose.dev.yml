@@ -10,13 +10,13 @@ services:
   web:
     build:
       context: ./app
-      dockerfile: DockerfileDev
+      dockerfile: Dockerfile.dev
     image: zosia_dev
-    command: /bin/bash
-    stdin_open: true
-    tty: true
+    command: sleep infinity
     volumes:
-      - ./app:/app
+      - ./app/src:/code/src
+      - ./app/js:/code/js
+      - ./app/static:/code/static
     ports:
       - "0.0.0.0:8000:8000"
     depends_on:
