@@ -10,7 +10,7 @@ services:
   web:
     build:
       context: ./app
-      dockerfile: Dockerfile.dev
+      dockerfile: dev.Dockerfile
     image: zosia_dev
     command: sleep infinity
     volumes:

@@ -1,13 +1,12 @@
 #!/bin/bash
 
-HELP_TEXT="Run the zosia docker containers for local development.
-Usage:
+HELP_TEXT="  dev.sh - Run the zosia docker containers for local development.
     ./dev.sh [command]
 
 Commands
   one_click       - Runs zosia website (on 127.0.0.1:8000)
   setup           - Spins up the containers and prepares development enviromanet
-  runserver       - Runs django development server inside of container 
+  runserver       - Runs django development server inside of container
   py_install      - Installs python dependencies specified in requirements.txt
   js_install      - Installs javascript depedencies specified in package.json
   js_watch        - Rebuilds javascript on file change (note: may create files on host fs with root permissions)
@@ -69,14 +68,14 @@ function runserver () {
 
 function setup () {
   build
-  docker-compose -f docker-compose.dev.yml up -d
+  docker-compose -f $DOCKER_COMPOSE up -d
   js_install
   js_build
   py_install
 }
 
 function shutdown () {
-  docker-compose -f docker-compose.dev.yml down
+  docker-compose -f $DOCKER_COMPOSE down
 }
 
 function one_click () {
@@ -85,6 +84,7 @@ function one_click () {
   runserver
 }
 
+[[ "$#" -eq 0 ]] && echo "$HELP_TEXT" && exit 0
 command="$1"
 shift
 
@@ -122,5 +122,8 @@ case $command in
   makemigrations)
   makemigrations
   ;;
+  *)
+  echo "Unknown command $command"
+  echo "$HELP_TEXT"
+  ;;
 esac
-
