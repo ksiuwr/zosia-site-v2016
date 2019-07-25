@@ -60,8 +60,8 @@ def leave(request, version, pk, format=None):
     serializer = LeaveMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        user_data = serializer.validated_data.user
-        user = get_object_or_404(User, pk=user_data.id)
+        user_data = serializer.validated_data.get("user")
+        user = get_object_or_404(User, pk=user_data.get("id"))
         room.leave(user)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
@@ -75,9 +75,9 @@ def join(request, version, pk, format=None):  # only room joining
     serializer = JoinMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        user_data = serializer.validated_data.user
-        user = get_object_or_404(User, pk=user_data.id)
-        # room.join(user)
+        user_data = serializer.validated_data.get("user")
+        user = get_object_or_404(User, pk=user_data.get("id"))
+        room.join(user)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -90,9 +90,9 @@ def lock(request, version, pk, format=None):  # only locks the room
     serializer = LockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        user_data = serializer.validated_data.user
-        expiration_time = serializer.validated_data.expiration_time
-        user = get_object_or_404(User, pk=user_data.id)
+        user_data = serializer.validated_data.get("user")
+        expiration_time = serializer.validated_data.get("expiration_time")
+        user = get_object_or_404(User, pk=user_data.get("id"))
         room.set_lock(user, expiration_time)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
@@ -107,9 +107,10 @@ def unlock(request, version, pk, format=None):
     serializer = UnlockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
-        user_data = serializer.validated_data.user
-        user = get_object_or_404(User, pk=user_data.id)
+        user_data = serializer.validated_data.get("user")
+        user = get_object_or_404(User, pk=user_data.get("id"))
         room.unlock(user)
+        room.save()
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 

@@ -2,68 +2,106 @@
 from rest_framework import serializers
 
 from users.models import User
-from ..models import Room, RoomBeds, RoomLock, UserRoom
+from ..models import Room, RoomLock, UserRoom
 
 
-# class MemberUserSerializer(serializers.HyperlinkedModelSerializer):
 class MemberUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # fields = ("url", "first_name", "last_name")
-        fields = ("id", "first_name", "last_name")
+        fields = ("id",)
 
 
 class UserRoomSerializer(serializers.ModelSerializer):
-    user = MemberUserSerializer()
-    joined_at = serializers.DateTimeField(input_formats=['iso-8601'])
-
     class Meta:
         model = UserRoom
         fields = ("user", "joined_at")
 
 
 class RoomLockSerializer(serializers.ModelSerializer):
-    user = UserRoomSerializer()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
 
     class Meta:
         model = RoomLock
         fields = ("user", "password", "expiration_date")
 
 
-class RoomBedsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = RoomBeds
-        fields = ("single", "double")
+class RoomBedsSerializer(serializers.BaseSerializer):
+    single = serializers.IntegerField()
+    double = serializers.IntegerField()
+
+    def to_representation(self, instance):
+        return {"single": instance.get("single"), "double": instance.get("double")}
+
+    def to_internal_value(self, data):
+        single = data.get("single")
+        double = data.get("double")
+
+        return {"single": single, "double": double}
 
 
-# class RoomSerializer(serializers.HyperlinkedModelSerializer):
 class RoomSerializer(serializers.ModelSerializer):
-    beds = RoomBedsSerializer()
-    available_beds = RoomBedsSerializer()
+    beds = serializers.DictField(child=serializers.IntegerField())
+    available_beds = serializers.DictField(child=serializers.IntegerField())
     lock = RoomLockSerializer(read_only=True)
-    members = UserRoomSerializer(read_only=True, many=True)
+    members = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
 
     class Meta:
         model = Room
-        # fields = ("url", "name", "description", "hidden", "beds", "available_beds", "lock",
         fields = ("id", "name", "description", "hidden", "beds", "available_beds", "lock",
                   "members")
 
     def create(self, validated_data):
         beds_data = validated_data.pop("beds")
         available_beds_data = validated_data.pop("available_beds")
-        beds_object = RoomBeds.objects.create(**beds_data)
-        available_beds_object = RoomBeds.objects.create(**available_beds_data)
 
-        return Room.objects.create(**validated_data, beds=beds_object,
-                                   available_beds=available_beds_object)
+        self._validate_beds(beds_data, available_beds_data)
+
+        return Room.objects.create(**validated_data,
+                                   beds_single=beds_data.get("single"),
+                                   beds_double=beds_data.get("double"),
+                                   available_beds_single=available_beds_data.get("single"),
+                                   available_beds_double=available_beds_data.get("double"))
+
+    def update(self, instance, validated_data):
+        beds_data = validated_data.pop("beds")
+        available_beds_data = validated_data.pop("available_beds")
+
+        self._validate_beds(beds_data, available_beds_data)
+
+        instance.name = validated_data.get("name", instance.name)
+        instance.description = validated_data.get("description", instance.description)
+        instance.hidden = validated_data.get("hidden", instance.hidden)
+        instance.beds_single = beds_data.get("single", instance.beds_single)
+        instance.beds_double = beds_data.get("double", instance.beds_double)
+        instance.available_beds_single = available_beds_data.get("single",
+                                                                 instance.available_beds_single)
+        instance.available_beds_double = available_beds_data.get("double",
+                                                                 instance.available_beds_double)
+
+        instance.save()
+
+        return instance
+
+    def _validate_beds(self, beds_data, available_beds_data):
+        if available_beds_data.get("single") > beds_data.get("single"):
+            raise serializers.ValidationError(
+                "Cannot set more available single beds than real single beds")
+
+        if available_beds_data.get("double") > beds_data.get("double"):
+            raise serializers.ValidationError(
+                "Cannot set more available double beds than real double beds")
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):
     user = MemberUserSerializer()
 
+    def __init__(self, *args, **kwargs):
+        super(LeaveMethodSerializer, self).__init__(*args, **kwargs)
+
     def to_representation(self, instance):
-        return {"user": instance.user}
+        user = MemberUserSerializer(instance.user)
+
+        return {"user": user.data}
 
     def to_internal_value(self, data):
         user = data.get("user")
@@ -71,7 +109,7 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(user)
+        user_serializer = MemberUserSerializer(data=user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
@@ -83,8 +121,13 @@ class JoinMethodSerializer(serializers.BaseSerializer):
     user = MemberUserSerializer()
     password = serializers.CharField(max_length=4, required=False)  # optional
 
+    def __init__(self, *args, **kwargs):
+        super(JoinMethodSerializer, self).__init__(*args, **kwargs)
+
     def to_representation(self, instance):
-        representation = {"user": instance.user}
+        user = MemberUserSerializer(instance.user)
+
+        representation = {"user": user.data}
 
         if instance.password:
             representation["password"] = instance.password
@@ -98,7 +141,7 @@ class JoinMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(user)
+        user_serializer = MemberUserSerializer(data=user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
@@ -111,8 +154,13 @@ class LockMethodSerializer(serializers.BaseSerializer):
     expiration_time = serializers.DateTimeField(input_formats=['iso-8601'],
                                                 required=False)  # only for admin, optional
 
+    def __init__(self, *args, **kwargs):
+        super(LockMethodSerializer, self).__init__(*args, **kwargs)
+
     def to_representation(self, instance):
-        representation = {"user": instance.user}
+        user = MemberUserSerializer(instance.user)
+
+        representation = {"user": user.data}
 
         if instance.expiration_time:
             representation["expiration_time"] = instance.expiration_time
@@ -126,7 +174,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(user)
+        user_serializer = MemberUserSerializer(data=user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
@@ -137,8 +185,13 @@ class LockMethodSerializer(serializers.BaseSerializer):
 class UnlockMethodSerializer(serializers.BaseSerializer):
     user = MemberUserSerializer()
 
+    def __init__(self, *args, **kwargs):
+        super(UnlockMethodSerializer, self).__init__(*args, **kwargs)
+
     def to_representation(self, instance):
-        return {"user": instance.user}
+        user = MemberUserSerializer(instance.user)
+
+        return {"user": user.data}
 
     def to_internal_value(self, data):
         user = data.get("user")
@@ -146,7 +199,7 @@ class UnlockMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(user)
+        user_serializer = MemberUserSerializer(data=user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)

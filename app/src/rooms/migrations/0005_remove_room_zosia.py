@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rooms', '0005_create_roombeds'),
+        ('rooms', '0004_room_users'),
     ]
 
     operations = [

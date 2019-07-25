@@ -102,7 +102,7 @@ case $command in
   py_install
   ;;
   run)
-  run "$2"
+  run "$1"
   ;;
   js_watch)
   js_watch

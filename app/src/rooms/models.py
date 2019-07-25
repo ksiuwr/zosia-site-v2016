@@ -45,15 +45,6 @@ class RoomLock(models.Model):
         return self.user == user
 
 
-class RoomBeds(models.Model):
-    single = models.IntegerField(default=0)
-    double = models.IntegerField(default=0)
-
-    @property
-    def capacity(self):
-        return self.single + 2 * self.double
-
-
 class RoomManager(models.Manager):
     def all_visible(self):
         return self.filter(hidden=False)
@@ -73,18 +64,26 @@ class Room(models.Model):
     name = models.CharField(max_length=300)
     description = models.TextField(default='')
     hidden = models.BooleanField(default=False)
+    beds_single = models.IntegerField(default=0)
+    beds_double = models.IntegerField(default=0)
+    available_beds_single = models.IntegerField(default=0)
+    available_beds_double = models.IntegerField(default=0)
 
-    beds = models.OneToOneField(RoomBeds, related_name='actual_beds', on_delete=models.CASCADE,
-                                blank=True, null=True)
-    available_beds = models.OneToOneField(RoomBeds, related_name='available_beds',
-                                          on_delete=models.CASCADE, blank=True, null=True)
     lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
     members = models.ManyToManyField(User, through='UserRoom', related_name='room_of_user')
 
     @property
+    def beds(self):
+        return {"single": self.beds_single, "double": self.beds_double}
+
+    @property
+    def available_beds(self):
+        return {"single": self.available_beds_single, "double": self.available_beds_double}
+
+    @property
     def capacity(self):
-        return self.available_beds.capacity
+        return self.available_beds_single + 2 * self.available_beds_double
 
     @property
     def is_locked(self):
@@ -96,7 +95,7 @@ class Room(models.Model):
 
     @property
     def is_full(self):
-        return self.members.count() >= self.available_beds.capacity
+        return self.members.count() >= self.capacity
 
     @property
     def occupants(self):
