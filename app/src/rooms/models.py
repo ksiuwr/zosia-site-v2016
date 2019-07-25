@@ -69,7 +69,7 @@ class Room(models.Model):
     available_beds_single = models.IntegerField(default=0)
     available_beds_double = models.IntegerField(default=0)
 
-    lock = models.ForeignKey(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
+    lock = models.OneToOneField(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
     members = models.ManyToManyField(User, through='UserRoom', related_name='room_of_user')
 
@@ -147,7 +147,7 @@ class Room(models.Model):
                                    code='invalid',
                                    params={'room': self})
 
-        # Remove user from previous rooms
+        # Remove user from previous room
         prev_room = user.room_of_user.all().first()
 
         if prev_room:
@@ -158,21 +158,24 @@ class Room(models.Model):
 
     @transaction.atomic
     def leave(self, user):
-        if self.is_locked and self.lock.is_owned_by(user):
-            self.lock.delete()
-
+        self.unlock(user)
         self.members.remove(user)
         self.save()
 
     @transaction.atomic
     def set_lock(self, user, expiration_time=None):
         self.lock = RoomLock.objects.make(user, expiration_time=expiration_time)
+        self.lock.save()
         self.save()
 
     @transaction.atomic
     def unlock(self, user):
         if self.is_locked and self.lock.is_owned_by(user):
-            return self.lock.delete()
+            lock = self.lock
+            self.lock = None
+            self.save()
+
+            return lock.delete()
 
 
 class UserRoom(models.Model):

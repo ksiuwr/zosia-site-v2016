@@ -5,13 +5,9 @@ from users.models import User
 from ..models import Room, RoomLock, UserRoom
 
 
-class MemberUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("id",)
-
-
 class UserRoomSerializer(serializers.ModelSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
+
     class Meta:
         model = UserRoom
         fields = ("user", "joined_at")
@@ -93,15 +89,13 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):
-    user = MemberUserSerializer()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
 
     def __init__(self, *args, **kwargs):
         super(LeaveMethodSerializer, self).__init__(*args, **kwargs)
 
     def to_representation(self, instance):
-        user = MemberUserSerializer(instance.user)
-
-        return {"user": user.data}
+        return {"user": instance.user}
 
     def to_internal_value(self, data):
         user = data.get("user")
@@ -109,25 +103,18 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(data=user)
-
-        if not user_serializer.is_valid():
-            raise serializers.ValidationError(user_serializer.errors)
-
         return {"user": user}
 
 
 class JoinMethodSerializer(serializers.BaseSerializer):
-    user = MemberUserSerializer()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
     password = serializers.CharField(max_length=4, required=False)  # optional
 
     def __init__(self, *args, **kwargs):
         super(JoinMethodSerializer, self).__init__(*args, **kwargs)
 
     def to_representation(self, instance):
-        user = MemberUserSerializer(instance.user)
-
-        representation = {"user": user.data}
+        representation = {"user": instance.user}
 
         if instance.password:
             representation["password"] = instance.password
@@ -141,16 +128,11 @@ class JoinMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(data=user)
-
-        if not user_serializer.is_valid():
-            raise serializers.ValidationError(user_serializer.errors)
-
         return {"user": user, "password": password}
 
 
 class LockMethodSerializer(serializers.BaseSerializer):
-    user = MemberUserSerializer()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
     expiration_time = serializers.DateTimeField(input_formats=['iso-8601'],
                                                 required=False)  # only for admin, optional
 
@@ -158,9 +140,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
         super(LockMethodSerializer, self).__init__(*args, **kwargs)
 
     def to_representation(self, instance):
-        user = MemberUserSerializer(instance.user)
-
-        representation = {"user": user.data}
+        representation = {"user": instance.user}
 
         if instance.expiration_time:
             representation["expiration_time"] = instance.expiration_time
@@ -174,34 +154,22 @@ class LockMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = MemberUserSerializer(data=user)
-
-        if not user_serializer.is_valid():
-            raise serializers.ValidationError(user_serializer.errors)
-
         return {"user": user, "expiration_time": expiration_time}
 
 
 class UnlockMethodSerializer(serializers.BaseSerializer):
-    user = MemberUserSerializer()
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
 
     def __init__(self, *args, **kwargs):
         super(UnlockMethodSerializer, self).__init__(*args, **kwargs)
 
     def to_representation(self, instance):
-        user = MemberUserSerializer(instance.user)
-
-        return {"user": user.data}
+        return {"user": instance.user}
 
     def to_internal_value(self, data):
         user = data.get("user")
 
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
-
-        user_serializer = MemberUserSerializer(data=user)
-
-        if not user_serializer.is_valid():
-            raise serializers.ValidationError(user_serializer.errors)
 
         return {"user": user}
