@@ -179,4 +179,4 @@ class Room(models.Model):
 class UserRoom(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    joined_at = models.DateTimeField(auto_now_add=True)
+    joined_at = models.DateTimeField(default=timezone.now)

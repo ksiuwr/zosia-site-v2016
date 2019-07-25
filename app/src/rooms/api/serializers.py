@@ -2,44 +2,28 @@
 from rest_framework import serializers
 
 from users.models import User
-from ..models import Room, RoomBeds, RoomLock
+from ..models import Room, RoomBeds, RoomLock, UserRoom
 
 
-# class RoomingUserSerializer(serializers.HyperlinkedModelSerializer):
-class RoomingUserSerializer(serializers.ModelSerializer):
+# class MemberUserSerializer(serializers.HyperlinkedModelSerializer):
+class MemberUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # fields = ("url", "first_name", "last_name")
         fields = ("id", "first_name", "last_name")
 
 
-class RoomMemberSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer()
+class UserRoomSerializer(serializers.ModelSerializer):
+    user = MemberUserSerializer()
     joined_at = serializers.DateTimeField(input_formats=['iso-8601'])
 
-    def to_representation(self, instance):
-        return {"user": instance.user, "joined_at": instance.joined_at}
-
-    def to_internal_value(self, data):
-        user = data.get("user")
-        joined_at = data.get("joined_at")
-
-        if not user:
-            raise serializers.ValidationError({"user": "This field is required."})
-
-        if not joined_at:
-            raise serializers.ValidationError({"joined_at": "This field is required."})
-
-        user_serializer = RoomingUserSerializer(user)
-
-        if not user_serializer.is_valid():
-            raise serializers.ValidationError(user_serializer.errors)
-
-        return {"user": user, "joined_at": joined_at}
+    class Meta:
+        model = UserRoom
+        fields = ("user", "joined_at")
 
 
 class RoomLockSerializer(serializers.ModelSerializer):
-    user = RoomMemberSerializer()
+    user = UserRoomSerializer()
 
     class Meta:
         model = RoomLock
@@ -57,7 +41,7 @@ class RoomSerializer(serializers.ModelSerializer):
     beds = RoomBedsSerializer()
     available_beds = RoomBedsSerializer()
     lock = RoomLockSerializer(read_only=True)
-    members = RoomMemberSerializer(read_only=True, many=True)
+    members = UserRoomSerializer(read_only=True, many=True)
 
     class Meta:
         model = Room
@@ -76,7 +60,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer()
+    user = MemberUserSerializer()
 
     def to_representation(self, instance):
         return {"user": instance.user}
@@ -87,7 +71,7 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = RoomingUserSerializer(user)
+        user_serializer = MemberUserSerializer(user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
@@ -96,8 +80,8 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
 
 
 class JoinMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer()
-    password = serializers.CharField(max_length=4)  # optional
+    user = MemberUserSerializer()
+    password = serializers.CharField(max_length=4, required=False)  # optional
 
     def to_representation(self, instance):
         representation = {"user": instance.user}
@@ -114,7 +98,7 @@ class JoinMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = RoomingUserSerializer(user)
+        user_serializer = MemberUserSerializer(user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
@@ -123,9 +107,9 @@ class JoinMethodSerializer(serializers.BaseSerializer):
 
 
 class LockMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer()
-    expiration_time = \
-        serializers.DateTimeField(input_formats=['iso-8601'])  # only for admin, optional
+    user = MemberUserSerializer()
+    expiration_time = serializers.DateTimeField(input_formats=['iso-8601'],
+                                                required=False)  # only for admin, optional
 
     def to_representation(self, instance):
         representation = {"user": instance.user}
@@ -142,7 +126,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = RoomingUserSerializer(user)
+        user_serializer = MemberUserSerializer(user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
@@ -151,7 +135,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
 
 
 class UnlockMethodSerializer(serializers.BaseSerializer):
-    user = RoomingUserSerializer()
+    user = MemberUserSerializer()
 
     def to_representation(self, instance):
         return {"user": instance.user}
@@ -162,7 +146,7 @@ class UnlockMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        user_serializer = RoomingUserSerializer(user)
+        user_serializer = MemberUserSerializer(user)
 
         if not user_serializer.is_valid():
             raise serializers.ValidationError(user_serializer.errors)
