@@ -1,12 +1,13 @@
 #!/bin/bash
 
 HELP_TEXT="  dev.sh - Run the zosia docker containers for local development.
-    ./dev.sh [command]
+    ./dev.sh [command] [option]...
 
-Commands
+Commands:
   one_click       - Runs zosia website (on 127.0.0.1:8000)
   setup           - Spins up the containers and prepares development enviromanet
-  runserver       - Runs django development server inside of container
+  shell           - Runs Bash shell inside the container
+  runserver       - Runs django development server inside the container
   py_install      - Installs python dependencies specified in requirements.txt
   js_install      - Installs javascript depedencies specified in package.json
   js_watch        - Rebuilds javascript on file change (note: may create files on host fs with root permissions)
@@ -14,6 +15,9 @@ Commands
   migrate         - Applies migrations of django application
   makemigrations  - Generates django migrations from models (note: may create files on host fs with root permissions)
   shutdown        - Kills and deletes containers
+
+Options:
+  --no-cache      - Do not use cache when building the container image.
 "
 
 function configure_env () {
@@ -29,9 +33,12 @@ function configure_env () {
 
 configure_env
 
-
 function build() {
-  docker-compose -f $DOCKER_COMPOSE build
+  docker-compose -f $DOCKER_COMPOSE build $NO_CACHE
+}
+
+function shell() {
+  docker exec -it $WEB_CONTAINER_NAME /bin/bash
 }
 
 function run() {
@@ -85,8 +92,28 @@ function one_click () {
 }
 
 [[ "$#" -eq 0 ]] && echo "$HELP_TEXT" && exit 0
+
 command="$1"
 shift
+
+while true
+do
+  case "$1" in
+    --no-cache)
+    NO_CACHE="--no-cache"
+    ;;
+    "")
+    break
+    ;;
+    *)
+    echo "Unknown option $1"
+    echo "$HELP_TEXT"
+    exit 1
+    ;;
+  esac
+
+  shift
+done
 
 case $command in
   one_click)
@@ -101,8 +128,8 @@ case $command in
   py_install)
   py_install
   ;;
-  run)
-  run "$1"
+  shell)
+  shell
   ;;
   js_watch)
   js_watch
@@ -125,5 +152,6 @@ case $command in
   *)
   echo "Unknown command $command"
   echo "$HELP_TEXT"
+  exit 1
   ;;
 esac

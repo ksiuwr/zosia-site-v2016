@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode production",
+    "watch": "webpack --watch",
     "deps": "cd static && bower --allow-root install"
   },
   "repository": {
