@@ -20,29 +20,38 @@ Options:
   --no-cache      - Do not use cache when building the container image.
 "
 
+# colors :P
+red=$(tput setaf 1)
+purple=$(tput setaf 5)
+green=$(tput setaf 2)
+bold=$(tput bold)
+normal=$(tput sgr0)
+
+
 function configure_env () {
   local cwd=$(pwd)
   cd $(dirname "$0")
   SCRIPT_PATH=$(pwd)
   cd ../
   ROOT_PATH=$(pwd)
-  cd "$cwd"
-  DOCKER_COMPOSE="$ROOT_PATH/docker-compose.dev.yml"
-  WEB_CONTAINER_NAME=$(basename $cwd)"_web_1"
+  cd "${cwd}"
+  DOCKER_COMPOSE="${ROOT_PATH}/docker-compose.dev.yml"
+  PROJECT_NAME="zosia"
+  WEB_CONTAINER_NAME="${PROJECT_NAME}_web_1"
 }
 
 configure_env
 
 function build() {
-  docker-compose -f $DOCKER_COMPOSE build $NO_CACHE
+  docker-compose -f ${DOCKER_COMPOSE} build ${NO_CACHE}
 }
 
 function shell() {
-  docker exec -it $WEB_CONTAINER_NAME /bin/bash
+  docker exec -it ${WEB_CONTAINER_NAME} /bin/bash
 }
 
 function run() {
-  docker exec -it $WEB_CONTAINER_NAME /bin/bash -c "$1"
+  docker exec -it ${WEB_CONTAINER_NAME} /bin/bash -c "$1"
 }
 
 function js_install () {
@@ -75,23 +84,28 @@ function runserver () {
 
 function setup () {
   build
-  docker-compose -f $DOCKER_COMPOSE up -d
+  docker-compose -f ${DOCKER_COMPOSE} -p ${PROJECT_NAME} up -d
   js_install
   js_build
   py_install
 }
 
 function shutdown () {
-  docker-compose -f $DOCKER_COMPOSE down
+  docker-compose -f ${DOCKER_COMPOSE} -p ${PROJECT_NAME} down
 }
 
 function one_click () {
+  echo "${bold}-- Setup container --${normal}"
   setup
+  echo "${bold}-- Run migrations --${normal}"
   migrate
+  echo "${bold}-- Run webserver --${normal}"
   runserver
+  echo "${bold}-- Exiting - ${purple}If you finished remember to run \`./dev.sh shutdown\`${normal}"
+  docker ps
 }
 
-[[ "$#" -eq 0 ]] && echo "$HELP_TEXT" && exit 0
+[[ "$#" -eq 0 ]] && echo "${HELP_TEXT}" && exit 0
 
 command="$1"
 shift
@@ -107,7 +121,7 @@ do
     ;;
     *)
     echo "Unknown option $1"
-    echo "$HELP_TEXT"
+    echo "${HELP_TEXT}"
     exit 1
     ;;
   esac
