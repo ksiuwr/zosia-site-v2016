@@ -8,12 +8,13 @@ Commands:
   setup           - Spins up the containers and prepares development enviromanet
   shell           - Runs Bash shell inside the container
   runserver       - Runs django development server inside the container
+  test            - Runs django tests inside the container
   py_install      - Installs python dependencies specified in requirements.txt
   js_install      - Installs javascript depedencies specified in package.json
   js_watch        - Rebuilds javascript on file change (note: may create files on host fs with root permissions)
   js_build        - Builds javascript (note: may create files on host fs with root permissions)
-  migrate         - Applies migrations of django application
   makemigrations  - Generates django migrations from models (note: may create files on host fs with root permissions)
+  migrate         - Applies migrations of django application
   shutdown        - Kills and deletes containers
 
 Options:
@@ -80,6 +81,10 @@ function migrate () {
 
 function runserver () {
   run "python src/manage.py runserver 0.0.0.0:8000"
+}
+
+function test () {
+  run "python src/manage.py test"
 }
 
 function setup () {
@@ -162,6 +167,9 @@ case $command in
   ;;
   makemigrations)
   makemigrations
+  ;;
+  test)
+  test
   ;;
   *)
   echo "Unknown command $command"
