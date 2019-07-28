@@ -7,21 +7,11 @@ from django.test import TestCase
 from django.urls import reverse
 
 from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
-from rooms.models import Room, RoomBeds, UserRoom
-
-
-def new_room_beds(places, commit=True):
-    room_beds = RoomBeds(single=places, double=0)
-
-    if commit:
-        room_beds.save()
-
-    return room_beds
+from rooms.models import Room, UserRoom
 
 
 def new_room(number, capacity=0, commit=True, **override):
-    beds = new_room_beds(capacity)
-    defaults = {'name': str(number), 'beds': beds, 'available_beds': beds}
+    defaults = {'name': str(number), 'beds_single': capacity, 'available_beds_single': capacity}
     defaults.update(**override)
     room = Room(**defaults)
 
