@@ -88,10 +88,6 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# Dev settings
-zosia16/settings/dev.py
-media/
-
 .idea/
 
 #mypy

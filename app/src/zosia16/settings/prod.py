@@ -50,6 +50,3 @@ DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD')
 # This, in conjunction with DEBUG=True enables 'debug' directives in templates
 # Especially room.js makes heavy use of it
 INTERNAL_IPS = ['127.0.0.1']
-
-INSTALLED_APPS.append('debug_toolbar')
-MIDDLEWARE.append('debug_toolbar.middleware.DebugToolbarMiddleware')
