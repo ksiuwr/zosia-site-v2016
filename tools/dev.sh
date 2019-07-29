@@ -7,7 +7,7 @@ green=$(tput setaf 2)
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-HELP_TEXT="  ${bold}${green}dev.sh${normal} - Run the zosia docker containers for local development.
+HELP_TEXT="  ${bold}${green}dev.sh${normal} - Run ZOSIA docker containers for local development.
   ${bold}Usage:${normal} ./dev.sh [command] [options]...
 
 ${bold}Commands:${normal}
@@ -23,6 +23,7 @@ ${bold}Commands:${normal}
   makemigrations  - Generates django migrations from models (${bold}${purple}note:${normal} may create files on host fs with root permissions)
   migrate         - Applies migrations of django application
   shutdown        - Kills and deletes containers
+  help            - Shows this help
 
 ${bold}Options:${normal}
   --no-cache      - Do not use cache when building the container image.
@@ -170,6 +171,9 @@ case ${command} in
   ;;
   test)
   test
+  ;;
+  help)
+  echo "${HELP_TEXT}"
   ;;
   *)
   echo "${red}Unknown option ${command}${normal}"
