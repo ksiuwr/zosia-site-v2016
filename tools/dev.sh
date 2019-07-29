@@ -27,6 +27,7 @@ ${bold}Commands:${normal}
 
 ${bold}Options:${normal}
   --no-cache      - Do not use cache when building the container image.
+  --create_admin  - Create super user account (you need to specify the password) 
 "
 
 
@@ -40,6 +41,7 @@ function configure_env () {
   DOCKER_COMPOSE="${ROOT_PATH}/docker-compose.dev.yml"
   PROJECT_NAME="zosia"
   WEB_CONTAINER_NAME="${PROJECT_NAME}_web_1"
+  CREATE_ADMIN=false
 }
 
 configure_env
@@ -88,6 +90,10 @@ function test () {
   run "python src/manage.py test"
 }
 
+function create_superuser () {
+  run "python src/manage.py createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz"
+}
+
 function setup () {
   build
   docker-compose -f ${DOCKER_COMPOSE} -p ${PROJECT_NAME} up -d
@@ -105,6 +111,12 @@ function one_click () {
   setup
   echo "${bold}-- Run migrations --${normal}"
   migrate
+
+  if [ "${CREATE_ADMIN}" = true ] ; then
+    echo "${bold}${purple}-- Set password for super user account --${normal}"
+    create_superuser
+  fi
+  
   echo "${bold}-- Run webserver --${normal}"
   runserver
   echo "${bold}-- Exiting - ${purple}If you finished remember to run \`./dev.sh shutdown\`${normal}"
@@ -121,6 +133,9 @@ do
   case ${1} in
     --no-cache)
     NO_CACHE="--no-cache"
+    ;;
+    --create_admin)
+    CREATE_ADMIN=true
     ;;
     "")
     break
