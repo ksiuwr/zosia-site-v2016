@@ -22,7 +22,8 @@ GAPI_KEY = os.environ.get('GAPI_KEY')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):
-    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+    return ''.join(
+        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY', random_string(20))
@@ -61,7 +62,14 @@ if sentry_dsn:
 
 # Django REST framework (https://www.django-rest-framework.org)
 REST_FRAMEWORK = {
-    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning'
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
 }
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)

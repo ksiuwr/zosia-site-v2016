@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -117,6 +118,7 @@ def unlock(request, version, pk, format=None):
 
 
 @api_view(["POST"])
+@permission_classes([IsAdminUser])
 def hide(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     room.hidden = True
@@ -126,6 +128,7 @@ def hide(request, version, pk, format=None):
 
 
 @api_view(["POST"])
+@permission_classes([IsAdminUser])
 def unhide(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     room.hidden = False
