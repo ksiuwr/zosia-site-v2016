@@ -39,7 +39,7 @@ class RoomSerializer(serializers.ModelSerializer):
     beds = serializers.DictField(child=serializers.IntegerField())
     available_beds = serializers.DictField(child=serializers.IntegerField())
     lock = RoomLockSerializer(read_only=True)
-    members = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    members = UserRoomSerializer(source="userroom_set", read_only=True, many=True)
 
     class Meta:
         model = Room
