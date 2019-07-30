@@ -7,7 +7,7 @@ green=$(tput setaf 2)
 bold=$(tput bold)
 normal=$(tput sgr0)
 
-HELP_TEXT="  ${bold}${green}dev.sh${normal} - Run ZOSIA docker containers for local development.
+HELP_TEXT="    ${bold}${green}dev.sh${normal} - Run ZOSIA docker containers for local development.
   ${bold}Usage:${normal} ./dev.sh [command] [options]...
 
 ${bold}Commands:${normal}
@@ -27,7 +27,7 @@ ${bold}Commands:${normal}
 
 ${bold}Options:${normal}
   --no-cache      - Do not use cache when building the container image.
-  --create_admin  - Create super user account (you need to specify the password) 
+  --create-admin  - Create super user account (you need to specify the password)
 "
 
 
@@ -86,7 +86,7 @@ function runserver () {
   run "python src/manage.py runserver 0.0.0.0:8000"
 }
 
-function test () {
+function runtests () {
   run "python src/manage.py test"
 }
 
@@ -116,10 +116,10 @@ function one_click () {
     echo "${bold}${purple}-- Set password for super user account --${normal}"
     create_superuser
   fi
-  
+
   echo "${bold}-- Run webserver --${normal}"
   runserver
-  echo "${bold}-- Exiting - ${purple}If you finished remember to run \`./dev.sh shutdown\`${normal}"
+  echo "${bold}-- Exiting - ${purple}Remember to run \`./dev.sh shutdown\`, if you've have just finished${normal}"
   docker ps
 }
 
@@ -134,7 +134,7 @@ do
     --no-cache)
     NO_CACHE="--no-cache"
     ;;
-    --create_admin)
+    --create-admin)
     CREATE_ADMIN=true
     ;;
     "")
@@ -185,7 +185,7 @@ case ${command} in
   makemigrations
   ;;
   test)
-  test
+  runtests
   ;;
   help)
   echo "${HELP_TEXT}"
