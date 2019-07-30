@@ -20,10 +20,9 @@ class RoomLockManager(models.Manager):
     TIMEOUT = timedelta(0, 3 * 3600)
 
     def make(self, user, expiration_time=None):
-        expiration_time = expiration_time or self.TIMEOUT
+        expiration_time = expiration_time or timezone.now() + self.TIMEOUT
 
-        return self.create(user=user, password=random_string(4),
-                           expiration_date=timezone.now() + expiration_time)
+        return self.create(user=user, password=random_string(4), expiration_date=expiration_time)
 
 
 class RoomLock(models.Model):
@@ -107,13 +106,13 @@ class Room(models.Model):
     @transaction.atomic
     def join_and_lock(self, user, password='', expiration=None, lock=True):
         if self.is_locked and not self.lock.is_opened_by(password):
-            return ValidationError(_('Cannot join room %(room), is locked.'),
+            return ValidationError(_('Cannot join room %(room)s, is locked.'),
                                    code='invalid',
                                    params={'room': self})
 
         # Ensure room is not full
         if self.is_occupied >= self.capacity:
-            return ValidationError(_('Cannot join room %(room), is full.'),
+            return ValidationError(_('Cannot join room %(room)s, is full.'),
                                    code='invalid',
                                    params={'room': self})
 
@@ -137,15 +136,15 @@ class Room(models.Model):
     @transaction.atomic
     def join(self, user, password=None):
         if self.is_locked and not self.lock.is_opened_by(password):
-            return ValidationError(_('Cannot join room %(room), is locked.'),
-                                   code='invalid',
-                                   params={'room': self})
+            raise ValidationError(_('Cannot join %(room)s, room is locked.'),
+                                  code='invalid',
+                                  params={'room': self})
 
         # Ensure room is not full
         if self.is_full:
-            return ValidationError(_('Cannot join room %(room), is full.'),
-                                   code='invalid',
-                                   params={'room': self})
+            raise ValidationError(_('Cannot join %(room)s, room is full.'),
+                                  code='invalid',
+                                  params={'room': self})
 
         # Remove user from previous room
         prev_room = user.room_of_user.all().first()
@@ -163,8 +162,18 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def set_lock(self, user, expiration_time=None):
-        self.lock = RoomLock.objects.make(user, expiration_time=expiration_time)
+    def set_lock(self, owner, locker, expiration_time=None):
+        if self.is_locked and not locker.is_staff:
+            raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
+                                  code='invalid',
+                                  params={'room': self})
+
+        if not self.members.filter(pk__exact=owner.pk):
+            raise ValidationError(_("Cannot lock %(room)s, first join the room."),
+                                  code='invalid',
+                                  params={'room': self})
+
+        self.lock = RoomLock.objects.make(owner, expiration_time=expiration_time)
         self.lock.save()
         self.save()
 

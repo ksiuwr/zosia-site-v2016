@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core import exceptions
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -7,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from users.models import User
-from .serializers import JoinMethodSerializer, LeaveMethodSerializer, LockMethodSerializer, \
-    RoomSerializer, UnlockMethodSerializer
+from .serializers import JoinMethodSerializer, LeaveMethodSerializer, LockMethodAdminSerializer, \
+    LockMethodSerializer, RoomSerializer
 from ..models import Room
 
 
@@ -78,7 +79,11 @@ def join(request, version, pk, format=None):  # only room joining
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         user = get_object_or_404(User, pk=user_id)
-        room.join(user)
+
+        try:
+            room.join(user)
+        except exceptions.ValidationError as e:
+            return Response({"status": e.message}, status=status.HTTP_403_FORBIDDEN)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -88,13 +93,20 @@ def join(request, version, pk, format=None):  # only room joining
 @api_view(["POST"])
 def lock(request, version, pk, format=None):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
-    serializer = LockMethodSerializer(data=request.data)
+    locker = request.user
+    serializer = LockMethodAdminSerializer(data=request.data) \
+        if locker.is_staff or locker.is_superuser else \
+        LockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         expiration_time = serializer.validated_data.get("expiration_time")
         user = get_object_or_404(User, pk=user_id)
-        room.set_lock(user, expiration_time)
+
+        try:
+            room.set_lock(user, locker, expiration_time)
+        except exceptions.ValidationError as e:
+            return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -103,18 +115,11 @@ def lock(request, version, pk, format=None):  # only locks the room
 
 @api_view(["POST"])
 def unlock(request, version, pk, format=None):
-    # user data is taken from session
     room = get_object_or_404(Room, pk=pk)
-    serializer = UnlockMethodSerializer(data=request.data)
+    user = request.user
+    room.unlock(user)
 
-    if serializer.is_valid():
-        user_id = serializer.validated_data.get("user")
-        user = get_object_or_404(User, pk=user_id)
-        room.unlock(user)
-
-        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
-
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])

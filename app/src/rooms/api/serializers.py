@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
 
 from users.models import User
@@ -78,7 +79,8 @@ class RoomSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def _validate_beds(self, beds_data, available_beds_data):
+    @staticmethod
+    def _validate_beds(beds_data, available_beds_data):
         if available_beds_data.get("single") > beds_data.get("single"):
             raise serializers.ValidationError(
                 "Cannot set more available single beds than real single beds")
@@ -108,7 +110,7 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
 
 class JoinMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-    password = serializers.CharField(max_length=4, required=False)  # optional
+    password = serializers.CharField(max_length=4, required=False)
 
     def __init__(self, *args, **kwargs):
         super(JoinMethodSerializer, self).__init__(*args, **kwargs)
@@ -133,11 +135,29 @@ class JoinMethodSerializer(serializers.BaseSerializer):
 
 class LockMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-    expiration_time = serializers.DateTimeField(input_formats=['iso-8601'],
-                                                required=False)  # only for admin, optional
 
     def __init__(self, *args, **kwargs):
         super(LockMethodSerializer, self).__init__(*args, **kwargs)
+
+    def to_representation(self, instance):
+        return {"user": instance.user}
+
+    def to_internal_value(self, data):
+        user = data.get("user")
+
+        if not user:
+            raise serializers.ValidationError({"user": "This field is required."})
+
+        return {"user": user}
+
+
+class LockMethodAdminSerializer(serializers.BaseSerializer):
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
+    expiration_time = serializers.DateTimeField(input_formats=['iso-8601'],
+                                                required=False)  # only for admin
+
+    def __init__(self, *args, **kwargs):
+        super(LockMethodAdminSerializer, self).__init__(*args, **kwargs)
 
     def to_representation(self, instance):
         representation = {"user": instance.user}
@@ -154,22 +174,4 @@ class LockMethodSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        return {"user": user, "expiration_time": expiration_time}
-
-
-class UnlockMethodSerializer(serializers.BaseSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-
-    def __init__(self, *args, **kwargs):
-        super(UnlockMethodSerializer, self).__init__(*args, **kwargs)
-
-    def to_representation(self, instance):
-        return {"user": instance.user}
-
-    def to_internal_value(self, data):
-        user = data.get("user")
-
-        if not user:
-            raise serializers.ValidationError({"user": "This field is required."})
-
-        return {"user": user}
+        return {"user": user, "expiration_time": parse_datetime(expiration_time)}
