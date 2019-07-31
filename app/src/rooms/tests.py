@@ -80,7 +80,7 @@ class RoomTestCase(TestCase):
         result = self.room_1.join_and_lock(self.normal_2, password=self.room_1.lock.password)
         self.assertJoined(result, self.normal_2, self.room_1)
 
-    def test_room_is_unlocked_after_expiration_time(self):
+    def test_room_is_unlocked_after_expiration_date(self):
         self.room_1.join_and_lock(self.normal_1, expiration=timedelta(-1))
         self.assertUnlocked(self.room_1)
         result = self.room_1.join_and_lock(self.normal_2)

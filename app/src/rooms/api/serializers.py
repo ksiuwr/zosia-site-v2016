@@ -153,7 +153,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
 
 class LockMethodAdminSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-    expiration_time = serializers.DateTimeField(input_formats=['iso-8601'],
+    expiration_date = serializers.DateTimeField(input_formats=['iso-8601'],
                                                 required=False)  # only for admin
 
     def __init__(self, *args, **kwargs):
@@ -162,16 +162,16 @@ class LockMethodAdminSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
         representation = {"user": instance.user}
 
-        if instance.expiration_time:
-            representation["expiration_time"] = instance.expiration_time
+        if instance.expiration_date:
+            representation["expiration_date"] = instance.expiration_date
 
         return representation
 
     def to_internal_value(self, data):
         user = data.get("user")
-        expiration_time = data.get("expiration_time")
+        expiration_date = data.get("expiration_date")
 
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        return {"user": user, "expiration_time": parse_datetime(expiration_time)}
+        return {"user": user, "expiration_date": parse_datetime(expiration_date)}

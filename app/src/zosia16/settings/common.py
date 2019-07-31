@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'materializecssform',
     'anymail',
     'rest_framework',
+    'drf_yasg',
     'raven.contrib.django.raven_compat',
     'rooms.apps.RoomsConfig',
     'blog.apps.BlogConfig',

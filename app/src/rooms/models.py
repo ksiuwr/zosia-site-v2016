@@ -19,10 +19,10 @@ class RoomLockManager(models.Manager):
     # 3 hours
     TIMEOUT = timedelta(0, 3 * 3600)
 
-    def make(self, user, expiration_time=None):
-        expiration_time = expiration_time or timezone.now() + self.TIMEOUT
+    def make(self, user, expiration_date=None):
+        expiration_date = expiration_date or timezone.now() + self.TIMEOUT
 
-        return self.create(user=user, password=random_string(4), expiration_date=expiration_time)
+        return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
 
 
 class RoomLock(models.Model):
@@ -127,7 +127,7 @@ class Room(models.Model):
 
         if lock:
             if not self.lock or self.lock.is_expired:
-                self.lock = RoomLock.objects.make(user, expiration_time=expiration)
+                self.lock = RoomLock.objects.make(user, expiration_date=expiration)
 
         self.save()
 
@@ -162,7 +162,7 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def set_lock(self, owner, locker, expiration_time=None):
+    def set_lock(self, owner, locker, expiration_date=None):
         if self.is_locked and not locker.is_staff:
             raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
                                   code='invalid',
@@ -173,7 +173,7 @@ class Room(models.Model):
                                   code='invalid',
                                   params={'room': self})
 
-        self.lock = RoomLock.objects.make(owner, expiration_time=expiration_time)
+        self.lock = RoomLock.objects.make(owner, expiration_date=expiration_date)
         self.lock.save()
         self.save()
 

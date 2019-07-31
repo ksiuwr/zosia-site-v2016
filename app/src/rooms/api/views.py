@@ -100,11 +100,11 @@ def lock(request, version, pk, format=None):  # only locks the room
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
-        expiration_time = serializer.validated_data.get("expiration_time")
+        expiration_date = serializer.validated_data.get("expiration_date")
         user = get_object_or_404(User, pk=user_id)
 
         try:
-            room.set_lock(user, locker, expiration_time)
+            room.set_lock(user, locker, expiration_date)
         except exceptions.ValidationError as e:
             return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
