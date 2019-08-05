@@ -36,6 +36,11 @@
       <div class="card-action">
         <button type="submit" class="waves-effect waves-light btn">{% trans 'Submit' %}</button>
       </div>
+      {% if form_name == "Login" or form_name == "Password_change" %}
+      <div class="card-content">
+        <a href="{% url 'password_reset' %}">{% trans 'Lost password?' %}</a>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>
