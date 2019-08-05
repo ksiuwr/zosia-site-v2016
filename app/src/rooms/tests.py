@@ -5,6 +5,7 @@ from unittest import skip
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from rooms.models import Room, UserRoom
@@ -81,18 +82,18 @@ class RoomTestCase(TestCase):
         self.assertJoined(result, self.normal_2, self.room_1)
 
     def test_room_is_unlocked_after_expiration_date(self):
-        self.room_1.join_and_lock(self.normal_1, expiration=timedelta(-1))
+        self.room_1.join_and_lock(self.normal_1, expiration=timezone.make_aware(datetime.min))
         self.assertUnlocked(self.room_1)
         result = self.room_1.join_and_lock(self.normal_2)
         self.assertJoined(result, self.normal_2, self.room_1)
 
     def test_anyone_can_join_unlocked_room(self):
-        self.room_1.join_and_lock(self.normal_1, expiration=timedelta(-1))
+        self.room_1.join_and_lock(self.normal_1, expiration=timezone.make_aware(datetime.min))
         result = self.room_1.join_and_lock(self.normal_2)
         self.assertJoined(result, self.normal_2, self.room_1)
 
     def test_room_cannot_be_joined_if_its_full(self):
-        self.room_2.join_and_lock(self.normal_1, expiration=timedelta(-1))
+        self.room_2.join_and_lock(self.normal_1, expiration=timezone.make_aware(datetime.min))
         result = self.room_2.join_and_lock(self.normal_2)
         self.assertError(result)
 
