@@ -117,7 +117,11 @@ def lock(request, version, pk, format=None):  # only locks the room
 def unlock(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     user = request.user
-    room.unlock(user)
+
+    try:
+        room.unlock(user)
+    except exceptions.ValidationError as e:
+        return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
     return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 

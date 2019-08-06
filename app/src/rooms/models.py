@@ -85,53 +85,23 @@ class Room(models.Model):
         return self.available_beds_single + 2 * self.available_beds_double
 
     @property
+    def members_count(self):
+        return self.members.count()
+
+    @property
     def is_locked(self):
         return self.lock and not self.lock.is_expired
 
     @property
-    def is_occupied(self):
-        return self.members.count()
-
-    @property
     def is_full(self):
-        return self.members.count() >= self.capacity
+        return self.members_count >= self.capacity
 
     @property
-    def occupants(self):
+    def all_members(self):
         return ", ".join(map(str, self.members.all()))
 
     def __str__(self):
         return 'Room ' + self.name
-
-    @transaction.atomic
-    def join_and_lock(self, user, password='', expiration=None, lock=True):
-        if self.is_locked and not self.lock.is_opened_by(password):
-            return ValidationError(_('Cannot join room %(room)s, is locked.'),
-                                   code='invalid',
-                                   params={'room': self})
-
-        # Ensure room is not full
-        if self.is_occupied >= self.capacity:
-            return ValidationError(_('Cannot join room %(room)s, is full.'),
-                                   code='invalid',
-                                   params={'room': self})
-
-        # Remove user from previous rooms
-        prev_room = user.room_of_user.all().first()
-
-        if prev_room:
-            if prev_room.is_locked and prev_room.lock.is_owned_by(user):
-                prev_room.lock.delete()
-
-            prev_room.members.remove(user)
-
-        if lock:
-            if not self.lock or self.lock.is_expired:
-                self.lock = RoomLock.objects.make(user, expiration_date=expiration)
-
-        self.save()
-
-        return UserRoom.objects.create(room=self, user=user)
 
     @transaction.atomic
     def join(self, user, password=None):
@@ -157,12 +127,19 @@ class Room(models.Model):
 
     @transaction.atomic
     def leave(self, user):
-        self.unlock(user)
+        try:
+            self.unlock(user)
+        except ValidationError:
+            pass
+
         self.members.remove(user)
         self.save()
 
     @transaction.atomic
-    def set_lock(self, owner, locker, expiration_date=None):
+    def set_lock(self, owner, locker=None, expiration_date=None):
+        if locker is None:
+            locker = owner
+
         if self.is_locked and not locker.is_staff:
             raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
                                   code='invalid',
@@ -179,12 +156,18 @@ class Room(models.Model):
 
     @transaction.atomic
     def unlock(self, user):
-        if self.is_locked and self.lock.is_owned_by(user):
-            lock = self.lock
-            self.lock = None
-            self.save()
+        if not self.is_locked:
+            return
 
-            return lock.delete()
+        if not self.lock.is_owned_by(user) and not user.is_staff:
+            raise ValidationError(_("Cannot unlock %(room)s, no permission to do this."),
+                                  code='invalid',
+                                  params={'room': self})
+
+        lock = self.lock
+        self.lock = None
+        self.save()
+        lock.delete()
 
 
 class UserRoom(models.Model):

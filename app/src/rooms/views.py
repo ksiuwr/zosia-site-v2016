@@ -98,11 +98,16 @@ def join(request, room_id):
         return JsonResponse({'error': 'cannot_room_yet'}, status=400)
 
     should_lock = request.POST.get('lock', True) in [True, 'True', '1', 'on', 'true']
-    result = room.join_and_lock(request.user, password=password, lock=should_lock)
-    if type(result) is ValidationError:
-        return JsonResponse({'status': result.message}, status=400)
-    else:
-        return JsonResponse({'status': 'ok'})
+
+    try:
+        room.join(request.user, password=password)
+
+        if should_lock:
+            room.set_lock(request.user)
+    except ValidationError as e:
+        return JsonResponse({'status': e.message}, status=400)
+
+    return JsonResponse({'status': 'ok'})
 
 
 @login_required
@@ -112,11 +117,13 @@ def unlock(request):
     room = get_object_or_404(UserRoom, user=request.user).room
     if not zosia.is_rooming_open:
         return JsonResponse({'status': 'time_passed'}, status=400)
-    result = room.unlock(request.user)
-    if result:
-        return JsonResponse({'status': 'ok'})
-    else:
-        return JsonResponse({'status': 'not_changed'})
+
+    try:
+        room.unlock(request.user)
+    except ValidationError as e:
+        return JsonResponse({'status': e.message}, status=403)
+
+    return JsonResponse({'status': 'ok'})
 
 
 # https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
