@@ -42,6 +42,7 @@ class RoomTestCase(TestCase):
 
         self.normal_1 = new_user(0)
         self.normal_2 = new_user(1)
+        self.admin = new_user(2, is_staff=True)
 
         self.room_1 = new_room(111, capacity=2)
         self.room_2 = new_room(222, capacity=1)

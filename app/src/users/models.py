@@ -1,7 +1,7 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.utils.translation import ugettext_lazy as _
 from django.core.validators import MinLengthValidator
+from django.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 class UserManager(BaseUserManager):
@@ -37,6 +37,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def display_name(self):
         full_name = self.get_full_name()
         return full_name
+
+    @property
+    def has_administator_role(self):
+        return self.is_staff or self.is_superuser
 
     def __str__(self):
         return self.display_name

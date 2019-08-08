@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from conferences.models import RoomingStatus, UserPreferences, Zosia
 from users.models import User
 from .serializers import JoinMethodSerializer, LeaveMethodSerializer, LockMethodAdminSerializer, \
     LockMethodSerializer, RoomSerializer
@@ -56,14 +57,36 @@ class RoomDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+def check_rooming(user, sender):
+    if not sender.has_administator_role:
+        zosia = Zosia.objects.find_active_or_404()
+        user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=user)
+        rooming_status = zosia.get_rooming_status(user_prefs)
+
+        if rooming_status == RoomingStatus.BEFORE_ROOMING:
+            return Response({"error": "Rooming for user has not started yet."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        if rooming_status == RoomingStatus.AFTER_ROOMING:
+            return Response({"error": "Rooming has already ended."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        if rooming_status == RoomingStatus.ROOMING_UNAVAILABLE:
+            return Response({"error": "Rooming is unavailable for user."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+
 @api_view(["POST"])
 def leave(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
+    sender = request.user
     serializer = LeaveMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         user = get_object_or_404(User, pk=user_id)
+        check_rooming(user, sender)
+
         room.leave(user)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
@@ -74,16 +97,18 @@ def leave(request, version, pk, format=None):
 @api_view(["POST"])
 def join(request, version, pk, format=None):  # only room joining
     room = get_object_or_404(Room, pk=pk)
+    sender = request.user
     serializer = JoinMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         user = get_object_or_404(User, pk=user_id)
+        check_rooming(user, sender)
 
         try:
-            room.join(user)
+            room.join(user, sender)
         except exceptions.ValidationError as e:
-            return Response({"status": e.message}, status=status.HTTP_403_FORBIDDEN)
+            return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -93,18 +118,18 @@ def join(request, version, pk, format=None):  # only room joining
 @api_view(["POST"])
 def lock(request, version, pk, format=None):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
-    locker = request.user
+    sender = request.user
     serializer = LockMethodAdminSerializer(data=request.data) \
-        if locker.is_staff or locker.is_superuser else \
-        LockMethodSerializer(data=request.data)
+        if sender.has_administator_role else LockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         expiration_date = serializer.validated_data.get("expiration_date")
         user = get_object_or_404(User, pk=user_id)
+        check_rooming(user, sender)
 
         try:
-            room.set_lock(user, locker, expiration_date)
+            room.set_lock(user, sender, expiration_date)
         except exceptions.ValidationError as e:
             return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
@@ -116,10 +141,11 @@ def lock(request, version, pk, format=None):  # only locks the room
 @api_view(["POST"])
 def unlock(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
-    user = request.user
+    sender = request.user
+    check_rooming(sender, sender)
 
     try:
-        room.unlock(user)
+        room.unlock(sender)
     except exceptions.ValidationError as e:
         return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 

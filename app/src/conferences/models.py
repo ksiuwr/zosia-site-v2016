@@ -1,12 +1,21 @@
 from datetime import datetime, timedelta
 
-from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
+from django.http import Http404
 from django.utils.translation import ugettext as _
 from pytz import timezone
+
+from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
+
+
+class RoomingStatus:
+    BEFORE_ROOMING = "before"
+    ROOMING_PROGRESS = "progress"
+    AFTER_ROOMING = "after"
+    ROOMING_UNAVAILABLE = "unavailable"
 
 
 class Place(models.Model):
@@ -26,6 +35,14 @@ class Place(models.Model):
 class ZosiaManager(models.Manager):
     def find_active(self):
         return self.filter(active=True).first()
+
+    def find_active_or_404(self):
+        zosia = self.find_active()
+
+        if not zosia:
+            raise Http404("No active conference found")
+
+        return zosia
 
 
 # NOTE: Zosia has 4 days. Period.
@@ -104,10 +121,29 @@ class Zosia(models.Model):
         # return self.rooming_start <= datetime.now().date() <= self.rooming_end
         return datetime.now().date() <= self.rooming_end
 
-    def can_start_rooming(self, user, now=None):
+    def can_start_rooming(self, user_prefs, now=None):
         if now is None:
             now = datetime.now()
-        return user.payment_accepted and now >= user.convert_bonus_to_time()
+        return user_prefs.payment_accepted and now >= user_prefs.convert_bonus_to_time()
+
+    def rooming_start_for_user(self, user_prefs):
+        if not user_prefs.payment_accepted:
+            raise ValueError("User has not paid.")
+
+        return user_prefs.convert_bonus_to_time()
+
+    def get_rooming_status(self, user_prefs, now=None):
+        if not now:
+            now = datetime.now()
+
+        try:
+            start_time = self.rooming_start_for_user(user_prefs)
+        except ValueError:
+            return RoomingStatus.ROOMING_UNAVAILABLE
+
+        return RoomingStatus.BEFORE_ROOMING if now < start_time else \
+            RoomingStatus.AFTER_ROOMING if now > self.rooming_end else \
+                RoomingStatus.ROOMING_PROGRESS
 
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None

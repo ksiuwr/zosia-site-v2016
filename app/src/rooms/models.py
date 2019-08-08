@@ -104,8 +104,12 @@ class Room(models.Model):
         return 'Room ' + self.name
 
     @transaction.atomic
-    def join(self, user, password=None):
-        if self.is_locked and not self.lock.is_opened_by(password):
+    def join(self, user, sender=None, password=None):
+        if not sender:
+            sender = user
+
+        if self.is_locked and not self.lock.is_opened_by(password) \
+                and not sender.has_administator_role:
             raise ValidationError(_('Cannot join %(room)s, room is locked.'),
                                   code='invalid',
                                   params={'room': self})
@@ -136,17 +140,17 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def set_lock(self, owner, locker=None, expiration_date=None):
-        if locker is None:
-            locker = owner
+    def set_lock(self, owner, sender=None, expiration_date=None):
+        if sender is None:
+            sender = owner
 
-        if self.is_locked and not locker.is_staff:
+        if self.is_locked and not sender.has_administrator_role:
             raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
                                   code='invalid',
                                   params={'room': self})
 
         if not self.members.filter(pk__exact=owner.pk):
-            raise ValidationError(_("Cannot lock %(room)s, first join the room."),
+            raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
                                   code='invalid',
                                   params={'room': self})
 
@@ -155,19 +159,17 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def unlock(self, user):
-        if not self.is_locked:
-            return
+    def unlock(self, sender):
+        if self.is_locked:
+            if not self.lock.is_owned_by(sender) and not sender.has_administator_role:
+                raise ValidationError(_("Cannot unlock %(room)s, no permission to do this."),
+                                      code='invalid',
+                                      params={'room': self})
 
-        if not self.lock.is_owned_by(user) and not user.is_staff:
-            raise ValidationError(_("Cannot unlock %(room)s, no permission to do this."),
-                                  code='invalid',
-                                  params={'room': self})
-
-        lock = self.lock
-        self.lock = None
-        self.save()
-        lock.delete()
+            lock = self.lock
+            self.lock = None
+            self.save()
+            lock.delete()
 
 
 class UserRoom(models.Model):
