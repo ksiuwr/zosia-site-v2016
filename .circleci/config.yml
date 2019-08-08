@@ -56,5 +56,4 @@ workflows:
           filters:
             branches:
               only: 
-                - aws_deployment
                 - master
