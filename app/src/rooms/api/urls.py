@@ -13,4 +13,5 @@ urlpatterns = format_suffix_patterns([
     path("<int:pk>/unlock/", views.unlock, name="room-lock"),
     path("<int:pk>/hide/", views.hide, name="room-hide"),
     path("<int:pk>/unhide/", views.unhide, name="room-unhide"),
+    path("members/", views.RoomMembersList.as_view(), name="room-members"),
 ])

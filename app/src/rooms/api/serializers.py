@@ -14,6 +14,16 @@ class UserRoomSerializer(serializers.ModelSerializer):
         fields = ("user", "joined_at")
 
 
+class RoomMembersSerializer(serializers.ModelSerializer):
+    room_name = serializers.CharField(source="room.name")
+    user_first_name = serializers.CharField(source="user.first_name")
+    user_last_name = serializers.CharField(source="user.last_name")
+
+    class Meta:
+        model = UserRoom
+        fields = ("room_name", "user_first_name", "user_last_name")
+
+
 class RoomLockSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
 

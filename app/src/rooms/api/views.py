@@ -10,8 +10,18 @@ from rest_framework.views import APIView
 from conferences.models import RoomingStatus, UserPreferences, Zosia
 from users.models import User
 from .serializers import JoinMethodSerializer, LeaveMethodSerializer, LockMethodAdminSerializer, \
-    LockMethodSerializer, RoomSerializer
-from ..models import Room
+    LockMethodSerializer, RoomMembersSerializer, RoomSerializer
+from ..models import Room, UserRoom
+
+
+class RoomMembersList(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, version, format=None):
+        user_room = UserRoom.objects.all()
+        serializer = RoomMembersSerializer(user_room, many=True, context={'request': request})
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class RoomList(APIView):

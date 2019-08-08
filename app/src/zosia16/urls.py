@@ -44,7 +44,7 @@ urlpatterns = \
         re_path(r'^api/(?P<version>(v1))/rooms/', include(('rooms.api.urls', 'rooms'))),
 
         # Swagger URLs
-        re_path(r'^swagger/', schema_view.with_ui('swagger', cache_timeout=0),
+        re_path(r'^api/swagger/', schema_view.with_ui('swagger', cache_timeout=0),
                 name='schema-swagger-ui')
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
