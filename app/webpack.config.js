@@ -25,6 +25,10 @@ const config = {
         from: path.resolve(__dirname, './node_modules/materialize-css/dist/css/materialize.min.css'),
         to: path.resolve(__dirname, './static/css/materialize.min.css'),
       },
+      {
+        from: path.resolve(__dirname, './node_modules/materialize-css/dist/fonts'),
+        to: path.resolve(__dirname, './static/fonts'),
+      },
     ]),
   ],
   module: {

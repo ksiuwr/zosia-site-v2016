@@ -107,3 +107,6 @@ node_modules
 
 # Minified frontend files
 *.min.*
+
+# Fonts
+app/static/fonts
