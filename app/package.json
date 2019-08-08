@@ -24,7 +24,7 @@
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
     "copy-webpack-plugin": "^5.0.1",
-    "jquery": "2.2.4",
+    "jquery": "3.4.1",
     "materialize-css": "^1.0.0",
     "react": "^16.7.0",
     "react-beautiful-dnd": "^10.0.3",
