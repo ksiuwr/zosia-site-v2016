@@ -1,0 +1,10 @@
+Django==2.2.*
+django-anymail==3.*
+django-debug-toolbar==1.8
+django-materializecss-form==1.1.14
+Pillow>=3.4.1
+psycopg2==2.8.3
+pytz==2018.9
+raven==6.4.0
+uwsgi==2.0.17.1
+argon2-cffi

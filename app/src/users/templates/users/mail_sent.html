@@ -1,0 +1,38 @@
+
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block content %}
+
+<div class="container">
+<div class="row">
+  <div class="col l6 m6 s12 offset-m3">
+    <h2>{% trans "Email sent" %}</h2>
+  </div>
+  <div class="col s12 m8">
+    <div class="card">
+
+      <div class="card-content">
+      <div class="card-title">Subject: {{ subject }}</div>
+        <h5> Receivers </h5>
+        <p>
+        {% for user in receivers %}
+          {{ user.email }},
+        {% endfor %}
+        </p>
+        <h5> Text </h5>
+        <p>{{ text }}</p>
+      </div>
+      <div class="card-action">
+        <form action="{% url 'mail_all' %}">
+          <button type="submit" class="waves-effect waves-light btn">{% trans 'Send new email' %}</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+

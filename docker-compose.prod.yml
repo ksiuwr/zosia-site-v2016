@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: ./app
+      args:
+        DJANGO_ENV: "prod"
+    image: "zosia_prod_web:${TAG}"
+    command: >
+      bash -c "python3 manage.py collectstatic --no-input
+      && python3 manage.py migrate
+      && uwsgi --ini /code/uwsgi.ini"
+    expose:
+      - "8000"
+    volumes:
+      - /static:/static
+
+  nginx:
+    build: ./nginx
+    image: "zosia_prod_nginx:${TAG}"
+    ports:
+      - "80:80"
+    volumes:
+      - /static:/static

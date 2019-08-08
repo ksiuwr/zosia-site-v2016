@@ -88,12 +88,10 @@ ENV/
 # Rope project settings
 .ropeproject
 
-# Dev settings
-zosia16/settings/dev.py
-media/
-
 .idea/
 
+#mypy
+.mypy_cache
 
 # Bower
 bower_components
@@ -107,3 +105,8 @@ node_modules
 # vim
 *.swp
 
+# Minified frontend files
+*.min.*
+
+# Fonts
+app/static/fonts

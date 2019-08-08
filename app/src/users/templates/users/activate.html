@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <div class="col s8 m7">
+      <h2 class="header center-align text-dark-green">{% trans 'Email activated' %}</h2>
+      <div class="card horizontal">
+        <div class="card-stacked">
+            {% if zosia %}
+            <div class="card-content">
+              <p>
+                Your email has been activated successfully!
+                You should update preferences for ZOSIA conference.
+              </p>
+            </div>
+            <div class="card-action">
+              <a href="{% url 'user_zosia_register' zosia.id %}">{% trans "Update preferences" %}</a>
+            </div>
+            {% else %}
+            <div class="card-content">
+              <p>
+                Your email has been activated successfully!
+                You may now proceed to the website.
+              </p>
+            </div>
+            <div class="card-action">
+              <a href="{% url 'index' %}">{% trans 'Back to homepage' %}</a>
+            </div>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+    <div class="container">
+      <div class="row">
+        <div class="col l12 m12 s12">
+          <div class="card">
+            <div class="card-content">
+              <span class="card-title">
+                Export data
+              </span>
+              <ul class="collection">
+                <li class="collection-item row">
+                  <div class="col l6 m6 s12">
+                    <a href={% url 'export_shirts' %}>Export shirts</a>
+                  </div>
+                </li>
+                <li class="collection-item row">
+                  <div class="col l6 m6 s12">
+                    <a href={% url 'export_json' %}>Export json</a>
+                  </div>
+                </li>
+              </ul>
+              </p>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}

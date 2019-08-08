@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+<div id="index-banner">
+    <div class="section flexbox center-items-horizontal full-height">
+        <div class="container">
+            <h1 class="header center grey-text text-lighten-4 stroke_main_title">
+                Zimowy Obóz Studentów Informatyki A
+            </h1>
+            {% if zosia %}
+            <div class="row center">
+              <a class="waves-effect waves-light btn" href="{% url 'user_zosia_register' zosia.pk %}">
+                {% trans "Register" %}
+              </a>
+              <h5 class="header col s12 green-text text-lighten-4 light">
+              </h5>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<!-- ABOUT ZOSIA -->
+{% include "conferences/about.html" %}
+<!-- MAP AND ADDRESS -->
+{% include "conferences/zosia.html" %}
+<!-- BLOG? -->
+<!-- ORGANIZERS -->
+{% include "conferences/organizers.html" %}
+<!-- SPONSORS -->
+{% include "conferences/sponsors.html" %}
+{% endblock %}

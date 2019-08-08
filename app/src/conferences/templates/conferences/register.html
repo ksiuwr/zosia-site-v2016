@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load materializecss %}
+
+{% block content %}
+<div class="container">
+  <h3>
+    {% if object %}
+      {% trans "Update preferences" %}
+    {% else %}
+      {% trans "Register" %}
+    {% endif %}
+  </h3>
+  <form method="post">
+    {% csrf_token %}
+    {% include '_form.html' %}
+  </form>
+</div>
+{% endblock content %}
+
+{% block custom_scripts %}
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('select').material_select();
+    $('textarea').addClass("materialize-textarea");
+
+    var terms_and_conditions_link = $('<a/>')
+                                            .attr('href', "{% url 'terms_and_conditions' %}")
+                                            .text(" {% trans 'terms and conditions' %}");
+    $("label[for='id_accepted']").after(terms_and_conditions_link);
+
+    const dependencies = 
+    {   {% for field_groups in field_dependencies %}
+        "#id_{{ field_groups|first }}" :
+          [ {%  for field in field_groups|slice:"1:" %}
+            "#id_{{ field }}", {% endfor %}
+          ], {% endfor %}
+    }
+
+    const onChange = changedIds => {
+      changedIds.forEach(par => {
+        const isParentChecked = $(par).is(':checked')
+        dependencies[par].forEach(child => {
+          $(child).attr('disabled', !isParentChecked);
+          if (!isParentChecked) {
+            $(child).prop('checked', false);
+          }
+        })
+      })
+    }
+
+    for (par in dependencies) {
+      $(par).change(event => {
+        onChange(["#" + event.currentTarget.id])
+      })
+    }
+
+    onChange(Object.keys(dependencies));
+  });
+</script>
+{% endblock custom_scripts %}

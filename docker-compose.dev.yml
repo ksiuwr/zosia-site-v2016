@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_DB=zosia
+      - POSTGRES_USER=zosia
+      - POSTGRES_PASSWORD=zosia
+      
+  # Continer with web application    
+  web:
+    build:
+      context: ./app
+      dockerfile: dev.Dockerfile
+    image: zosia_dev
+    # Main process in container
+    command: sleep infinity
+    # docker volumes - Host:Container
+    volumes:
+      - ./app/src:/code/src
+      - ./app/js:/code/js
+      - ./app/static:/code/static
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    links:
+      - db

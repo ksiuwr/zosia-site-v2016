@@ -1,0 +1,107 @@
+{% load static %}
+{% load i18n %}
+
+
+{% if user.is_authenticated %}
+<ul id="logged" class="dropdown-content">
+    <li><a href="{% url 'accounts_profile' %}">{% trans "Profile" %}</a></li>
+    <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
+    {% if user.is_staff %}
+    <li class="divider"></li>
+    <li><a href="{% url 'admin' %}">{% trans "Admin" %}</a></li>
+    {% endif %}
+    <li class="divider"></li>
+    <li><a href="{% url 'logout' %}">{% trans 'Log out' %}</a></li>
+</ul>
+{% endif %}
+
+<nav>
+    <div class="nav-wrapper container">
+        <a href="{% url 'index' %}" class="brand-logo">
+            <img src="{% static 'imgs/zosia.png' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
+        </a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="{% url 'blog_index' %}">Blog</a></li>
+            <li>
+                <a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a>
+            </li>
+            <li>
+                <a href="{% url 'lectures_schedule' %}">{% trans "Schedule" %}</a>
+            </li>
+            {% if user.is_authenticated %}
+              <li>
+                  <a class="dropdown-trigger" href="#!" data-target="logged">
+                      {{ user }}<i class="material-icons right">arrow_drop_down</i>
+                  </a>
+              </li>
+            {% else %}
+              <li><a href="{% url 'login' %}">{% trans 'Log in' %}</a></li>
+              <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
+            {% endif %}
+        </ul>
+        <a href="#" data-target="navie" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+    </div>
+</nav>
+
+<ul id="navie" class="sidenav">
+    {% if user.is_authenticated %}
+    <li>
+        <a href="{% url 'accounts_profile' %}">
+            <i class="material-icons">account_circle</i>
+            {{ user.first_name }} {{ user.last_name }}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'logout' %}">
+            <i class="material-icons">exit_to_app</i>
+            {% trans 'Log out' %}
+        </a>
+    </li>
+    {% else %}
+        <li>
+            <a href="{% url 'login' %}">
+                <i class="material-icons">keyboard_tab</i>
+                {% trans 'Log in' %}
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'accounts_signup' %}">
+                <i class="material-icons">person_add</i>
+                {% trans 'Sign up' %}
+            </a>
+        </li>
+    {% endif %}
+    <li><div class="divider"></div></li>
+    {% if user.is_staff %}
+    <li>
+        <a href="{% url 'admin' %}">
+            <i class="material-icons">lock</i>
+            {% trans 'Admin' %}
+        </a>
+    </li>
+    {% endif %}
+    <li>
+        <a href="{% url 'rooms_index' %}">
+            <i class="material-icons">airline_seat_flat</i>
+            {% trans 'Rooms' %}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'blog_index' %}">
+            <i class="material-icons">info</i>
+            {% trans "Blog" %}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'lectures_schedule' %}">
+            <i class="material-icons">schedule</i>
+            {% trans "Schedule" %}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'lectures_index' %}">
+            <i class="material-icons">import_contacts</i>
+            {% trans "Lectures" %}
+        </a>
+    </li>
+</ul>
