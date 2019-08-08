@@ -11,7 +11,7 @@
     "url": "git+https://github.com/ksiuwr/zosia16-site.git"
   },
   "author": "KSI UWr <ksi@cs.uni.wroc.pl> (https://ksi.ii.uni.wroc.pl/)",
-  "license": "ISC",
+  "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/ksiuwr/zosia16-site/issues"
   },
