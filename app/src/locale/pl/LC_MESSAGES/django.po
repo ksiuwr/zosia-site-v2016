@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 1.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-01-15 23:00+0000\n"
+"POT-Creation-Date: 2019-08-08 14:08+0000\n"
 "PO-Revision-Date: 2020-01-01 00:00+0000\n"
 "Last-Translator: Look at git blame\n"
 "Language-Team: KSI\n"
@@ -36,7 +36,7 @@ msgid "author"
 msgstr ""
 
 #: blog/templates/blog/index.html:6
-#: conferences/templates/conferences/admin.html:11
+#: conferences/templates/conferences/admin.html:11 templates/navbar.html:92
 msgid "Blog"
 msgstr ""
 
@@ -56,66 +56,81 @@ msgstr ""
 msgid "You need to check %(req) before you can check %(dep)"
 msgstr ""
 
-#: conferences/models.py:41
+#: conferences/models.py:42
 msgid "First day"
 msgstr ""
 
-#: conferences/models.py:51
+#: conferences/models.py:52
 msgid "Registration for users starts"
 msgstr ""
 
-#: conferences/models.py:56
+#: conferences/models.py:57
 msgid "Users room picking starts"
 msgstr ""
 
-#: conferences/models.py:61
+#: conferences/models.py:62
 msgid "Registration for lectures starts"
 msgstr ""
 
-#: conferences/models.py:66
+#: conferences/models.py:67
 msgid "Price for sleeping in hotel, per day"
 msgstr ""
 
-#: conferences/models.py:69
+#: conferences/models.py:70
 msgid "Price for accomodation + breakfast"
 msgstr ""
 
-#: conferences/models.py:72
+#: conferences/models.py:73
 msgid "Price for accomodation + dinner"
 msgstr ""
 
-#: conferences/models.py:75
+#: conferences/models.py:76
 msgid "Price for whole day (accomodation + breakfast + dinner)"
 msgstr ""
 
-#: conferences/models.py:78
+#: conferences/models.py:79
 msgid "Price for transportation"
 msgstr ""
 
-#: conferences/models.py:81
+#: conferences/models.py:82
 msgid "Organisation fee"
 msgstr ""
 
-#: conferences/models.py:86
+#: conferences/models.py:87
 msgid "Organization account for paying"
 msgstr ""
 
-#: conferences/models.py:89
+#: conferences/models.py:90
 msgid "Details for account (name, address)"
 msgstr ""
 
-#: conferences/models.py:114
+#: conferences/models.py:119
 msgid "Only one Zosia may be active at any given time"
 msgstr ""
 
-#: conferences/models.py:197
+#: conferences/models.py:208
 msgid ""
-"Here is where you can give us information about yourselfthat may be "
+"Here is where you can give us information about yourself that may be "
 "important during your trip."
 msgstr ""
 
 #: conferences/templates/conferences/about.html:9
+#, fuzzy
+#| msgid ""
+#| "                      <b>ZOSIA</b> (Zimowy Obóz Studentów Informatyki A, "
+#| "which roughly translates to \"Best Computer Science Students Winter Camp"
+#| "\",\n"
+#| "                      is the annual gathering for people associated with "
+#| "Wroclaw University Computer Science Institute. It started\n"
+#| "                      20 years ago with a tight-knit group of friends and "
+#| "has grown to group of 200 people from all over the world.\n"
+#| "                      During the 3-day conference, attendees are welcome "
+#| "to enjoy talks (not onlt about computer science), but also\n"
+#| "                      various outdoor activities, trips, and of course "
+#| "integration with past and current students and lecturers.\n"
+#| "                    "
 msgid ""
+"\n"
 "                      <b>ZOSIA</b> (Zimowy Obóz Studentów Informatyki A, "
 "which roughly translates to \"Best Computer Science Students Winter Camp\",\n"
 "                      is the annual gathering for people associated with "
@@ -123,25 +138,29 @@ msgid ""
 "                      20 years ago with a tight-knit group of friends and "
 "has grown to group of 200 people from all over the world.\n"
 "                      During the 3-day conference, attendees are welcome to "
-"enjoy talks (not onlt about computer science), but also\n"
+"enjoy talks (not only about computer science), but also\n"
 "                      various outdoor activities, trips, and of course "
 "integration with past and current students and lecturers.\n"
 "                    "
 msgstr ""
-"                      <b>ZOSIA</b>, czyli <b>Zimowy Obóz Studentów Informatyki A, </b>"
-"to impreza organizowana przez Koło Studentów Informatyki od ponad 20 lat.\n"
-"                      Historia obozu rozpoczęła się od nieformalnych wyjazdów "
-"grupy zaprzyjaźnionych studentów, dziś zrzesza każdego roku niemal 200 osób:\n"
-"                      studentów róznych uczelni, przedstawicieli świata nauki i "
-"firm z branży IT. Podczas trzydniowego wyjazdu odbywają się wykłady, \n"
-"                      prezentacje firm ale także wycieczki i imprezy integracyjne.\n"
+"                      <b>ZOSIA</b>, czyli <b>Zimowy Obóz Studentów "
+"Informatyki A, </b>to impreza organizowana przez Koło Studentów Informatyki "
+"od ponad 20 lat.\n"
+"                      Historia obozu rozpoczęła się od nieformalnych "
+"wyjazdów grupy zaprzyjaźnionych studentów, dziś zrzesza każdego roku niemal "
+"200 osób:\n"
+"                      studentów róznych uczelni, przedstawicieli świata "
+"nauki i firm z branży IT. Podczas trzydniowego wyjazdu odbywają się "
+"wykłady, \n"
+"                      prezentacje firm ale także wycieczki i imprezy "
+"integracyjne.\n"
 
 #: conferences/templates/conferences/admin.html:6
 msgid "Admin panel"
 msgstr ""
 
 #: conferences/templates/conferences/admin.html:12
-#: conferences/templates/conferences/admin.html:35
+#: conferences/templates/conferences/admin.html:36
 #: conferences/templates/conferences/sponsors.html:8
 #: sponsors/templates/sponsors/index.html:9
 msgid "Sponsors"
@@ -153,21 +172,21 @@ msgid "Users"
 msgstr ""
 
 #: conferences/templates/conferences/admin.html:14
-#: conferences/templates/conferences/admin.html:42 templates/footer.html:26
+#: conferences/templates/conferences/admin.html:43 templates/footer.html:31
 msgid "Q&A"
 msgstr ""
 
 #: conferences/templates/conferences/admin.html:15
-#: conferences/templates/conferences/admin.html:49 lectures/models.py:39
+#: conferences/templates/conferences/admin.html:50 lectures/models.py:40
 #: lectures/templates/lectures/all.html:7
-#: lectures/templates/lectures/index.html:8 templates/navbar.html:25
-#: templates/navbar.html:89
+#: lectures/templates/lectures/index.html:8 templates/navbar.html:26
+#: templates/navbar.html:104
 msgid "Lectures"
 msgstr ""
 
 #: conferences/templates/conferences/admin.html:16
-#: conferences/templates/conferences/admin.html:57 templates/navbar.html:7
-#: templates/navbar.html:51 users/templates/users/profile.html:15
+#: conferences/templates/conferences/admin.html:58 templates/navbar.html:8
+#: templates/navbar.html:86 users/templates/users/profile.html:17
 msgid "Rooms"
 msgstr ""
 
@@ -179,46 +198,54 @@ msgstr ""
 msgid "Preferences"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:29
+#: conferences/templates/conferences/admin.html:24
+msgid "Email users"
+msgstr ""
+
+#: conferences/templates/conferences/admin.html:30
 msgid "Add blog post"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:36
+#: conferences/templates/conferences/admin.html:37
 msgid "Add sponsor"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:43
+#: conferences/templates/conferences/admin.html:44
 msgid "Q&A add"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:50
-#: users/templates/users/profile.html:12
+#: conferences/templates/conferences/admin.html:51
+#: users/templates/users/profile.html:14
 msgid "Add lecture"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:51
+#: conferences/templates/conferences/admin.html:52
 msgid "Update schedule"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:58
+#: conferences/templates/conferences/admin.html:59
 msgid "Add room"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:64
+#: conferences/templates/conferences/admin.html:65
 #: conferences/templates/conferences/conferences.html:6
 #: conferences/templates/conferences/conferences.html:11
 msgid "Conferences"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:65
+#: conferences/templates/conferences/admin.html:66
 #: conferences/templates/conferences/bus.html:6
 msgid "Bus"
 msgstr ""
 
-#: conferences/templates/conferences/admin.html:66
+#: conferences/templates/conferences/admin.html:67
 #: users/templates/users/organizations.html:6
 #: users/templates/users/organizations.html:11
 msgid "Organizations"
+msgstr ""
+
+#: conferences/templates/conferences/admin.html:68
+msgid "Export data"
 msgstr ""
 
 #: conferences/templates/conferences/bus.html:11
@@ -240,8 +267,13 @@ msgstr ""
 msgid "Organizers"
 msgstr ""
 
+#: conferences/templates/conferences/privacy_policy.html:9
+msgid "Polityka Prywatności Zimowego Obozu Studentów Informatyki A"
+msgstr ""
+
 #: conferences/templates/conferences/register.html:9
-#: users/templates/users/profile.html:161
+#: users/templates/users/activate.html:18
+#: users/templates/users/profile.html:167
 msgid "Update preferences"
 msgstr ""
 
@@ -250,7 +282,7 @@ msgid "terms and conditions"
 msgstr ""
 
 #: conferences/templates/conferences/terms_and_conditions.html:9
-msgid "Regulamin"
+msgid "Regulamin Zimowego Obozu Studentów Informatyki A"
 msgstr ""
 
 #: conferences/templates/conferences/user_preferences_index.html:10
@@ -273,31 +305,31 @@ msgstr ""
 msgid "Call for papers"
 msgstr ""
 
-#: conferences/views.py:54 conferences/views.py:131 sponsors/views.py:34
+#: conferences/views.py:118 conferences/views.py:195 sponsors/views.py:34
 msgid "Form saved!"
 msgstr ""
 
-#: conferences/views.py:57
+#: conferences/views.py:121
 msgid "Errors occured during validation"
 msgstr ""
 
-#: conferences/views.py:71
+#: conferences/views.py:135
 msgid "Changed payment status of {} to {}"
 msgstr ""
 
-#: conferences/views.py:78
+#: conferences/views.py:142
 msgid "Changed bonus of {} to {}"
 msgstr ""
 
-#: conferences/views.py:134
-msgid "There were errors"
+#: conferences/views.py:198
+msgid "There are some mistakes in your registration form."
 msgstr ""
 
-#: conferences/views.py:187
+#: conferences/views.py:260
 msgid "Bus has been saved"
 msgstr ""
 
-#: conferences/views.py:213
+#: conferences/views.py:286
 msgid "Zosia has been saved"
 msgstr ""
 
@@ -321,7 +353,7 @@ msgstr ""
 msgid "Other"
 msgstr ""
 
-#: lectures/constants.py:15 lectures/models.py:38
+#: lectures/constants.py:15 lectures/models.py:39
 msgid "Lecture"
 msgstr ""
 
@@ -341,7 +373,7 @@ msgstr ""
 msgid "Normal"
 msgstr ""
 
-#: lectures/models.py:10 lectures/models.py:48
+#: lectures/models.py:10 lectures/models.py:49
 msgid "Conference"
 msgstr ""
 
@@ -387,11 +419,11 @@ msgstr ""
 msgid "Author"
 msgstr ""
 
-#: lectures/models.py:49
+#: lectures/models.py:50
 msgid "content"
 msgstr ""
 
-#: lectures/models.py:50
+#: lectures/models.py:51
 msgid "You can use html tags and materializecss classes"
 msgstr ""
 
@@ -399,8 +431,8 @@ msgstr ""
 msgid "Info"
 msgstr ""
 
-#: lectures/templates/lectures/schedule.html:10 templates/navbar.html:28
-#: templates/navbar.html:86
+#: lectures/templates/lectures/schedule.html:10 templates/navbar.html:29
+#: templates/navbar.html:98
 msgid "Schedule"
 msgstr ""
 
@@ -437,11 +469,11 @@ msgstr ""
 msgid "There has been error"
 msgstr ""
 
-#: rooms/models.py:91
+#: rooms/models.py:92
 msgid "Cannot join room %(room), is locked."
 msgstr ""
 
-#: rooms/models.py:99
+#: rooms/models.py:100
 msgid "Cannot join room %(room), is full."
 msgstr ""
 
@@ -519,8 +551,8 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: sponsors/models.py:10
-msgid "Logo"
+#: sponsors/models.py:11
+msgid "Path to logo"
 msgstr ""
 
 #: sponsors/views.py:37
@@ -535,6 +567,11 @@ msgstr ""
 msgid "Submit"
 msgstr ""
 
+#: templates/_form.html:41
+#: users/templates/registration/password_reset_confirm.html:24
+msgid "Lost password?"
+msgstr ""
+
 #: templates/footer.html:11
 msgid "Room 24A"
 msgstr ""
@@ -543,44 +580,48 @@ msgstr ""
 msgid "Terms and conditions"
 msgstr ""
 
-#: templates/navbar.html:6
+#: templates/footer.html:26
+msgid "Privacy policy"
+msgstr ""
+
+#: templates/navbar.html:7
 msgid "Profile"
 msgstr ""
 
-#: templates/navbar.html:10 templates/navbar.html:59
+#: templates/navbar.html:11 templates/navbar.html:79
 msgid "Admin"
 msgstr ""
 
-#: templates/navbar.html:13 templates/navbar.html:66
+#: templates/navbar.html:14 templates/navbar.html:57
 msgid "Log out"
 msgstr ""
 
-#: templates/navbar.html:37 templates/navbar.html:73
+#: templates/navbar.html:38 templates/navbar.html:64
 #: users/templates/registration/logged_out.html:13
 msgid "Log in"
 msgstr ""
 
-#: templates/navbar.html:38 templates/navbar.html:79
+#: templates/navbar.html:39 templates/navbar.html:70
 msgid "Sign up"
 msgstr ""
 
-#: users/models.py:25
+#: users/models.py:26
 msgid "first name"
 msgstr ""
 
-#: users/models.py:26
+#: users/models.py:27
 msgid "last name"
 msgstr ""
 
-#: users/models.py:27
+#: users/models.py:28
 msgid "date joined"
 msgstr ""
 
-#: users/models.py:28
+#: users/models.py:29
 msgid "active"
 msgstr ""
 
-#: users/models.py:29
+#: users/models.py:30
 msgid "staff"
 msgstr ""
 
@@ -614,7 +655,7 @@ msgid "Back to profile"
 msgstr ""
 
 #: users/templates/registration/password_change_form.html:8
-#: users/templates/users/profile.html:33
+#: users/templates/users/profile.html:35
 msgid "Change password"
 msgstr ""
 
@@ -625,11 +666,6 @@ msgid ""
 "and then enter your new password twice so we can verify you typed it in "
 "correctly.\n"
 "                    "
-msgstr ""
-
-#: users/templates/registration/password_change_form.html:20
-#: users/templates/registration/password_reset_confirm.html:24
-msgid "Lost password?"
 msgstr ""
 
 #: users/templates/registration/password_reset_confirm.html:9
@@ -670,96 +706,118 @@ msgstr ""
 msgid "Email activated"
 msgstr ""
 
-#: users/templates/users/activate.html:11
-msgid ""
-"\n"
-"            Your email has been activated successfully! You may now proceed "
-"to the website.\n"
-"            "
-msgstr ""
-
-#: users/templates/users/activate.html:16
-#: users/templates/users/signup_done.html:17
+#: users/templates/users/activate.html:28
+#: users/templates/users/signup_done.html:21
 msgid "Back to homepage"
 msgstr ""
 
-#: users/templates/users/profile.html:10
+#: users/templates/users/generic_email.html:4
+#: users/templates/users/signup_email.html:2
+msgid ""
+"Do not reply. If you have questions or complaints, contact us at ksi@cs.uni."
+"wroc.pl"
+msgstr ""
+
+#: users/templates/users/generic_email.html:8
+#: users/templates/users/signup_email.html:11
+msgid "Thanks for using our site!"
+msgstr ""
+
+#: users/templates/users/generic_email.html:9
+#: users/templates/users/signup_email.html:13
+#, python-format
+msgid "The %(site_name)s team"
+msgstr ""
+
+#: users/templates/users/mail.html:10
+msgid "Send email"
+msgstr ""
+
+#: users/templates/users/mail_sent.html:11
+msgid "Email sent"
+msgstr ""
+
+#: users/templates/users/mail_sent.html:29
+msgid "Send new email"
+msgstr ""
+
+#: users/templates/users/profile.html:11
 msgid "ZOSIA"
 msgstr ""
 
-#: users/templates/users/profile.html:24
+#: users/templates/users/profile.html:26
 msgid "profile"
 msgstr ""
 
-#: users/templates/users/profile.html:32
+#: users/templates/users/profile.html:34
 msgid "Edit"
 msgstr ""
 
-#: users/templates/users/profile.html:56
+#: users/templates/users/profile.html:59
 msgid "Your payment has been accepted :)"
 msgstr ""
 
-#: users/templates/users/profile.html:60
-msgid "Your bonus for rooms assigment"
+#: users/templates/users/profile.html:63
+msgid "Your rooms assignment will start at"
 msgstr ""
 
-#: users/templates/users/profile.html:65
+#: users/templates/users/profile.html:68
 msgid "Payment information"
 msgstr ""
 
-#: users/templates/users/profile.html:66
+#: users/templates/users/profile.html:69
 msgid "Total"
 msgstr ""
 
-#: users/templates/users/profile.html:76
-msgid "Accomodation"
+#: users/templates/users/profile.html:79
+msgid "Accommodation"
 msgstr ""
 
-#: users/templates/users/profile.html:82
+#: users/templates/users/profile.html:85
 msgid "Vegetarian"
 msgstr ""
 
-#: users/templates/users/profile.html:91
+#: users/templates/users/profile.html:94
 msgid "You didn't select bus"
 msgstr ""
 
-#: users/templates/users/profile.html:100
+#: users/templates/users/profile.html:103
 msgid "Day 1"
 msgstr ""
 
-#: users/templates/users/profile.html:104
+#: users/templates/users/profile.html:107
 msgid "Day 1 - dinner"
 msgstr ""
 
-#: users/templates/users/profile.html:110
+#: users/templates/users/profile.html:113
 msgid "Day 2"
 msgstr ""
 
-#: users/templates/users/profile.html:114
+#: users/templates/users/profile.html:117
 msgid "Day 2 - breakfast"
 msgstr ""
 
-#: users/templates/users/profile.html:118
+#: users/templates/users/profile.html:121
 msgid "Day 2 - dinner"
 msgstr ""
 
-#: users/templates/users/profile.html:124
+#: users/templates/users/profile.html:127
 msgid "Day 3"
 msgstr ""
 
-#: users/templates/users/profile.html:128
+#: users/templates/users/profile.html:131
 msgid "Day 3 - breakfast"
 msgstr ""
 
-#: users/templates/users/profile.html:132
+#: users/templates/users/profile.html:135
 msgid "Day 3 - dinner"
 msgstr ""
 
-#: users/templates/users/profile.html:138
+#: users/templates/users/profile.html:141
 msgid "Day 4 - breakfast"
 msgstr ""
 
-#: users/templates/users/profile.html:151
+#: users/templates/users/profile.html:158
 msgid "Your previous conferences"
 msgstr ""
 
@@ -775,39 +833,26 @@ msgstr ""
 #, python-format
 msgid ""
 "\n"
-"            We've emailed to %(form.user.email)s instructions for activating "
-"your account. You should receive them shortly.\n"
-"          "
+"                        We've sent an e-mail to %(form.user.email)s with "
+"instructions for\n"
+"                        activating your account. You should receive them "
+"shortly.\n"
+"                        "
 msgstr ""
 
-#: users/templates/users/signup_done.html:14
-msgid ""
-"If you don't receive an email, please make sure you've entered correct "
-"address, and check your spam folder."
-msgstr ""
-
-#: users/templates/users/signup_email.html:2
+#: users/templates/users/signup_email.html:3
 #, python-format
 msgid ""
 "You're receiving this email because you requested an account creation at "
 "%(site_name)s."
 msgstr ""
 
-#: users/templates/users/signup_email.html:4
+#: users/templates/users/signup_email.html:5
 msgid "Please go to the following page to activate it:"
 msgstr ""
 
-#: users/templates/users/signup_email.html:8
+#: users/templates/users/signup_email.html:9
 msgid "Your username, in case you've forgotten:"
-msgstr ""
-
-#: users/templates/users/signup_email.html:10
-msgid "Thanks for using our site!"
-msgstr ""
-
-#: users/templates/users/signup_email.html:12
-#, python-format
-msgid "The %(site_name)s team"
 msgstr ""
 
 #: users/templates/users/signup_email_subject.txt:2
@@ -815,7 +860,6 @@ msgstr ""
 msgid "Account activation on %(site_name)s"
 msgstr ""
 
-#: users/views.py:114
+#: users/views.py:136
 msgid "Organization updated"
 msgstr ""
-

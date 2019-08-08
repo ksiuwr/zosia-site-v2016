@@ -16,7 +16,7 @@ FROM python:3.6-buster
 
 # Uncomment if you need to install any additional package
 # RUN set -x \
-# 	&& apt-get update \
+# 	  && apt-get update \
 #     && apt-get install --no-install-recommends --no-install-suggests -y ??? \
 #     && apt-get autoremove -y \
 #     && rm -rf /var/lib/apt/lists/* \
