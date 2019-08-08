@@ -56,7 +56,11 @@ We tried to avoid side effects in our `dev.sh` script, but sometimes it can't be
  because they were created inside docker. You don't have to worry about them, we listed them in the
  `gitignore` list, so they shouldn't appear in `git status`.
 
-*TODO: describe js part*
+Some of the files we create in listed folders are outputs of webpack build system (js, css files). Fortunately all
+node modules that our application needs exist only inside of docker. If you want to rebuild js application, you
+should run webpack inside the container using `./dev.sh js_build` for one time build or `./dev.sh js_watch` for incremental
+builds on source code change. Those commands will run webpack that will use file form `./app/js` and node modules to
+build minified js and css files in `./app/static` directory.
 
 Next, we run migrations on database and, finally, start the web server. In terminal you will 
  see output/logs from django (e.g. queries to the database).
