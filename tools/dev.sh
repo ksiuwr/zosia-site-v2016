@@ -119,7 +119,7 @@ function one_click () {
 
   echo "${bold}-- Run webserver --${normal}"
   runserver
-  echo "${bold}-- Exiting - ${purple}Remember to run \`./dev.sh shutdown\`, if you've have just finished${normal}"
+  echo "${bold}-- Exiting - ${purple}Remember to run \`./dev.sh shutdown\`, if you've just finished${normal}"
   docker ps
 }
 
