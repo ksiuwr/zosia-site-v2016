@@ -32,9 +32,9 @@ ${bold}Options:${normal}
 
 
 function configure_env () {
-  local cwd=$(pwd)
+  local cwd
+  cwd=$(pwd)
   cd $(dirname "${0}")
-  SCRIPT_PATH=$(pwd)
   cd ../
   ROOT_PATH=$(pwd)
   cd "${cwd}"
@@ -99,7 +99,6 @@ function setup () {
   docker-compose -f ${DOCKER_COMPOSE} -p ${PROJECT_NAME} up -d
   js_install
   js_build
-  # py_install
 }
 
 function shutdown () {
