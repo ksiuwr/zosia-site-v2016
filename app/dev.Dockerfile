@@ -15,13 +15,14 @@ RUN set -x \
     && npm install -g yarn \
     ;
 
+ADD requirements.txt /code/
+RUN pip install -r /code/requirements.txt
+
 ADD package.json /code/
 ADD webpack.config.js /code/
 ADD yarn.lock /code/
 ADD static /code/static
 ADD js /code/js
-ADD requirements.txt /code/
-RUN pip install -r /code/requirements.txt
 
 WORKDIR /code
 
