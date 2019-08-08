@@ -47,20 +47,21 @@ time:
 - `./app/static` as `/code/static`
 
 Thanks to this, all changes you make in the code will be visible immediately inside the container.
- **Remember that it's working in both directions!** Every change you'll make in the container
+ **Remember that this works in both directions!** Every change you'll make in the container
  will affect your local files (from the listed folders), because these are the same files, of 
  course :P
 
 We tried to avoid side effects in our `dev.sh` script, but sometimes it can't be achieved easily.
  Some commands may create files inside listed folders. This files will be owned by `root`,
- because they were created inside docker. You don't have to worry about them, we listed them in the
- `gitignore` list, so they shouldn't appear in `git status`.
+ because they were created inside docker. You don't have to worry about them, we listed them in
+ `.gitignore` file, so they should not appear in `git status`.
 
-Some of the files we create in listed folders are outputs of webpack build system (js, css files). Fortunately all
-node modules that our application needs exist only inside of docker. If you want to rebuild js application, you
-should run webpack inside the container using `./dev.sh js_build` for one time build or `./dev.sh js_watch` for incremental
-builds on source code change. Those commands will run webpack that will use files form `./app/js` and node modules to
-build minified js and css files in `./app/static` directory.
+Files created in directory `/code/static` are output from the webpack build system (these are JS
+ and CSS files). They will be created in your local filesystem and fortunately will be ignored by
+ version control. Moreover, NodeJS module required by our application are installed. They will
+ exist inside docker container only, so they won't be copied into your local filesystem. If you'd
+ like your JS file to be rebuilt after editing them, run command `./dev.sh js_watch` in new
+ terminal.
 
 Next, we run migrations on database and, finally, start the web server. In terminal you will 
  see output/logs from django (e.g. queries to the database).
