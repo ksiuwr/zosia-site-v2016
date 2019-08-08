@@ -1,23 +1,21 @@
 {
   "name": "zosia16-site",
-  "version": "1.0.0",
-  "description": "Django 1.10 version of ZOSIA registration page - v2016 edition.",
-  "main": "index.js",
+  "version": "2.0.0",
+  "description": "Django 2.2 version of ZOSIA registration page",
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --watch",
-    "deps": "cd static && bower --allow-root install"
+    "watch": "webpack --watch"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/scoiatael/zosia16-site.git"
+    "url": "git+https://github.com/ksiuwr/zosia16-site.git"
   },
-  "author": "",
+  "author": "KSI UWr <ksi@cs.uni.wroc.pl> (https://ksi.ii.uni.wroc.pl/)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/scoiatael/zosia16-site/issues"
+    "url": "https://github.com/ksiuwr/zosia16-site/issues"
   },
-  "homepage": "https://github.com/scoiatael/zosia16-site#readme",
+  "homepage": "https://github.com/ksiuwr/zosia16-site#readme",
   "dependencies": {
     "@babel/cli": "=7.2.3",
     "@babel/core": "=7.2.2",
