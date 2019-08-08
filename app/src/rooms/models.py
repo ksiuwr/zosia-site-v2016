@@ -11,7 +11,7 @@ from users.models import User
 
 
 def random_string(length=10):
-    return ''.join(random.SystemRandom().choice(
+    return "".join(random.SystemRandom().choice(
         string.ascii_uppercase + string.digits) for _ in range(length))
 
 
@@ -49,7 +49,7 @@ class RoomManager(models.Manager):
         return self.filter(hidden=False)
 
     def filter_visible(self, **params):
-        if 'hidden' in params and params['hidden']:
+        if "hidden" in params and params["hidden"]:
             return None
 
         params["hidden"] = False
@@ -61,7 +61,7 @@ class Room(models.Model):
     objects = RoomManager()
 
     name = models.CharField(max_length=300)
-    description = models.TextField(default='')
+    description = models.TextField(default="")
     hidden = models.BooleanField(default=False)
     beds_single = models.IntegerField(default=0)
     beds_double = models.IntegerField(default=0)
@@ -70,7 +70,7 @@ class Room(models.Model):
 
     lock = models.OneToOneField(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 
-    members = models.ManyToManyField(User, through='UserRoom', related_name='room_of_user')
+    members = models.ManyToManyField(User, through="UserRoom", related_name="room_of_user")
 
     @property
     def beds(self):
@@ -101,7 +101,7 @@ class Room(models.Model):
         return ", ".join(map(str, self.members.all()))
 
     def __str__(self):
-        return 'Room ' + self.name
+        return "Room " + self.name
 
     @transaction.atomic
     def join(self, user, sender=None, password=None):
@@ -109,16 +109,16 @@ class Room(models.Model):
             sender = user
 
         if self.is_locked and not self.lock.is_opened_by(password) \
-                and not sender.has_administator_role:
-            raise ValidationError(_('Cannot join %(room)s, room is locked.'),
-                                  code='invalid',
-                                  params={'room': self})
+                and not sender.is_staff:
+            raise ValidationError(_("Cannot join %(room)s, room is locked."),
+                                  code="invalid",
+                                  params={"room": self})
 
         # Ensure room is not full
         if self.is_full:
-            raise ValidationError(_('Cannot join %(room)s, room is full.'),
-                                  code='invalid',
-                                  params={'room': self})
+            raise ValidationError(_("Cannot join %(room)s, room is full."),
+                                  code="invalid",
+                                  params={"room": self})
 
         # Remove user from previous room
         prev_room = user.room_of_user.all().first()
@@ -144,15 +144,15 @@ class Room(models.Model):
         if sender is None:
             sender = owner
 
-        if self.is_locked and not sender.has_administrator_role:
+        if self.is_locked and not sender.is_staff:
             raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
-                                  code='invalid',
-                                  params={'room': self})
+                                  code="invalid",
+                                  params={"room": self})
 
         if not self.members.filter(pk__exact=owner.pk):
             raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
-                                  code='invalid',
-                                  params={'room': self})
+                                  code="invalid",
+                                  params={"room": self})
 
         self.lock = RoomLock.objects.make(owner, expiration_date=expiration_date)
         self.lock.save()
@@ -161,10 +161,10 @@ class Room(models.Model):
     @transaction.atomic
     def unlock(self, sender):
         if self.is_locked:
-            if not self.lock.is_owned_by(sender) and not sender.has_administator_role:
+            if not self.lock.is_owned_by(sender) and not sender.is_staff:
                 raise ValidationError(_("Cannot unlock %(room)s, no permission to do this."),
-                                      code='invalid',
-                                      params={'room': self})
+                                      code="invalid",
+                                      params={"room": self})
 
             lock = self.lock
             self.lock = None

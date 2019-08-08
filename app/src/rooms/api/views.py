@@ -68,7 +68,7 @@ class RoomDetail(APIView):
 
 
 def check_rooming(user, sender):
-    if not sender.has_administator_role:
+    if not sender.is_staff:
         zosia = Zosia.objects.find_active_or_404()
         user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=user)
         rooming_status = zosia.get_rooming_status(user_prefs)
@@ -130,7 +130,7 @@ def lock(request, version, pk, format=None):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = LockMethodAdminSerializer(data=request.data) \
-        if sender.has_administator_role else LockMethodSerializer(data=request.data)
+        if sender.is_staff else LockMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")

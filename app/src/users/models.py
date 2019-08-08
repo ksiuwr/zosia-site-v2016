@@ -38,10 +38,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         full_name = self.get_full_name()
         return full_name
 
-    @property
-    def has_administator_role(self):
-        return self.is_staff or self.is_superuser
-
     def __str__(self):
         return self.display_name
 
