@@ -46,7 +46,7 @@
             $('.dropdown-trigger').dropdown();
             $('.sidenav').sidenav();
             {% for message in messages %}
-            Materialize.toast('{{ message }}', 4000, '{{ message.tags }}');
+                M.toast('{{ message }}', 4000, '{{ message.tags }}');
             {% endfor %}
         });
     </script>
