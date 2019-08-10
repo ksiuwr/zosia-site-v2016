@@ -8,18 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
-from rooms.models import Room
-
-
-def new_room(number, capacity=0, commit=True, **override):
-    defaults = {'name': str(number), 'beds_single': capacity, 'available_beds_single': capacity}
-    defaults.update(**override)
-    room = Room(**defaults)
-
-    if commit:
-        room.save()
-
-    return room
+from rooms.test_helpers import new_room
 
 
 class RoomTestCase(TestCase):
@@ -39,7 +28,6 @@ class RoomTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-
         self.normal_1 = new_user(0)
         self.normal_2 = new_user(1)
         self.staff_1 = new_user(2, is_staff=True)
@@ -47,27 +35,14 @@ class RoomTestCase(TestCase):
 
         self.room_1 = new_room(111, capacity=2)
         self.room_2 = new_room(222, capacity=1)
+        self.room_3 = new_room(333, capacity=3, hidden=True)
+
+    # region join & leave
 
     def test_user_can_join_free_room(self):
         self.room_1.join(self.normal_1)
         self.assertJoined(self.normal_1, self.room_1)
         self.assertUnlocked(self.room_1)
-
-    def test_user_can_lock_room_after_joining(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1)
-        self.assertJoined(self.normal_1, self.room_1)
-        self.assertLocked(self.room_1, self.normal_1)
-
-    def test_user_cannot_lock_room_without_joining(self):
-        with self.assertRaises(ValidationError):
-            self.room_1.set_lock(self.normal_1)
-
-    def test_following_user_can_join_and_lock(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.join(self.normal_2)
-        self.room_1.set_lock(self.normal_2)
-        self.assertLocked(self.room_1, self.normal_2)
 
     def test_locked_room_cannot_be_joined_without_password(self):
         self.room_1.join(self.normal_1)
@@ -85,14 +60,6 @@ class RoomTestCase(TestCase):
         self.room_1.join(self.normal_2, password=self.room_1.lock.password)
         self.assertJoined(self.normal_2, self.room_1)
 
-    def test_room_is_unlocked_after_expiration_date(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1, expiration_date=timezone.make_aware(datetime.min))
-        self.assertUnlocked(self.room_1)
-
-        self.room_1.join(self.normal_2)
-        self.assertJoined(self.normal_2, self.room_1)
-
     def test_anyone_can_join_unlocked_room(self):
         self.room_1.join(self.normal_1)
         self.assertUnlocked(self.room_1)
@@ -106,15 +73,63 @@ class RoomTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.room_2.join(self.normal_2)
 
-    def test_user_can_join_another_room(self):
-        self.room_1.join(self.normal_1)
-        self.room_2.join(self.normal_1)
-        self.assertJoined(self.normal_1, self.room_2)
-
-    def test_joining_other_room_is_leaving_previous_room(self):
+    def test_user_can_join_another_room_leaving_previous_room(self):
         self.room_1.join(self.normal_1)
         self.room_2.join(self.normal_1)
         self.assertEqual(self.room_1.members_count, 0)
+        self.assertJoined(self.normal_1, self.room_2)
+
+    def test_user_can_leave_not_joined_room(self):
+        self.room_1.leave(self.normal_1)
+        self.assertEqual(self.room_1.members_count, 0)
+
+    def test_user_can_leave_joined_room(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.leave(self.normal_1)
+        self.assertEqual(self.room_1.members_count, 0)
+
+    def test_staff_can_add_user_to_locked_room(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        self.assertLocked(self.room_1, self.normal_1)
+
+        self.room_1.join(self.normal_2, self.staff_2)
+        self.assertJoined(self.normal_2, self.room_1)
+
+    def test_user_cannot_join_hidden_room(self):
+        with self.assertRaises(ValidationError):
+            self.room_3.join(self.normal_1)
+
+    def test_staff_can_add_user_to_hidden_room(self):
+        self.room_3.join(self.normal_2, self.staff_2)
+        self.assertJoined(self.normal_2, self.room_3)
+
+    # endregion
+    # region lock & unlock
+
+    def test_user_can_lock_room_after_joining(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        self.assertJoined(self.normal_1, self.room_1)
+        self.assertLocked(self.room_1, self.normal_1)
+
+    def test_user_cannot_lock_room_without_joining(self):
+        with self.assertRaises(ValidationError):
+            self.room_1.set_lock(self.normal_1)
+
+    def test_following_user_can_join_and_lock(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.join(self.normal_2)
+        self.room_1.set_lock(self.normal_2)
+        self.assertLocked(self.room_1, self.normal_2)
+
+    def test_room_is_unlocked_after_expiration_date(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1, expiration_date=timezone.make_aware(datetime.min))
+        self.assertUnlocked(self.room_1)
+
+        self.room_1.join(self.normal_2)
+        self.assertJoined(self.normal_2, self.room_1)
 
     def test_room_is_unlocked_after_joining_other_room(self):
         self.room_1.join(self.normal_1)
@@ -134,15 +149,6 @@ class RoomTestCase(TestCase):
         self.room_2.join(self.normal_2)
         self.refresh()
         self.assertLocked(self.room_1, self.normal_1)
-
-    def test_user_can_leave_not_joined_room(self):
-        self.room_1.leave(self.normal_1)
-        self.assertEqual(self.room_1.members_count, 0)
-
-    def test_user_can_leave_joined_room(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.leave(self.normal_1)
-        self.assertEqual(self.room_1.members_count, 0)
 
     def test_room_is_unlocked_after_owner_leaves_room(self):
         self.room_1.join(self.normal_1)
@@ -185,14 +191,6 @@ class RoomTestCase(TestCase):
         with self.assertRaises(ValidationError):
             self.room_1.unlock(self.normal_1)
 
-    def test_staff_can_add_user_to_locked_room(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
-
-        self.room_1.join(self.normal_2, self.staff_2)
-        self.assertJoined(self.normal_2, self.room_1)
-
     def test_staff_can_lock_locked_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
@@ -210,6 +208,13 @@ class RoomTestCase(TestCase):
 
         self.room_1.unlock(self.staff_1)
         self.assertUnlocked(self.room_1)
+
+    def test_staff_can_lock_hidden_room(self):
+        self.room_3.join(self.normal_1, self.staff_1)
+        self.room_3.set_lock(self.normal_1, self.staff_1)
+        self.assertLocked(self.room_3, self.normal_1)
+
+    # endregion
 
 
 class RoomsViewTestCase(TestCase):
@@ -241,7 +246,7 @@ class IndexViewTestCase(RoomsViewTestCase):
         super().setUp()
         self.url = reverse('rooms_index')
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_can_room(self):
         self.login()
         self.register(payment_accepted=True)
@@ -249,13 +254,13 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'rooms/index.html')
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_cannot_room_without_login(self):
         response = self.get()
         self.assertRedirects(response, reverse('login') + '?next={}'.format(self.url))
         self.assertEqual(response.status_code, 200)
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_cannot_room_without_active_zosia(self):
         self.login()
         self.zosia.active = False
@@ -265,7 +270,7 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_cannot_room_without_registration(self):
         self.login()
         response = self.get()
@@ -274,7 +279,7 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_cannot_room_without_payment(self):
         self.login()
         self.register()
@@ -283,7 +288,7 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_cannot_room_before_rooming_open(self):
         self.zosia.rooming_start = self.zosia.rooming_start + timedelta(3)
         self.zosia.save()
@@ -294,7 +299,7 @@ class IndexViewTestCase(RoomsViewTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEquals(len(response.context['messages']._get()[0]), 1)
 
-    @skip("API CHanged. Needs rewrite")
+    @skip("API changed. Needs rewrite")
     def test_returns_no_hidden_rooms(self):
         self.login()
         self.register(payment_accepted=True)
@@ -356,121 +361,3 @@ class StatusViewTestCase(RoomsViewTestCase):
     def test_status_returns_can_room_false_before_room_of_usering(self):
         can = self.load_response(bonus_minutes=-60 * 24 * 2)['can_start_rooming']
         self.assertEqual(can, False)
-
-
-class JoinViewTestCase(RoomsViewTestCase):
-    def setUp(self):
-        super().setUp()
-        self.url = reverse('rooms_join', kwargs={'room_id': self.room_1.pk})
-
-    def test_cannot_join_without_login(self):
-        response = self.post()
-        self.assertEqual(response.status_code, 302)
-
-    def test_cannot_join_without_active_zosia(self):
-        self.login()
-        self.zosia.active = False
-        self.zosia.save()
-        response = self.post()
-        self.assertEqual(response.status_code, 404)
-
-    def test_cannot_join_without_registration(self):
-        self.login()
-        response = self.post()
-        self.assertEqual(response.status_code, 404)
-
-    def test_cannot_join_without_payment(self):
-        self.login()
-        self.register()
-        response = self.post()
-        self.assertEqual(response.status_code, 400)
-
-    def test_cannot_join_after_registration_end(self):
-        self.login()
-        self.zosia.rooming_end = datetime.now().date() - timedelta(7)
-        self.zosia.save()
-        self.register()
-        response = self.post()
-        self.assertEqual(response.status_code, 400)
-
-    def test_cannot_join_before_registration_start(self):
-        self.login()
-        self.zosia.rooming_start = datetime.now().date() + timedelta(7)
-        self.zosia.save()
-        self.register()
-        response = self.post()
-        self.assertEqual(response.status_code, 400)
-
-    def test_can_join_empty_room(self):
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.post()
-        self.assertEqual(response.status_code, 200)
-        self.room_1.refresh_from_db()
-        self.assertTrue(self.room_1.is_locked)
-
-    def test_cannot_join_locked_room(self):
-        self.room_1.join(self.normal_2)
-        self.room_1.set_lock(self.normal_2)
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.post()
-        self.assertEqual(response.status_code, 400)
-
-    def test_can_join_locked_room_with_password(self):
-        self.room_1.join(self.normal_2)
-        self.room_1.set_lock(self.normal_2)
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.post(data={'password': self.room_1.lock.password, 'lock': False})
-        self.assertEqual(response.status_code, 200)
-
-    def test_can_join_unlocked_room(self):
-        self.room_1.join(self.normal_2)
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.post()
-        self.assertEqual(response.status_code, 200)
-
-    def test_can_join_without_locking(self):
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.post(data={'lock': 'false'})
-        self.assertEqual(response.status_code, 200)
-        self.room_1.refresh_from_db()
-        self.assertFalse(self.room_1.is_locked)
-
-
-class UnlockViewTestCase(RoomsViewTestCase):
-    def setUp(self):
-        super().setUp()
-        self.url = reverse('rooms_unlock')
-        self.login()
-        self.register(payment_accepted=True)
-
-    def test_can_unlock_owned_room(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1)
-        response = self.post()
-        self.assertEqual(response.status_code, 200)
-        self.room_1.refresh_from_db()
-        self.assertFalse(self.room_1.is_locked)
-
-    def test_cannot_unlock_not_owned_room(self):
-        self.room_1.join(self.normal_2)
-        self.room_1.set_lock(self.normal_2)
-        self.room_1.join(self.normal_1, password=self.room_1.lock.password)
-        response = self.post()
-        self.assertEqual(response.status_code, 403)
-        self.room_1.refresh_from_db()
-        self.assertTrue(self.room_1.is_locked)
-
-    def test_cannot_unlock_after_rooming_end(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1)
-        self.zosia.rooming_end = datetime.now().date() - timedelta(7)
-        self.zosia.save()
-        response = self.post()
-        self.assertEqual(response.status_code, 400)
-        self.room_1.refresh_from_db()
-        self.assertTrue(self.room_1.is_locked)

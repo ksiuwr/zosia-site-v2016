@@ -97,7 +97,7 @@ class Room(models.Model):
         return self.members_count >= self.capacity
 
     @property
-    def all_members(self):
+    def members_to_string(self):
         return ", ".join(map(str, self.members.all()))
 
     def __str__(self):
@@ -107,6 +107,11 @@ class Room(models.Model):
     def join(self, user, sender=None, password=None):
         if not sender:
             sender = user
+
+        if self.hidden and not sender.is_staff:
+            raise ValidationError(_("Cannot join %(room)s, room is unavailable."),
+                                  code="invalid",
+                                  params={"room": self})
 
         if self.is_locked and not self.lock.is_opened_by(password) \
                 and not sender.is_staff:
@@ -144,13 +149,18 @@ class Room(models.Model):
         if sender is None:
             sender = owner
 
-        if self.is_locked and not sender.is_staff:
-            raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
+        if not self.members.filter(pk__exact=owner.pk):
+            raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
                                   code="invalid",
                                   params={"room": self})
 
-        if not self.members.filter(pk__exact=owner.pk):
-            raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
+        if self.hidden and not sender.is_staff:
+            raise ValidationError(_("Cannot join %(room)s, room is unavailable."),
+                                  code="invalid",
+                                  params={"room": self})
+
+        if self.is_locked and not sender.is_staff:
+            raise ValidationError(_("Cannot lock %(room)s, room has already been locked."),
                                   code="invalid",
                                   params={"room": self})
 

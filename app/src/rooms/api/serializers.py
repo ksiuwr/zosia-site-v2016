@@ -2,8 +2,8 @@
 from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
 
+from rooms.models import Room, RoomLock, UserRoom
 from users.models import User
-from ..models import Room, RoomLock, UserRoom
 
 
 class UserRoomSerializer(serializers.ModelSerializer):

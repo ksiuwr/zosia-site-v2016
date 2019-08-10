@@ -5,7 +5,6 @@ from io import TextIOWrapper
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ValidationError
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template import Context, loader
@@ -16,7 +15,7 @@ from django.views.decorators.vary import vary_on_cookie
 
 from conferences.models import UserPreferences, Zosia
 from .forms import UploadFileForm
-from .models import Room, UserRoom
+from .models import Room
 from .serializers import room_to_dict, user_to_dict
 
 
@@ -85,45 +84,6 @@ def status(request):
         'rooms': rooms_view,
     }
     return JsonResponse(view)
-
-
-@login_required
-@require_http_methods(['POST'])
-def join(request, room_id):
-    zosia = get_object_or_404(Zosia, active=True)
-    room = get_object_or_404(Room, pk=room_id)
-    password = request.POST.get('password', '')
-    if not zosia.can_start_rooming(
-            get_object_or_404(UserPreferences, zosia=zosia, user=request.user)):
-        return JsonResponse({'error': 'cannot_room_yet'}, status=400)
-
-    should_lock = request.POST.get('lock', True) in [True, 'True', '1', 'on', 'true']
-
-    try:
-        room.join(request.user, password=password)
-
-        if should_lock:
-            room.set_lock(request.user)
-    except ValidationError as e:
-        return JsonResponse({'status': e.message}, status=400)
-
-    return JsonResponse({'status': 'ok'})
-
-
-@login_required
-@require_http_methods(['POST'])
-def unlock(request):
-    zosia = get_object_or_404(Zosia, active=True)
-    room = get_object_or_404(UserRoom, user=request.user).room
-    if not zosia.is_rooming_open:
-        return JsonResponse({'status': 'time_passed'}, status=400)
-
-    try:
-        room.unlock(request.user)
-    except ValidationError as e:
-        return JsonResponse({'status': e.message}, status=403)
-
-    return JsonResponse({'status': 'ok'})
 
 
 # https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
