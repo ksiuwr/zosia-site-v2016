@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.urls import reverse
+from datetime import datetime, timedelta
+
+from rest_framework import status
+from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from conferences.test_helpers import new_user, new_zosia
+from conferences.test_helpers import new_user, new_zosia, user_preferences
 from rooms.test_helpers import new_room
 
 
@@ -30,100 +33,125 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.url_3 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_3.pk})
 
     def tearDown(self):
-        self.client.logout()
+        self.client.force_authenticate(user=None)
         super().tearDown()
 
-    # REUSE THESE TESTS LATER
-    # def test_can_join_free_room(self):
-    #     self.client.login(username=self.normal_1.email, password=self.normal_1.password)
-    #     user_preferences(user=self.normal_1, zosia=self.zosia)
-    #
-    #     data = {"user": self.normal_1.pk}
-    #     response = self.client.post(self.url_1, data, format="json")
-    #
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(self.room_1.members_count, 1)
-    #     self.assertIn(self.normal_1, self.room_1.members.all())
-    #
-    # def test_cannot_join_without_active_zosia(self):
-    #     self.client.login(username=self.normal_1.email, password=self.normal_1.password)
-    #
-    #     self.zosia.active = False
-    #     self.zosia.save()
-    #
-    #     data = {"user": self.normal_1.pk}
-    #     response = self.client.post(self.url_1, data, format="json")
-    #
-    #     self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    def test_can_join_free_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_2, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.room_2.members_count, 1)
+        self.assertIn(self.normal_1, self.room_2.members.all())
+
+    def test_can_join_room_when_available_place(self):
+        self.room_1.join(self.normal_2)
+
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.room_1.members_count, 2)
+        self.assertIn(self.normal_2, self.room_1.members.all())
+        self.assertIn(self.normal_1, self.room_1.members.all())
+
+    def test_cannot_join_without_active_zosia(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        self.zosia.active = False
+        self.zosia.save()
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cannot_join_without_registration(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_cannot_join_without_payment(self):
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=False)
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_join_after_registration_end(self):
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
+        self.zosia.save()
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_join_before_registration_start(self):
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.save()
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_cannot_join_locked_room(self):
+        self.room_1.join(self.normal_2)
+        self.room_1.set_lock(self.normal_2)
+
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_can_join_locked_room_with_password(self):
+        self.room_1.join(self.normal_2)
+        self.room_1.set_lock(self.normal_2)
+
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        data = {"user": self.normal_1.pk, "password": self.room_1.lock.password}
+        response = self.client.post(self.url_1, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.room_1.members_count, 2)
+        self.assertIn(self.normal_1, self.room_1.members.all())
+        self.assertIn(self.normal_2, self.room_1.members.all())
+
+    def test_cannot_join_full_room(self):
+        self.room_2.join(self.normal_2)
+
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_2, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 # REUSE THESE TESTS LATER
-#     def test_cannot_join_without_registration(self):
-#         self.login()
-#         response = self.post()
-#         self.assertEqual(response.status_code, 404)
-#
-#     def test_cannot_join_without_payment(self):
-#         self.login()
-#         self.register()
-#         response = self.post()
-#         self.assertEqual(response.status_code, 400)
-#
-#     def test_cannot_join_after_registration_end(self):
-#         self.login()
-#         self.zosia.rooming_end = datetime.now().date() - timedelta(7)
-#         self.zosia.save()
-#         self.register()
-#         response = self.post()
-#         self.assertEqual(response.status_code, 400)
-#
-#     def test_cannot_join_before_registration_start(self):
-#         self.login()
-#         self.zosia.rooming_start = datetime.now().date() + timedelta(7)
-#         self.zosia.save()
-#         self.register()
-#         response = self.post()
-#         self.assertEqual(response.status_code, 400)
-#
-#     def test_can_join_empty_room(self):
-#         self.login()
-#         self.register(payment_accepted=True)
-#         response = self.post()
-#         self.assertEqual(response.status_code, 200)
-#         self.room_1.refresh_from_db()
-#         self.assertTrue(self.room_1.is_locked)
-#
-#     def test_cannot_join_locked_room(self):
-#         self.room_1.join(self.normal_2)
-#         self.room_1.set_lock(self.normal_2)
-#         self.login()
-#         self.register(payment_accepted=True)
-#         response = self.post()
-#         self.assertEqual(response.status_code, 400)
-#
-#     def test_can_join_locked_room_with_password(self):
-#         self.room_1.join(self.normal_2)
-#         self.room_1.set_lock(self.normal_2)
-#         self.login()
-#         self.register(payment_accepted=True)
-#         response = self.post(data={"password": self.room_1.lock.password, "lock": False})
-#         self.assertEqual(response.status_code, 200)
-#
-#     def test_can_join_unlocked_room(self):
-#         self.room_1.join(self.normal_2)
-#         self.login()
-#         self.register(payment_accepted=True)
-#         response = self.post()
-#         self.assertEqual(response.status_code, 200)
-#
-#     def test_can_join_without_locking(self):
-#         self.login()
-#         self.register(payment_accepted=True)
-#         response = self.post(data={"lock": "false"})
-#         self.assertEqual(response.status_code, 200)
-#         self.room_1.refresh_from_db()
-#         self.assertFalse(self.room_1.is_locked)
-#
-#
 # class UnlockViewTestCase(RoomsViewTestCase):
 #     def setUp(self):
 #         super().setUp()

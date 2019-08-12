@@ -74,16 +74,13 @@ def check_rooming(user, sender):
         rooming_status = zosia.get_rooming_status(user_prefs)
 
         if rooming_status == RoomingStatus.BEFORE_ROOMING:
-            return Response({"error": "Rooming for user has not started yet."},
-                            status=status.HTTP_403_FORBIDDEN)
+            raise exceptions.ValidationError("Rooming for user has not started yet.")
 
         if rooming_status == RoomingStatus.AFTER_ROOMING:
-            return Response({"error": "Rooming has already ended."},
-                            status=status.HTTP_403_FORBIDDEN)
+            raise exceptions.ValidationError("Rooming has already ended.")
 
         if rooming_status == RoomingStatus.ROOMING_UNAVAILABLE:
-            return Response({"error": "Rooming is unavailable for user."},
-                            status=status.HTTP_403_FORBIDDEN)
+            raise exceptions.ValidationError("Rooming is unavailable for user.")
 
 
 @api_view(["POST"])
@@ -95,9 +92,12 @@ def leave(request, version, pk, format=None):
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         user = get_object_or_404(User, pk=user_id)
-        check_rooming(user, sender)
 
-        room.leave(user)
+        try:
+            check_rooming(user, sender)
+            room.leave(user)
+        except exceptions.ValidationError as e:
+            return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -112,13 +112,14 @@ def join(request, version, pk, format=None):  # only room joining
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
+        password = serializer.validated_data.get("password")
         user = get_object_or_404(User, pk=user_id)
-        check_rooming(user, sender)
 
         try:
-            room.join(user, sender)
+            check_rooming(user, sender)
+            room.join(user, sender, password)
         except exceptions.ValidationError as e:
-            return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
+            return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -136,9 +137,9 @@ def lock(request, version, pk, format=None):  # only locks the room
         user_id = serializer.validated_data.get("user")
         expiration_date = serializer.validated_data.get("expiration_date")
         user = get_object_or_404(User, pk=user_id)
-        check_rooming(user, sender)
 
         try:
+            check_rooming(user, sender)
             room.set_lock(user, sender, expiration_date)
         except exceptions.ValidationError as e:
             return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
@@ -152,9 +153,9 @@ def lock(request, version, pk, format=None):  # only locks the room
 def unlock(request, version, pk, format=None):
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
-    check_rooming(sender, sender)
 
     try:
+        check_rooming(sender, sender)
         room.unlock(sender)
     except exceptions.ValidationError as e:
         return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)

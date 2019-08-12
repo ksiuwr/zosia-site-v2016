@@ -142,7 +142,7 @@ class Zosia(models.Model):
             return RoomingStatus.ROOMING_UNAVAILABLE
 
         return RoomingStatus.BEFORE_ROOMING if now < start_time else \
-            RoomingStatus.AFTER_ROOMING if now > self.rooming_end else \
+            RoomingStatus.AFTER_ROOMING if now.date() > self.rooming_end else \
                 RoomingStatus.ROOMING_PROGRESS
 
     def validate_unique(self, **kwargs):
