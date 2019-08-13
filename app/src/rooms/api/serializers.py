@@ -184,4 +184,5 @@ class LockMethodAdminSerializer(serializers.BaseSerializer):
         if not user:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        return {"user": user, "expiration_date": parse_datetime(expiration_date)}
+        return {"user": user} if not expiration_date else \
+            {"user": user, "expiration_date": parse_datetime(expiration_date)}

@@ -146,8 +146,11 @@ class Room(models.Model):
 
     @transaction.atomic
     def set_lock(self, owner, sender=None, expiration_date=None):
-        if sender is None:
+        if not sender:
             sender = owner
+
+        if expiration_date and timezone.is_naive(expiration_date):
+            expiration_date = timezone.make_aware(expiration_date)
 
         if not self.members.filter(pk__exact=owner.pk):
             raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),

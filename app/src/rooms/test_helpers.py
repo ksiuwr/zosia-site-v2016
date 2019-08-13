@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from unittest import TestCase
+
 from rooms.models import Room
 
 
@@ -11,3 +13,21 @@ def new_room(number, capacity=0, commit=True, **override):
         room.save()
 
     return room
+
+
+class RoomAssertions(TestCase):
+    def assertJoined(self, user, room):
+        self.assertIn(user, room.members.all())
+
+    def assertLocked(self, room, user):
+        self.assertTrue(room.is_locked)
+        self.assertTrue(room.lock.is_owned_by(user))
+
+    def assertUnlocked(self, room):
+        self.assertFalse(room.is_locked)
+
+    def assertHidden(self, room):
+        self.assertTrue(room.hidden)
+
+    def assertUnhidden(self, room):
+        self.assertFalse(room.hidden)

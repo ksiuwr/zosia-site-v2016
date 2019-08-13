@@ -5,23 +5,14 @@ from unittest import skip
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
-from django.utils import timezone
 
 from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
-from rooms.test_helpers import new_room
+from rooms.test_helpers import RoomAssertions, new_room
+
+room_assertions = RoomAssertions()
 
 
 class RoomTestCase(TestCase):
-    def assertJoined(self, user, room):
-        self.assertIn(user, room.members.all())
-
-    def assertLocked(self, room, user):
-        self.assertTrue(room.is_locked)
-        self.assertEqual(room.lock.user, user)
-
-    def assertUnlocked(self, room):
-        self.assertFalse(room.is_locked)
-
     def refresh(self):
         self.room_1.refresh_from_db()
         self.room_2.refresh_from_db()
@@ -41,13 +32,13 @@ class RoomTestCase(TestCase):
 
     def test_user_can_join_free_room(self):
         self.room_1.join(self.normal_1)
-        self.assertJoined(self.normal_1, self.room_1)
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertJoined(self.normal_1, self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
     def test_locked_room_cannot_be_joined_without_password(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         with self.assertRaises(ValidationError):
             self.room_1.join(self.normal_2)
@@ -55,17 +46,17 @@ class RoomTestCase(TestCase):
     def test_locked_room_can_be_joined_with_password(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.join(self.normal_2, password=self.room_1.lock.password)
-        self.assertJoined(self.normal_2, self.room_1)
+        room_assertions.assertJoined(self.normal_2, self.room_1)
 
     def test_anyone_can_join_unlocked_room(self):
         self.room_1.join(self.normal_1)
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
         self.room_1.join(self.normal_2)
-        self.assertJoined(self.normal_2, self.room_1)
+        room_assertions.assertJoined(self.normal_2, self.room_1)
 
     def test_full_room_cannot_be_joined(self):
         self.room_2.join(self.normal_1)
@@ -77,7 +68,7 @@ class RoomTestCase(TestCase):
         self.room_1.join(self.normal_1)
         self.room_2.join(self.normal_1)
         self.assertEqual(self.room_1.members_count, 0)
-        self.assertJoined(self.normal_1, self.room_2)
+        room_assertions.assertJoined(self.normal_1, self.room_2)
 
     def test_user_can_leave_not_joined_room(self):
         self.room_1.leave(self.normal_1)
@@ -91,10 +82,10 @@ class RoomTestCase(TestCase):
     def test_staff_can_add_user_to_locked_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.join(self.normal_2, self.staff_2)
-        self.assertJoined(self.normal_2, self.room_1)
+        room_assertions.assertJoined(self.normal_2, self.room_1)
 
     def test_user_cannot_join_hidden_room(self):
         with self.assertRaises(ValidationError):
@@ -102,7 +93,7 @@ class RoomTestCase(TestCase):
 
     def test_staff_can_add_user_to_hidden_room(self):
         self.room_3.join(self.normal_2, self.staff_2)
-        self.assertJoined(self.normal_2, self.room_3)
+        room_assertions.assertJoined(self.normal_2, self.room_3)
 
     # endregion
     # region lock & unlock
@@ -110,8 +101,8 @@ class RoomTestCase(TestCase):
     def test_user_can_lock_room_after_joining(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertJoined(self.normal_1, self.room_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertJoined(self.normal_1, self.room_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_user_cannot_lock_room_without_joining(self):
         with self.assertRaises(ValidationError):
@@ -121,72 +112,72 @@ class RoomTestCase(TestCase):
         self.room_1.join(self.normal_1)
         self.room_1.join(self.normal_2)
         self.room_1.set_lock(self.normal_2)
-        self.assertLocked(self.room_1, self.normal_2)
+        room_assertions.assertLocked(self.room_1, self.normal_2)
 
     def test_room_is_unlocked_after_expiration_date(self):
         self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1, expiration_date=timezone.make_aware(datetime.min))
-        self.assertUnlocked(self.room_1)
+        self.room_1.set_lock(self.normal_1, expiration_date=datetime.min)
+        room_assertions.assertUnlocked(self.room_1)
 
         self.room_1.join(self.normal_2)
-        self.assertJoined(self.normal_2, self.room_1)
+        room_assertions.assertJoined(self.normal_2, self.room_1)
 
     def test_room_is_unlocked_after_joining_other_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_2.join(self.normal_1)
         self.refresh()
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
     def test_room_remains_locked_after_not_owner_joins_other_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
         self.room_1.join(self.normal_2, password=self.room_1.lock.password)
-        self.assertJoined(self.normal_2, self.room_1)
+        room_assertions.assertJoined(self.normal_2, self.room_1)
 
         self.room_2.join(self.normal_2)
         self.refresh()
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_room_is_unlocked_after_owner_leaves_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.leave(self.normal_1)
         self.refresh()
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
     def test_room_remains_locked_after_not_owner_leaves_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
         self.room_1.join(self.normal_2, password=self.room_1.lock.password)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.leave(self.normal_2)
         self.refresh()
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_user_can_unlock_unlocked_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.unlock(self.normal_1)
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
     def test_owner_can_unlock_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.unlock(self.normal_1)
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
     def test_not_owner_cannot_unlock_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.join(self.normal_2)
         self.room_1.set_lock(self.normal_2)
-        self.assertLocked(self.room_1, self.normal_2)
+        room_assertions.assertLocked(self.room_1, self.normal_2)
 
         with self.assertRaises(ValidationError):
             self.room_1.unlock(self.normal_1)
@@ -194,25 +185,25 @@ class RoomTestCase(TestCase):
     def test_staff_can_lock_locked_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.set_lock(self.normal_1, self.staff_1,
-                             expiration_date=timezone.make_aware(datetime.now() + timedelta(1)))
+                             expiration_date=datetime.now() + timedelta(1))
         self.refresh()
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_staff_can_unlock_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
-        self.assertLocked(self.room_1, self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.unlock(self.staff_1)
-        self.assertUnlocked(self.room_1)
+        room_assertions.assertUnlocked(self.room_1)
 
     def test_staff_can_lock_hidden_room(self):
         self.room_3.join(self.normal_1, self.staff_1)
         self.room_3.set_lock(self.normal_1, self.staff_1)
-        self.assertLocked(self.room_3, self.normal_1)
+        room_assertions.assertLocked(self.room_3, self.normal_1)
 
     # endregion
 
