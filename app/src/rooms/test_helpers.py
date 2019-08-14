@@ -16,6 +16,9 @@ def new_room(number, capacity=0, commit=True, **override):
 
 
 class RoomAssertions(TestCase):
+    def assertEmpty(self, room):
+        self.assertEqual(room.members_count, 0)
+
     def assertJoined(self, user, room):
         self.assertIn(user, room.members.all())
 
