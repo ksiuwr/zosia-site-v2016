@@ -110,7 +110,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_user_cannot_join_after_registration_end(self):
+    def test_user_cannot_join_after_rooming_ends(self):
         self.client.force_authenticate(user=self.normal_1)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
@@ -123,7 +123,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_user_cannot_join_before_registration_start(self):
+    def test_user_cannot_join_before_rooming_starts(self):
         self.client.force_authenticate(user=self.normal_1)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
@@ -235,7 +235,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_staff_can_add_user_to_room_after_registration_end(self):
+    def test_staff_can_add_user_to_room_after_rooming_ends(self):
         self.client.force_authenticate(user=self.staff_1)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
@@ -249,7 +249,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertJoined(self.normal_1, self.room_1)
 
-    def test_staff_can_add_user_to_room_before_registration_start(self):
+    def test_staff_can_add_user_to_room_before_rooming_starts(self):
         self.client.force_authenticate(user=self.staff_2)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
@@ -416,6 +416,22 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_3, self.normal_2)
 
+    def test_staff_can_lock_before_rooming_starts(self):
+        self.client.force_authenticate(user=self.staff_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        self.room_1.join(self.normal_1)
+
+        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.save()
+
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(self.url_1, data, format="json")
+        self.room_1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
 
 class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
     def setUp(self):
@@ -445,24 +461,24 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_1.join(self.normal_1, password=self.room_1.lock.password)
 
         response = self.client.post(self.url_1, {}, format="json")
-
         self.room_1.refresh_from_db()
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         room_assertions.assertLocked(self.room_1, self.normal_2)
 
-    def test_user_can_unlock_after_rooming_end(self):
+    def test_user_can_unlock_after_rooming_ends(self):
         self.client.force_authenticate(user=self.normal_2)
         user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
 
-        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
         self.zosia.save()
 
         response = self.client.post(self.url_2, {}, format="json")
-
         self.room_2.refresh_from_db()
+
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         room_assertions.assertLocked(self.room_2, self.normal_2)
 
@@ -474,23 +490,45 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_1.set_lock(self.normal_1)
 
         response = self.client.post(self.url_1, {}, format="json")
-
         self.room_1.refresh_from_db()
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(self.room_1.is_locked)
 
-    def test_staff_can_unlock_after_rooming_end(self):
+    def test_staff_can_unlock_after_rooming_ends(self):
         self.client.force_authenticate(user=self.staff_2)
         user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
 
-        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
         self.zosia.save()
 
         response = self.client.post(self.url_2, {}, format="json")
-
         self.room_2.refresh_from_db()
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertUnlocked(self.room_2)
+
+
+class HidingAPIViewTestCase(RoomsAPIViewTestCase):
+    def test_staff_can_hide_room(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": self.room_1.pk})
+        response = self.client.post(url, {}, format="json")
+        self.room_1.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        room_assertions.assertHidden(self.room_1)
+
+    def test_staff_can_unhide_room(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
+        response = self.client.post(url, {}, format="json")
+        self.room_3.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        room_assertions.assertUnhidden(self.room_3)
