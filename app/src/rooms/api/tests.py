@@ -524,7 +524,7 @@ class HidingAPIViewTestCase(RoomsAPIViewTestCase):
         room_assertions.assertHidden(self.room_1)
 
     def test_staff_can_unhide_room(self):
-        self.client.force_authenticate(user=self.staff_1)
+        self.client.force_authenticate(user=self.staff_2)
 
         url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
         response = self.client.post(url, {}, format="json")
@@ -532,3 +532,21 @@ class HidingAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertUnhidden(self.room_3)
+
+    def test_user_cannot_hide_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": self.room_2.pk})
+        response = self.client.post(url, {}, format="json")
+        self.room_2.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_cannot_unhide_room(self):
+        self.client.force_authenticate(user=self.normal_2)
+
+        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
+        response = self.client.post(url, {}, format="json")
+        self.room_3.refresh_from_db()
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
