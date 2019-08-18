@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from conferences.models import RoomingStatus, UserPreferences, Zosia
+from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
+    LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer
 from rooms.models import Room, UserRoom
 from users.models import User
-from .serializers import JoinMethodSerializer, LeaveMethodSerializer, LockMethodAdminSerializer, \
-    LockMethodSerializer, RoomMembersSerializer, RoomSerializer
 
 
 class RoomMembersList(APIView):

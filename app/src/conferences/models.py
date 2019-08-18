@@ -141,9 +141,13 @@ class Zosia(models.Model):
         except ValueError:
             return RoomingStatus.ROOMING_UNAVAILABLE
 
-        return RoomingStatus.BEFORE_ROOMING if now < start_time else \
-            RoomingStatus.AFTER_ROOMING if now.date() > self.rooming_end else \
-                RoomingStatus.ROOMING_PROGRESS
+        if now < start_time:
+            return RoomingStatus.BEFORE_ROOMING
+
+        if now.date() > self.rooming_end:
+            return RoomingStatus.AFTER_ROOMING
+
+        return RoomingStatus.ROOMING_PROGRESS
 
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None
@@ -312,7 +316,7 @@ class UserPreferences(models.Model):
 
     @property
     def room(self):
-        return self.user.room_set.visible_for_zosia(self.zosia).first()
+        return self.user.room_set.filter_visible(zosia=self.zosia).first()
 
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())

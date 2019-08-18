@@ -1,6 +1,6 @@
+from datetime import timedelta
 import random
 import string
-from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
@@ -20,7 +20,8 @@ class RoomLockManager(models.Manager):
     TIMEOUT = timedelta(0, 3 * 3600)
 
     def make(self, user, expiration_date=None):
-        expiration_date = expiration_date or timezone.now() + self.TIMEOUT
+        if not expiration_date:
+            expiration_date = timezone.now() + self.TIMEOUT
 
         return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
 
