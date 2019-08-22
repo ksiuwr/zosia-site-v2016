@@ -1,5 +1,5 @@
 import os
-from datetime import datetime, time, timedelta
+from datetime import time, timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -7,6 +7,7 @@ from django.shortcuts import reverse
 from django.test import TestCase
 
 from users.models import Organization
+from utils.time_manager import TimeManager
 
 from conferences.forms import UserPreferencesForm, UserPreferencesAdminForm
 from conferences.models import Bus, Place, UserPreferences, Zosia
@@ -38,22 +39,22 @@ class ZosiaTestCase(TestCase):
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
 
     def test_can_start_rooming(self):
-        self.active.rooming_start = datetime.now()
+        self.active.rooming_start = TimeManager.now()
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0), zosia=self.active)
         self.assertTrue(self.active.can_start_rooming(user_prefs))
 
     def test_can_start_rooming_2(self):
-        self.active.rooming_start = datetime(2016, 12, 23)
+        self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0), zosia=self.active)
-        self.assertFalse(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+        self.assertFalse(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone("2016-12-22 23:58")))
 
     def test_can_start_rooming_3(self):
-        self.active.rooming_start = datetime(2016, 12, 23)
+        self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0), zosia=self.active)
-        self.assertTrue(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+        self.assertTrue(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone("2016-12-22 23:58")))
 
 
 class BusTestCase(TestCase):
