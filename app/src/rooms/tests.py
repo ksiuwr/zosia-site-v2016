@@ -1,13 +1,15 @@
+from datetime import timedelta
 import json
-from datetime import datetime, timedelta
 from unittest import skip
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 
 from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
 from rooms.test_helpers import RoomAssertions, new_room
+from utils.time_manager import TimeManager
 
 room_assertions = RoomAssertions()
 
@@ -116,7 +118,8 @@ class RoomTestCase(TestCase):
 
     def test_room_is_unlocked_after_expiration_date(self):
         self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1, expiration_date=datetime.min)
+        self.room_1.set_lock(self.normal_1, expiration_date=TimeManager.to_timezone(
+            timezone.now() - timedelta(days=30)))
         room_assertions.assertUnlocked(self.room_1)
 
         self.room_1.join(self.normal_2)
@@ -188,7 +191,8 @@ class RoomTestCase(TestCase):
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.set_lock(self.normal_1, self.staff_1,
-                             expiration_date=datetime.now() + timedelta(1))
+                             expiration_date=TimeManager.to_timezone(
+                                 timezone.now() + timedelta(days=7)))
         self.refresh()
         room_assertions.assertLocked(self.room_1, self.normal_1)
 

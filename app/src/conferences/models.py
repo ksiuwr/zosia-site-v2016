@@ -116,7 +116,7 @@ class Zosia(models.Model):
 
     @property
     def is_rooming_open(self):
-        return timezone.now() <= self.rooming_end
+        return TimeManager.now() <= self.rooming_end
 
     def can_start_rooming(self, user_prefs, now=None):
         return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
@@ -129,7 +129,7 @@ class Zosia(models.Model):
 
     def get_rooming_status(self, user_prefs, now=None):
         if not now:
-            now = timezone.now()
+            now = TimeManager.now()
 
         try:
             start_time = self.rooming_start_for_user(user_prefs)
@@ -155,8 +155,7 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        now = timezone.now().date()
-        return self.lecture_registration_start <= now <= self.lecture_registration_end
+        return self.lecture_registration_start <= TimeManager.now() <= self.lecture_registration_end
 
 
 class BusManager(models.Manager):

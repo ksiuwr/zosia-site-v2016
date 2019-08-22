@@ -1,6 +1,6 @@
 import csv
-import json
 from io import TextIOWrapper
+import json
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -66,11 +66,11 @@ def status(request):
     # Ajax
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
-    can_start_rooming = zosia.can_start_rooming(
-        get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
-    rooms = Room.objects.all_visible().select_related('lock').prefetch_related(
-        'members').all()
+    user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=request.user)
+    can_start_rooming = zosia.can_start_rooming(user_prefs)
+    rooms = Room.objects.all_visible().select_related('lock').prefetch_related('members').all()
     rooms_view = []
+
     for room in rooms:
         dic = room_to_dict(room)
         dic['is_owned_by'] = room.is_locked and room.lock.is_owned_by(

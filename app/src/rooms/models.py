@@ -1,4 +1,3 @@
-from datetime import timedelta
 import random
 import string
 
@@ -18,9 +17,6 @@ def random_string(length=10):
 
 
 class RoomLockManager(models.Manager):
-    # 3 hours
-    TIMEOUT = timedelta(0, 3 * 3600)
-
     def make(self, user, expiration_date=None):
         if not expiration_date:
             expiration_date = TimeManager.to_timezone(timezone.now() + settings.LOCK_TIMEOUT)
