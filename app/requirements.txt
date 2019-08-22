@@ -1,6 +1,5 @@
 Django==2.2.*
 django-anymail==3.*
-django-debug-toolbar==1.8
 django-materializecss-form==1.1.14
 djangorestframework>=3.9.0
 drf-yasg>=1.16.0

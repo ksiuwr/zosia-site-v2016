@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+from datetime import timedelta
 import os
 import random
 import string
@@ -186,3 +186,7 @@ DATE_FORMAT = 'd.n.o'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
+
+# Code constants
+
+LOCK_TIMEOUT = timedelta(0, 3 * 3600)

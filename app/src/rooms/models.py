@@ -2,6 +2,7 @@ from datetime import timedelta
 import random
 import string
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
@@ -21,7 +22,7 @@ class RoomLockManager(models.Manager):
 
     def make(self, user, expiration_date=None):
         if not expiration_date:
-            expiration_date = timezone.now() + self.TIMEOUT
+            expiration_date = timezone.now() + settings.LOCK_TIMEOUT
 
         return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
 
@@ -64,10 +65,10 @@ class Room(models.Model):
     name = models.CharField(max_length=300)
     description = models.TextField(default="")
     hidden = models.BooleanField(default=False)
-    beds_single = models.IntegerField(default=0)
-    beds_double = models.IntegerField(default=0)
-    available_beds_single = models.IntegerField(default=0)
-    available_beds_double = models.IntegerField(default=0)
+    beds_single = models.PositiveSmallIntegerField(default=0)
+    beds_double = models.PositiveSmallIntegerField(default=0)
+    available_beds_single = models.PositiveSmallIntegerField(default=0)
+    available_beds_double = models.PositiveSmallIntegerField(default=0)
 
     lock = models.OneToOneField(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
 

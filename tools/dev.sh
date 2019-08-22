@@ -27,7 +27,7 @@ ${bold}Commands:${normal}
 
 ${bold}Options:${normal}
   --no-cache      - Do not use cache when building the container image.
-  --create-admin  - Create super user account (you need to specify the password)
+  --create-admin  - Create super user account (you need to specify the password).
 "
 
 
@@ -74,12 +74,22 @@ function py_install () {
   run "pip install -r requirements.txt"
 }
 
+function create_superuser () {
+  run "python src/manage.py createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz"
+}
+
 function makemigrations() {
   run "python src/manage.py makemigrations"
 }
 
 function migrate () {
   run "python src/manage.py migrate"
+
+  if [ "${CREATE_ADMIN}" = true ]
+  then
+    echo "${bold}${purple}-- Set password for super user account --${normal}"
+    create_superuser
+  fi
 }
 
 function runserver () {
@@ -88,10 +98,6 @@ function runserver () {
 
 function runtests () {
   run "python src/manage.py test"
-}
-
-function create_superuser () {
-  run "python src/manage.py createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz"
 }
 
 function setup () {
@@ -110,19 +116,17 @@ function one_click () {
   setup
   echo "${bold}-- Run migrations --${normal}"
   migrate
-
-  if [ "${CREATE_ADMIN}" = true ] ; then
-    echo "${bold}${purple}-- Set password for super user account --${normal}"
-    create_superuser
-  fi
-
   echo "${bold}-- Run webserver --${normal}"
   runserver
   echo "${bold}-- Exiting - ${purple}Remember to run \`./dev.sh shutdown\`, if you've just finished${normal}"
   docker ps
 }
 
-[[ "${#}" -eq 0 ]] && echo "${HELP_TEXT}" && exit 0
+if [[ "${#}" -eq 0 ]]
+then
+  echo "${HELP_TEXT}"
+  exit 1
+fi
 
 command="${1}"
 shift

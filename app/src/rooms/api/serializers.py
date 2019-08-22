@@ -47,8 +47,10 @@ class RoomBedsSerializer(serializers.BaseSerializer):
 
 
 class RoomSerializer(serializers.ModelSerializer):
-    beds = serializers.DictField(child=serializers.IntegerField())
-    available_beds = serializers.DictField(child=serializers.IntegerField())
+    # Accepted beds number range is from 0 to 42. You don't expect 43 beds in one room, do you?
+    beds = serializers.DictField(child=serializers.IntegerField(min_value=0, max_value=42))
+    available_beds = serializers.DictField(
+        child=serializers.IntegerField(min_value=0, max_value=42))
     lock = RoomLockSerializer(read_only=True)
     members = UserRoomSerializer(source="userroom_set", read_only=True, many=True)
 
