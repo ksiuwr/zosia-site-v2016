@@ -63,20 +63,20 @@ class Zosia(models.Model):
     place = models.ForeignKey(Place, on_delete=models.PROTECT)
     description = models.TextField(default='')
 
-    registration_start = models.DateField(
+    registration_start = models.DateTimeField(
         verbose_name=_('Registration for users starts'),
     )
-    registration_end = models.DateField()
+    registration_end = models.DateTimeField()
 
-    rooming_start = models.DateField(
+    rooming_start = models.DateTimeField(
         verbose_name=_('Users room picking starts'),
     )
-    rooming_end = models.DateField()
+    rooming_end = models.DateTimeField()
 
-    lecture_registration_start = models.DateField(
+    lecture_registration_start = models.DateTimeField(
         verbose_name=_('Registration for lectures starts'),
     )
-    lecture_registration_end = models.DateField()
+    lecture_registration_end = models.DateTimeField()
 
     price_accomodation = models.IntegerField(
         verbose_name=_('Price for sleeping in hotel, per day'),
@@ -115,16 +115,10 @@ class Zosia(models.Model):
 
     @property
     def is_rooming_open(self):
-        # XXX: bonuses will not work, because they subtract time from
-        # the T0 `rooming_start` date, meaning that the below condition will
-        # be fulfilled for everyone at the same time, exactly at the rooming_start
-        # return self.rooming_start <= datetime.now().date() <= self.rooming_end
-        return datetime.now().date() <= self.rooming_end
+        return datetime.now() <= self.rooming_end
 
     def can_start_rooming(self, user_prefs, now=None):
-        if now is None:
-            now = datetime.now()
-        return user_prefs.payment_accepted and now >= user_prefs.convert_bonus_to_time()
+        return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
 
     def rooming_start_for_user(self, user_prefs):
         if not user_prefs.payment_accepted:
@@ -144,7 +138,7 @@ class Zosia(models.Model):
         if now < start_time:
             return RoomingStatus.BEFORE_ROOMING
 
-        if now.date() > self.rooming_end:
+        if now > self.rooming_end:
             return RoomingStatus.AFTER_ROOMING
 
         return RoomingStatus.ROOMING_PROGRESS
@@ -316,7 +310,7 @@ class UserPreferences(models.Model):
 
     @property
     def room(self):
-        return self.user.room_set.filter_visible(zosia=self.zosia).first()
+        return self.user.room_set.filter(zosia=self.zosia).first()
 
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
