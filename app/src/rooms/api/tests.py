@@ -8,6 +8,7 @@ from rest_framework.test import APITestCase
 
 from conferences.test_helpers import new_user, new_zosia, user_preferences
 from rooms.test_helpers import RoomAssertions, new_room
+from utils.time_manager import TimeManager
 
 room_assertions = RoomAssertions()
 
@@ -114,7 +115,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.normal_1)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
+        self.zosia.rooming_end = TimeManager.to_timezone(timezone.now() - timedelta(days=7))
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -127,7 +128,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.normal_1)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.rooming_start = TimeManager.to_timezone(timezone.now() + timedelta(days=7))
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -239,7 +240,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.staff_1)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
+        self.zosia.rooming_end = TimeManager.to_timezone(timezone.now() - timedelta(days=7))
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -253,7 +254,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.staff_2)
         user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.rooming_start = TimeManager.to_timezone(timezone.now() + timedelta(days=7))
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -378,7 +379,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.room_1.join(self.normal_1)
 
-        expiration_date = timezone.make_aware(datetime.now() + timedelta(days=1))
+        expiration_date = TimeManager.to_timezone(timezone.now() + timedelta(days=1))
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(self.url_1, data, format="json")
         self.room_1.refresh_from_db()
@@ -394,7 +395,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
 
-        expiration_date = timezone.make_aware(datetime.now() + timedelta(days=5))
+        expiration_date = TimeManager.to_timezone(datetime.now() + timedelta(days=5))
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(self.url_1, data, format="json")
         self.room_1.refresh_from_db()
@@ -422,7 +423,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.room_1.join(self.normal_1)
 
-        self.zosia.rooming_start = datetime.now().date() + timedelta(days=7)
+        self.zosia.rooming_start = TimeManager.to_timezone(datetime.now() + timedelta(days=7))
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -473,7 +474,7 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
 
-        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
+        self.zosia.rooming_end = TimeManager.parse_timezone(timezone.now() - timedelta(days=7))
         self.zosia.save()
 
         response = self.client.post(self.url_2, {}, format="json")
@@ -502,7 +503,7 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
 
-        self.zosia.rooming_end = datetime.now().date() - timedelta(days=7)
+        self.zosia.rooming_end = TimeManager.to_timezone(timezone.now() - timedelta(days=7))
         self.zosia.save()
 
         response = self.client.post(self.url_2, {}, format="json")

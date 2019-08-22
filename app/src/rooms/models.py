@@ -151,9 +151,6 @@ class Room(models.Model):
         if not sender:
             sender = owner
 
-        if expiration_date and timezone.is_naive(expiration_date):
-            expiration_date = timezone.make_aware(expiration_date)
-
         if not self.members.filter(pk__exact=owner.pk):
             raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
                                   code="invalid",
