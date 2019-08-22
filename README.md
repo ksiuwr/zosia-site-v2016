@@ -1,6 +1,8 @@
 # zosia16-site
 Django 2.2 version of ZOSIA registration page.
 
+[![CircleCI](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master)
+
 ## Development
 
 The preferred approach is to use *docker* for development. And don't worry, we try to keep it as
