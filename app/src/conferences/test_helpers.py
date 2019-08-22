@@ -1,4 +1,5 @@
-from datetime import datetime, time
+from datetime import time
+from django.utils import timezone
 
 from conferences.models import Bus, Place, UserPreferences, Zosia
 from users.models import User
@@ -13,7 +14,7 @@ PRICE_BONUS = 1 << 6
 
 
 def new_zosia(commit=True, **kwargs):
-    now = datetime.now()
+    now = timezone.now()
     place, _ = Place.objects.get_or_create(
         name='Mieszko',
         address='FooBar@Katowice'

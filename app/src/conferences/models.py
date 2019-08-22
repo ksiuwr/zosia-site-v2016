@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -155,7 +155,7 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        now = timezone.now().date()
+        now = timezone.now()
         return self.lecture_registration_start <= now <= self.lecture_registration_end
 
 
