@@ -9,10 +9,11 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-
+from datetime import timedelta
 import os
 import random
 import string
+
 import raven
 
 # Google API key
@@ -21,7 +22,8 @@ GAPI_KEY = os.environ.get('GAPI_KEY')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):
-    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
+    return ''.join(
+        random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 SECRET_KEY = os.environ.get('SECRET_KEY', random_string(20))
@@ -58,6 +60,18 @@ if sentry_dsn:
         'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
     }
 
+# Django REST framework (https://www.django-rest-framework.org)
+REST_FRAMEWORK = {
+    'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.URLPathVersioning',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -66,6 +80,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INSTALLED_APPS = [
     'materializecssform',
     'anymail',
+    'rest_framework',
+    'drf_yasg',
     'raven.contrib.django.raven_compat',
     'rooms.apps.RoomsConfig',
     'blog.apps.BlogConfig',
@@ -112,7 +128,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'zosia16.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -123,7 +138,6 @@ DATABASES = {
         'USER': 'zosia',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -167,9 +181,12 @@ USE_TZ = True
 
 DATE_FORMAT = 'd.n.o'
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
+
+# Code constants
+
+LOCK_TIMEOUT = timedelta(0, 3 * 3600)

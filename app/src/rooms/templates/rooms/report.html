@@ -4,62 +4,64 @@
 {% load cache %}
 
 {% block content %}
-      <div class="container">
-        <div class="row">
-            <div class="col s12">
-                <ul class="tabs">
-                    <li class="tab col s6"><a href="#by-room">{% trans 'By room' %}</a></li>
-                    <li class="tab col s6"><a href="#by-user">{% trans 'By user' %}</a></li>
-                </ul>
-            </div>
+<div class="container">
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s6"><a href="#by-room">{% trans 'By room' %}</a></li>
+                <li class="tab col s6"><a href="#by-user">{% trans 'By user' %}</a></li>
+            </ul>
+        </div>
 
-            <div id="by-room" class="col s12">
-              <a class="btn-floating btn waves-effect waves-light blue download-btn" href="{% url 'rooms_report' %}?download=rooms"><i class="material-icons">file_download</i></a>
-              <table class="highlight responsive-table bg-table">
+        <div class="col s12" id="by-room">
+            <a class="btn-floating btn waves-effect waves-light blue download-btn"
+               href="{% url 'rooms_report' %}?download=rooms"><i class="material-icons">file_download</i></a>
+            <table class="highlight responsive-table bg-table">
                 <thead>
-                  <tr>
+                <tr>
                     <th>{% trans 'Room' %}</th>
                     <th>{% trans 'Capacity' %}</th>
                     <th>{% trans 'Occupied' %}</th>
                     <th>{% trans 'Users' %}</th>
-                  </tr>
+                </tr>
                 </thead>
                 <tbody>
-                  {% for r in rooms %}
-                  <tr>
+                {% for r in rooms %}
+                <tr>
                     <td>{{r.name}}</td>
                     <td>{{r.capacity}}</td>
-                    <td>{{r.occupied}}</td>
-                    <td>{{r.occupants}}</td>
-                  </tr>
-                  {% endfor %}
+                    <td>{{r.members_count}}</td>
+                    <td>{{r.members_to_string}}</td>
+                </tr>
+                {% endfor %}
                 </tbody>
-              </table>
-            </div>
+            </table>
+        </div>
 
-            <div id="by-user" class="col s12">
-              <a class="btn-floating btn waves-effect waves-light blue download-btn" href="{% url 'rooms_report' %}?download=users"><i class="material-icons">file_download</i></a>
-              <table class="highlight responsive-table bg-table">
+        <div class="col s12" id="by-user">
+            <a class="btn-floating btn waves-effect waves-light blue download-btn"
+               href="{% url 'rooms_report' %}?download=users"><i class="material-icons">file_download</i></a>
+            <table class="highlight responsive-table bg-table">
                 <thead>
-                  <tr>
+                <tr>
                     <th>{% trans 'User' %}</th>
                     <th>{% trans 'Paid' %}</th>
                     <th>{% trans 'Room' %}</th>
-                  </tr>
+                </tr>
                 </thead>
                 <tbody>
-                  {% for r in user_preferences %}
-                  <tr>
+                {% for r in user_preferences %}
+                <tr>
                     <td>{{r.user}}</td>
                     <td>{{r.payment_accepted}}</td>
                     <td>{{r.room.name}}</td>
-                  </tr>
-                  {% endfor %}
+                </tr>
+                {% endfor %}
                 </tbody>
-              </table>
-            </div>
+            </table>
         </div>
-      </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block custom_scripts %}

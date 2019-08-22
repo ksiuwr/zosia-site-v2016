@@ -1,23 +1,22 @@
-import json
 import csv
+import json
 from io import TextIOWrapper
 
-from django.shortcuts import render, redirect, reverse, get_object_or_404
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie
-from django.http import JsonResponse, HttpResponse, HttpResponseRedirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.template import Context, loader
 from django.utils.translation import ugettext_lazy as _
-from django.template import loader, Context
+from django.views.decorators.cache import cache_page
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.vary import vary_on_cookie
 
-from conferences.models import Zosia, UserPreferences
-from .models import Room, UserRoom
-from .serializers import room_to_dict, user_to_dict
+from conferences.models import UserPreferences, Zosia
 from .forms import UploadFileForm
+from .models import Room
+from .serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -49,7 +48,7 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
-    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = Room.objects.all_visible().prefetch_related('members').all()
     rooms = sorted(rooms, key=lambda x: x.pk)
     rooms_json = json.dumps(list(map(room_to_dict, rooms)))
     context = {
@@ -67,14 +66,17 @@ def status(request):
     # Ajax
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
-    can_start_rooming = zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
-    rooms = Room.objects.for_zosia(zosia).select_related('lock').prefetch_related('users').all()
+    can_start_rooming = zosia.can_start_rooming(
+        get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
+    rooms = Room.objects.all_visible().select_related('lock').prefetch_related(
+        'members').all()
     rooms_view = []
     for room in rooms:
         dic = room_to_dict(room)
-        dic['owns'] = room.is_locked and room.lock.owns(request.user) and room.lock.password
-        dic['people'] = list(map(user_to_dict, room.users.all()))
-        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.users.all())
+        dic['is_owned_by'] = room.is_locked and room.lock.is_owned_by(
+            request.user) and room.lock.password
+        dic['people'] = list(map(user_to_dict, room.members.all()))
+        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.members.all())
         rooms_view.append(dic)
 
     view = {
@@ -82,37 +84,6 @@ def status(request):
         'rooms': rooms_view,
     }
     return JsonResponse(view)
-
-
-@login_required
-@require_http_methods(['POST'])
-def join(request, room_id):
-    zosia = get_object_or_404(Zosia, active=True)
-    room = get_object_or_404(Room, zosia=zosia, pk=room_id)
-    password = request.POST.get('password', '')
-    if not zosia.can_start_rooming(get_object_or_404(UserPreferences, zosia=zosia, user=request.user)):
-        return JsonResponse({'error': 'cannot_room_yet'}, status=400)
-
-    should_lock = request.POST.get('lock', True) in [True, 'True', '1', 'on', 'true']
-    result = room.join(request.user, password=password, lock=should_lock)
-    if type(result) is ValidationError:
-        return JsonResponse({'status': result.message}, status=400)
-    else:
-        return JsonResponse({'status': 'ok'})
-
-
-@login_required
-@require_http_methods(['POST'])
-def unlock(request):
-    zosia = get_object_or_404(Zosia, active=True)
-    room = get_object_or_404(UserRoom, room__zosia=zosia, user=request.user).room
-    if not zosia.is_rooming_open:
-        return JsonResponse({'status': 'time_passed'}, status=400)
-    result = room.unlock(request.user)
-    if result:
-        return JsonResponse({'status': 'ok'})
-    else:
-        return JsonResponse({'status': 'not_changed'})
 
 
 # https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
@@ -132,12 +103,12 @@ def csv_response(data, template, filename='file'):
 @require_http_methods(['GET'])
 def report(request):
     zosia = get_object_or_404(Zosia, active=True)
-    rooms = Room.objects.for_zosia(zosia).prefetch_related('users').all()
+    rooms = Room.objects.all_visible().prefetch_related('members').all()
     rooms = sorted(rooms, key=lambda x: str(x))
     users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
     users = sorted(users, key=lambda x: str(x))
     ctx = {
-        'zosia':  zosia,
+        'zosia': zosia,
         'rooms': rooms,
         'user_preferences': users
     }
@@ -151,12 +122,13 @@ def report(request):
     return render(request, 'rooms/report.html', ctx)
 
 
-def handle_uploaded_file(zosia, csvfile):
+def handle_uploaded_file(csvfile):
     rooms = []
     for row in csv.reader(csvfile, delimiter=','):
         name, desc, cap, hidden = row
         if name != "Name":
-            rooms.append(Room(zosia=zosia, name=name, description=desc, capacity=cap, hidden=hidden))
+            rooms.append(
+                Room(name=name, description=desc, capacity=cap, hidden=hidden))
     Room.objects.bulk_create(rooms)
 
 
@@ -167,7 +139,8 @@ def import_room(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            handle_uploaded_file(zosia, TextIOWrapper(request.FILES['file'].file, encoding=request.encoding))
+            handle_uploaded_file(TextIOWrapper(request.FILES['file'].file,
+                                               encoding=request.encoding))
             return HttpResponseRedirect(reverse('rooms_report'))
     else:
         form = UploadFileForm()

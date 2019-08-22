@@ -1,14 +1,21 @@
 from datetime import datetime, timedelta
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
+from django.http import Http404
 from django.utils.translation import ugettext as _
-from django.core.exceptions import ValidationError
+from pytz import timezone
 
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
 
-from pytz import timezone
+
+class RoomingStatus:
+    BEFORE_ROOMING = "before"
+    ROOMING_PROGRESS = "progress"
+    AFTER_ROOMING = "after"
+    ROOMING_UNAVAILABLE = "unavailable"
 
 
 class Place(models.Model):
@@ -28,6 +35,14 @@ class Place(models.Model):
 class ZosiaManager(models.Manager):
     def find_active(self):
         return self.filter(active=True).first()
+
+    def find_active_or_404(self):
+        zosia = self.find_active()
+
+        if not zosia:
+            raise Http404("No active conference found")
+
+        return zosia
 
 
 # NOTE: Zosia has 4 days. Period.
@@ -106,10 +121,33 @@ class Zosia(models.Model):
         # return self.rooming_start <= datetime.now().date() <= self.rooming_end
         return datetime.now().date() <= self.rooming_end
 
-    def can_start_rooming(self, user, now=None):
+    def can_start_rooming(self, user_prefs, now=None):
         if now is None:
             now = datetime.now()
-        return user.payment_accepted and now >= user.convert_bonus_to_time()
+        return user_prefs.payment_accepted and now >= user_prefs.convert_bonus_to_time()
+
+    def rooming_start_for_user(self, user_prefs):
+        if not user_prefs.payment_accepted:
+            raise ValueError("User has not paid.")
+
+        return user_prefs.convert_bonus_to_time()
+
+    def get_rooming_status(self, user_prefs, now=None):
+        if not now:
+            now = datetime.now()
+
+        try:
+            start_time = self.rooming_start_for_user(user_prefs)
+        except ValueError:
+            return RoomingStatus.ROOMING_UNAVAILABLE
+
+        if now < start_time:
+            return RoomingStatus.BEFORE_ROOMING
+
+        if now.date() > self.rooming_end:
+            return RoomingStatus.AFTER_ROOMING
+
+        return RoomingStatus.ROOMING_PROGRESS
 
     def validate_unique(self, **kwargs):
         # NOTE: If this instance is not yet saved, self.pk == None
@@ -129,14 +167,15 @@ class Zosia(models.Model):
 class BusManager(models.Manager):
     def find_with_free_places(self, zosia):
         return self \
-                .filter(zosia=zosia) \
-                .annotate(seats_taken=Count('userpreferences')). \
-                filter(capacity__gt=F('seats_taken'))
+            .filter(zosia=zosia) \
+            .annotate(seats_taken=Count('userpreferences')). \
+            filter(capacity__gt=F('seats_taken'))
 
 
 class Bus(models.Model):
     class Meta:
         verbose_name_plural = 'Buses'
+
     objects = BusManager()
 
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
@@ -277,14 +316,14 @@ class UserPreferences(models.Model):
 
     @property
     def room(self):
-        return self.user.room_set.for_zosia(self.zosia).first()
+        return self.user.room_set.filter_visible(zosia=self.zosia).first()
 
     def convert_bonus_to_time(self):
         opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
-        return opening_time - timedelta(0, 60*self.bonus_minutes)
+        return opening_time - timedelta(0, 60 * self.bonus_minutes)
 
     @property
     def rooming_time(self):
         return self.convert_bonus_to_time() \
-                .astimezone(timezone('Europe/Warsaw')) \
-                .strftime("%d.%m.%Y %H:%M")
+            .astimezone(timezone('Europe/Warsaw')) \
+            .strftime("%d.%m.%Y %H:%M")

@@ -1,8 +1,7 @@
-from datetime import datetime, time, timedelta
-
-from users.models import User
+from datetime import datetime, time
 
 from conferences.models import Bus, Place, UserPreferences, Zosia
+from users.models import User
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
 PRICE_ACCOMODATION = 1 << 1
@@ -46,7 +45,9 @@ def new_zosia(commit=True, **kwargs):
 
 USER_DATA = [
     ['lennon@thebeatles.com', 'johnpassword'],
-    ['starr@thebeatles.com', 'ringopassword']
+    ['starr@thebeatles.com', 'ringopassword'],
+    ['mccartney@thebeatles.com', 'paulpassword'],
+    ['harrison@thebeatles.com', 'georgepassword']
 ]
 
 
