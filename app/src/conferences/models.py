@@ -4,11 +4,12 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.http import Http404
+from django.utils import timezone
 from django.utils.translation import ugettext as _
-from pytz import timezone
 
 from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
+from utils.time_manager import TimeManager
 
 
 class RoomingStatus:
@@ -115,7 +116,7 @@ class Zosia(models.Model):
 
     @property
     def is_rooming_open(self):
-        return datetime.now() <= self.rooming_end
+        return timezone.now() <= self.rooming_end
 
     def can_start_rooming(self, user_prefs, now=None):
         return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
@@ -128,7 +129,7 @@ class Zosia(models.Model):
 
     def get_rooming_status(self, user_prefs, now=None):
         if not now:
-            now = datetime.now()
+            now = timezone.now()
 
         try:
             start_time = self.rooming_start_for_user(user_prefs)
@@ -154,7 +155,7 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        now = datetime.now().date()
+        now = timezone.now().date()
         return self.lecture_registration_start <= now <= self.lecture_registration_end
 
 
@@ -313,7 +314,8 @@ class UserPreferences(models.Model):
         return self.user.room_set.filter(zosia=self.zosia).first()
 
     def convert_bonus_to_time(self):
-        opening_time = datetime.combine(self.zosia.rooming_start, datetime.min.time())
+        opening_time = TimeManager.to_timezone(datetime.combine(self.zosia.rooming_start,
+                                                                datetime.min.time()))
         return opening_time - timedelta(0, 60 * self.bonus_minutes)
 
     @property

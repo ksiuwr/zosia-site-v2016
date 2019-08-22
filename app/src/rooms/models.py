@@ -9,6 +9,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
+from utils.time_manager import TimeManager
 
 
 def random_string(length=10):
@@ -22,7 +23,7 @@ class RoomLockManager(models.Manager):
 
     def make(self, user, expiration_date=None):
         if not expiration_date:
-            expiration_date = timezone.now() + settings.LOCK_TIMEOUT
+            expiration_date = TimeManager.to_timezone(timezone.now() + settings.LOCK_TIMEOUT)
 
         return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
 
