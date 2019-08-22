@@ -15,13 +15,16 @@ jobs:
           name: Install requirements
           command: |
             pip3 install -r app/requirements.txt
-            pip3 install flake8
+            pip3 install flake8 coverage
       - run:
-          name: Run run test
-          command: cd app/src && python3 ./manage.py test --settings=zosia16.settings.test
+          name: Run run test with coverage
+          command: cd app/src && coverage run --source='.' --omit='*/migrations/*,zosia16/*'  manage.py test --settings=zosia16.settings.test
       - run:
           name: Run syntax check
-          command: flake8 --exclude=env,migrations --max-line-length=120 app/src || true
+          command: flake8 --exclude=migrations --max-line-length=120 app/src || true
+      - run:
+          name: Show tests coverage report
+          command: cd app/src && coverage report
 
   build_and_push_to_ecr:
     environment:
