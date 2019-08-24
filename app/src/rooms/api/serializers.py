@@ -79,7 +79,6 @@ class RoomSerializer(serializers.ModelSerializer):
 
         instance.name = validated_data.get("name", instance.name)
         instance.description = validated_data.get("description", instance.description)
-        instance.hidden = validated_data.get("hidden", instance.hidden)
         instance.beds_single = beds_data.get("single", instance.beds_single)
         instance.beds_double = beds_data.get("double", instance.beds_double)
         instance.available_beds_single = available_beds_data.get("single",

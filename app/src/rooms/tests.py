@@ -1,5 +1,5 @@
-import json
 from datetime import datetime, timedelta
+import json
 from unittest import skip
 
 from django.core.exceptions import ValidationError
@@ -79,6 +79,11 @@ class RoomTestCase(TestCase):
         self.room_1.leave(self.normal_1)
         self.assertEqual(self.room_1.members_count, 0)
 
+    def test_staff_can_remove_user_from_room(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.leave(self.normal_1, self.staff_2)
+        self.assertEqual(self.room_1.members_count, 0)
+
     def test_staff_can_add_user_to_locked_room(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
@@ -94,6 +99,14 @@ class RoomTestCase(TestCase):
     def test_staff_can_add_user_to_hidden_room(self):
         self.room_3.join(self.normal_2, self.staff_2)
         room_assertions.assertJoined(self.normal_2, self.room_3)
+
+    def test_user_cannot_add_other_user_room(self):
+        with self.assertRaises(ValidationError):
+            self.room_1.join(self.normal_1, self.normal_2)
+
+    def test_user_cannot_remove_other_user_room(self):
+        with self.assertRaises(ValidationError):
+            self.room_1.leave(self.normal_1, self.normal_2)
 
     # endregion
     # region lock & unlock

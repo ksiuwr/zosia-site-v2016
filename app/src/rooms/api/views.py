@@ -26,7 +26,8 @@ class RoomMembersList(APIView):
 
 class RoomList(APIView):
     def get(self, request, version, format=None):
-        rooms = Room.objects.all()
+        sender = request.user
+        rooms = Room.objects.all() if sender.is_staff else Room.objects.all_visible()
         serializer = RoomSerializer(rooms, many=True, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -95,7 +96,7 @@ def leave(request, version, pk, format=None):
 
         try:
             check_rooming(user, sender)
-            room.leave(user)
+            room.leave(user, sender)
         except exceptions.ValidationError as e:
             return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
