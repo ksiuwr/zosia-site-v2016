@@ -79,6 +79,7 @@ class RoomSerializer(serializers.ModelSerializer):
 
         instance.name = validated_data.get("name", instance.name)
         instance.description = validated_data.get("description", instance.description)
+        instance.beds_single = beds_data.get("hidden", instance.hidden)
         instance.beds_single = beds_data.get("single", instance.beds_single)
         instance.beds_double = beds_data.get("double", instance.beds_double)
         instance.available_beds_single = available_beds_data.get("single",
@@ -92,13 +93,16 @@ class RoomSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def _validate_beds(beds_data, available_beds_data):
-        if available_beds_data.get("single") > beds_data.get("single"):
+        if available_beds_data.get("single") > beds_data.get("single") + beds_data.get("double"):
             raise serializers.ValidationError(
-                "Cannot set more available single beds than real single beds")
+                "Cannot set more available single beds than real single beds plus double beds")
 
-        if available_beds_data.get("double") > beds_data.get("double"):
+        if available_beds_data.get("double") > \
+                beds_data.get("double") - max(0, available_beds_data.get("single")
+                                                 - beds_data.get("single")):
             raise serializers.ValidationError(
-                "Cannot set more available double beds than real double beds")
+                "Cannot set more available double beds than real double beds minus "
+                "double-as-single beds")
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):

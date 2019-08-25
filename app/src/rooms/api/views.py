@@ -33,12 +33,17 @@ class RoomList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, version, format=None):
+        if not request.user.is_staff:
+            raise exceptions.PermissionDenied()
+
         serializer = RoomSerializer(data=request.data, context={'request': request})
 
         if serializer.is_valid():
-            serializer.save()
+            instance = serializer.save()
+            response_data = serializer.validated_data
+            response_data["id"] = instance.pk
 
-            return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+            return Response(response_data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -51,17 +56,25 @@ class RoomDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, version, pk, format=None):
+        if not request.user.is_staff:
+            raise exceptions.PermissionDenied()
+
         room = get_object_or_404(Room, pk=pk)
         serializer = RoomSerializer(room, data=request.data, context={'request': request})
 
         if serializer.is_valid():
-            serializer.save()
+            instance = serializer.save()
+            response_data = serializer.validated_data
+            response_data["id"] = instance.pk
 
-            return Response(serializer.validated_data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, version, pk, format=None):
+        if not request.user.is_staff:
+            raise exceptions.PermissionDenied()
+
         room = get_object_or_404(Room, pk=pk)
         room.delete()
 

@@ -53,6 +53,90 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
 
+    def test_user_cannot_add_room(self):
+        self.client.force_authenticate(user=self.normal_2)
+
+        data = {
+            "name": "789",
+            "description": "Room for JMa",
+            "beds": {"single": 1, "double": 0},
+            "available_beds": {"single": 1, "double": 0}
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_staff_can_add_room(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        data = {
+            "name": "789",
+            "description": "Room for JMa",
+            "beds": {"single": 1, "double": 0},
+            "available_beds": {"single": 1, "double": 0}
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "789")
+        self.assertEqual(response.data["available_beds"]["single"], 1)
+        self.assertEqual(response.data["available_beds"]["double"], 0)
+
+    def test_staff_can_add_room_with_double_bed_as_single(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        data = {
+            "name": "456",
+            "description": "Room for some random guys with Divide inside",
+            "beds": {"single": 2, "double": 3},
+            "available_beds": {"single": 3, "double": 1}
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "456")
+        self.assertEqual(response.data["available_beds"]["single"], 3)
+        self.assertEqual(response.data["available_beds"]["double"], 1)
+
+    def test_staff_cannot_add_room_with_too_many_available_beds(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        data = {
+            "name": "456",
+            "description": "Room for some random guys with Divide inside",
+            "beds": {"single": 2, "double": 3},
+            "available_beds": {"single": 4, "double": 2}
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_staff_cannot_add_room_with_nagative_single_beds(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        data = {
+            "name": "123",
+            "description": "Room for TWi, who is still not coming",
+            "beds": {"single": -2, "double": 0},
+            "available_beds": {"single": 1, "double": 0}
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_staff_cannot_add_room_with_nagative_double_beds(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        data = {
+            "name": "123",
+            "description": "Room for TWi, who is still not coming",
+            "beds": {"single": 1, "double": -1},
+            "available_beds": {"single": 1, "double": 0}
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class JoinAPIViewTestCase(RoomsAPIViewTestCase):
     def setUp(self):
