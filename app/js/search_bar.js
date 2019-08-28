@@ -3,6 +3,10 @@ import React from "react";
 
 const SearchBar = (props) =>
 {
+  React.useEffect(() => {
+    const elems = document.querySelectorAll('#sorting');
+    const instances = M.FormSelect.init(elems, {})
+  }, []);
   return (
     <div className="col s12">
       <ul style={{height: "50px", lineHeight: "45px"}}>
@@ -19,7 +23,7 @@ const SearchBar = (props) =>
           </label>
         </li>
         <li className="hide-on-small-only" style={{float: "right", margin: "5px"}}>
-          <select onChange={props.onSortingStrategyChange}>
+          <select id="sorting" onChange={props.onSortingStrategyChange}>
             <option value="1">Sort by room numbers</option>
             <option value="2">Sort by fullness</option>
           </select>

@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% load i18n %}
+{% load static %}
 
 {% block content %}
+<div id="react-root">
+</div>
+<!-- 
     <div class="container">
         <h3>{% trans 'Admin panel' %}</h3>
 
@@ -70,4 +74,9 @@
             </div>
         </div>
     </div>
+-->
 {% endblock %}
+
+{% block custom_scripts %}
+<script type="text/javascript" src="{% static 'script/admin.min.js' %}"></script>
+{% endblock custom_scripts %}

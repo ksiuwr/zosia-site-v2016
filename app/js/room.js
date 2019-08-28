@@ -8,7 +8,7 @@ import useInterval from "./use_interval";
 import { exists } from "./helpers";
 import api from "./zosia_api";
 
-import RoomCard from "./room_card";
+import { RoomCard, AddRoomCard } from "./room_card";
 import SearchBar from "./search_bar";
 
 const RoomsView = (props) =>
@@ -18,7 +18,7 @@ const RoomsView = (props) =>
   const [showFull, setShowFull] = React.useState(true);
   useInterval(() => {
     api.get_rooms().then(json => setRooms(json));
-  }, 1000);
+  }, 10000);
 
 
   const onSearch = event =>
@@ -63,8 +63,7 @@ const RoomsView = (props) =>
   })
   
   return (
-    <div className="container">
-    <div className="row">
+    <div>
       <SearchBar 
         onSearch={onSearch}
         onShowFullRoomsToggle={onShowFullRoomsToggle}
@@ -72,12 +71,18 @@ const RoomsView = (props) =>
       {sortResults.map(data => {
         return (<RoomCard key={data.id} my_room={'/rooms/1'} {...data}/>);
       })}
-    </div>
+      <AddRoomCard></AddRoomCard>
     </div>
   )
 }
 
 ReactDOM.render(
-    (<RoomsView/>),
+    (<div className="container">
+      <div className="row">
+        <RoomsView/>
+      </div>
+    </div>),
     document.getElementById('react-root')
 );
+
+export default RoomsView;
