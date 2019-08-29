@@ -190,7 +190,7 @@ class RoomTestCase(TestCase):
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.set_lock(self.normal_1, self.staff_1,
-                             expiration_date=TimeManager.timedelta_from_now(days=-7))
+                             expiration_date=TimeManager.timedelta_from_now(days=7))
         self.refresh()
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
