@@ -5,10 +5,11 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 
 import useInterval from "./use_interval";
+import { useModal, ModalProvider, ModalRoot } from "./modals";
 import { exists } from "./helpers";
 import api from "./zosia_api";
 
-import { RoomCard, AddRoomCard } from "./room_card";
+import { RoomCard } from "./room_card";
 import SearchBar from "./search_bar";
 
 const RoomsView = (props) =>
@@ -71,17 +72,21 @@ const RoomsView = (props) =>
       {sortResults.map(data => {
         return (<RoomCard key={data.id} my_room={'/rooms/1'} {...data}/>);
       })}
-      <AddRoomCard></AddRoomCard>
     </div>
   )
 }
 
 ReactDOM.render(
-    (<div className="container">
-      <div className="row">
-        <RoomsView/>
+    (
+    <ModalProvider>
+      <ModalRoot/>
+      <div className="container">
+        <div className="row">
+          <RoomsView/>
+        </div>
       </div>
-    </div>),
+    </ModalProvider>
+    ),
     document.getElementById('react-root')
 );
 

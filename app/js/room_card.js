@@ -43,21 +43,6 @@ const Members = ({beds, members}) => {
   )
 }
 
-export const AddRoomCard = props => {
-  return (
-    <div className="col s12 m6">
-      <div className="card">
-        <Wrapper> 
-          <h2> <i className="material-icons"> add_circle </i> New room </h2>
-        </Wrapper>
-        <div className="card-action">
-          <a href="#">Add </a>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export const RoomCard = (props) => {
   return (
     <div className="col s12 m6">
