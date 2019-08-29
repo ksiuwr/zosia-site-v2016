@@ -148,7 +148,8 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        return self.lecture_registration_start <= TimeManager.now() <= self.lecture_registration_end
+        return self.lecture_registration_start <= TimeManager.now() <= \
+               self.lecture_registration_end
 
 
 class BusManager(models.Manager):
@@ -167,7 +168,7 @@ class Bus(models.Model):
 
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
     capacity = models.IntegerField()
-    time = models.TimeField()
+    time = models.DateTimeField()
     name = models.TextField(default="Bus")
 
     def __str__(self):

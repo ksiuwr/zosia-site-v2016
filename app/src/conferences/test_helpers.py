@@ -1,5 +1,3 @@
-from datetime import time
-
 from conferences.models import Bus, Place, UserPreferences, Zosia
 from users.models import User
 from utils.time_manager import TimeManager
@@ -67,7 +65,7 @@ def new_bus(commit=True, **override):
     zosia = override['zosia'] or new_zosia()
     defaults = {
         'capacity': 0,
-        'time': time(1),
+        'time': TimeManager.now(),
         'zosia': zosia,
 
     }

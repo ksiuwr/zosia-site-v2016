@@ -1,15 +1,15 @@
-import datetime
+from datetime import timedelta
 import random
 
-from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
+from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
-
+from utils.time_manager import TimeManager
 
 User = get_user_model()
 
@@ -38,7 +38,7 @@ def create_lecture(zosia, author):
 
 
 def random_date_before(date, range_days):
-    return date - datetime.timedelta(days=random.randint(1, range_days))
+    return TimeManager.to_timezone(date - timedelta(days=random.randint(1, range_days)))
 
 
 def create_place():
@@ -50,13 +50,13 @@ def create_place():
 
 
 def create_buses(zosia):
-    Bus.objects.create(zosia=zosia, time=datetime.time(16), capacity=45)
-    Bus.objects.create(zosia=zosia, time=datetime.time(18), capacity=45)
+    Bus.objects.create(zosia=zosia, time=TimeManager.today_time(hour=16), capacity=45)
+    Bus.objects.create(zosia=zosia, time=TimeManager.today_time(hour=18), capacity=45)
 
 
 def create_active_zosia(place, **kwargs):
-    today = datetime.date.today()
-    start_date = datetime.date.today() + datetime.timedelta(days=350)
+    today = TimeManager.now()
+    start_date = TimeManager.timedelta_from_now(days=350)
     start = today
     end = start_date
     data = {
@@ -74,7 +74,7 @@ def create_active_zosia(place, **kwargs):
 
 
 def create_past_zosia(place, **kwargs):
-    start_date = random_date_before(datetime.date.today(), 400)
+    start_date = random_date_before(TimeManager.now(), 400)
     registration_end = random_date_before(start_date, 20)
     registration_start = random_date_before(registration_end, 40)
     rooming_end = registration_end

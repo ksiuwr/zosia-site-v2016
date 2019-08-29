@@ -1,20 +1,18 @@
-import os
-from datetime import time, timedelta
+from datetime import timedelta
+from unittest import skip
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
 
+from conferences.forms import UserPreferencesAdminForm, UserPreferencesForm
+from conferences.models import Bus, UserPreferences, Zosia
+from conferences.test_helpers import (
+    PRICE_BASE, PRICE_BONUS,
+    PRICE_DINNER, new_bus, new_user, new_zosia, user_preferences, )
 from users.models import Organization
 from utils.time_manager import TimeManager
-
-from conferences.forms import UserPreferencesForm, UserPreferencesAdminForm
-from conferences.models import Bus, Place, UserPreferences, Zosia
-from conferences.test_helpers import (
-    PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
-    PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
-    new_bus, new_user, new_zosia, user_preferences)
 
 User = get_user_model()
 
@@ -36,25 +34,30 @@ class ZosiaTestCase(TestCase):
 
     def test_end_date(self):
         """Zosia has 4 days"""
-        self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
+        self.assertEqual(self.active.end_date, self.active.start_date + timedelta(days=3))
 
     def test_can_start_rooming(self):
         self.active.rooming_start = TimeManager.now()
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0), zosia=self.active)
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0),
+                                      zosia=self.active)
         self.assertTrue(self.active.can_start_rooming(user_prefs))
 
     def test_can_start_rooming_2(self):
         self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0), zosia=self.active)
-        self.assertFalse(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone("2016-12-22 23:58")))
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0),
+                                      zosia=self.active)
+        self.assertFalse(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone(
+            "2016-12-22 23:58")))
 
     def test_can_start_rooming_3(self):
         self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0), zosia=self.active)
-        self.assertTrue(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone("2016-12-22 23:58")))
+        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0),
+                                      zosia=self.active)
+        self.assertTrue(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone(
+            "2016-12-22 23:58")))
 
 
 class BusTestCase(TestCase):
@@ -175,8 +178,8 @@ class UserPreferencesFormTestCase(TestCase):
         form = self.makeUserPrefsForm(breakfast_2=True, accomodation_2=False)
         self.assertFalse(form.is_valid())
 
+    @skip("TODO, not implemented yet")
     def test_bus_choices_with_user(self):
-        # TODO
         pass
 
 
@@ -316,7 +319,8 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
-        self.assertEqual(list(context['objects']), list(UserPreferences.objects.filter(zosia=self.zosia).all()))
+        self.assertEqual(list(context['objects']),
+                         list(UserPreferences.objects.filter(zosia=self.zosia).all()))
 
 
 class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
@@ -345,7 +349,8 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
                                      'command': 'toggle_payment_accepted'},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
+        self.assertTrue(
+            UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
 
     def test_post_staff_user_can_bonus(self):
         self.client.login(email="starr@thebeatles.com", password='ringopassword')
@@ -355,14 +360,17 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
                                      'bonus': 20},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().bonus_minutes, 20)
+        self.assertEqual(
+            UserPreferences.objects.filter(pk=self.user_prefs.pk).first().bonus_minutes, 20)
 
 
 class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia, contact='foo')
-        self.url = reverse('user_preferences_edit', kwargs={'user_preferences_id': self.user_prefs.pk})
+        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia,
+                                                         contact='foo')
+        self.url = reverse('user_preferences_edit',
+                           kwargs={'user_preferences_id': self.user_prefs.pk})
 
     def test_get_no_user(self):
         response = self.client.get(self.url, follow=True)

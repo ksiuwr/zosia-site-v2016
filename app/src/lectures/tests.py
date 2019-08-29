@@ -1,15 +1,14 @@
-from datetime import timedelta
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.forms import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
-from lectures.models import Lecture
-from lectures.forms import LectureForm, LectureAdminForm
-from conferences.models import Zosia, Place
-from utils.time_manager import TimeManager
 
+from conferences.models import Place, Zosia
+from lectures.forms import LectureAdminForm, LectureForm
+from lectures.models import Lecture
+from utils.time_manager import TimeManager
 
 User = get_user_model()
 
@@ -183,7 +182,7 @@ class FormTestCase(LectureTestCase):
 
     def test_admin_create_object(self):
         form = LectureAdminForm({'title': 'foo', 'abstract': 'bar',
-                                'duration': '5', 'lecture_type': '1',
+                                 'duration': '5', 'lecture_type': '1',
                                  'person_type': '0', 'author': self.user.id})
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
