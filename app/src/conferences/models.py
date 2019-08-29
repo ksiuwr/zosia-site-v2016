@@ -102,7 +102,7 @@ class Zosia(models.Model):
 
     @property
     def end_date(self):
-        return self.start_date + timedelta(3)
+        return self.start_date + timedelta(days=3)
 
     def __str__(self):
         return 'Zosia {}'.format(self.start_date.year)
@@ -192,6 +192,8 @@ class UserPreferencesManager(models.Manager):
         return self.filter(**defaults)
 
 
+# UserPreferences is placed in `conferences` app because of cyclic dependencies
+# between models Bus and UserPreferences
 class UserPreferences(models.Model):
     class Meta:
         verbose_name_plural = 'Users preferences'
