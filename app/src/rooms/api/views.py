@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from conferences.models import RoomingStatus, UserPreferences, Zosia
+from conferences.constants import RoomingStatus
+from conferences.models import UserPreferences, Zosia
 from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
     LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer
 from rooms.models import Room, UserRoom

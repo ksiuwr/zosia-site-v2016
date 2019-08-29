@@ -1,6 +1,13 @@
 from django.utils.translation import ugettext as _
 
 
+class RoomingStatus:
+    BEFORE_ROOMING = "before"
+    ROOMING_PROGRESS = "progress"
+    AFTER_ROOMING = "after"
+    ROOMING_UNAVAILABLE = "unavailable"
+
+
 SHIRT_SIZE_CHOICES = (
     ('S', 'S'),
     ('M', 'M'),
@@ -15,20 +22,14 @@ SHIRT_TYPES_CHOICES = (
     ('f', _('female')),
 )
 
-
 ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT = 'toggle_payment_accepted'
-
 
 ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS = 'change_bonus'
 
-
 GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
-
 
 MIN_BONUS = 0
 
-
 MAX_BONUS = 250
-
 
 BONUS_STEP = 5

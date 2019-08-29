@@ -7,16 +7,9 @@ from django.http import Http404
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
-from conferences.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from conferences.constants import RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
 from utils.time_manager import TimeManager
-
-
-class RoomingStatus:
-    BEFORE_ROOMING = "before"
-    ROOMING_PROGRESS = "progress"
-    AFTER_ROOMING = "after"
-    ROOMING_UNAVAILABLE = "unavailable"
 
 
 class Place(models.Model):
