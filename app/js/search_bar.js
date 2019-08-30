@@ -3,49 +3,142 @@ import React from "react";
 
 import {useModal} from "./modals";
 import {Modal} from "./materialize_modal";
+import RoomsView from "./room";
+import { create_room } from "./zosia_api";
+import { create } from "domain";
+
+const form = (defaultValue, input) => {
+  return {
+    default: defaultValue,
+    Input: input,
+  }
+}
+
+const composeForms = (forms, parametrized_component) => {
+  const defaultValue = {};
+  Object.keys(forms).forEach(name => defaultValue[name] = forms[name].default);
+  const inputs = Object.keys(forms).map(name => forms[name].Input)
+  return form(defaultValue, parametrized_component(inputs));
+}
+
+const NaturalNumberForm = form(0, (props) => {
+  const onChange = e => {
+    props.onChange(e.target.value);
+  }
+  return (
+    <div className="input-field col s3">
+      <input id={props.name} type="number" min="0" className="validate" value={props.value} onChange={onChange}/>
+      <label htmlFor={props.name}>{props.name}</label>
+    </div>
+  )
+});
+
+const BedsForm = composeForms({ single: NaturalNumberForm, double: NaturalNumberForm},
+  ([SingleInput, DoubleInput]) => props => {
+    const onChange = name => val => {
+      props.onChange({...props.value, [name]: val});
+    }
+
+    return (
+      <div>
+        <SingleInput value={props.value["single"]} name={ props.name + "Single" } onChange={onChange("single")}/>
+        <DoubleInput value={props.value["double"]} name={ props.name + "Double" } onChange={onChange("double")}/>
+      </div>
+    )
+  
+})
+
+const TextAreaForm = form("", (props) => {
+  const onChange = e => {
+    props.onChange(e.target.value);
+  };
+
+  return (
+    <div className="input-field col s12">
+      <textarea id={props.name} className="materialize-textarea" value={props.value} onChange={onChange}/>
+      <label htmlFor={props.name}>{props.name}</label>
+    </div>
+  )
+})
+
+const TextForm = form("", (props) => {
+  const onChange = e => {
+    props.onChange(e.target.value);
+  };
+
+  return (
+    <div className="input-field col s12">
+      <input 
+        id={props.name} type="text" className="validate" value={props.value} 
+        onChange={onChange}
+      />
+      <label htmlFor={props.name}>{props.name}</label>
+    </div>
+  )
+});
+
+const CheckboxForm = form(false, (props) => {
+  const onChange = e => {
+    console.log(e.target.checked);
+    props.onChange(e.target.checked);
+  }
+  return (
+    <div className="col s12">
+      <p>
+        <label>
+          <input type="checkbox" checked={props.value} onChange={onChange}/>
+          <span>{props.name}</span>
+        </label>
+      </p>
+    </div>
+  )
+});
+const RoomForm = composeForms(
+  {
+    name: TextForm,
+    description: TextAreaForm,
+    available_beds: BedsForm,
+    beds: BedsForm,
+    hidden: CheckboxForm,
+  },
+  ([NameInput, DescriptionInput, AvailbleBedsInput, BedsInput, HiddenInput]) => props => {
+    const onChange = name => val => {
+      props.onChange({...props.value, [name]: val});
+    }
+    return (
+      <div>
+        <NameInput value={props.value["name"]} name={"Name"} onChange={onChange("name")}/>
+        <DescriptionInput value={props.value["description"]} name={"Description"} onChange={onChange("description")}/>
+        <AvailbleBedsInput value={props.value["available_beds"]} name={"AvailableBeds"} onChange={onChange("available_beds")}/>
+        <BedsInput value={props.value["beds"]} name={"Beds"} onChange={onChange("beds")}/>
+        <HiddenInput value={props.value["hidden"]} name={"Hidden"} onChange={onChange("hidden")}/>
+      </div>
+    )
+  }
+)
+
+const useForm = form => {
+  const [value, setValue] = React.useState(form.default);
+  return [form.Input, value, setValue]
+}
+
 
 const AddRoomModal = props => {
+  const [FormInput, formValue, setValue] = useForm(RoomForm);
+  const submit = () => {
+    create_room(formValue); 
+  }
+  
   return (
     <Modal closeModal={props.closeModal}>
       <div className="modal-content">
         <h4>Add Room</h4>
         <div className="row">
-          <div className="input-field col s12">
-            <input id="name" type="text" className="validate"/>
-            <label htmlFor="name">Name</label>
-          </div>
-          <div className="input-field col s12">
-            <textarea id="description" className="materialize-textarea"/>
-            <label htmlFor="descrtiption">Description</label>
-          </div>
-          <div className="input-field col s3">
-            <input id="double_beds" type="number" min="0" className="validate"/>
-            <label htmlFor="double_beds">Double Beds</label>
-          </div>
-          <div className="input-field col s3">
-            <input id="single_beds" type="number" min="0" className="validate"/>
-            <label htmlFor="single_beds">Single Beds</label>
-          </div>
-          <div className="input-field col s3">
-            <input id="availble_double_beds" type="number" className="validate"/>
-            <label htmlFor="availble_double_beds">Availble Double Beds</label>
-          </div>
-          <div className="input-field col s3">
-            <input id="availble_single_beds" type="number" min="0" className="validate"/>
-            <label htmlFor="availble_single_beds">Availble Single Beds</label>
-          </div>
-          <div className="col s12">
-            <p>
-              <label>
-                <input type="checkbox" />
-                <span>Hidden</span>
-              </label>
-            </p>
-          </div>
+          <FormInput name="" value={formValue} onChange={setValue}></FormInput>
         </div>
       </div>
       <div className="modal-footer">
-        <a href="#!" className="modal-close waves-effect waves-green btn-flat" onClick={()=> console.log("XDD")}>
+        <a href="#!" className="modal-close waves-effect waves-green btn-flat" onClick={submit}>
           Add
         </a>
       </div>

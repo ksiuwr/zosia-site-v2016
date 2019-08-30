@@ -7,7 +7,7 @@ import styled from "styled-components";
 import useInterval from "./use_interval";
 import { useModal, ModalProvider, ModalRoot } from "./modals";
 import { exists } from "./helpers";
-import api from "./zosia_api";
+import { get_rooms } from "./zosia_api";
 
 import { RoomCard } from "./room_card";
 import SearchBar from "./search_bar";
@@ -18,8 +18,8 @@ const RoomsView = (props) =>
   const [searchWords, setSearchWords] = React.useState([]);
   const [showFull, setShowFull] = React.useState(true);
   useInterval(() => {
-    api.get_rooms().then(json => setRooms(json));
-  }, 10000);
+    get_rooms().then(json => setRooms(json));
+  }, 1000);
 
 
   const onSearch = event =>
