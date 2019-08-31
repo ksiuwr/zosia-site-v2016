@@ -2,6 +2,8 @@
 import React from "react";
 import styled from "styled-components";
 
+import { delete_room, join_room } from "./zosia_api";
+
 const Wrapper = styled.div`
   &:after {
     content: "";
@@ -19,19 +21,19 @@ const Action = styled.a`
   text-transform: uppercase;
 `;
 
-const roomSizeOfBeds = beds => beds == null ? 0 : beds.single + beds.double * 2 + beds.other
+const roomCapacity = beds => beds.single + beds.double
 
 const Members = ({beds, members}) => {
-  const room_size = roomSizeOfBeds(beds);
+  const room_size = roomCapacity(beds);
   const people_in_room = members.length
-  const free_places = room_size - people_in_room
+  const free_capacity = room_size - people_in_room
   const tenants = [];
   for (let i = 0; i < people_in_room; i++)
   {
     tenants.push(<i className="material-icons"> person </i>);
   }
 
-  for (let i = 0; i < free_places; i++)
+  for (let i = 0; i < free_capacity; i++)
   {
     tenants.push(<i className="material-icons"> person_outline </i>);
   }
@@ -44,6 +46,25 @@ const Members = ({beds, members}) => {
 }
 
 export const RoomCard = (props) => {
+  const canEnter = () => roomCapacity(props.available_beds) > props.members.length
+  const canUnlock = () => {
+    const isLocked = props.lock != null;
+    if (!isLocked)
+      return false;
+    const hasLockPackword = 'password' in props.lock
+    return hasLockPackword;
+  }
+  const canLock = () => {
+    const isNotLocked = props.lock != null;
+    const isMyRoom = props.my_room == props.uri
+    return isNotLocked && isMyRoom;
+  }
+  const canDelete = () => {
+    return true;
+  }
+  const canEdit = () => {
+    return true;
+  }
   return (
     <div className="col s12 m6">
       <div className="card">
@@ -59,11 +80,11 @@ export const RoomCard = (props) => {
           </div>
         </Wrapper>
         <div className="card-action">
-          <a href="#">Enter </a>
-        { props.lock != null && 'password' in props.lock ?
-          <a href="#">Unlock </a> : '' }
-        { !('lock' in props) && props.my_room == props.uri ?
-          <a href="#"> lock </a> : '' }
+          { canEnter() ? <a href="#" onClick={() => join_room(props.id, 1)}> enter </a> : '' }
+          { canUnlock() ? <a href="#"> unlock </a> : '' }
+          { canLock() ? <a href="#"> lock </a> : '' }
+          { canDelete() ? <a href="#" onClick={() => delete_room(props.id) }> delete </a> : ''}
+          { canEdit() ? <a href="#" onClick={() => console.log(props) }> edit </a> : ''}
         </div>
       </div>
     </div>
