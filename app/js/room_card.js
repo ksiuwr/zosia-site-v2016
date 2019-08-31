@@ -21,7 +21,7 @@ const Action = styled.a`
   text-transform: uppercase;
 `;
 
-const roomCapacity = beds => beds.single + beds.double
+const roomCapacity = beds => beds.single + beds.double * 2
 
 const Members = ({beds, members}) => {
   const room_size = roomCapacity(beds);
@@ -30,12 +30,12 @@ const Members = ({beds, members}) => {
   const tenants = [];
   for (let i = 0; i < people_in_room; i++)
   {
-    tenants.push(<i className="material-icons"> person </i>);
+    tenants.push(<i className="material-icons" key={i}> person </i>);
   }
 
   for (let i = 0; i < free_capacity; i++)
   {
-    tenants.push(<i className="material-icons"> person_outline </i>);
+    tenants.push(<i className="material-icons" key={i + people_in_room}> person_outline </i>);
   }
 
   return (
@@ -84,7 +84,7 @@ export const RoomCard = (props) => {
           { canUnlock() ? <a href="#"> unlock </a> : '' }
           { canLock() ? <a href="#"> lock </a> : '' }
           { canDelete() ? <a href="#" onClick={() => delete_room(props.id) }> delete </a> : ''}
-          { canEdit() ? <a href="#" onClick={() => console.log(props) }> edit </a> : ''}
+          { canEdit() ? <a href="#" onClick={() => console.log(props) }> edit </a> : <a href="#" onClick={showDetails}> Details </a>}
         </div>
       </div>
     </div>

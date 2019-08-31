@@ -66,6 +66,10 @@ const TextForm = form("", (props) => {
     props.onChange(e.target.value);
   };
 
+  React.useEffect(() => {
+    M.updateTextFields();
+  }, []);
+
   return (
     <div className="input-field col s12">
       <input 
@@ -101,16 +105,33 @@ const RoomForm = composeForms(
     beds: BedsForm,
     hidden: CheckboxForm,
   },
-  ([NameInput, DescriptionInput, AvailbleBedsInput, BedsInput, HiddenInput]) => props => {
+  ([NameInput, DescriptionInput, AvailableBedsInput, BedsInput, HiddenInput]) => props => {
+    const onChangeAvailableBeds = available_beds => {
+      const beds = {
+        single: Math.max(props.value.beds.single, available_beds.single),
+        double: Math.max(props.value.beds.double, available_beds.double),
+      }
+      props.onChange({...props.value, available_beds, beds});
+    }
+
+    const onChangeBeds = beds => {
+      const available_beds = {
+        single: Math.min(props.value.available_beds.single, beds.single),
+        double: Math.min(props.value.available_beds.double, beds.double),
+      }
+      props.onChange({...props.value, available_beds, beds});
+    }
+
     const onChange = name => val => {
       props.onChange({...props.value, [name]: val});
     }
+
     return (
       <div>
         <NameInput value={props.value["name"]} name={"Name"} onChange={onChange("name")}/>
         <DescriptionInput value={props.value["description"]} name={"Description"} onChange={onChange("description")}/>
-        <AvailbleBedsInput value={props.value["available_beds"]} name={"AvailableBeds"} onChange={onChange("available_beds")}/>
-        <BedsInput value={props.value["beds"]} name={"Beds"} onChange={onChange("beds")}/>
+        <AvailableBedsInput value={props.value["available_beds"]} name={"AvailableBeds"} onChange={onChangeAvailableBeds}/>
+        <BedsInput value={props.value["beds"]} name={"Beds"} onChange={onChangeBeds}/>
         <HiddenInput value={props.value["hidden"]} name={"Hidden"} onChange={onChange("hidden")}/>
       </div>
     )
