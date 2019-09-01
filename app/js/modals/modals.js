@@ -1,11 +1,12 @@
+
 import React from 'react';
 
 const ModalContext = React.createContext(
     {
         component: null,
         props: {},
-        closeModal: () => {},
-        openModal: () => {},
+        closeModal: () => { console.log("XDD") },
+        openModal: () => { console.log("XD") },
     }
 );
 

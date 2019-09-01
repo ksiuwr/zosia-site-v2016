@@ -7,7 +7,7 @@ let getId = () => {
     return "modal" + id.toString();
 }
 
-export const Modal = props => {
+const Modal = props => {
   const [id, setId] = React.useState(getId());
   React.useEffect(() => {
     const elems = document.querySelectorAll('#' + id);
@@ -22,4 +22,6 @@ export const Modal = props => {
     </div>
   )
 }
+
+export default Modal;
 

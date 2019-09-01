@@ -5,7 +5,7 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 
 import useInterval from "./use_interval";
-import { useModal, ModalProvider, ModalRoot } from "./modals";
+import { useModal, ModalProvider, ModalRoot } from "./modals/modals";
 import { exists } from "./helpers";
 import { get_rooms } from "./zosia_api";
 
@@ -45,21 +45,23 @@ const RoomsView = (props) =>
     {
       return true;
     }
-    return exists(searchWords, word => room.room_number.toString().includes(word))
+    return exists(searchWords, word => room.name.toString().includes(word))
   })
 
-  const filterResults = searchResults.filter(room => {
+  const filteredResults = searchResults.filter(room => {
     if (showFull)
     {
       return true;
     }
     else
     {
-      return room.room_size > room.people_in_room;
+      return 
+        room.available_beds.single + room.available_beds.double * 2 > 
+        room.members.length;
     }
   })
 
-  const sortResults = filterResults.sort((lhs, rhs) => {
+  const sortedResults = filteredResults.sort((lhs, rhs) => {
     return lhs.room_number - rhs.room_number
   })
   
@@ -69,7 +71,7 @@ const RoomsView = (props) =>
         onSearch={onSearch}
         onShowFullRoomsToggle={onShowFullRoomsToggle}
        />
-      {sortResults.map(data => {
+      {sortedResults.map(data => {
         return (<RoomCard key={data.id} my_room={'/rooms/1'} {...data}/>);
       })}
     </div>
