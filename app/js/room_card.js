@@ -4,23 +4,6 @@ import styled from "styled-components";
 
 import { delete_room, join_room } from "./zosia_api";
 
-const Wrapper = styled.div`
-  &:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-  padding: 15px;
-`
-
-const Action = styled.a`
-  color: #ffab40;
-  margin-right: 24px;
-  -webkit-transition: color .3s ease;
-  transition: color .3s ease;
-  text-transform: uppercase;
-`;
-
 const roomCapacity = beds => beds.single + beds.double * 2
 
 const Members = ({beds, members}) => {
@@ -28,6 +11,10 @@ const Members = ({beds, members}) => {
   const people_in_room = members.length
   const free_capacity = room_size - people_in_room
   const tenants = [];
+  React.useEffect(() => {
+    var elems = document.querySelectorAll('.tooltipped');
+    var instances = M.Tooltip.init(elems, {});
+  })
   for (let i = 0; i < people_in_room; i++)
   {
     tenants.push(<i className="material-icons" key={i}> person </i>);
@@ -39,9 +26,9 @@ const Members = ({beds, members}) => {
   }
 
   return (
-    <h5>
+    <a className="right">
       {tenants}
-    </h5>
+    </a>
   )
 }
 
@@ -66,25 +53,30 @@ export const RoomCard = (props) => {
     return true;
   }
   return (
-    <div className="col s12 m6">
+    <div className="col s12 xl6">
       <div className="card">
-        <Wrapper> 
-          <div className="col s2">
-            <h5> {props.name} </h5>
-          </div>
-          <div className="col s10 right-align">
+        <div className="card-content">
+            <span className="card-title grey-text text-darken-4"> {props.name} 
             <Members 
               beds={props.available_beds}
               members={props.members}
             />
-          </div>
-        </Wrapper>
+            </span>
+        </div>
+        <div className="card-reveal">
+          <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
+          <p> 
+            Members: {props.members.length == 0 ? "-" : null} <br/>
+            Description: {props.description}
+          </p>
+        </div>
         <div className="card-action">
           { canEnter() ? <a href="#" onClick={() => join_room(props.id, 1)}> enter </a> : '' }
           { canUnlock() ? <a href="#"> unlock </a> : '' }
           { canLock() ? <a href="#"> lock </a> : '' }
           { canDelete() ? <a href="#" onClick={() => delete_room(props.id) }> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={() => console.log(props) }> edit </a> : <a href="#" onClick={showDetails}> Details </a>}
+          <a href="javascript:void(0)" className="activator right" style={{"margin-right": 0}}> more </a>
         </div>
       </div>
     </div>
