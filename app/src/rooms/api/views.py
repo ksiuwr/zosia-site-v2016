@@ -17,7 +17,7 @@ from users.models import User
 class RoomMembersList(APIView):
     permission_classes = [IsAdminUser]
 
-    def get(self, request, version, format=None):
+    def get(self, request, version):
         user_room = UserRoom.objects.all()
         serializer = RoomMembersSerializer(user_room, many=True, context={'request': request})
 
@@ -25,14 +25,14 @@ class RoomMembersList(APIView):
 
 
 class RoomList(APIView):
-    def get(self, request, version, format=None):
+    def get(self, request, version):
         sender = request.user
         rooms = Room.objects.all() if sender.is_staff else Room.objects.all_visible()
         serializer = RoomSerializer(rooms, many=True, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, version, format=None):
+    def post(self, request, version):
         if not request.user.is_staff:
             raise exceptions.PermissionDenied()
 
@@ -49,13 +49,13 @@ class RoomList(APIView):
 
 
 class RoomDetail(APIView):
-    def get(self, request, version, pk, format=None):
+    def get(self, request, version, pk):
         room = get_object_or_404(Room, pk=pk)
         serializer = RoomSerializer(room, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def put(self, request, version, pk, format=None):
+    def put(self, request, version, pk):
         if not request.user.is_staff:
             raise exceptions.PermissionDenied()
 
@@ -71,7 +71,7 @@ class RoomDetail(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, version, pk, format=None):
+    def delete(self, request, version, pk):
         if not request.user.is_staff:
             raise exceptions.PermissionDenied()
 
@@ -98,7 +98,7 @@ def check_rooming(user, sender):
 
 
 @api_view(["POST"])
-def leave(request, version, pk, format=None):
+def leave(request, version, pk):
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = LeaveMethodSerializer(data=request.data)
@@ -119,7 +119,7 @@ def leave(request, version, pk, format=None):
 
 
 @api_view(["POST"])
-def join(request, version, pk, format=None):  # only room joining
+def join(request, version, pk):  # only room joining
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = JoinMethodSerializer(data=request.data)
@@ -141,7 +141,7 @@ def join(request, version, pk, format=None):  # only room joining
 
 
 @api_view(["POST"])
-def lock(request, version, pk, format=None):  # only locks the room
+def lock(request, version, pk):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = LockMethodAdminSerializer(data=request.data) \
@@ -164,7 +164,7 @@ def lock(request, version, pk, format=None):  # only locks the room
 
 
 @api_view(["POST"])
-def unlock(request, version, pk, format=None):
+def unlock(request, version, pk):
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
 
@@ -179,7 +179,7 @@ def unlock(request, version, pk, format=None):
 
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
-def hide(request, version, pk, format=None):
+def hide(request, version, pk):
     room = get_object_or_404(Room, pk=pk)
     room.hidden = True
     room.save()
@@ -189,7 +189,7 @@ def hide(request, version, pk, format=None):
 
 @api_view(["POST"])
 @permission_classes([IsAdminUser])
-def unhide(request, version, pk, format=None):
+def unhide(request, version, pk):
     room = get_object_or_404(Room, pk=pk)
     room.hidden = False
     room.save()
