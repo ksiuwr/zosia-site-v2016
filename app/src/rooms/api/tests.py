@@ -62,7 +62,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
             "beds": {"single": 1, "double": 0},
             "available_beds": {"single": 1, "double": 0}
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -75,7 +75,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
             "beds": {"single": 1, "double": 0},
             "available_beds": {"single": 1, "double": 0}
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["name"], "789")
@@ -91,7 +91,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
             "beds": {"single": 2, "double": 3},
             "available_beds": {"single": 3, "double": 1}
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["name"], "456")
@@ -107,7 +107,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
             "beds": {"single": 2, "double": 3},
             "available_beds": {"single": 4, "double": 2}
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -120,7 +120,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
             "beds": {"single": -2, "double": 0},
             "available_beds": {"single": 1, "double": 0}
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -133,7 +133,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
             "beds": {"single": 1, "double": -1},
             "available_beds": {"single": 1, "double": 0}
         }
-        response = self.client.post(self.url, data)
+        response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
