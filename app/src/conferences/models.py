@@ -6,8 +6,8 @@ from django.db.models import Count, F
 from django.http import Http404
 from django.utils.translation import ugettext as _
 
-from conferences.constants import RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from users.models import Organization, User
+from utils.constants import RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.time_manager import TimeManager
 
 

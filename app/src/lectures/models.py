@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
 from conferences.models import Zosia
-from .constants import DURATION_CHOICES, LECTURE_TYPE, PERSON_TYPE
+from utils.constants import DURATION_CHOICES, LECTURE_TYPE, PERSON_TYPE
 
 
 class Lecture(models.Model):

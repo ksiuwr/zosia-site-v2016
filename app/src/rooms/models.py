@@ -1,13 +1,13 @@
 import random
 import string
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
+from utils.constants import ROOM_LOCK_TIMEOUT
 from utils.time_manager import TimeManager
 
 
@@ -19,7 +19,7 @@ def random_string(length=10):
 class RoomLockManager(models.Manager):
     def make(self, user, expiration_date=None):
         if not expiration_date:
-            expiration_date = TimeManager.to_timezone(timezone.now() + settings.LOCK_TIMEOUT)
+            expiration_date = TimeManager.timedelta_from_now(delta=ROOM_LOCK_TIMEOUT)
 
         return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
 

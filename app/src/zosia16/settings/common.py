@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-from datetime import timedelta
 import os
 import random
 import string
@@ -18,6 +17,8 @@ import raven
 
 # Google API key
 GAPI_KEY = os.environ.get('GAPI_KEY')
+
+GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -186,7 +187,3 @@ DATE_FORMAT = 'd.n.o'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
-
-# Code constants
-
-LOCK_TIMEOUT = timedelta(hours=3)
