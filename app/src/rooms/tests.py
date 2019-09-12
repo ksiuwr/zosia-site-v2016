@@ -283,7 +283,7 @@ class IndexViewTestCase(RoomsViewTestCase):
 
     @skip("API changed. Needs rewrite")
     def test_cannot_room_before_rooming_open(self):
-        self.zosia.rooming_start = self.zosia.rooming_start + timedelta(3)
+        self.zosia.rooming_start = self.zosia.rooming_start + timedelta(days=3)
         self.zosia.save()
         self.login()
         self.register(payment_accepted=True)

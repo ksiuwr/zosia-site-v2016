@@ -189,4 +189,4 @@ STATIC_ROOT = '/static'
 
 # Code constants
 
-LOCK_TIMEOUT = timedelta(0, 3 * 3600)
+LOCK_TIMEOUT = timedelta(hours=3)

@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Count, F
 from django.http import Http404
-from django.utils import timezone
 from django.utils.translation import ugettext as _
 
 from conferences.constants import RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -114,22 +113,16 @@ class Zosia(models.Model):
     def can_start_rooming(self, user_prefs, now=None):
         return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
 
-    def rooming_start_for_user(self, user_prefs):
-        if not user_prefs.payment_accepted:
-            raise ValueError("User has not paid.")
-
-        return user_prefs.convert_bonus_to_time()
-
     def get_rooming_status(self, user_prefs, now=None):
         if not now:
             now = TimeManager.now()
 
-        try:
-            start_time = self.rooming_start_for_user(user_prefs)
-        except ValueError:
+        user_start_time = user_prefs.rooming_start_time
+
+        if not user_start_time:
             return RoomingStatus.ROOMING_UNAVAILABLE
 
-        if now < start_time:
+        if now < user_start_time:
             return RoomingStatus.BEFORE_ROOMING
 
         if now > self.rooming_end:
@@ -141,9 +134,8 @@ class Zosia(models.Model):
         # NOTE: If this instance is not yet saved, self.pk == None
         # So this query will take all active objects from db
         if self.active and Zosia.objects.exclude(pk=self.pk).filter(active=True).exists():
-            raise ValidationError(
-                _(u'Only one Zosia may be active at any given time')
-            )
+            raise ValidationError(_(u'Only one Zosia may be active at any given time'))
+
         super(Zosia, self).validate_unique(**kwargs)
 
     @property
@@ -308,13 +300,10 @@ class UserPreferences(models.Model):
     def room(self):
         return self.user.room_set.filter(zosia=self.zosia).first()
 
-    def convert_bonus_to_time(self):
-        opening_time = TimeManager.to_timezone(datetime.combine(self.zosia.rooming_start,
-                                                                datetime.min.time()))
-        return opening_time - timedelta(0, 60 * self.bonus_minutes)
-
     @property
-    def rooming_time(self):
-        return self.convert_bonus_to_time() \
-            .astimezone(timezone('Europe/Warsaw')) \
-            .strftime("%d.%m.%Y %H:%M")
+    def rooming_start_time(self):
+        if not self.payment_accepted:
+            return None
+
+        return TimeManager.to_timezone(
+            self.zosia.rooming_start - timedelta(minutes=self.bonus_minutes))
