@@ -110,7 +110,7 @@ class Zosia(models.Model):
     def is_rooming_open(self):
         return TimeManager.now() <= self.rooming_end
 
-    def can_start_rooming(self, user_prefs, now=None):
+    def can_user_choose_room(self, user_prefs, now=None):
         return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
 
     def get_rooming_status(self, user_prefs, now=None):

@@ -14,9 +14,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.vary import vary_on_cookie
 
 from conferences.models import UserPreferences, Zosia
-from .forms import UploadFileForm
-from .models import Room
-from .serializers import room_to_dict, user_to_dict
+from rooms.forms import UploadFileForm
+from rooms.models import Room
+from rooms.serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -67,7 +67,7 @@ def status(request):
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
     user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=request.user)
-    can_start_rooming = zosia.can_start_rooming(user_prefs)
+    can_start_rooming = zosia.can_user_choose_room(user_prefs)
     rooms = Room.objects.all_visible().select_related('lock').prefetch_related('members').all()
     rooms_view = []
 

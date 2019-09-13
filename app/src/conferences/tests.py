@@ -36,27 +36,28 @@ class ZosiaTestCase(TestCase):
         """Zosia has 4 days"""
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(days=3))
 
-    def test_can_start_rooming(self):
+    def test_can_user_choose_room_when_at_user_start_time(self):
         self.active.rooming_start = TimeManager.now()
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0),
                                       zosia=self.active)
-        self.assertTrue(self.active.can_start_rooming(user_prefs))
+        self.assertTrue(self.active.can_user_choose_room(user_prefs))
 
-    def test_can_start_rooming_2(self):
+    def test_can_user_choose_room_when_before_user_start_time(self):
         self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0),
                                       zosia=self.active)
-        self.assertFalse(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone(
-            "2016-12-22 23:58")))
+        self.assertFalse(
+            self.active.can_user_choose_room(user_prefs, now=TimeManager.parse_timezone(
+                "2016-12-22 23:58")))
 
-    def test_can_start_rooming_3(self):
+    def test_can_user_choose_room_when_after_user_start_time(self):
         self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
         user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0),
                                       zosia=self.active)
-        self.assertTrue(self.active.can_start_rooming(user_prefs, now=TimeManager.parse_timezone(
+        self.assertTrue(self.active.can_user_choose_room(user_prefs, now=TimeManager.parse_timezone(
             "2016-12-22 23:58")))
 
 
