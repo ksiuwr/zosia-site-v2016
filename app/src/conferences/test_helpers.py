@@ -11,7 +11,7 @@ PRICE_TRANSPORT = 1 << 5
 PRICE_BONUS = 1 << 6
 
 
-def new_zosia(commit=True, **kwargs):
+def create_zosia(commit=True, **kwargs):
     now = TimeManager.now()
     place, _ = Place.objects.get_or_create(
         name='Mieszko',
@@ -50,8 +50,8 @@ USER_DATA = [
 ]
 
 
-def new_user(ind, **kwargs):
-    return User.objects.create_user(*USER_DATA[ind], **kwargs)
+def create_user(index, **kwargs):
+    return User.objects.create_user(*USER_DATA[index], **kwargs)
 
 
 def user_login(user):
@@ -61,8 +61,8 @@ def user_login(user):
     }
 
 
-def new_bus(commit=True, **override):
-    zosia = override['zosia'] or new_zosia()
+def create_bus(commit=True, **override):
+    zosia = override['zosia'] or create_zosia()
     defaults = {
         'capacity': 0,
         'time': TimeManager.now(),
@@ -76,5 +76,5 @@ def new_bus(commit=True, **override):
     return bus
 
 
-def user_preferences(**kwargs):
+def create_user_preferences(**kwargs):
     return UserPreferences.objects.create(**kwargs)

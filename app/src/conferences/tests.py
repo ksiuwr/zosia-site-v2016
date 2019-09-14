@@ -8,9 +8,8 @@ from django.test import TestCase
 
 from conferences.forms import UserPreferencesAdminForm, UserPreferencesForm
 from conferences.models import Bus, UserPreferences, Zosia
-from conferences.test_helpers import (
-    PRICE_BASE, PRICE_BONUS,
-    PRICE_DINNER, new_bus, new_user, new_zosia, user_preferences, )
+from conferences.test_helpers import (PRICE_BASE, PRICE_BONUS, PRICE_DINNER, create_bus,
+                                      create_user, create_user_preferences, create_zosia, )
 from users.models import Organization
 from utils.time_manager import TimeManager
 
@@ -19,14 +18,14 @@ User = get_user_model()
 
 class ZosiaTestCase(TestCase):
     def setUp(self):
-        new_zosia()
-        self.active = new_zosia(active=True)
-        new_zosia()
+        create_zosia()
+        self.active = create_zosia(active=True)
+        create_zosia()
 
     def test_only_one_active_Zosia_can_exist(self):
         """Creating another active Zosia throws an error"""
         with self.assertRaises(ValidationError):
-            new_zosia(active=True, commit=False).full_clean()
+            create_zosia(active=True, commit=False).full_clean()
 
     def test_find_active(self):
         """Zosia.find_active returns active Zosia"""
@@ -39,15 +38,17 @@ class ZosiaTestCase(TestCase):
     def test_can_user_choose_room_when_at_user_start_time(self):
         self.active.rooming_start = TimeManager.now()
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0),
-                                      zosia=self.active)
+        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=0,
+                                             user=create_user(0),
+                                             zosia=self.active)
         self.assertTrue(self.active.can_user_choose_room(user_prefs))
 
     def test_can_user_choose_room_when_before_user_start_time(self):
         self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0),
-                                      zosia=self.active)
+        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=1,
+                                             user=create_user(0),
+                                             zosia=self.active)
         self.assertFalse(
             self.active.can_user_choose_room(user_prefs, now=TimeManager.parse_timezone(
                 "2016-12-22 23:58")))
@@ -55,8 +56,9 @@ class ZosiaTestCase(TestCase):
     def test_can_user_choose_room_when_after_user_start_time(self):
         self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0),
-                                      zosia=self.active)
+        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=3,
+                                             user=create_user(0),
+                                             zosia=self.active)
         self.assertTrue(self.active.can_user_choose_room(user_prefs, now=TimeManager.parse_timezone(
             "2016-12-22 23:58")))
 
@@ -64,13 +66,13 @@ class ZosiaTestCase(TestCase):
 class BusTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.normal2 = new_user(1)
-        self.zosia = new_zosia()
+        self.normal = create_user(0)
+        self.normal2 = create_user(1)
+        self.zosia = create_zosia()
 
-        self.bus1 = new_bus(zosia=self.zosia, capacity=0)
-        self.bus2 = new_bus(zosia=self.zosia, capacity=1)
-        self.bus3 = new_bus(zosia=self.zosia, capacity=2)
+        self.bus1 = create_bus(zosia=self.zosia, capacity=0)
+        self.bus2 = create_bus(zosia=self.zosia, capacity=1)
+        self.bus3 = create_bus(zosia=self.zosia, capacity=2)
 
     def test_find_buses_with_free_places(self):
         buses = Bus.objects.find_with_free_places(self.zosia)
@@ -88,8 +90,8 @@ class BusTestCase(TestCase):
 class UserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.zosia = new_zosia()
+        self.normal = create_user(0)
+        self.zosia = create_zosia()
 
     def makeUserPrefs(self, **override):
         defaults = {
@@ -162,7 +164,7 @@ class UserPreferencesTestCase(TestCase):
 
 class UserPreferencesFormTestCase(TestCase):
     def makeUserPrefsForm(self, **override):
-        self.normal = new_user(0)
+        self.normal = create_user(0)
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
@@ -187,8 +189,8 @@ class UserPreferencesFormTestCase(TestCase):
 class RegisterViewTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.zosia = new_zosia()
+        self.normal = create_user(0)
+        self.zosia = create_zosia()
         self.url = reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk})
 
     def test_get_no_user(self):
@@ -283,9 +285,9 @@ class RegisterViewTestCase(TestCase):
 class AdminUserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.staff = new_user(1, is_staff=True)
-        self.zosia = new_zosia(active=True)
+        self.normal = create_user(0)
+        self.staff = create_user(1, is_staff=True)
+        self.zosia = create_zosia(active=True)
 
 
 class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
@@ -312,7 +314,7 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         self.assertEqual(list(context['objects']), list(UserPreferences.objects.all()))
 
     def test_index_get_staff_user_multiple_zosias(self):
-        another_zosia = new_zosia()
+        another_zosia = create_zosia()
         UserPreferences.objects.create(user=self.normal, zosia=another_zosia)
         UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
         UserPreferences.objects.create(user=self.staff, zosia=self.zosia)
