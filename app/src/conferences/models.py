@@ -1,13 +1,15 @@
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count, F
 from django.http import Http404
 from django.utils.translation import ugettext as _
 
 from users.models import Organization, User
-from utils.constants import RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, RoomingStatus, \
+    SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.time_manager import TimeManager
 
 
@@ -246,7 +248,9 @@ class UserPreferences(models.Model):
     # Should allow some users to book room earlier
     # Typically, almost everyone has some bonus, so we don't get trampled
     # by wave of users booking room at the same time
-    bonus_minutes = models.IntegerField(default=0)
+    bonus_minutes = models.IntegerField(default=MIN_BONUS_MINUTES,
+                                        validators=[MinValueValidator(MIN_BONUS_MINUTES),
+                                                    MaxValueValidator(MAX_BONUS_MINUTES)])
 
     def _pays_for(self, option_name):
         return getattr(self, option_name)
