@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <h3>{% trans "Boardgames" %}</h3>
+      <table>
+        <tr>
+          <th>Name</th>
+          <th>Votes</th>
+          <th>State</th>
+        </tr>
+        {% for boardgame in boardgames %}
+        <tr>
+          <td>{{boardgame.name}}</td>
+          <td>{{boardgame.votes}}</td>
+          <td>{{boardgame.state}}</td>
+        </tr>
+        {% empty %}
+        <div class="row">
+          <div class="col l12 m12 s12">
+            {% trans "Nothing to display" %}
+          </div>
+        </div>
+        {% endfor %}
+      </table>
+  </div>
+{% endblock content %}

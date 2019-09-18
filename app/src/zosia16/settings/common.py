@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',
     'rooms.apps.RoomsConfig',
     'blog.apps.BlogConfig',
+    'boardgames.apps.BoardgameConfig',
     'conferences.apps.ConferencesConfig',
     'users.apps.UsersConfig',
     'sponsors.apps.SponsorsConfig',
@@ -96,6 +97,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # 'django.tables2',
 ]
 
 MIDDLEWARE = [
