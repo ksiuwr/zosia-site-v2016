@@ -72,14 +72,23 @@ class RoomSerializer(serializers.ModelSerializer):
                                    available_beds_double=available_beds_data.get("double"))
 
     def update(self, instance, validated_data):
-        beds_data = validated_data.pop("beds")
-        available_beds_data = validated_data.pop("available_beds")
+        beds_data = validated_data.pop("beds", {"single": instance.beds_single,
+                                                "double": instance.beds_double})
+        available_beds_data = validated_data.pop("available_beds",
+                                                 {"single": instance.available_beds_single,
+                                                  "double": instance.available_beds_double})
 
-        self._validate_beds(beds_data, available_beds_data)
+        beds_data_check = beds_data if beds_data \
+            else {"single": instance.beds_single, "double": instance.beds_double}
+        available_beds_data_check = available_beds_data if available_beds_data \
+            else {"single": instance.available_beds_single,
+                  "double": instance.available_beds_double}
+
+        self._validate_beds(beds_data_check, available_beds_data_check)
 
         instance.name = validated_data.get("name", instance.name)
         instance.description = validated_data.get("description", instance.description)
-        instance.beds_single = beds_data.get("hidden", instance.hidden)
+        instance.hidden = validated_data.get("hidden", instance.hidden)
         instance.beds_single = beds_data.get("single", instance.beds_single)
         instance.beds_double = beds_data.get("double", instance.beds_double)
         instance.available_beds_single = available_beds_data.get("single",

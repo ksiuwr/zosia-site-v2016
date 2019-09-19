@@ -40,8 +40,7 @@ class RoomList(APIView):
 
         if serializer.is_valid():
             instance = serializer.save()
-            response_data = serializer.validated_data
-            response_data["id"] = instance.pk
+            response_data = RoomSerializer(instance).data
 
             return Response(response_data, status=status.HTTP_201_CREATED)
 
@@ -51,6 +50,10 @@ class RoomList(APIView):
 class RoomDetail(APIView):
     def get(self, request, version, pk):
         room = get_object_or_404(Room, pk=pk)
+
+        if not request.user.is_staff and room.hidden:
+            raise exceptions.PermissionDenied()
+
         serializer = RoomSerializer(room, context={'request': request})
 
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -60,12 +63,12 @@ class RoomDetail(APIView):
             raise exceptions.PermissionDenied()
 
         room = get_object_or_404(Room, pk=pk)
-        serializer = RoomSerializer(room, data=request.data, context={'request': request})
+        serializer = RoomSerializer(room, data=request.data, context={'request': request},
+                                    partial=True)
 
         if serializer.is_valid():
             instance = serializer.save()
-            response_data = serializer.validated_data
-            response_data["id"] = instance.pk
+            response_data = RoomSerializer(instance).data
 
             return Response(response_data, status=status.HTTP_200_OK)
 
