@@ -161,6 +161,14 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_user_cannot_view_nonexisting_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        url = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": 0})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
     def test_staff_can_view_hidden_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
@@ -493,6 +501,24 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_user_cannot_join_nonexisting_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        url = reverse("rooms_api_join", kwargs={"version": "v1", "pk": 0})
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_staff_cannot_add_nonexisting_user(self):
+        self.client.force_authenticate(user=self.staff_2)
+
+        data = {"user": 0}
+        response = self.client.post(self.url_1, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class LeaveAPIViewTestCase(RoomsAPIViewTestCase):
     def setUp(self):
@@ -569,6 +595,24 @@ class LeaveAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_cannot_leave_nonexisting_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+
+        url = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": 0})
+        data = {"user": self.normal_1.pk}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_staff_cannot_remove_nonexisting_user_from_room(self):
+        self.client.force_authenticate(user=self.staff_2)
+
+        data = {"user": 0}
+        response = self.client.post(self.url_2, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class LockAPIViewTestCase(RoomsAPIViewTestCase):
@@ -674,6 +718,25 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_1, self.normal_1)
+
+    def test_staff_cannot_lock_nonexisting_room(self):
+        self.client.force_authenticate(user=self.staff_2)
+
+        url = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": 0})
+        expiration_date = timezone.make_aware(datetime.now() + timedelta(days=1))
+        data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
+        response = self.client.post(url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_staff_cannot_lock_room_for_nonexisting_user(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        expiration_date = timezone.make_aware(datetime.now() + timedelta(days=1))
+        data = {"user": 0, "expiration_date": expiration_date}
+        response = self.client.post(self.url_2, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
@@ -793,3 +856,19 @@ class HidingAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_3.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_staff_cannot_hide_nonexisting_room(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": 0})
+        response = self.client.post(url, {})
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_staff_cannot_unhide_nonexisting_room(self):
+        self.client.force_authenticate(user=self.staff_2)
+
+        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": 0})
+        response = self.client.post(url, {})
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

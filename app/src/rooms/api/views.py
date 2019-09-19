@@ -101,18 +101,22 @@ def check_rooming(user, sender):
 
 
 @api_view(["POST"])
-def leave(request, version, pk):
+def join(request, version, pk):  # only room joining
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
-    serializer = LeaveMethodSerializer(data=request.data)
+    serializer = JoinMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
-        user = get_object_or_404(User, pk=user_id)
+        password = serializer.validated_data.get("password")
+        user = User.objects.filter(pk=user_id).first()
+
+        if not user:
+            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             check_rooming(user, sender)
-            room.leave(user, sender)
+            room.join(user, sender, password)
         except exceptions.ValidationError as e:
             return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
@@ -122,19 +126,21 @@ def leave(request, version, pk):
 
 
 @api_view(["POST"])
-def join(request, version, pk):  # only room joining
+def leave(request, version, pk):
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
-    serializer = JoinMethodSerializer(data=request.data)
+    serializer = LeaveMethodSerializer(data=request.data)
 
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
-        password = serializer.validated_data.get("password")
-        user = get_object_or_404(User, pk=user_id)
+        user = User.objects.filter(pk=user_id).first()
+
+        if not user:
+            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             check_rooming(user, sender)
-            room.join(user, sender, password)
+            room.leave(user, sender)
         except exceptions.ValidationError as e:
             return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
@@ -153,7 +159,10 @@ def lock(request, version, pk):  # only locks the room
     if serializer.is_valid():
         user_id = serializer.validated_data.get("user")
         expiration_date = serializer.validated_data.get("expiration_date")
-        user = get_object_or_404(User, pk=user_id)
+        user = User.objects.filter(pk=user_id).first()
+
+        if not user:
+            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             check_rooming(user, sender)
