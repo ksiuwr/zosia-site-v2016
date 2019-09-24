@@ -41,26 +41,32 @@ class ZosiaTestCase(TestCase):
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=0,
                                              user=create_user(0),
                                              zosia=self.active)
-        self.assertTrue(self.active.can_user_choose_room(user_prefs))
+
+        result = self.active.can_user_choose_room(user_prefs)
+
+        self.assertTrue(result)
 
     def test_can_user_choose_room_when_before_user_start_time(self):
-        self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
+        self.active.rooming_start = TimeManager.time_point(2016, 12, 23, 0, 0)
         self.active.save()
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=1,
                                              user=create_user(0),
                                              zosia=self.active)
-        self.assertFalse(
-            self.active.can_user_choose_room(user_prefs, now=TimeManager.parse_timezone(
-                "2016-12-22 23:58")))
+
+        result = self.active.can_user_choose_room(user_prefs,
+                                                  now=TimeManager.time_point(2016, 12, 22, 23, 58))
+        self.assertFalse(result)
 
     def test_can_user_choose_room_when_after_user_start_time(self):
-        self.active.rooming_start = TimeManager.parse_timezone("2016-12-23 0:00")
+        self.active.rooming_start = TimeManager.time_point(2016, 12, 23, 0, 0)
         self.active.save()
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=3,
                                              user=create_user(0),
                                              zosia=self.active)
-        self.assertTrue(self.active.can_user_choose_room(user_prefs, now=TimeManager.parse_timezone(
-            "2016-12-22 23:58")))
+
+        result = self.active.can_user_choose_room(user_prefs,
+                                                  now=TimeManager.time_point(2016, 12, 22, 23, 58))
+        self.assertTrue(result)
 
 
 class BusTestCase(TestCase):

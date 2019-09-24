@@ -50,8 +50,12 @@ def create_place():
 
 
 def create_buses(zosia):
-    Bus.objects.create(zosia=zosia, time=TimeManager.today_time(hour=16), capacity=45)
-    Bus.objects.create(zosia=zosia, time=TimeManager.today_time(hour=18), capacity=45)
+    now = TimeManager.now()
+
+    Bus.objects.create(zosia=zosia, time=TimeManager.time_point(now.year, now.month,
+                                                                now.day, 16), capacity=45)
+    Bus.objects.create(zosia=zosia, time=TimeManager.time_point(now.year, now.month,
+                                                                now.day, 18), capacity=45)
 
 
 def create_active_zosia(place, **kwargs):

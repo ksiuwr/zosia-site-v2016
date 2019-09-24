@@ -12,18 +12,16 @@ class TimeManager:
             else TimeManager.to_timezone(timezone.localtime())
 
     @staticmethod
-    def timedelta_from_now(*, utc=True, delta=None, days=0, hours=0, minutes=0, seconds=0):
+    def timedelta_from_time(time, delta=None, days=0, hours=0, minutes=0, seconds=0):
         if not delta:
             delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
-        return TimeManager.to_timezone(TimeManager.now(utc) + delta)
+        return TimeManager.to_timezone(time + delta)
 
     @staticmethod
-    def today_time(*, utc=True, hour=0, minute=0, second=0):
-        today = TimeManager.now(utc)
-        today.replace(hour=hour, minute=minute, second=second)
-
-        return TimeManager.to_timezone(today)
+    def timedelta_from_now(*, utc=True, delta=None, days=0, hours=0, minutes=0, seconds=0):
+        return TimeManager.timedelta_from_time(TimeManager.now(utc=utc), delta=delta, days=days,
+                                               hours=hours, minutes=minutes, seconds=seconds)
 
     @staticmethod
     def time_point(year, month, day, hour=0, minute=0, second=0):
