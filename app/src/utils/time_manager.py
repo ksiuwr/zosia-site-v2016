@@ -5,55 +5,53 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 
-class TimeManager:
-    @staticmethod
-    def now(utc=True):
-        return TimeManager.to_timezone(timezone.now()) if utc \
-            else TimeManager.to_timezone(timezone.localtime())
+def to_timezone(dt):
+    if dt and timezone.is_naive(dt):
+        dt = timezone.make_aware(dt)
 
-    @staticmethod
-    def timedelta_from_time(time, delta=None, days=0, hours=0, minutes=0, seconds=0):
-        if not delta:
-            delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
+    return dt
 
-        return TimeManager.to_timezone(time + delta)
 
-    @staticmethod
-    def timedelta_from_now(*, utc=True, delta=None, days=0, hours=0, minutes=0, seconds=0):
-        return TimeManager.timedelta_from_time(TimeManager.now(utc=utc), delta=delta, days=days,
-                                               hours=hours, minutes=minutes, seconds=seconds)
+def parse_timezone(time_string):
+    return to_timezone(parse_datetime(time_string))
 
-    @staticmethod
-    def time_point(year, month, day, hour=0, minute=0, second=0):
-        return TimeManager.to_timezone(datetime(year, month, day, hour, minute, second))
 
-    @staticmethod
-    def convert_zone(time, zone):
-        return timezone.localtime(time, zone)
+def now_time(utc=True):
+    return to_timezone(timezone.now()) if utc \
+        else to_timezone(timezone.localtime())
 
-    @staticmethod
-    def set_current_zone(zone):
-        timezone.activate(zone)
 
-    @staticmethod
-    def set_default_zone():
-        timezone.deactivate()
+def timedelta_since(time, *, delta=None, days=0, hours=0, minutes=0, seconds=0):
+    if not delta:
+        delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
-    @staticmethod
-    def to_timezone(dt):
-        if dt and timezone.is_naive(dt):
-            dt = timezone.make_aware(dt)
+    return to_timezone(time + delta)
 
-        return dt
 
-    @staticmethod
-    def parse_timezone(time_string):
-        return TimeManager.to_timezone(parse_datetime(time_string))
+def timedelta_since_now(*, utc=True, delta=None, days=0, hours=0, minutes=0, seconds=0):
+    return timedelta_since(now_time(utc=utc), delta=delta, days=days,
+                           hours=hours, minutes=minutes, seconds=seconds)
 
-    @staticmethod
-    def default_zone_name():
-        return timezone.get_default_timezone_name()
 
-    @staticmethod
-    def current_zone_name():
-        return timezone.get_current_timezone_name()
+def time_point(year, month, day, hour=0, minute=0, second=0):
+    return to_timezone(datetime(year, month, day, hour, minute, second))
+
+
+def convert_zone(time, zone):
+    return timezone.localtime(time, zone)
+
+
+def set_default_zone():
+    timezone.deactivate()
+
+
+def set_current_zone(zone):
+    timezone.activate(zone)
+
+
+def current_zone_name():
+    return timezone.get_current_timezone_name()
+
+
+def default_zone_name():
+    return timezone.get_default_timezone_name()

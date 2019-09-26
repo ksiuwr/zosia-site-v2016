@@ -11,7 +11,7 @@ from conferences.models import Bus, UserPreferences, Zosia
 from conferences.test_helpers import (PRICE_BASE, PRICE_BONUS, PRICE_DINNER, create_bus,
                                       create_user, create_user_preferences, create_zosia, )
 from users.models import Organization
-from utils.time_manager import TimeManager
+from utils.time_manager import now_time, time_point
 
 User = get_user_model()
 
@@ -36,7 +36,7 @@ class ZosiaTestCase(TestCase):
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(days=3))
 
     def test_can_user_choose_room_when_at_user_start_time(self):
-        self.active.rooming_start = TimeManager.now()
+        self.active.rooming_start = now_time()
         self.active.save()
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=0,
                                              user=create_user(0),
@@ -47,25 +47,25 @@ class ZosiaTestCase(TestCase):
         self.assertTrue(result)
 
     def test_can_user_choose_room_when_before_user_start_time(self):
-        self.active.rooming_start = TimeManager.time_point(2016, 12, 23, 0, 0)
+        self.active.rooming_start = time_point(2016, 12, 23, 0, 0)
         self.active.save()
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=1,
                                              user=create_user(0),
                                              zosia=self.active)
 
         result = self.active.can_user_choose_room(user_prefs,
-                                                  now=TimeManager.time_point(2016, 12, 22, 23, 58))
+                                                  now=time_point(2016, 12, 22, 23, 58))
         self.assertFalse(result)
 
     def test_can_user_choose_room_when_after_user_start_time(self):
-        self.active.rooming_start = TimeManager.time_point(2016, 12, 23, 0, 0)
+        self.active.rooming_start = time_point(2016, 12, 23, 0, 0)
         self.active.save()
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=3,
                                              user=create_user(0),
                                              zosia=self.active)
 
         result = self.active.can_user_choose_room(user_prefs,
-                                                  now=TimeManager.time_point(2016, 12, 22, 23, 58))
+                                                  now=time_point(2016, 12, 22, 23, 58))
         self.assertTrue(result)
 
 

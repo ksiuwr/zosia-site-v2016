@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from users.models import Organization, User
 from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, RoomingStatus, \
     SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-from utils.time_manager import TimeManager
+from utils.time_manager import convert_zone, now_time, timedelta_since
 
 
 class Place(models.Model):
@@ -110,14 +110,14 @@ class Zosia(models.Model):
 
     @property
     def is_rooming_open(self):
-        return TimeManager.now() <= self.rooming_end
+        return now_time() <= self.rooming_end
 
     def can_user_choose_room(self, user_prefs, now=None):
         return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
 
     def get_rooming_status(self, user_prefs, now=None):
         if not now:
-            now = TimeManager.now()
+            now = now_time()
 
         user_start_time = user_prefs.rooming_start_time
 
@@ -142,7 +142,7 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        return self.lecture_registration_start <= TimeManager.now() <= \
+        return self.lecture_registration_start <= now_time() <= \
                self.lecture_registration_end
 
 
@@ -167,7 +167,7 @@ class Bus(models.Model):
 
     def __str__(self):
         return str('{} {}'.format(self.name,
-                                  TimeManager.convert_zone(self.time, "Europe/Warsaw").hour))
+                                  convert_zone(self.time, "Europe/Warsaw").hour))
 
     @property
     def free_seats(self):
@@ -310,5 +310,4 @@ class UserPreferences(models.Model):
         if not self.payment_accepted:
             return None
 
-        return TimeManager.to_timezone(
-            self.zosia.rooming_start - timedelta(minutes=self.bonus_minutes))
+        return timedelta_since(self.zosia.rooming_start, minutes=-self.bonus_minutes)

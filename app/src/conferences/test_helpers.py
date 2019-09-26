@@ -1,6 +1,6 @@
 from conferences.models import Bus, Place, UserPreferences, Zosia
 from users.models import User
-from utils.time_manager import TimeManager
+from utils.time_manager import now_time, timedelta_since_now
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
 PRICE_ACCOMODATION = 1 << 1
@@ -12,7 +12,7 @@ PRICE_BONUS = 1 << 6
 
 
 def create_zosia(commit=True, **kwargs):
-    now = TimeManager.now()
+    now = now_time()
     place, _ = Place.objects.get_or_create(
         name='Mieszko',
         address='FooBar@Katowice'
@@ -23,8 +23,8 @@ def create_zosia(commit=True, **kwargs):
         'place': place,
         'registration_start': now,
         'registration_end': now,
-        'rooming_start': TimeManager.timedelta_from_now(days=-1),
-        'rooming_end': TimeManager.timedelta_from_now(days=1),
+        'rooming_start': timedelta_since_now(days=-1),
+        'rooming_end': timedelta_since_now(days=1),
         'lecture_registration_start': now,
         'lecture_registration_end': now,
         'price_accomodation': PRICE_ACCOMODATION,
@@ -65,7 +65,7 @@ def create_bus(commit=True, **override):
     zosia = override['zosia'] or create_zosia()
     defaults = {
         'capacity': 0,
-        'time': TimeManager.now(),
+        'time': now_time(),
         'zosia': zosia,
 
     }

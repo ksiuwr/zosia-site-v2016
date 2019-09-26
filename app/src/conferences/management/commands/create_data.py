@@ -1,4 +1,3 @@
-from datetime import timedelta
 import random
 
 from django.contrib.auth import get_user_model
@@ -9,7 +8,7 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
-from utils.time_manager import TimeManager
+from utils.time_manager import now_time, time_point, timedelta_since, timedelta_since_now
 
 User = get_user_model()
 
@@ -38,7 +37,7 @@ def create_lecture(zosia, author):
 
 
 def random_date_before(date, range_days):
-    return TimeManager.to_timezone(date - timedelta(days=random.randint(1, range_days)))
+    return timedelta_since(date, days=-random.randint(1, range_days))
 
 
 def create_place():
@@ -50,17 +49,15 @@ def create_place():
 
 
 def create_buses(zosia):
-    now = TimeManager.now()
+    now = now_time()
 
-    Bus.objects.create(zosia=zosia, time=TimeManager.time_point(now.year, now.month,
-                                                                now.day, 16), capacity=45)
-    Bus.objects.create(zosia=zosia, time=TimeManager.time_point(now.year, now.month,
-                                                                now.day, 18), capacity=45)
+    Bus.objects.create(zosia=zosia, time=time_point(now.year, now.month, now.day, 16), capacity=45)
+    Bus.objects.create(zosia=zosia, time=time_point(now.year, now.month, now.day, 18), capacity=45)
 
 
 def create_active_zosia(place, **kwargs):
-    today = TimeManager.now()
-    start_date = TimeManager.timedelta_from_now(days=350)
+    today = now_time()
+    start_date = timedelta_since_now(days=350)
     start = today
     end = start_date
     data = {
@@ -78,7 +75,7 @@ def create_active_zosia(place, **kwargs):
 
 
 def create_past_zosia(place, **kwargs):
-    start_date = random_date_before(TimeManager.now(), 400)
+    start_date = random_date_before(now_time(), 400)
     registration_end = random_date_before(start_date, 20)
     registration_start = random_date_before(registration_end, 40)
     rooming_end = registration_end

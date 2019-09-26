@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from conferences.test_helpers import create_user, create_user_preferences, create_zosia, user_login
 from rooms.test_helpers import RoomAssertions, create_room
-from utils.time_manager import TimeManager
+from utils.time_manager import timedelta_since_now
 
 room_assertions = RoomAssertions()
 
@@ -118,7 +118,7 @@ class RoomTestCase(TestCase):
     def test_room_is_unlocked_after_expiration_date(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1,
-                             expiration_date=TimeManager.timedelta_from_now(days=-30))
+                             expiration_date=timedelta_since_now(days=-30))
         room_assertions.assertUnlocked(self.room_1)
 
         self.room_1.join(self.normal_2)
@@ -190,7 +190,7 @@ class RoomTestCase(TestCase):
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.set_lock(self.normal_1, self.staff_1,
-                             expiration_date=TimeManager.timedelta_from_now(days=7))
+                             expiration_date=timedelta_since_now(days=7))
         self.refresh()
         room_assertions.assertLocked(self.room_1, self.normal_1)
 

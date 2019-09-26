@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 
 from conferences.test_helpers import create_user, create_user_preferences, create_zosia
 from rooms.test_helpers import RoomAssertions, create_room
-from utils.time_manager import TimeManager
+from utils.time_manager import timedelta_since_now
 
 room_assertions = RoomAssertions()
 
@@ -113,7 +113,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_end = TimeManager.timedelta_from_now(days=-7)
+        self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -126,7 +126,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_start = TimeManager.timedelta_from_now(days=7)
+        self.zosia.rooming_start = timedelta_since_now(days=7)
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -238,7 +238,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.staff_1)
         create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_end = TimeManager.timedelta_from_now(days=-7)
+        self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -252,7 +252,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.staff_2)
         create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
-        self.zosia.rooming_start = TimeManager.timedelta_from_now(days=7)
+        self.zosia.rooming_start = timedelta_since_now(days=7)
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -377,7 +377,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.room_1.join(self.normal_1)
 
-        expiration_date = TimeManager.timedelta_from_now(days=1)
+        expiration_date = timedelta_since_now(days=1)
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(self.url_1, data, format="json")
         self.room_1.refresh_from_db()
@@ -393,7 +393,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
 
-        expiration_date = TimeManager.timedelta_from_now(days=5)
+        expiration_date = timedelta_since_now(days=5)
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(self.url_1, data, format="json")
         self.room_1.refresh_from_db()
@@ -421,7 +421,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.room_1.join(self.normal_1)
 
-        self.zosia.rooming_start = TimeManager.timedelta_from_now(days=7)
+        self.zosia.rooming_start = timedelta_since_now(days=7)
         self.zosia.save()
 
         data = {"user": self.normal_1.pk}
@@ -472,7 +472,7 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
 
-        self.zosia.rooming_end = TimeManager.timedelta_from_now(days=-7)
+        self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
         response = self.client.post(self.url_2, {}, format="json")
@@ -501,7 +501,7 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
 
-        self.zosia.rooming_end = TimeManager.timedelta_from_now(days=-7)
+        self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
         response = self.client.post(self.url_2, {}, format="json")

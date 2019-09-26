@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from rooms.models import Room, RoomLock, UserRoom
 from users.models import User
-from utils.time_manager import TimeManager
+from utils.time_manager import parse_timezone
 
 
 class UserRoomSerializer(serializers.ModelSerializer):
@@ -187,4 +187,4 @@ class LockMethodAdminSerializer(serializers.BaseSerializer):
             raise serializers.ValidationError({"user": "This field is required."})
 
         return {"user": user} if not expiration_date else \
-            {"user": user, "expiration_date": TimeManager.parse_timezone(expiration_date)}
+            {"user": user, "expiration_date": parse_timezone(expiration_date)}
