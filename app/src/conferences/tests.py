@@ -187,10 +187,6 @@ class UserPreferencesFormTestCase(TestCase):
         form = self.makeUserPrefsForm(breakfast_2=True, accomodation_2=False)
         self.assertFalse(form.is_valid())
 
-    @skip("TODO, not implemented yet")
-    def test_bus_choices_with_user(self):
-        pass
-
 
 class RegisterViewTestCase(TestCase):
     def setUp(self):
