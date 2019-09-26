@@ -166,7 +166,8 @@ class Bus(models.Model):
     name = models.TextField(default="Bus")
 
     def __str__(self):
-        return str('{} {}'.format(self.name, self.time))
+        return str('{} {}'.format(self.name,
+                                  TimeManager.convert_zone(self.time, "Europe/Warsaw").hour))
 
     @property
     def free_seats(self):

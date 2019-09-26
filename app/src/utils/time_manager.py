@@ -28,6 +28,10 @@ class TimeManager:
         return TimeManager.to_timezone(datetime(year, month, day, hour, minute, second))
 
     @staticmethod
+    def convert_zone(time, zone):
+        return timezone.localtime(time, zone)
+
+    @staticmethod
     def set_current_zone(zone):
         timezone.activate(zone)
 
