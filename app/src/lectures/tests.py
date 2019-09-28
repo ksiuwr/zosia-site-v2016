@@ -8,26 +8,26 @@ from django.test import TestCase
 from conferences.models import Place, Zosia
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
-from utils.time_manager import now_time, timedelta_since_now
+from utils.time_manager import now, timedelta_since_now
 
 User = get_user_model()
 
 
 class LectureTestCase(TestCase):
     def setUp(self):
-        now = now_time()
+        time = now()
         place = Place.objects.create(name="Mieszko", address="foo")
         self.zosia = Zosia.objects.create(
             start_date=timedelta_since_now(days=1),
             active=True, place=place,
             price_accomodation=23,
-            registration_end=now,
-            registration_start=now,
-            rooming_start=now,
-            rooming_end=now,
+            registration_end=time,
+            registration_start=time,
+            rooming_start=time,
+            rooming_end=time,
             price_transport=0,
-            lecture_registration_start=now,
-            lecture_registration_end=now,
+            lecture_registration_start=time,
+            lecture_registration_end=time,
             price_accomodation_dinner=0,
             price_accomodation_breakfast=0,
             price_whole_day=0)

@@ -1,5 +1,4 @@
 from datetime import timedelta
-from unittest import skip
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -11,7 +10,7 @@ from conferences.models import Bus, UserPreferences, Zosia
 from conferences.test_helpers import (PRICE_BASE, PRICE_BONUS, PRICE_DINNER, create_bus,
                                       create_user, create_user_preferences, create_zosia, )
 from users.models import Organization
-from utils.time_manager import now_time, time_point
+from utils.time_manager import now, time_point
 
 User = get_user_model()
 
@@ -36,7 +35,7 @@ class ZosiaTestCase(TestCase):
         self.assertEqual(self.active.end_date, self.active.start_date + timedelta(days=3))
 
     def test_can_user_choose_room_when_at_user_start_time(self):
-        self.active.rooming_start = now_time()
+        self.active.rooming_start = now()
         self.active.save()
         user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=0,
                                              user=create_user(0),
@@ -54,7 +53,7 @@ class ZosiaTestCase(TestCase):
                                              zosia=self.active)
 
         result = self.active.can_user_choose_room(user_prefs,
-                                                  now=time_point(2016, 12, 22, 23, 58))
+                                                  time=time_point(2016, 12, 22, 23, 58))
         self.assertFalse(result)
 
     def test_can_user_choose_room_when_after_user_start_time(self):
@@ -65,7 +64,7 @@ class ZosiaTestCase(TestCase):
                                              zosia=self.active)
 
         result = self.active.can_user_choose_room(user_prefs,
-                                                  now=time_point(2016, 12, 22, 23, 58))
+                                                  time=time_point(2016, 12, 22, 23, 58))
         self.assertTrue(result)
 
 

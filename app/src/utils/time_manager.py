@@ -16,9 +16,8 @@ def parse_timezone(time_string):
     return to_timezone(parse_datetime(time_string))
 
 
-def now_time(utc=True):
-    return to_timezone(timezone.now()) if utc \
-        else to_timezone(timezone.localtime())
+def now(utc=True):
+    return to_timezone(timezone.now()) if utc else to_timezone(timezone.localtime())
 
 
 def timedelta_since(time, *, delta=None, days=0, hours=0, minutes=0, seconds=0):
@@ -29,7 +28,7 @@ def timedelta_since(time, *, delta=None, days=0, hours=0, minutes=0, seconds=0):
 
 
 def timedelta_since_now(*, utc=True, delta=None, days=0, hours=0, minutes=0, seconds=0):
-    return timedelta_since(now_time(utc=utc), delta=delta, days=days,
+    return timedelta_since(now(utc=utc), delta=delta, days=days,
                            hours=hours, minutes=minutes, seconds=seconds)
 
 

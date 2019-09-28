@@ -8,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
 from utils.constants import ROOM_LOCK_TIMEOUT
-from utils.time_manager import now_time, timedelta_since_now
+from utils.time_manager import now, timedelta_since_now
 
 
 def random_string(length=10):
@@ -34,7 +34,7 @@ class RoomLock(models.Model):
 
     @property
     def is_expired(self):
-        return self.expiration_date < now_time()
+        return self.expiration_date < now()
 
     def is_opened_by(self, password):
         return self.password == password

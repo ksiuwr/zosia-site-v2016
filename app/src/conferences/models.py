@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from users.models import Organization, User
 from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, RoomingStatus, \
     SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-from utils.time_manager import convert_zone, now_time, timedelta_since
+from utils.time_manager import convert_zone, now, timedelta_since
 
 
 class Place(models.Model):
@@ -110,24 +110,24 @@ class Zosia(models.Model):
 
     @property
     def is_rooming_open(self):
-        return now_time() <= self.rooming_end
+        return now() <= self.rooming_end
 
-    def can_user_choose_room(self, user_prefs, now=None):
-        return self.get_rooming_status(user_prefs, now) == RoomingStatus.ROOMING_PROGRESS
+    def can_user_choose_room(self, user_prefs, time=None):
+        return self.get_rooming_status(user_prefs, time) == RoomingStatus.ROOMING_PROGRESS
 
-    def get_rooming_status(self, user_prefs, now=None):
-        if not now:
-            now = now_time()
+    def get_rooming_status(self, user_prefs, time=None):
+        if not time:
+            time = now()
 
         user_start_time = user_prefs.rooming_start_time
 
         if not user_start_time:
             return RoomingStatus.ROOMING_UNAVAILABLE
 
-        if now < user_start_time:
+        if time < user_start_time:
             return RoomingStatus.BEFORE_ROOMING
 
-        if now > self.rooming_end:
+        if time > self.rooming_end:
             return RoomingStatus.AFTER_ROOMING
 
         return RoomingStatus.ROOMING_PROGRESS
@@ -142,7 +142,7 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        return self.lecture_registration_start <= now_time() <= \
+        return self.lecture_registration_start <= now() <= \
                self.lecture_registration_end
 
 
