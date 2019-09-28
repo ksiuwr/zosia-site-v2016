@@ -18,7 +18,7 @@ def random_string(length=10):
 
 class RoomLockManager(models.Manager):
     def make(self, user, expiration_date=None):
-        if not expiration_date:
+        if expiration_date is None:
             expiration_date = timedelta_since_now(delta=ROOM_LOCK_TIMEOUT)
 
         return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
@@ -104,7 +104,7 @@ class Room(models.Model):
 
     @transaction.atomic
     def join(self, user, sender=None, password=None):
-        if not sender:
+        if sender is None:
             sender = user
 
         if self.hidden and not sender.is_staff:
@@ -127,7 +127,7 @@ class Room(models.Model):
         # Remove user from previous room
         prev_room = user.room_of_user.all().first()
 
-        if prev_room:
+        if prev_room is not None:
             prev_room.leave(user)
 
         self.members.add(user)
@@ -145,10 +145,10 @@ class Room(models.Model):
 
     @transaction.atomic
     def set_lock(self, owner, sender=None, expiration_date=None):
-        if not sender:
+        if sender is None:
             sender = owner
 
-        if not self.members.filter(pk__exact=owner.pk):
+        if not self.members.filter(pk__exact=owner.pk).exists():
             raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
                                   code="invalid",
                                   params={"room": self})

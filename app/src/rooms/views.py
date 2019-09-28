@@ -43,8 +43,7 @@ def index(request):
         messages.error(request, _('Your payment must be accepted first'))
         return redirect(reverse('accounts_profile'))
 
-    rooming_open = zosia.is_rooming_open
-    if not rooming_open:
+    if not zosia.is_rooming_open:
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 

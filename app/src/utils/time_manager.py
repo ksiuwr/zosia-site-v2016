@@ -6,7 +6,7 @@ from django.utils.dateparse import parse_datetime
 
 
 def to_timezone(dt):
-    if dt and timezone.is_naive(dt):
+    if dt is not None and timezone.is_naive(dt):
         dt = timezone.make_aware(dt)
 
     return dt
@@ -17,11 +17,11 @@ def parse_timezone(time_string):
 
 
 def now(utc=True):
-    return to_timezone(timezone.now()) if utc else to_timezone(timezone.localtime())
+    return to_timezone(timezone.now() if utc else timezone.localtime())
 
 
 def timedelta_since(time, *, delta=None, days=0, hours=0, minutes=0, seconds=0):
-    if not delta:
+    if delta is None:
         delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
     return to_timezone(time + delta)

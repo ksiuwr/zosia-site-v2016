@@ -102,7 +102,7 @@ def user_preferences_index(request):
 def user_preferences_edit(request, user_preferences_id=None):
     ctx = {}
     kwargs = {}
-    if user_preferences_id:
+    if user_preferences_id is not None:
         user_preferences = get_object_or_404(UserPreferences, pk=user_preferences_id)
         ctx['object'] = user_preferences
         kwargs['instance'] = user_preferences
@@ -153,7 +153,7 @@ def index(request):
         'zosia': zosia,
         'sponsors': sponsors
     }
-    if zosia:
+    if zosia is not None:
         query = {
             'key': settings.GAPI_KEY,
             'q': zosia.place.address,
@@ -175,7 +175,7 @@ def register(request, zosia_id):
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
-    if user_prefs:
+    if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
 
@@ -201,7 +201,7 @@ def register(request, zosia_id):
 @require_http_methods(['GET'])
 def terms_and_conditions(request):
     zosia = Zosia.objects.find_active()
-    if not zosia:
+    if zosia is None:
         raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/terms_and_conditions.html', ctx)
@@ -210,7 +210,7 @@ def terms_and_conditions(request):
 @require_http_methods(['GET'])
 def privacy_policy(request):
     zosia = Zosia.objects.find_active()
-    if not zosia:
+    if zosia is None:
         raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/privacy_policy.html', ctx)
@@ -244,7 +244,7 @@ def bus_people(request, pk):
 @require_http_methods(['GET', 'POST'])
 def bus_add(request, pk=None):
     active_zosia = Zosia.objects.find_active()
-    if pk:
+    if pk is not None:
         instance = get_object_or_404(Bus, pk=pk)
         form = BusForm(
             request.POST or None, initial={'zosia': active_zosia},
@@ -272,7 +272,7 @@ def conferences(request):
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
 def update_zosia(request, pk=None):
-    if pk:
+    if pk is not None:
         zosia = get_object_or_404(Zosia, pk=pk)
         form = ZosiaForm(request.POST or None, instance=zosia)
     else:

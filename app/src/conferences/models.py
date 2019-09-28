@@ -34,7 +34,7 @@ class ZosiaManager(models.Manager):
     def find_active_or_404(self):
         zosia = self.find_active()
 
-        if not zosia:
+        if zosia is None:
             raise Http404("No active conference found")
 
         return zosia
@@ -116,12 +116,12 @@ class Zosia(models.Model):
         return self.get_rooming_status(user_prefs, time) == RoomingStatus.ROOMING_PROGRESS
 
     def get_rooming_status(self, user_prefs, time=None):
-        if not time:
+        if time is None:
             time = now()
 
         user_start_time = user_prefs.rooming_start_time
 
-        if not user_start_time:
+        if user_start_time is None:
             return RoomingStatus.ROOMING_UNAVAILABLE
 
         if time < user_start_time:
@@ -281,7 +281,7 @@ class UserPreferences(models.Model):
             ['accomodation_day_3', 'dinner_3', 'breakfast_4'],
         ]
 
-        if self.bus:
+        if self.bus is not None:
             payment += self.zosia.price_transport
 
         for group in payment_groups:

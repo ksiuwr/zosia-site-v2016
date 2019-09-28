@@ -1,18 +1,18 @@
-from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_http_methods
 from django.contrib.auth.tokens import default_token_generator
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
 
+from conferences.models import UserPreferences, Zosia
 from . import forms
 from .actions import ActivateUser
-from conferences.models import Zosia, UserPreferences
-from .models import Organization
 from .forms import OrganizationForm
+from .models import Organization
 
 
 # Create your views here.
@@ -124,7 +124,7 @@ def organizations(request):
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
 def update_organization(request, pk=None):
-    if pk:
+    if pk is not None:
         organization = get_object_or_404(Organization, pk=pk)
         form = OrganizationForm(request.POST or None, instance=organization)
     else:
