@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+  <h3>{% trans "Boardgames" %}</h3>
+  {% blocktrans %}
+  Vote for your favourite boardgames. You can choose up to three of them.
+  {% endblocktrans %}
+  <form method="post">
+        {% for boardgame in boardgames %}
+            <p>
+                <label>
+                    <input type="checkbox" />
+                    <span>{{boardgame.name}}</span>
+                </label>
+            </p>
+            {% empty %}
+            <div class="row">
+            <div class="col l12 m12 s12">
+                {% trans "Nothing to display" %}
+            </div>
+            </div>
+            {% endfor %}
+        <button type="submit" class="waves-effect waves-light btn">{% trans 'Submit' %}</button>    
+    </form> 
+</div>
+{% endblock content %}

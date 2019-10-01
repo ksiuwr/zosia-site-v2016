@@ -1,9 +1,9 @@
 from django.views.decorators.http import require_http_methods
-# from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from .models import Boardgame
-# from .forms import BlogPostForm
-from django.http import HttpResponse
+from .forms import BoardgameForm
+# from django.http import HttpResponse
 
 @require_http_methods(['GET'])
 def index(request):
@@ -11,10 +11,24 @@ def index(request):
     return render(request, 'boardgames/index.html', ctx)
     # return HttpResponse("Hello, world. You're at the polls index.")
 
-# from django.views.generic import ListView
-# from .models import Boardgame
+
+# @login_required
+@require_http_methods(['GET', 'POST'])
+def create(request):
+    ctx = {'form': BoardgameForm(request.POST or None)}
+
+    # POST już po submicie, wpp GET czyli wyświetl formularz
+    if request.method == 'POST':
+        if ctx['form'].is_valid():
+            ctx['form'].save()
+            return redirect('boardgames_index')
+    return render(request, 'boardgames/create.html', ctx)
 
 
-# class BoardgameListView(ListView):
-#     model = Boardgame
-#     template_name = 'boardgames/index.html'
+def vote(request):
+    # CHANGE TO "A" !!!!
+    ctx = {'boardgames': Boardgame.objects.filter(state="S")}
+
+    if request.method == 'POST':
+        pass
+    return render(request, 'boardgames/vote.html', ctx)
