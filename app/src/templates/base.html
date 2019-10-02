@@ -1,45 +1,51 @@
 {% load static %}
 {% load i18n %}
+{% load tz %}
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="author" content="Lukasz Czaplinski, Mira Szewczyk">
+    <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <meta content="Lukasz Czaplinski, Mira Szewczyk" name="author">
     <title>Zimowy Obóz Studentów Informatyki</title>
 
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <!-- CSS -->
-    <link type="text/css" rel="stylesheet" href="{% static 'css/materialize.min.css' %}"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="{% static 'css/main.css' %}"  media="screen,projection"/>
-    <link type="text/css" rel="stylesheet" href="{% static 'css/navbar.css' %}" media="screen,projection" />
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'imgs/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="96x96" href="{% static 'imgs/favicon-96x96.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'imgs/favicon-16x16.png' %}">
+    <link href="{% static 'css/materialize.min.css' %}" media="screen,projection" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'css/main.css' %}" media="screen,projection" rel="stylesheet"
+          type="text/css"/>
+    <link href="{% static 'css/navbar.css' %}" media="screen,projection" rel="stylesheet"
+          type="text/css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+          rel="stylesheet">
+    <link href="{% static 'imgs/favicon-32x32.png' %}" rel="icon" sizes="32x32" type="image/png">
+    <link href="{% static 'imgs/favicon-96x96.png' %}" rel="icon" sizes="96x96" type="image/png">
+    <link href="{% static 'imgs/favicon-16x16.png' %}" rel="icon" sizes="16x16" type="image/png">
 
     {% block custom_head %}
     {% endblock %}
 </head>
 <body>
-    <!--Import jQuery before materialize.js-->
-    <script type="text/javascript" src="{% static 'script/jquery.min.js' %}"></script>
-    
-    {% block navbar %}
-        {% include "navbar.html" %}
-    {% endblock %}
-    <main>
+<!--Import jQuery before materialize.js-->
+<script src="{% static 'script/jquery.min.js' %}" type="text/javascript"></script>
+
+{% block navbar %}
+{% include "navbar.html" %}
+{% endblock %}
+<main>
     {% block content %}
     {% endblock %}
-    </main>
-    <!-- FOOTER -->
-    {% include 'footer.html' %}
-    <script type="text/javascript" src="{% static 'script/materialize.min.js' %}"></script>
+</main>
+<!-- FOOTER -->
+{% include 'footer.html' %}
+<script src="{% static 'script/materialize.min.js' %}" type="text/javascript"></script>
 
-    <!-- MESSAGES -->
-    <script type="text/javascript">
+<!-- MESSAGES -->
+<script type="text/javascript">
         // Or with jQuery
         $(document).ready(function(){
             $('select').formSelect();
@@ -49,10 +55,15 @@
                 M.toast('{{ message }}', 4000, '{{ message.tags }}');
             {% endfor %}
         });
-    </script>
 
-    {% block custom_scripts %}
-    {% endblock %}
-    <script type="text/javascript" src="{% static 'script/main.js' %}"></script>
+
+
+
+
+</script>
+
+{% block custom_scripts %}
+{% endblock %}
+<script src="{% static 'script/main.js' %}" type="text/javascript"></script>
 </body>
 </html>
