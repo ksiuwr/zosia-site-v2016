@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+import pytz
 
 
 def to_timezone(dt):
@@ -36,8 +37,8 @@ def time_point(year, month, day, hour=0, minute=0, second=0):
     return to_timezone(datetime(year, month, day, hour, minute, second))
 
 
-def convert_zone(time, zone):
-    return timezone.localtime(time, zone)
+def convert_zone(time, zonename):
+    return timezone.localtime(to_timezone(time), pytz.timezone(zonename))
 
 
 def set_default_zone():

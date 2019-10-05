@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load tz %}
+{% load time_filters %}
 
 {% block content %}
 <div class="container">
@@ -14,7 +14,7 @@
                     <p> {{ post.content }} </p>
                 </div>
                 <div class="card-action">
-                    <i>{{ post.publication | timezone:"Europe/Warsaw" }}</i>
+                    <i>{{ post.publication | zoneformat:"Europe/Warsaw" }}</i>
                     <strong>{{ post.author }}</strong>
                 </div>
             </div>

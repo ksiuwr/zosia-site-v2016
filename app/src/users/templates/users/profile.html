@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
-{% load tz %}
+{% load time_filters %}
 
 {% block content %}
 <div class="container">
@@ -86,7 +86,7 @@
                         <div class="col s12">
                             <p>
                                 {% trans "Your rooms assignment will start at" %}:
-                                {{current_prefs.rooming_start_time | timezone:"Europe/Warsaw"}}
+                                {{current_prefs.rooming_start_time | zoneformat:"Europe/Warsaw"}}
                             </p>
                         </div>
                     </div>

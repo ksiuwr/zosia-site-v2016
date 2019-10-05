@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load tz %}
+{% load time_filters %}
 
 {% if zosia %}
 <div class="bg-light-green grey-text text-lighten-2" id="active-zosia">
@@ -29,21 +29,21 @@
                 <div class="dates">
                     <span>{% trans "Registration" %}:</span>
                     <br/>
-                    <span>{{ zosia.registration_start | timezone:"Europe/Warsaw" }} - {{
-                        zosia.registration_end | timezone:"Europe/Warsaw" }}</span>
+                    <span>{{ zosia.registration_start | zoneformat:"Europe/Warsaw" }} - {{
+                        zosia.registration_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
 
                 <div class="dates">
                     <span>{% trans "Rooms enrollment" %}:</span>
                     <br/>
-                    <span>{{ zosia.rooming_start | timezone:"Europe/Warsaw" }} - {{
-                        zosia.rooming_end | timezone:"Europe/Warsaw" }}</span>
+                    <span>{{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }} - {{
+                        zosia.rooming_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
                 <div class="dates">
                     <span>{% trans "Call for papers" %}:</span>
                     <br/>
-                    <span>{{ zosia.lecture_registration_start | timezone:"Europe/Warsaw" }} - {{
-                        zosia.lecture_registration_end | timezone:"Europe/Warsaw" }}</span>
+                    <span>{{ zosia.lecture_registration_start | zoneformat:"Europe/Warsaw" }} - {{
+                        zosia.lecture_registration_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
             </div>
         </div>
