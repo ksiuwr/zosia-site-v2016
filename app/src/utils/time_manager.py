@@ -41,6 +41,10 @@ def convert_zone(time, zonename):
     return timezone.localtime(to_timezone(time), pytz.timezone(zonename))
 
 
+def format_in_zone(time, zonename, format_str):
+    return convert_zone(time, zonename).strftime(format_str)
+
+
 def set_default_zone():
     timezone.deactivate()
 

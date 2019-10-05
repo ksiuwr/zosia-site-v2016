@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from users.models import Organization, User
 from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, RoomingStatus, \
     SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-from utils.time_manager import convert_zone, now, timedelta_since
+from utils.time_manager import format_in_zone, now, timedelta_since
 
 
 class Place(models.Model):
@@ -150,8 +150,8 @@ class BusManager(models.Manager):
     def find_with_free_places(self, zosia):
         return self \
             .filter(zosia=zosia) \
-            .annotate(seats_taken=Count('userpreferences')). \
-            filter(capacity__gt=F('seats_taken'))
+            .annotate(seats_taken=Count('userpreferences')) \
+            .filter(capacity__gt=F('seats_taken'))
 
 
 class Bus(models.Model):
@@ -166,8 +166,7 @@ class Bus(models.Model):
     name = models.TextField(default="Bus")
 
     def __str__(self):
-        return str('{} {}'.format(self.name,
-                                  convert_zone(self.time, "Europe/Warsaw").hour))
+        return '{} {}'.format(self.name, format_in_zone(self.time, "Europe/Warsaw", "%H:%M (%Z)"))
 
     @property
     def free_seats(self):
