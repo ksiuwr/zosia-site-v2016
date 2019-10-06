@@ -106,9 +106,9 @@ class RoomSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "Cannot set more available single beds than real single beds plus double beds")
 
-        if available_beds_data.get("double") > \
-                beds_data.get("double") - max(0, available_beds_data.get("single")
-                                                 - beds_data.get("single")):
+        double_as_single = max(0, available_beds_data.get("single") - beds_data.get("single"))
+
+        if available_beds_data.get("double") > beds_data.get("double") - double_as_single:
             raise serializers.ValidationError(
                 "Cannot set more available double beds than real double beds minus "
                 "double-as-single beds")
