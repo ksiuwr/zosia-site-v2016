@@ -1,15 +1,14 @@
-from django.forms.widgets import Select
-from django.utils.html import conditional_escape, format_html, html_safe
-from django.utils.safestring import mark_safe
 from django.forms.utils import flatatt
+from django.forms.widgets import Select
 from django.shortcuts import reverse
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-
 MODAL_TRIGGER = """
-<a class="waves-effect waves-light btn-flat col s1" href="#modal1"><i class="material-icons">add</i></a>
+<a class="waves-effect waves-light btn-flat col s1" href="#modal1"><i 
+class="material-icons">add</i></a>
 """
-
 
 MODAL_BODY = """
  <!-- Modal Structure -->
@@ -49,9 +48,10 @@ class OrgSelectWithAjaxAdd(Select):
             value = ''
         attrs['class'] = attrs.get('class', '') + ' col s11'
         final_attrs = self.build_attrs(attrs, name=name)
-        output = ['<div class="row">', format_html('<select id="org-select" {}>', flatatt(final_attrs))]
+        output = ['<div class="row">',
+                  format_html('<select id="org-select" {}>', flatatt(final_attrs))]
         options = self.render_options([value])
-        if options:
+        if options is not None:
             output.append(options)
         output.append('</select>')
         output.append(MODAL_TRIGGER)
@@ -62,5 +62,5 @@ class OrgSelectWithAjaxAdd(Select):
             helper_text=_("Others won't see your organization until it's accepted by admin."),
             label=_('Your organization name:'),
             placeholder=_('name')
-            ))
+        ))
         return mark_safe('\n'.join(output))

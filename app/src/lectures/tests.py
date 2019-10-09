@@ -1,28 +1,35 @@
-from datetime import datetime, timedelta
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.forms import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
-from lectures.models import Lecture
-from lectures.forms import LectureForm, LectureAdminForm
-from conferences.models import Zosia, Place
 
+from conferences.models import Place, Zosia
+from lectures.forms import LectureAdminForm, LectureForm
+from lectures.models import Lecture
+from utils.time_manager import now, timedelta_since_now
 
 User = get_user_model()
 
 
 class LectureTestCase(TestCase):
     def setUp(self):
-        now = datetime.now()
+        time = now()
         place = Place.objects.create(name="Mieszko", address="foo")
         self.zosia = Zosia.objects.create(
-            start_date=datetime.today() + timedelta(days=1),
-            active=True, place=place, price_accomodation=23, registration_end=now,
-            registration_start=now, rooming_start=now, rooming_end=now, price_transport=0,
-            lecture_registration_start=now, lecture_registration_end=now,
-            price_accomodation_dinner=0, price_accomodation_breakfast=0,
+            start_date=timedelta_since_now(days=1),
+            active=True, place=place,
+            price_accomodation=23,
+            registration_end=time,
+            registration_start=time,
+            rooming_start=time,
+            rooming_end=time,
+            price_transport=0,
+            lecture_registration_start=time,
+            lecture_registration_end=time,
+            price_accomodation_dinner=0,
+            price_accomodation_breakfast=0,
             price_whole_day=0)
         self.user = User.objects.create_user('john@thebeatles.com',
                                              'johnpassword',
@@ -175,7 +182,7 @@ class FormTestCase(LectureTestCase):
 
     def test_admin_create_object(self):
         form = LectureAdminForm({'title': 'foo', 'abstract': 'bar',
-                                'duration': '5', 'lecture_type': '1',
+                                 'duration': '5', 'lecture_type': '1',
                                  'person_type': '0', 'author': self.user.id})
         with transaction.atomic():
             with self.assertRaises(IntegrityError):

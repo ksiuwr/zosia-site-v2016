@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.utils.dateparse import parse_datetime
 from rest_framework import serializers
 
 from rooms.models import Room, RoomLock, UserRoom
 from users.models import User
+from utils.time_manager import parse_timezone
 
 
 class UserRoomSerializer(serializers.ModelSerializer):
@@ -126,7 +126,7 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
     def to_internal_value(self, data):
         user = data.get("user")
 
-        if not user:
+        if user is None:
             raise serializers.ValidationError({"user": "This field is required."})
 
         return {"user": user}
@@ -142,7 +142,7 @@ class JoinMethodSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
         representation = {"user": instance.user}
 
-        if instance.password:
+        if instance.password is not None:
             representation["password"] = instance.password
 
         return representation
@@ -151,7 +151,7 @@ class JoinMethodSerializer(serializers.BaseSerializer):
         user = data.get("user")
         password = data.get("password")
 
-        if not user:
+        if user is None:
             raise serializers.ValidationError({"user": "This field is required."})
 
         return {"user": user, "password": password}
@@ -169,7 +169,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
     def to_internal_value(self, data):
         user = data.get("user")
 
-        if not user:
+        if user is None:
             raise serializers.ValidationError({"user": "This field is required."})
 
         return {"user": user}
@@ -186,7 +186,7 @@ class LockMethodAdminSerializer(serializers.BaseSerializer):
     def to_representation(self, instance):
         representation = {"user": instance.user}
 
-        if instance.expiration_date:
+        if instance.expiration_date is not None:
             representation["expiration_date"] = instance.expiration_date
 
         return representation
@@ -195,8 +195,8 @@ class LockMethodAdminSerializer(serializers.BaseSerializer):
         user = data.get("user")
         expiration_date = data.get("expiration_date")
 
-        if not user:
+        if user is None:
             raise serializers.ValidationError({"user": "This field is required."})
 
-        return {"user": user} if not expiration_date else \
-            {"user": user, "expiration_date": parse_datetime(expiration_date)}
+        return {"user": user} if expiration_date is None else \
+            {"user": user, "expiration_date": parse_timezone(expiration_date)}
