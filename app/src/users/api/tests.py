@@ -3,19 +3,19 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from conferences.test_helpers import new_user, new_zosia
+from conferences.test_helpers import create_user, create_zosia
 
 
 class UsersAPIViewTestCase(APITestCase):
     def setUp(self):
         super().setUp()
 
-        self.zosia = new_zosia(active=True)
+        self.zosia = create_zosia(active=True)
 
-        self.normal_1 = new_user(0)
-        self.normal_2 = new_user(1)
-        self.staff_1 = new_user(2, is_staff=True)
-        self.staff_2 = new_user(3, is_staff=True)
+        self.normal_1 = create_user(0)
+        self.normal_2 = create_user(1)
+        self.staff_1 = create_user(2, is_staff=True)
+        self.staff_2 = create_user(3, is_staff=True)
 
     def tearDown(self):
         self.client.force_authenticate(user=None)

@@ -492,7 +492,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
 
     def test_user_cannot_add_other_user_to_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_2.pk}
         response = self.client.post(self.url_1, data)
@@ -502,7 +502,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
 
     def test_user_cannot_join_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
         url = reverse("rooms_api_join", kwargs={"version": "v1", "pk": 0})
         data = {"user": self.normal_1.pk}
@@ -584,7 +584,7 @@ class LeaveAPIViewTestCase(RoomsAPIViewTestCase):
 
     def test_user_cannot_remove_other_user_from_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_1)
         self.room_2.join(self.normal_2)
@@ -597,7 +597,7 @@ class LeaveAPIViewTestCase(RoomsAPIViewTestCase):
 
     def test_user_cannot_leave_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
 
         url = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": 0})
         data = {"user": self.normal_1.pk}
@@ -722,7 +722,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
         self.client.force_authenticate(user=self.staff_2)
 
         url = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": 0})
-        expiration_date = timezone.make_aware(datetime.now() + timedelta(days=1))
+        expiration_date = timedelta_since_now(days=1)
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(url, data)
 
@@ -731,7 +731,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
     def test_staff_cannot_lock_room_for_nonexisting_user(self):
         self.client.force_authenticate(user=self.staff_1)
 
-        expiration_date = timezone.make_aware(datetime.now() + timedelta(days=1))
+        expiration_date = timedelta_since_now(days=1)
         data = {"user": 0, "expiration_date": expiration_date}
         response = self.client.post(self.url_2, data)
 
