@@ -1,9 +1,9 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from .widgets import OrgSelectWithAjaxAdd
-from .models import UserPreferences, Zosia, Bus
 from users.models import Organization
+from .models import Bus, UserPreferences, Zosia
+from .widgets import OrgSelectWithAjaxAdd
 
 
 class DateWidget(forms.TextInput):
@@ -17,7 +17,7 @@ class DateWidget(forms.TextInput):
 class UserPreferencesWithBusForm(forms.ModelForm):
     def bus_queryset(self, instance=None):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
-        if instance:
+        if instance is not None:
             bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=instance)
         return bus_queryset.distinct()
 
@@ -87,10 +87,11 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
         for day in groups:
             deps = list(map(_pays_for, day[1:]))
             if any(deps) and not _pays_for(day[0]):
-                errs.append(forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
-                                                  code='invalid',
-                                                  params={'field': day[0],
-                                                          'dep': day[1:][deps.index(True)]}))
+                errs.append(
+                    forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
+                                          code='invalid',
+                                          params={'field': day[0],
+                                                  'dep': day[1:][deps.index(True)]}))
 
         if len(errs) > 0:
             raise forms.ValidationError(errs)

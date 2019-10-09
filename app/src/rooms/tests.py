@@ -1,13 +1,14 @@
+from datetime import timedelta
 import json
-from datetime import datetime, timedelta
 from unittest import skip
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 
-from conferences.test_helpers import new_user, new_zosia, user_login, user_preferences
-from rooms.test_helpers import RoomAssertions, new_room
+from conferences.test_helpers import create_user, create_user_preferences, create_zosia, user_login
+from rooms.test_helpers import RoomAssertions, create_room
+from utils.time_manager import timedelta_since_now
 
 room_assertions = RoomAssertions()
 
@@ -19,14 +20,14 @@ class RoomTestCase(TestCase):
 
     def setUp(self):
         super().setUp()
-        self.normal_1 = new_user(0)
-        self.normal_2 = new_user(1)
-        self.staff_1 = new_user(2, is_staff=True)
-        self.staff_2 = new_user(3, is_staff=True)
+        self.normal_1 = create_user(0)
+        self.normal_2 = create_user(1)
+        self.staff_1 = create_user(2, is_staff=True)
+        self.staff_2 = create_user(3, is_staff=True)
 
-        self.room_1 = new_room(111, capacity=2)
-        self.room_2 = new_room(222, capacity=1)
-        self.room_3 = new_room(333, capacity=3, hidden=True)
+        self.room_1 = create_room(111, capacity=2)
+        self.room_2 = create_room(222, capacity=1)
+        self.room_3 = create_room(333, capacity=3, hidden=True)
 
     # region join & leave
 
@@ -116,7 +117,8 @@ class RoomTestCase(TestCase):
 
     def test_room_is_unlocked_after_expiration_date(self):
         self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1, expiration_date=datetime.min)
+        self.room_1.set_lock(self.normal_1,
+                             expiration_date=timedelta_since_now(days=-30))
         room_assertions.assertUnlocked(self.room_1)
 
         self.room_1.join(self.normal_2)
@@ -188,7 +190,7 @@ class RoomTestCase(TestCase):
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
         self.room_1.set_lock(self.normal_1, self.staff_1,
-                             expiration_date=datetime.now() + timedelta(1))
+                             expiration_date=timedelta_since_now(days=7))
         self.refresh()
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
@@ -211,13 +213,13 @@ class RoomTestCase(TestCase):
 class RoomsViewTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.zosia = new_zosia(active=True)
+        self.zosia = create_zosia(active=True)
 
-        self.normal_1 = new_user(0)
-        self.normal_2 = new_user(1)
+        self.normal_1 = create_user(0)
+        self.normal_2 = create_user(1)
 
-        self.room_1 = new_room(111, capacity=2)
-        self.room_2 = new_room(222, capacity=1, hidden=True)
+        self.room_1 = create_room(111, capacity=2)
+        self.room_2 = create_room(222, capacity=1, hidden=True)
 
     def get(self, follow=True):
         return self.client.get(self.url, follow=follow)
@@ -229,7 +231,7 @@ class RoomsViewTestCase(TestCase):
         self.client.login(**user_login(self.normal_1))
 
     def register(self, **kwargs):
-        return user_preferences(user=self.normal_1, zosia=self.zosia, **kwargs)
+        return create_user_preferences(user=self.normal_1, zosia=self.zosia, **kwargs)
 
 
 class IndexViewTestCase(RoomsViewTestCase):
@@ -281,7 +283,7 @@ class IndexViewTestCase(RoomsViewTestCase):
 
     @skip("API changed. Needs rewrite")
     def test_cannot_room_before_rooming_open(self):
-        self.zosia.rooming_start = self.zosia.rooming_start + timedelta(3)
+        self.zosia.rooming_start = self.zosia.rooming_start + timedelta(days=3)
         self.zosia.save()
         self.login()
         self.register(payment_accepted=True)

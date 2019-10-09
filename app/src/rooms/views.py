@@ -1,6 +1,6 @@
 import csv
-import json
 from io import TextIOWrapper
+import json
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -14,9 +14,9 @@ from django.views.decorators.http import require_http_methods
 from django.views.decorators.vary import vary_on_cookie
 
 from conferences.models import UserPreferences, Zosia
-from .forms import UploadFileForm
-from .models import Room
-from .serializers import room_to_dict, user_to_dict
+from rooms.forms import UploadFileForm
+from rooms.models import Room
+from rooms.serializers import room_to_dict, user_to_dict
 
 
 # Cache hard (15mins)
@@ -43,8 +43,7 @@ def index(request):
         messages.error(request, _('Your payment must be accepted first'))
         return redirect(reverse('accounts_profile'))
 
-    rooming_open = zosia.is_rooming_open
-    if not rooming_open:
+    if not zosia.is_rooming_open:
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
@@ -66,11 +65,11 @@ def status(request):
     # Ajax
     # Return JSON view of rooms
     zosia = get_object_or_404(Zosia, active=True)
-    can_start_rooming = zosia.can_start_rooming(
-        get_object_or_404(UserPreferences, zosia=zosia, user=request.user))
-    rooms = Room.objects.all_visible().select_related('lock').prefetch_related(
-        'members').all()
+    user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=request.user)
+    can_start_rooming = zosia.can_user_choose_room(user_prefs)
+    rooms = Room.objects.all_visible().select_related('lock').prefetch_related('members').all()
     rooms_view = []
+
     for room in rooms:
         dic = room_to_dict(room)
         dic['is_owned_by'] = room.is_locked and room.lock.is_owned_by(
