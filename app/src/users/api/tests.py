@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from conferences.test_helpers import create_user, create_zosia
 
 
-class UsersAPIViewTestCase(APITestCase):
+class UsersViewSetTestCase(APITestCase):
     def setUp(self):
         super().setUp()
 
@@ -22,7 +22,7 @@ class UsersAPIViewTestCase(APITestCase):
         super().tearDown()
 
 
-class UserListAPIViewTestCase(UsersAPIViewTestCase):
+class UserViewSetListTestCase(UsersViewSetTestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse("users_api_list", kwargs={"version": "v1"})
@@ -41,9 +41,49 @@ class UserListAPIViewTestCase(UsersAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
+        super().tearDown()
 
 
-class SessionUserAPIViewTestCase(UsersAPIViewTestCase):
+class UserViewSetDetailTestCase(UsersViewSetTestCase):
+    def setUp(self):
+        super().setUp()
+        self.url_n1 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.normal_1.pk})
+        self.url_n2 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.normal_2.pk})
+        self.url_s1 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.staff_1.pk})
+        self.url_s2 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.staff_2.pk})
+
+    def test_user_cannot_get_normal_user(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        response = self.client.get(self.url_n2)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_cannot_get_staff_user(self):
+        self.client.force_authenticate(user=self.normal_2)
+
+        response = self.client.get(self.url_s1)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_staff_can_get_normal_user(self):
+        self.client.force_authenticate(user=self.staff_2)
+
+        response = self.client.get(self.url_n1)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["email"], "lennon@thebeatles.com")
+
+    def test_staff_can_get_staff_user(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        response = self.client.get(self.url_s2)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["email"], "harrison@thebeatles.com")
+
+
+class SessionUserAPIViewTestCase(UsersViewSetTestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse("users_api_me", kwargs={"version": "v1"})
