@@ -2,12 +2,13 @@
 from rest_framework import serializers
 
 from rooms.models import Room, RoomLock, UserRoom
+from users.api.serializers import UserDataSerializer
 from users.models import User
 from utils.time_manager import parse_timezone
 
 
-class UserRoomSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
+class UserInRoomSerializer(serializers.ModelSerializer):
+    user = UserDataSerializer()
 
     class Meta:
         model = UserRoom
@@ -16,102 +17,55 @@ class UserRoomSerializer(serializers.ModelSerializer):
 
 class RoomMembersSerializer(serializers.ModelSerializer):
     room_name = serializers.CharField(source="room.name")
-    user_first_name = serializers.CharField(source="user.first_name")
-    user_last_name = serializers.CharField(source="user.last_name")
+    user = UserDataSerializer()
 
     class Meta:
         model = UserRoom
-        fields = ("room_name", "user_first_name", "user_last_name")
+        fields = ("room_name", "user")
 
 
 class RoomLockSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
+    user = UserDataSerializer()
 
     class Meta:
         model = RoomLock
         fields = ("user", "password", "expiration_date")
 
 
-class RoomBedsSerializer(serializers.BaseSerializer):
-    single = serializers.IntegerField()
-    double = serializers.IntegerField()
-
-    def to_representation(self, instance):
-        return {"single": instance.get("single"), "double": instance.get("double")}
-
-    def to_internal_value(self, data):
-        single = data.get("single")
-        double = data.get("double")
-
-        return {"single": single, "double": double}
-
-
 class RoomSerializer(serializers.ModelSerializer):
     # Accepted beds number range is from 0 to 42. You don't expect 43 beds in one room, do you?
-    beds = serializers.DictField(child=serializers.IntegerField(min_value=0, max_value=42))
-    available_beds = serializers.DictField(
-        child=serializers.IntegerField(min_value=0, max_value=42))
+    beds_single = serializers.IntegerField(min_value=0, max_value=42)
+    beds_double = serializers.IntegerField(min_value=0, max_value=42)
+    available_beds_single = serializers.IntegerField(min_value=0, max_value=42)
+    available_beds_double = serializers.IntegerField(min_value=0, max_value=42)
     lock = RoomLockSerializer(read_only=True)
-    members = UserRoomSerializer(source="userroom_set", read_only=True, many=True)
+    members = UserInRoomSerializer(source="userroom_set", read_only=True, many=True)
 
     class Meta:
         model = Room
-        fields = ("id", "name", "description", "hidden", "beds", "available_beds", "lock",
-                  "members")
+        fields = ("id", "name", "description", "hidden", "beds_single", "beds_double",
+                  "available_beds_single", "available_beds_double", "lock", "members")
 
-    def create(self, validated_data):
-        beds_data = validated_data.pop("beds")
-        available_beds_data = validated_data.pop("available_beds")
+    def validate(self, data):
+        super().validate(data)
 
-        self._validate_beds(beds_data, available_beds_data)
+        beds_single_data = data.get("beds_single", 0)
+        beds_double_data = data.get("beds_double", 0)
+        available_beds_single_data = data.get("available_beds_single", 0)
+        available_beds_double_data = data.get("available_beds_double", 0)
 
-        return Room.objects.create(**validated_data,
-                                   beds_single=beds_data.get("single"),
-                                   beds_double=beds_data.get("double"),
-                                   available_beds_single=available_beds_data.get("single"),
-                                   available_beds_double=available_beds_data.get("double"))
-
-    def update(self, instance, validated_data):
-        beds_data = validated_data.pop("beds", {"single": instance.beds_single,
-                                                "double": instance.beds_double})
-        available_beds_data = validated_data.pop("available_beds",
-                                                 {"single": instance.available_beds_single,
-                                                  "double": instance.available_beds_double})
-
-        beds_data_check = beds_data if beds_data \
-            else {"single": instance.beds_single, "double": instance.beds_double}
-        available_beds_data_check = available_beds_data if available_beds_data \
-            else {"single": instance.available_beds_single,
-                  "double": instance.available_beds_double}
-
-        self._validate_beds(beds_data_check, available_beds_data_check)
-
-        instance.name = validated_data.get("name", instance.name)
-        instance.description = validated_data.get("description", instance.description)
-        instance.hidden = validated_data.get("hidden", instance.hidden)
-        instance.beds_single = beds_data.get("single", instance.beds_single)
-        instance.beds_double = beds_data.get("double", instance.beds_double)
-        instance.available_beds_single = available_beds_data.get("single",
-                                                                 instance.available_beds_single)
-        instance.available_beds_double = available_beds_data.get("double",
-                                                                 instance.available_beds_double)
-
-        instance.save()
-
-        return instance
-
-    @staticmethod
-    def _validate_beds(beds_data, available_beds_data):
-        if available_beds_data.get("single") > beds_data.get("single") + beds_data.get("double"):
+        if available_beds_single_data > beds_single_data + beds_double_data:
             raise serializers.ValidationError(
                 "Cannot set more available single beds than real single beds plus double beds")
 
-        double_as_single = max(0, available_beds_data.get("single") - beds_data.get("single"))
+        double_as_single = max(0, available_beds_single_data - beds_single_data)
 
-        if available_beds_data.get("double") > beds_data.get("double") - double_as_single:
+        if available_beds_double_data > beds_double_data - double_as_single:
             raise serializers.ValidationError(
                 "Cannot set more available double beds than real double beds minus "
                 "double-as-single beds")
+
+        return data
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):

@@ -58,8 +58,10 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "789",
             "description": "Room for JMa",
-            "beds": {"single": 1, "double": 0},
-            "available_beds": {"single": 1, "double": 0}
+            "beds_single": 1,
+            "beds_double": 0,
+            "available_beds_single": 1,
+            "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -71,15 +73,17 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "789",
             "description": "Room for JMa",
-            "beds": {"single": 1, "double": 0},
-            "available_beds": {"single": 1, "double": 0}
+            "beds_single": 1,
+            "beds_double": 0,
+            "available_beds_single": 1,
+            "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["name"], "789")
-        self.assertEqual(response.data["available_beds"]["single"], 1)
-        self.assertEqual(response.data["available_beds"]["double"], 0)
+        self.assertEqual(response.data["available_beds_single"], 1)
+        self.assertEqual(response.data["available_beds_double"], 0)
 
     def test_staff_can_add_room_with_double_bed_as_single(self):
         self.client.force_authenticate(user=self.staff_1)
@@ -87,15 +91,17 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "456",
             "description": "Room for some random guys with Divide inside",
-            "beds": {"single": 2, "double": 3},
-            "available_beds": {"single": 3, "double": 1}
+            "beds_single": 2,
+            "beds_double": 3,
+            "available_beds_single": 3,
+            "available_beds_double": 1
         }
         response = self.client.post(self.url, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["name"], "456")
-        self.assertEqual(response.data["available_beds"]["single"], 3)
-        self.assertEqual(response.data["available_beds"]["double"], 1)
+        self.assertEqual(response.data["available_beds_single"], 3)
+        self.assertEqual(response.data["available_beds_double"], 1)
 
     def test_staff_cannot_add_room_with_too_many_available_beds(self):
         self.client.force_authenticate(user=self.staff_1)
@@ -103,8 +109,10 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "456",
             "description": "Room for some random guys with Divide inside",
-            "beds": {"single": 2, "double": 3},
-            "available_beds": {"single": 4, "double": 2}
+            "beds_single": 2,
+            "beds_double": 3,
+            "available_beds_single": 4,
+            "available_beds_double": 2
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -116,8 +124,10 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "123",
             "description": "Room for TWi, who is still not coming",
-            "beds": {"single": -2, "double": 0},
-            "available_beds": {"single": 1, "double": 0}
+            "beds_single": -2,
+            "beds_double": 0,
+            "available_beds_single": 1,
+            "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -129,8 +139,10 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "123",
             "description": "Room for TWi, who is still not coming",
-            "beds": {"single": 1, "double": -1},
-            "available_beds": {"single": 1, "double": 0}
+            "beds_single": 1,
+            "beds_double": -1,
+            "available_beds_single": 1,
+            "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -145,13 +157,17 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
         self.url_3 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_3.pk})
 
     def test_user_can_view_visible_room(self):
+        self.room_1.join(self.normal_2)
+        self.room_1.set_lock(self.normal_2)
         self.client.force_authenticate(user=self.normal_1)
 
         response = self.client.get(self.url_1)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
-        self.assertEqual(response.data["available_beds"]["single"], 1)
+        self.assertEqual(response.data["available_beds_single"], 1)
+        self.assertEqual(response.data["members"][0]["user"]["email"], "starr@thebeatles.com")
+        self.assertEqual(response.data["lock"]["user"]["email"], "starr@thebeatles.com")
 
     def test_user_cannot_view_hidden_room(self):
         self.client.force_authenticate(user=self.normal_2)
@@ -175,7 +191,7 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "333")
-        self.assertEqual(response.data["available_beds"]["single"], 3)
+        self.assertEqual(response.data["available_beds_single"], 3)
 
     def test_staff_can_delete_room(self):
         self.client.force_authenticate(user=self.staff_1)
@@ -197,8 +213,10 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
         data = {
             "name": "2222",
             "description": "Continuum HQ",
-            "beds": {"single": 2, "double": 0},
-            "available_beds": {"single": 2, "double": 0}
+            "beds_single": 2,
+            "beds_double": 0,
+            "available_beds_single": 2,
+            "available_beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -211,15 +229,17 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
             "name": "1111",
             "description": "KSI HQ",
             "hidden": False,
-            "beds": {"single": 1, "double": 1},
-            "available_beds": {"single": 1, "double": 0}
+            "beds_single": 1,
+            "beds_double": 1,
+            "available_beds_single": 1,
+            "available_beds_double": 0
         }
         response = self.client.put(self.url_1, data, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "1111")
         self.assertEqual(response.data["description"], "KSI HQ")
-        self.assertEqual(response.data["beds"]["double"], 1)
+        self.assertEqual(response.data["beds_double"], 1)
         self.assertFalse(response.data["hidden"])
 
     def test_staff_can_modify_hidden_room_with_partial_data(self):
@@ -233,7 +253,7 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "3333")
-        self.assertEqual(response.data["beds"]["single"], 3)
+        self.assertEqual(response.data["beds_single"], 3)
         self.assertTrue(response.data["hidden"])
 
     def test_staff_cannot_modify_room_with_more_available_beds(self):
@@ -241,7 +261,8 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
 
         data = {
             "name": "1111",
-            "available_beds": {"single": 1, "double": 10}
+            "available_beds_single": 1,
+            "available_beds_double": 10
         }
         response = self.client.put(self.url_1, data, format="json")
 
@@ -252,7 +273,8 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
 
         data = {
             "name": "2222",
-            "beds": {"single": -1, "double": 0}
+            "beds_single": -1,
+            "beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
