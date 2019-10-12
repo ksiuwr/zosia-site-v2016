@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 from conferences.test_helpers import create_user, create_zosia
 
 
-class UsersViewSetTestCase(APITestCase):
+class UsersAPITestCase(APITestCase):
     def setUp(self):
         super().setUp()
 
@@ -22,7 +22,7 @@ class UsersViewSetTestCase(APITestCase):
         super().tearDown()
 
 
-class UserViewSetListTestCase(UsersViewSetTestCase):
+class UserListAPITestCase(UsersAPITestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse("users_api_list", kwargs={"version": "v1"})
@@ -44,7 +44,7 @@ class UserViewSetListTestCase(UsersViewSetTestCase):
         super().tearDown()
 
 
-class UserViewSetDetailTestCase(UsersViewSetTestCase):
+class UserDetailAPITestCase(UsersAPITestCase):
     def setUp(self):
         super().setUp()
         self.url_n1 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.normal_1.pk})
@@ -83,7 +83,7 @@ class UserViewSetDetailTestCase(UsersViewSetTestCase):
         self.assertEqual(response.data["email"], "harrison@thebeatles.com")
 
 
-class SessionUserAPIViewTestCase(UsersViewSetTestCase):
+class UserMeAPITestCase(UsersAPITestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse("users_api_me", kwargs={"version": "v1"})

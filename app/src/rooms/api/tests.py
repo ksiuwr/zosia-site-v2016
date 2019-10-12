@@ -11,7 +11,7 @@ from utils.time_manager import timedelta_since_now
 room_assertions = RoomAssertions()
 
 
-class RoomsAPIViewTestCase(APITestCase):
+class RoomsAPITestCase(APITestCase):
     def setUp(self):
         super().setUp()
 
@@ -31,7 +31,7 @@ class RoomsAPIViewTestCase(APITestCase):
         super().tearDown()
 
 
-class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomListAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
         self.url = reverse("rooms_api_list", kwargs={"version": "v1"})
@@ -149,7 +149,7 @@ class RoomListAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomDetailAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
         self.url_1 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_1.pk})
@@ -174,7 +174,7 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
 
         response = self.client.get(self.url_3)
 
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     def test_user_cannot_view_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -281,7 +281,7 @@ class RoomDetailAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class JoinAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomJoinAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
         self.url_1 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_1.pk})
@@ -541,7 +541,7 @@ class JoinAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class LeaveAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomLeaveAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
         self.url_1 = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": self.room_1.pk})
@@ -636,7 +636,7 @@ class LeaveAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class LockAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomLockAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
         self.url_1 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_1.pk})
@@ -760,7 +760,7 @@ class LockAPIViewTestCase(RoomsAPIViewTestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomUnlockAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
         self.url_1 = reverse("rooms_api_unlock", kwargs={"version": "v1", "pk": self.room_1.pk})
@@ -839,7 +839,7 @@ class UnlockAPIViewTestCase(RoomsAPIViewTestCase):
         room_assertions.assertUnlocked(self.room_2)
 
 
-class HidingAPIViewTestCase(RoomsAPIViewTestCase):
+class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_staff_can_hide_room(self):
         self.client.force_authenticate(user=self.staff_1)
 

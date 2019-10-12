@@ -4,8 +4,10 @@ from django.urls import path
 from rooms.api import views
 
 urlpatterns = [
-    path("", views.RoomList.as_view(), name="rooms_api_list"),
-    path("<int:pk>/", views.RoomDetail.as_view(), name="rooms_api_detail"),
+    path("", views.RoomViewSet.as_view({"get": "list", "post": "create"}), name="rooms_api_list"),
+    path("<int:pk>/", views.RoomViewSet.as_view({"get": "retrieve",
+                                                 "put": "partial_update",
+                                                 "delete": "destroy"}), name="rooms_api_detail"),
     path("<int:pk>/join/", views.join, name="rooms_api_join"),
     path("<int:pk>/leave/", views.leave, name="rooms_api_leave"),
     path("<int:pk>/lock/", views.lock, name="rooms_api_lock"),

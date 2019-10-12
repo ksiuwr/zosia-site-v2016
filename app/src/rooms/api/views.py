@@ -6,12 +6,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from conferences.models import UserPreferences, Zosia
 from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
     LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer
 from rooms.models import Room, UserRoom
 from users.models import User
+from utils.api import ReadAuthenticatedWriteAdmin
 from utils.constants import RoomingStatus
 
 
@@ -25,64 +27,13 @@ class RoomMembersList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class RoomList(APIView):
-    def get(self, request, version):
-        sender = request.user
-        rooms = Room.objects.all() if sender.is_staff else Room.objects.all_visible()
-        serializer = RoomSerializer(rooms, many=True, context={'request': request})
+class RoomViewSet(ModelViewSet):
+    serializer_class = RoomSerializer
+    permission_classes = [ReadAuthenticatedWriteAdmin]
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, version):
-        if not request.user.is_staff:
-            raise exceptions.PermissionDenied()
-
-        serializer = RoomSerializer(data=request.data, context={'request': request})
-
-        if serializer.is_valid():
-            instance = serializer.save()
-            response_data = RoomSerializer(instance).data
-
-            return Response(response_data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class RoomDetail(APIView):
-    def get(self, request, version, pk):
-        room = get_object_or_404(Room, pk=pk)
-
-        if not request.user.is_staff and room.hidden:
-            raise exceptions.PermissionDenied()
-
-        serializer = RoomSerializer(room, context={'request': request})
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, version, pk):
-        if not request.user.is_staff:
-            raise exceptions.PermissionDenied()
-
-        room = get_object_or_404(Room, pk=pk)
-        serializer = RoomSerializer(room, data=request.data, context={'request': request},
-                                    partial=True)
-
-        if serializer.is_valid():
-            instance = serializer.save()
-            response_data = RoomSerializer(instance).data
-
-            return Response(response_data, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, version, pk):
-        if not request.user.is_staff:
-            raise exceptions.PermissionDenied()
-
-        room = get_object_or_404(Room, pk=pk)
-        room.delete()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    def get_queryset(self):
+        sender = self.request.user
+        return Room.objects.all() if sender.is_staff else Room.objects.all_visible()
 
 
 def check_rooming(user, sender):
