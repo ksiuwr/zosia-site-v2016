@@ -3,6 +3,7 @@ import React from "react";
 
 import {useModal} from "./modals/modals";
 import AddRoomModal from './modals/add_room_modal';
+import { create_room } from "./zosia_api";
 
 
 const SearchBar = (props) =>
@@ -16,15 +17,18 @@ const SearchBar = (props) =>
   
   return (
     <div>
+    { props.permissions.canAddRoom ?
     <div className="col s12">
       <ul style={{height: "50px", lineHeight: "45px", margin: 0}}>
         <li style={{float:"left", margin: "5px"}}>
-          <a href="#" className="waves-effect waves-light btn" onClick={() => openModal(AddRoomModal, {closeModal})}> Add room </a>
+          <a href="#" className="waves-effect waves-light btn" onClick={
+            () => openModal(AddRoomModal, {closeModal, submit: create_room})
+          }> Add room </a>
         </li>
       </ul>
-    </div>
+    </div> : "" }
     <div className="col s12">
-      <ul style={{height: "50px", lineHeight: "45px", "margin-top": 0}}>
+      <ul style={{height: "50px", lineHeight: "45px", "marginTop": 0}}>
         <li style={{float: "left", margin: "5px", marginTop: "12px"}}>
             <i className="material-icons black-text">search</i>
         </li>

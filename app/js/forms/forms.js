@@ -16,7 +16,7 @@ export const composeForms = (forms, parametrized_component) => {
   return form(defaultValue, parametrized_component(inputs));
 }
 
-export const useForm = form => {
-  const [value, setValue] = React.useState(form.default);
+export const useForm = (form, data) => {
+  const [value, setValue] = React.useState(data ? data : form.default);
   return [form.Input, value, setValue]
 }

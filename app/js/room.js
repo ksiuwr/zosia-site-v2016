@@ -6,21 +6,37 @@ import styled from "styled-components";
 
 import useInterval from "./use_interval";
 import { useModal, ModalProvider, ModalRoot } from "./modals/modals";
-import { exists } from "./helpers";
-import { get_rooms } from "./zosia_api";
+import { exists, map_of_arr } from "./helpers";
+import { get_rooms, get_users, me, delete_room } from "./zosia_api";
 
 import { RoomCard } from "./room_card";
 import SearchBar from "./search_bar";
 
 const RoomsView = (props) =>
 {
-  const [rooms, setRooms] = React.useState([]);
+  const [state, setState] = React.useState({
+    users: [],
+    rooms: [],
+  });
   const [searchWords, setSearchWords] = React.useState([]);
   const [showFull, setShowFull] = React.useState(true);
-  useInterval(() => {
-    get_rooms().then(json => setRooms(json));
-  }, 1000);
 
+  const refresh = () => {
+    Promise.all([get_rooms(), get_users(), me.info()])
+      .then(([rooms, users_arr, info]) => {
+        const users = map_of_arr(users_arr, user => user.id);
+        return { rooms, users, me: info}
+      })
+      .then(setState);
+  }
+
+  useInterval(refresh, 1000);
+
+  const room_ops = {
+    join: (room_id) => me.join_room(room_id).then(refresh),
+    leave: (room_id) => me.leave_room(room_id).then(refresh),
+    delete: (room_id) => delete_room(room_id).then(refresh)
+  }
 
   const onSearch = event =>
   {
@@ -40,7 +56,7 @@ const RoomsView = (props) =>
     setShowFull(!showFull);
   }
 
-  const searchResults = rooms.filter(room => {
+  const searchResults = state.rooms.filter(room => {
     if (searchWords.length == 0)
     {
       return true;
@@ -68,11 +84,12 @@ const RoomsView = (props) =>
   return (
     <div>
       <SearchBar 
+        permissions={props.permissions}
         onSearch={onSearch}
         onShowFullRoomsToggle={onShowFullRoomsToggle}
        />
       {sortedResults.map(data => {
-        return (<RoomCard key={data.id} my_room={'/rooms/1'} {...data}/>);
+        return (<RoomCard permissions={props.permissions} key={data.id} me={state.me} users={state.users} room_ops={room_ops} {...data}/>);
       })}
     </div>
   )
@@ -84,7 +101,11 @@ ReactDOM.render(
       <ModalRoot/>
       <div className="container">
         <div className="row">
-          <RoomsView/>
+          <RoomsView permissions={{
+            canAddRoom: false,
+            canDeleteRoom: false,
+            canEditRoom: false,
+          }}/>
         </div>
       </div>
     </ModalProvider>

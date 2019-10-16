@@ -6,10 +6,8 @@ import RoomForm from '../forms/room_form';
 import { create_room } from '../zosia_api';
 
 const AddRoomModal = props => {
-  const [FormInput, formValue, setValue] = useForm(RoomForm);
-  const submit = () => {
-    create_room(formValue); 
-  }
+  const {submit, data} = props
+  const [FormInput, formValue, setValue] = useForm(RoomForm, data);
   
   return (
     <Modal closeModal={props.closeModal}>
@@ -20,7 +18,7 @@ const AddRoomModal = props => {
         </div>
       </div>
       <div className="modal-footer">
-        <a href="#!" className="modal-close waves-effect waves-green btn-flat" onClick={submit}>
+        <a href="#!" className="modal-close waves-effect waves-green btn-flat" onClick={() => submit(formValue)}>
           Add
         </a>
       </div>
