@@ -107,6 +107,9 @@ class Room(models.Model):
         if sender is None:
             sender = user
 
+        if not sender.is_staff and sender != user:
+            raise ValidationError(_("Only staff can add other users to rooms."), code="invalid")
+
         if self.hidden and not sender.is_staff:
             raise ValidationError(_("Cannot join %(room)s, room is unavailable."),
                                   code="invalid",
@@ -134,7 +137,14 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def leave(self, user):
+    def leave(self, user, sender=None):
+        if not sender:
+            sender = user
+
+        if not sender.is_staff and sender != user:
+            raise ValidationError(_("Only staff can remove other users from rooms."),
+                                  code="invalid")
+
         try:
             self.unlock(user)
         except ValidationError:
@@ -147,6 +157,9 @@ class Room(models.Model):
     def set_lock(self, owner, sender=None, expiration_date=None):
         if sender is None:
             sender = owner
+
+        if not sender.is_staff and sender != owner:
+            raise ValidationError(_("Only staff can lock rooms for other users."), code="invalid")
 
         if not self.members.filter(pk__exact=owner.pk).exists():
             raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
