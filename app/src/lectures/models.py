@@ -10,27 +10,21 @@ class Lecture(models.Model):
     # organizational informations
     zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), on_delete=models.CASCADE)
     info = models.CharField(verbose_name=_("Information"), max_length=800,
-                            help_text=_("Your suggestions, requests and "
-                                        "comments intended for organizers and"
-                                        " a lot more,"), blank=True, null=True)
-    create_date = models.DateTimeField(verbose_name="Creation date",
-                                       auto_now_add=True)
+                            help_text=_("Your suggestions, requests and comments intended for "
+                                        "organizers and a lot more,"), blank=True, null=True)
+    create_date = models.DateTimeField(verbose_name=_("Creation date"), auto_now_add=True)
     accepted = models.BooleanField(verbose_name=_("Accepted"), default=False)
     priority = models.IntegerField(default=99, help_text=_("Set order on all lectures page"))
     # main data about lecture
     title = models.CharField(verbose_name=_("Title"), max_length=256)
     abstract = models.CharField(verbose_name=_("Abstract"), max_length=2048)
-    duration = models.CharField(verbose_name=_("Duration"), max_length=3,
-                                choices=DURATION_CHOICES)
-    lecture_type = models.CharField(verbose_name=_("Type"), max_length=1,
-                                    choices=LECTURE_TYPE)
+    duration = models.CharField(verbose_name=_("Duration"), max_length=3, choices=DURATION_CHOICES)
+    lecture_type = models.CharField(verbose_name=_("Type"), max_length=1, choices=LECTURE_TYPE)
     # about author
-    person_type = models.CharField(verbose_name=_("Person type"), max_length=1,
-                                   choices=PERSON_TYPE)
-    description = models.CharField(verbose_name=_("Author description"),
-                                   max_length=256, null=True, blank=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL,
-                               verbose_name=_("Author"),
+    person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE)
+    description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,
+                                   blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("Author"),
                                on_delete=models.CASCADE)
 
     def __str__(self):
