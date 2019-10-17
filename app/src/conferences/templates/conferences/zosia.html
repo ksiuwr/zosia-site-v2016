@@ -18,44 +18,42 @@
                     <a href="{{ zosia.place.url }}" target="_blank">
                         <strong>{{ zosia.place.name }}</strong>
                     </a>
-                    <br>
+                    <br />
                     {% trans "Address" %}:
-                    <br/>
+                    <br />
                     {{ zosia.place.address }}
-                    <br>
+                    <br />
                 </div>
             </div>
             <div class="col l4 m6 s12">
                 <div class="dates">
                     <span>{% trans "Registration" %}:</span>
-                    <br/>
-                    <span>{{ zosia.registration_start | zoneformat:"Europe/Warsaw" }} - {{
-                        zosia.registration_end | zoneformat:"Europe/Warsaw" }}</span>
-                </div>
-
-                <div class="dates">
-                    <span>{% trans "Rooms enrollment" %}:</span>
-                    <br/>
-                    <span>{{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }} - {{
-                        zosia.rooming_end | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>
+                        {{ zosia.registration_start | zoneformat:"Europe/Warsaw" }} - {{ zosia.registration_end | zoneformat:"Europe/Warsaw" }}
+                    </span>
                 </div>
                 <div class="dates">
                     <span>{% trans "Call for papers" %}:</span>
-                    <br/>
-                    <span>{{ zosia.lecture_registration_start | zoneformat:"Europe/Warsaw" }} - {{
-                        zosia.lecture_registration_end | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>
+                        {{ zosia.lecture_registration_start | zoneformat:"Europe/Warsaw" }} - {{ zosia.lecture_registration_end | zoneformat:"Europe/Warsaw" }}
+                    </span>
+                </div>
+                <div class="dates">
+                    <span>{% trans "Rooms enrollment" %}:</span>
+                    <br />
+                    <span>
+                        {{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }} - {{ zosia.rooming_end | zoneformat:"Europe/Warsaw" }}
+                    </span>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 <div style="height: 15%">
-    <iframe
-            allowfullscreen
-            class="full-width full-height" frameborder="0"
-            gapi_place_src src={{ style="border:0"
-            }}>
+    <iframe allowfullscreen class="full-width full-height" frameborder="0" src={{gapi_place_src}}
+            style="border:0">
     </iframe>
 </div>
 {% endif %}
