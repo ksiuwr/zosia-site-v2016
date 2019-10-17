@@ -46,9 +46,11 @@
           <div class="card-title">
             {% if current_prefs %}
               {{ current_prefs.zosia }}
+              {% if current_prefs.organization %}
               <div class="chip">
-                <h6>{{ current_prefs.organization }}</h6>
+                {{ current_prefs.organization }}
               </div>
+              {% endif %}
             {% else %}
               ZOSIA
             {% endif %}
