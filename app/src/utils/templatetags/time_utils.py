@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import template
 
+from utils.constants import DEFAULT_TIME_FORMAT
 from utils.time_manager import format_in_zone, now
 
 register = template.Library()
@@ -8,9 +9,9 @@ register = template.Library()
 
 @register.simple_tag
 def server_time():
-    return now().strftime("%d.%m.%Y %H:%M %Z")
+    return now().strftime(DEFAULT_TIME_FORMAT)
 
 
 @register.filter
 def zoneformat(time, zonename):
-    return format_in_zone(time, zonename, "%d.%m.%Y %H:%M %Z")
+    return format_in_zone(time, zonename, DEFAULT_TIME_FORMAT)
