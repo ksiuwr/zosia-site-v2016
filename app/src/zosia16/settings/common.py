@@ -15,6 +15,11 @@ import string
 
 import raven
 
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
+
+# ISO 8601 datetime format to accept html5 datetime input values
+DATETIME_INPUT_FORMATS += ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M"]
+
 # Google API key
 GAPI_KEY = os.environ.get('GAPI_KEY')
 

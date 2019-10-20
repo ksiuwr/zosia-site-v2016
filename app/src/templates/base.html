@@ -41,7 +41,8 @@
 </main>
 <!-- FOOTER -->
 {% include 'footer.html' %}
-<script src="{% static 'script/materialize.min.js' %}" type="text/javascript"></script>
+<!-- <script src="{% static 'script/materialize.min.js' %}" type="text/javascript"></script> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js"></script>
 
 <!-- MESSAGES -->
 <script type="text/javascript">
@@ -51,6 +52,8 @@
             $('.dropdown-trigger').dropdown();
             $('.sidenav').sidenav();
             $('.tabs').tabs();
+            $('.datepicker').datepicker();
+            $('.timepicker').timepicker();
             {% for message in messages %}
                 M.toast('{{ message }}', 4000, '{{ message.tags }}');
             {% endfor %}

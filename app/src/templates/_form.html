@@ -32,6 +32,14 @@
             {{ field|materializecss }}
           {% endfor %}
         </div>
+        <div class="row">
+            {% for field in form %}
+              {{ field.label_tag }}
+              {{ field.field }}
+              {{ field.errors }}
+              <br/>
+            {% endfor %}
+          </div>
       </div>
       <div class="card-action">
         <button type="submit" class="waves-effect waves-light btn">{% trans 'Submit' %}</button>
