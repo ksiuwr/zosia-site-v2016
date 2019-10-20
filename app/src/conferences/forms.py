@@ -133,6 +133,12 @@ class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
         exclude = []
+        widgets = {
+            'time': DateWidget,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class ZosiaForm(forms.ModelForm):
