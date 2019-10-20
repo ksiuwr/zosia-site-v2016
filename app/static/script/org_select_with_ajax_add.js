@@ -21,7 +21,7 @@ $(document).ready(function(){
           console.log(response);
           $(target).append('<option selected value="' + response.value + '">' + response.html + "</option>")
           console.log($(target));
-          $('select').material_select();
+          $('select').formSelect();
         })
         .fail(function(response) {
           console.error(response);

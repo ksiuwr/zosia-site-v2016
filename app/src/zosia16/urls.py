@@ -41,6 +41,7 @@ urlpatterns = \
 
         # API URLs
         re_path(r'^api/(?P<version>(v1))/rooms/', include('rooms.api.urls')),
+        re_path(r'^api/(?P<version>(v1))/users/', include('users.api.urls')),
 
         # Swagger URLs
         re_path(r'^api/swagger/', schema_view.with_ui('swagger', cache_timeout=0),

@@ -8,44 +8,44 @@
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col s1"><a href="#blog">{% trans 'Blog' %}</a></li>
-                    <li class="tab col s2"><a href="#sponsors">{% trans 'Sponsors' %}</a></li>
-                    <li class="tab col s2"><a class="active" href="#users">{% trans 'Users' %}</a></li>
-                    <li class="tab col s1"><a href="#qa">{% trans 'Q&A' %}</a></li>
-                    <li class="tab col s2"><a href="#lectures">{% trans 'Lectures' %}</a></li>
-                    <li class="tab col s2"><a href="#rooms">{% trans 'Rooms' %}</a></li>
-                    <li class="tab col s2"><a href="#zosia">{% trans 'Zosia' %}</a></li>
+                    <li class="tab col l1 m6 s12"><a href="#blog_tab">{% trans 'Blog' %}</a></li>
+                    <li class="tab col l2 m6 s12"><a href="#sponsors_tab">{% trans 'Sponsors' %}</a></li>
+                    <li class="tab col l2 m6 s12"><a href="#users_tab" class="active">{% trans 'Users' %}</a></li>
+                    <li class="tab col l1 m6 s12"><a href="#qa_tab">{% trans 'Q&A' %}</a></li>
+                    <li class="tab col l2 m6 s12"><a href="#lectures_tab">{% trans 'Lectures' %}</a></li>
+                    <li class="tab col l2 m6 s12"><a href="#rooms_tab">{% trans 'Rooms' %}</a></li>
+                    <li class="tab col l2 m6 s12"><a href="#zosia_tab">{% trans 'Zosia' %}</a></li>
                 </ul>
             </div>
 
-            <div id="users" class="col s12">
+            <div id="users_tab" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'user_preferences_index' %}" class="collection-item">{% trans 'Preferences' %}</a>
                     <a href="{% url 'mail_all' %}" class="collection-item">{% trans 'Email users' %}</a>
                 </ul>
             </div>
 
-            <div id="blog" class="col s12">
+            <div id="blog_tab" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'blog_create' %}" class="collection-item">{% trans 'Add blog post' %}</a>
                 </ul>
             </div>
 
-            <div id="sponsors" class="col s12">
+            <div id="sponsors_tab" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'sponsors_index' %}" class="collection-item">{% trans 'Sponsors' %}</a>
                     <a href="{% url 'sponsors_add' %}" class="collection-item">{% trans 'Add sponsor' %}</a>
                 </ul>
             </div>
 
-            <div id="qa" class="col s12">
+            <div id="qa_tab" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'questions_index_staff' %}" class="collection-item">{% trans 'Q&A' %}</a>
                     <a href="{% url 'questions_add' %}" class="collection-item">{% trans 'Q&A add' %}</a>
                 </ul>
             </div>
 
-            <div id="lectures" class="col s12">
+            <div id="lectures_tab" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'lectures_all_staff' %}" class="collection-item">{% trans 'Lectures' %}</a>
                     <a href="{% url 'lectures_staff_add' %}" class="collection-item">{% trans 'Add lecture' %}</a>
@@ -53,14 +53,14 @@
                 </ul>
             </div>
 
-            <div id="rooms" class="col s12">
+            <div id="rooms_tab" class="col s12">
                 <ul class="collection">
                     <a href="{% url 'rooms_report' %}" class="collection-item">{% trans 'Rooms' %}</a>
                     <a href="{% url 'rooms_import' %}" class="collection-item">{% trans 'Add room' %}</a>
                 </ul>
             </div>
 
-            <div id="zosia" class="col s12">
+            <div id="zosia_tab" class="col s12">
               <ul class="collection">
                 <a href="{% url 'conferences' %}" class="collection-item">{% trans "Conferences" %}</a>
                 <a href="{% url 'bus_admin' %}" class="collection-item">{% trans 'Bus' %}</a>
