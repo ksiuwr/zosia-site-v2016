@@ -1,10 +1,10 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='sponsors_index'),
-    url(r'^create$', views.update, name='sponsors_add'),
-    url(r'^(?P<sponsor_id>\d+)/$', views.update, name='sponsors_edit'),
-    url(r'^toggle_active/$', views.toggle_active, name='sponsors_toggle_active'),
+    re_path(r'^$', views.index, name='sponsors_index'),
+    re_path(r'^create$', views.update, name='sponsors_add'),
+    re_path(r'^(?P<sponsor_id>\d+)/$', views.update, name='sponsors_edit'),
+    re_path(r'^toggle_active/$', views.toggle_active, name='sponsors_toggle_active'),
 ]
