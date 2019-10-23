@@ -280,6 +280,36 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_staff_cannot_modify_room_with_less_available_beds_than_members(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        self.room_2.join(self.normal_1)
+        self.room_2.join(self.normal_2)
+
+        data = {
+            "name": "99",
+            "available_beds_single": 1,
+            "available_beds_double": 0
+        }
+        response = self.client.put(self.url_2, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_staff_cannot_modify_room_with_less_beds_than_members(self):
+        self.client.force_authenticate(user=self.staff_2)
+
+        self.room_2.join(self.normal_1)
+        self.room_2.join(self.normal_2)
+
+        data = {
+            "name": "99",
+            "beds_single": 1,
+            "beds_double": 0
+        }
+        response = self.client.put(self.url_2, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class RoomJoinAPITestCase(RoomsAPITestCase):
     def setUp(self):
