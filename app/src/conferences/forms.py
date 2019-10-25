@@ -1,9 +1,16 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from conferences.models import Bus, UserPreferences, Zosia
+from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
-from .models import Bus, UserPreferences, Zosia
-from .widgets import OrgSelectWithAjaxAdd
+
+
+class SplitDateTimePickerField(forms.SplitDateTimeField):
+    def __init__(self, *args, **kwargs):
+        kwargs["widget"] = forms.SplitDateTimeWidget(date_attrs={"class": "datepicker"},
+                                                     time_attrs={"class": "timepicker"})
+        super().__init__(*args, **kwargs)
 
 
 class DateWidget(forms.TextInput):
@@ -133,8 +140,8 @@ class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
         exclude = []
-        widgets = {
-            'time': DateWidget,
+        field_classes = {
+            "time": SplitDateTimePickerField
         }
 
     def __init__(self, *args, **kwargs):
