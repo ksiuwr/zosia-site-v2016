@@ -166,7 +166,7 @@ class Bus(models.Model):
     name = models.TextField(default="Bus")
 
     def __str__(self):
-        return '{} {}'.format(self.name, format_in_zone(self.time, "Europe/Warsaw", "%H:%M (%Z)"))
+        return '{} {}'.format(self.name, format_in_zone(self.time, "Europe/Warsaw", "(%H:%M %Z)"))
 
     @property
     def free_seats(self):

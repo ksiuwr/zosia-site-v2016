@@ -57,3 +57,7 @@ PERSON_TYPE = [
     ("1", _("Guest")),
     ("2", _("Normal"))
 ]
+
+# Time
+
+DEFAULT_TIME_FORMAT = "%d.%m.%Y %H:%M %Z"

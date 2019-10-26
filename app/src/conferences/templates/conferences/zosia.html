@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load time_filters %}
+{% load time_utils %}
 
 {% if zosia %}
 <div class="bg-light-green grey-text text-lighten-2" id="active-zosia">
@@ -27,25 +27,25 @@
             </div>
             <div class="col l4 m6 s12">
                 <div class="dates">
-                    <span>{% trans "Registration" %}:</span>
+                    <i>{% trans "Registration" %}:</i>
                     <br />
-                    <span>
-                        {{ zosia.registration_start | zoneformat:"Europe/Warsaw" }} - {{ zosia.registration_end | zoneformat:"Europe/Warsaw" }}
-                    </span>
+                    <span>{% trans "Start" %}: {{ zosia.registration_start | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>{% trans "End" %}: {{ zosia.registration_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
                 <div class="dates">
-                    <span>{% trans "Call for papers" %}:</span>
+                    <i>{% trans "Call for papers" %}:</i>
                     <br />
-                    <span>
-                        {{ zosia.lecture_registration_start | zoneformat:"Europe/Warsaw" }} - {{ zosia.lecture_registration_end | zoneformat:"Europe/Warsaw" }}
-                    </span>
+                    <span>{% trans "Start" %}: {{ zosia.lecture_registration_start | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>{% trans "End" %}: {{ zosia.lecture_registration_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
                 <div class="dates">
-                    <span>{% trans "Rooms enrollment" %}:</span>
+                    <i>{% trans "Rooms enrollment" %}:</i>
                     <br />
-                    <span>
-                        {{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }} - {{ zosia.rooming_end | zoneformat:"Europe/Warsaw" }}
-                    </span>
+                    <span>{% trans "Start" %}: {{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>{% trans "End" %}:{{ zosia.rooming_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
             </div>
         </div>
