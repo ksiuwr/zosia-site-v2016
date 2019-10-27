@@ -16,9 +16,6 @@ import string
 from django.conf.global_settings import DATETIME_INPUT_FORMATS
 import raven
 
-# ISO 8601 datetime format to accept html5 datetime input values
-DATETIME_INPUT_FORMATS += ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M"]
-
 # Google API key
 GAPI_KEY = os.environ.get('GAPI_KEY')
 
@@ -185,7 +182,12 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATE_FORMAT = 'd.n.o'
+DATE_FORMAT = 'Y-m-d'
+
+TIME_FORMAT = 'H:i'
+
+# ISO 8601 datetime format to accept html5 datetime input values
+DATETIME_INPUT_FORMATS += ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/

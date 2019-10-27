@@ -13,14 +13,6 @@ class SplitDateTimePickerField(forms.SplitDateTimeField):
         super().__init__(*args, **kwargs)
 
 
-class DateWidget(forms.TextInput):
-    def __init__(self, attrs=None):
-        if attrs is None:
-            attrs = {}
-        attrs.update({'class': 'datepicker'})
-        super(DateWidget, self).__init__(attrs)
-
-
 class UserPreferencesWithBusForm(forms.ModelForm):
     def bus_queryset(self, instance=None):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
@@ -159,9 +151,6 @@ class ZosiaForm(forms.ModelForm):
             "rooming_end": SplitDateTimePickerField,
             "lecture_registration_start": SplitDateTimePickerField,
             "lecture_registration_end": SplitDateTimePickerField
-        }
-        widgets = {
-            "start_date": DateWidget,
         }
 
     def __init__(self, *args, **kwargs):
