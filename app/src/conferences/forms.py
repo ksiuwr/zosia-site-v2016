@@ -152,14 +152,16 @@ class ZosiaForm(forms.ModelForm):
     class Meta:
         model = Zosia
         exclude = []
+        field_classes = {
+            "registration_start": SplitDateTimePickerField,
+            "registration_end": SplitDateTimePickerField,
+            "rooming_start": SplitDateTimePickerField,
+            "rooming_end": SplitDateTimePickerField,
+            "lecture_registration_start": SplitDateTimePickerField,
+            "lecture_registration_end": SplitDateTimePickerField
+        }
         widgets = {
-            'start_date': DateWidget,
-            'registration_start': DateWidget,
-            'registration_end': DateWidget,
-            'rooming_start': DateWidget,
-            'rooming_end': DateWidget,
-            'lecture_registration_start': DateWidget,
-            'lecture_registration_end': DateWidget,
+            "start_date": DateWidget,
         }
 
     def __init__(self, *args, **kwargs):
