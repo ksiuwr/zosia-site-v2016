@@ -65,7 +65,7 @@ def create_bus(commit=True, **override):
     zosia = override['zosia'] or create_zosia()
     defaults = {
         'capacity': 0,
-        'time': now(),
+        'departure_time': now(),
         'zosia': zosia,
 
     }

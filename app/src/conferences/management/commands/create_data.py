@@ -51,9 +51,9 @@ def create_place():
 def create_buses(zosia):
     time = now()
 
-    Bus.objects.create(zosia=zosia, time=time_point(time.year, time.month, time.day, 16),
+    Bus.objects.create(zosia=zosia, departure_time=time_point(time.year, time.month, time.day, 16),
                        capacity=45)
-    Bus.objects.create(zosia=zosia, time=time_point(time.year, time.month, time.day, 18),
+    Bus.objects.create(zosia=zosia, departure_time=time_point(time.year, time.month, time.day, 18),
                        capacity=45)
 
 

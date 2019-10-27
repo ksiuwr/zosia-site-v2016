@@ -141,7 +141,7 @@ class BusForm(forms.ModelForm):
         model = Bus
         exclude = []
         field_classes = {
-            "time": SplitDateTimePickerField
+            "departure_time": SplitDateTimePickerField
         }
 
     def __init__(self, *args, **kwargs):
