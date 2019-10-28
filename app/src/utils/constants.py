@@ -37,17 +37,26 @@ MAX_BONUS_MINUTES = 600
 
 ROOM_LOCK_TIMEOUT = timedelta(hours=3)
 
+
 # Lectures
+class LectureInternals:
+    TYPE_LECTURE = "0"
+    TYPE_WORKSHOP = "1"
+    PERSON_SPONSOR = "0"
+    PERSON_GUEST = "1"
+    PERSON_NORMAL = "2"
+
+
 DURATION_CHOICES = [
-    ("10", "10"),
-    ("15", "15"),
-    ("20", "20"),
-    ("30", "30"),
-    ("45", "45"),
-    ("60", "60"),
-    ("75", "75"),
-    ("90", "90"),
-    ("120", "120")
+    (10, "10"),
+    (15, "15"),
+    (20, "20"),
+    (30, "30"),
+    (45, "45"),
+    (60, "60"),
+    (75, "75"),
+    (90, "90"),
+    (120, "120")
 ]
 
 LECTURE_TYPE = [
@@ -62,5 +71,4 @@ PERSON_TYPE = [
 ]
 
 # Time
-
 DEFAULT_TIME_FORMAT = "%d.%m.%Y %H:%M %Z"
