@@ -50,6 +50,7 @@
             $('select').formSelect();
             $('.dropdown-trigger').dropdown();
             $('.sidenav').sidenav();
+            $('.tabs').tabs();
             {% for message in messages %}
                 M.toast('{{ message }}', 4000, '{{ message.tags }}');
             {% endfor %}

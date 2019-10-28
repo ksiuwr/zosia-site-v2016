@@ -1,3 +1,4 @@
+import re
 from datetime import timedelta
 
 from django.core.exceptions import ValidationError
@@ -38,6 +39,22 @@ class ZosiaManager(models.Manager):
             raise Http404("No active conference found")
 
         return zosia
+
+
+def validate_iban(value):
+    iban_reg = r'^(PL)?(\d{2}[ ]\d{4}[ ]\d{4}[ ]\d{4}[ ]\d{4}[ ]\d{4}[ ]\d{4}|\d{26})$'
+    m = re.match(iban_reg, value)
+    if not m:
+        raise ValidationError(_('This is not a valid Polish IBAN number'))
+    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego#Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
+    iban = m.group(2).replace(" ", "")
+    t = iban[2:] + "2521" + iban[:2]  # PL = 25 21
+    res = 0
+    for i in range(0, len(t)):
+        res = (res * 10 + int(t[i])) % 97
+
+    if res != 1:
+        raise ValidationError(_('This is not a valid Polish IBAN number. Wrong checksum - please check your bank number!'))
 
 
 # NOTE: Zosia has 4 days. Period.
@@ -93,8 +110,9 @@ class Zosia(models.Model):
         default=0)
 
     account_number = models.CharField(
-        max_length=32,
+        max_length=34,
         verbose_name=_('Organization account for paying'),
+        validators=[validate_iban]
     )
     account_details = models.TextField(
         verbose_name=_('Details for account (name, address)'),
@@ -161,12 +179,15 @@ class Bus(models.Model):
     objects = BusManager()
 
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
-    capacity = models.IntegerField()
+    capacity = models.IntegerField(
+        validators=[MinValueValidator(1),
+                    MaxValueValidator(100)]
+        )
     time = models.DateTimeField()
     name = models.TextField(default="Bus")
 
     def __str__(self):
-        return '{} {}'.format(self.name, format_in_zone(self.time, "Europe/Warsaw", "%H:%M (%Z)"))
+        return '{} {}'.format(self.name, format_in_zone(self.time, "Europe/Warsaw", "(%H:%M %Z)"))
 
     @property
     def free_seats(self):
@@ -225,7 +246,10 @@ class UserPreferences(models.Model):
 
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
-    contact = models.TextField(default='', help_text='For example your phone number')
+    contact = models.TextField(
+        default='',
+        help_text=('We need some contact to you in case you didn\'t show up. '
+                   'For example your phone number.'))
     information = models.TextField(
         default='', blank=True,
         help_text=_('Here is where you can give us information about yourself '
