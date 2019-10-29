@@ -28,6 +28,7 @@ ${bold}Commands:${normal}
 ${bold}Options:${normal}
   --no-cache      - Do not use cache when building the container image.
   --create-admin  - Create super user account (you need to specify the password).
+  --create-data   - Create some random data to work on like conference, buses, rooms, etc.
 "
 
 
@@ -42,6 +43,7 @@ function configure_env () {
   PROJECT_NAME="zosia"
   WEB_CONTAINER_NAME="${PROJECT_NAME}_web_1"
   CREATE_ADMIN=false
+  CREATE_DATA=false
 }
 
 configure_env
@@ -100,6 +102,10 @@ function runtests () {
   run "python src/manage.py test"
 }
 
+function creare_random_data () {
+  run "python src/manage.py create_data"
+}
+
 function setup () {
   build
   docker-compose -f ${DOCKER_COMPOSE} -p ${PROJECT_NAME} up -d
@@ -116,6 +122,13 @@ function one_click () {
   setup
   echo "${bold}-- Run migrations --${normal}"
   migrate
+
+  if [ "${CREATE_DATA}" = true ]
+  then
+    echo "${bold}-- Prepare some random data --${normal}"
+    creare_random_data
+  fi
+
   echo "${bold}-- Run webserver --${normal}"
   runserver
   echo "${bold}-- Exiting - ${purple}Remember to run \`./dev.sh shutdown\`, if you've just finished${normal}"
@@ -139,6 +152,9 @@ do
     ;;
     --create-admin)
     CREATE_ADMIN=true
+    ;;
+    --create-data)
+    CREATE_DATA=true
     ;;
     "")
     break

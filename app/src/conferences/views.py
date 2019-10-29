@@ -35,8 +35,7 @@ def export_json(request):
                 'shirt_size', 'shirt_type')
 
     rooms = Room.objects \
-        .filter(zosia=zosia) \
-        .values('users__first_name', 'users__last_name', 'name')
+        .values('members__first_name', 'members__last_name', 'name')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
