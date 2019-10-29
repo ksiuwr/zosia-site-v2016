@@ -10,9 +10,9 @@ from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals, PE
 class Lecture(models.Model):
     # organizational informations
     zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), on_delete=models.CASCADE)
-    info = models.CharField(verbose_name=_("Information"), max_length=800,
-                            help_text=_("Your suggestions, requests and comments intended for "
-                                        "organizers and a lot more,"), blank=True, null=True)
+    requests = models.CharField(verbose_name=_("Requests or comments"), max_length=800, blank=True,
+                                null=True, help_text=_("Your requests, suggestions or comments "
+                                                       "intended for organizers"))
     create_date = models.DateTimeField(verbose_name=_("Creation date"), auto_now_add=True)
     accepted = models.BooleanField(verbose_name=_("Accepted"), default=False)
     priority = models.IntegerField(default=99, help_text=_("Set order on all lectures page"))
@@ -22,6 +22,12 @@ class Lecture(models.Model):
     duration = models.PositiveSmallIntegerField(verbose_name=_("Duration (in minutes)"),
                                                 choices=DURATION_CHOICES)
     lecture_type = models.CharField(verbose_name=_("Type"), max_length=1, choices=LECTURE_TYPE)
+    events = models.CharField(verbose_name=_("Additional events"), max_length=800, blank=True,
+                              null=True, help_text=_("Are you planning any event after your "
+                                                     "lecture or workshop (e.g. pizza, drinks, "
+                                                     "games, recruitment)? Beware that organizers "
+                                                     "WON'T ALLOW you to arrange your event if "
+                                                     "you don't announce it here!"))
     # about author
     person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE)
     description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,

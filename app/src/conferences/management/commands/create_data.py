@@ -8,6 +8,7 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
+from utils.constants import LectureInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
 User = get_user_model()
@@ -24,12 +25,13 @@ def create_question():
 def create_lecture(zosia, author):
     data = {
         'zosia': zosia,
-        'info': lorem_ipsum.words(60)[:750],
+        'requests': lorem_ipsum.words(60)[:750],
+        'events': lorem_ipsum.words(60)[:750],
         'title': lorem_ipsum.sentence()[:255],
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
-        'duration': '15',
-        'lecture_type': random.randint(0, 2),
-        'person_type': '2',
+        'duration': 15,
+        'lecture_type': LectureInternals.TYPE_LECTURE,
+        'person_type': LectureInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(20)[:255],
         'author': author
     }

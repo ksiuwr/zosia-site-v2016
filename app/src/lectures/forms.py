@@ -1,19 +1,19 @@
 from django import forms
+
 from .models import Lecture, Schedule
 
 
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['title', 'abstract', 'duration', 'info', 'lecture_type',
-                  'person_type']
+        fields = ['title', 'abstract', 'duration', 'lecture_type', 'person_type', 'requests',
+                  'events']
         widgets = {'abstract': forms.Textarea}
 
 
 class LectureAdminForm(forms.ModelForm):
-    field_order = ['title', 'abstract', 'duration', 'lecture_type',
-                   'author', 'person_type', 'description',
-                   'accepted', 'info']
+    field_order = ['author', 'title', 'abstract', 'duration', 'lecture_type', 'person_type',
+                   'description', 'requests', 'events', 'accepted']
 
     class Meta:
         model = Lecture
