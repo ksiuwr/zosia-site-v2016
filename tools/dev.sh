@@ -102,7 +102,7 @@ function runtests () {
   run "python src/manage.py test"
 }
 
-function creare_random_data () {
+function create_random_data () {
   run "python src/manage.py create_data"
 }
 
@@ -126,7 +126,7 @@ function one_click () {
   if [ "${CREATE_DATA}" = true ]
   then
     echo "${bold}-- Prepare some random data --${normal}"
-    creare_random_data
+    create_random_data
   fi
 
   echo "${bold}-- Run webserver --${normal}"

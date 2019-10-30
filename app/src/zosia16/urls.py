@@ -23,8 +23,7 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(title="ZOSIA API", default_version='v1', description="API for ZOSIA site"),
-    public=True,
-    permission_classes=(permissions.AllowAny,)
+    public=True, permission_classes=(permissions.AllowAny,)
 )
 
 urlpatterns = \
