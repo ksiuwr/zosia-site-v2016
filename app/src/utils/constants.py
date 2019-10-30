@@ -60,14 +60,14 @@ DURATION_CHOICES = [
 ]
 
 LECTURE_TYPE = [
-    ("0", _("Lecture")),
-    ("1", _("Workshop"))
+    (LectureInternals.TYPE_LECTURE, _("Lecture")),
+    (LectureInternals.TYPE_WORKSHOP, _("Workshop"))
 ]
 
 PERSON_TYPE = [
-    ("0", _("Sponsor")),
-    ("1", _("Guest")),
-    ("2", _("Normal"))
+    (LectureInternals.PERSON_SPONSOR, _("Sponsor")),
+    (LectureInternals.PERSON_GUEST, _("Guest")),
+    (LectureInternals.PERSON_NORMAL, _("Normal"))
 ]
 
 # Time

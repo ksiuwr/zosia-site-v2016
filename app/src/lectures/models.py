@@ -25,9 +25,10 @@ class Lecture(models.Model):
     events = models.CharField(verbose_name=_("Additional events"), max_length=800, blank=True,
                               null=True, help_text=_("Are you planning any event after your "
                                                      "lecture or workshop (e.g. pizza, drinks, "
-                                                     "games, recruitment)? Beware that organizers "
-                                                     "WON'T ALLOW you to arrange your event if "
-                                                     "you don't announce it here!"))
+                                                     "games, recruitment)? TELL US ABOUT IT! "
+                                                     "Beware that organizers WON'T ALLOW you to "
+                                                     "arrange your event if you don't announce it "
+                                                     "here!"))
     # about author
     person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE)
     description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,
