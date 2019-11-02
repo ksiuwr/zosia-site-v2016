@@ -67,49 +67,57 @@
   <script type="text/javascript" src="{% static 'bower_components/materialize/extras/noUiSlider/nouislider.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
   <script type="text/javascript">
-			const max_bonus = {{ max_bonus }}
-			const min_bonus = {{ min_bonus }}
-			let paymentInfo = {
-				{% for object in objects %}
-				"{{ object.id }}": {
-					"id": {{ object.id }},
-					"firstName": "{{ object.user.first_name }}",
-					"lastName": "{{ object.user.last_name}}",
-					"price": {{ object.price }},
-					"isPayed": {% if object.payment_accepted %} true {% else %} false {% endif %},
-					"bonus": {{ object.bonus_minutes }},
-				},
-				{% endfor %}
-			}
+      const max_bonus = {{ max_bonus }}
+      const min_bonus = {{ min_bonus }}
+      let paymentInfo = {
+        {% for object in objects %}
+        "{{ object.id }}": {
+          "id": {{ object.id }},
+          "firstName": "{{ object.user.first_name }}",
+          "lastName": "{{ object.user.last_name}}",
+          "price": {{ object.price }},
+          "isPayed": {% if object.payment_accepted %} true {% else %} false {% endif %},
+          "bonus": {{ object.bonus_minutes }},
+        },
+        {% endfor %}
+      }
 
-			const setBonus = (id, value) => {
-				if (value > max_bonus) {
-					value = max_bonus
-				}
+      const setBonus = (id, value) => {
+        if (value > max_bonus) {
+          value = max_bonus
+        }
 
-				if (value < min_bonus) {
-					value = min_bonus
-				}
+        if (value < min_bonus) {
+          value = min_bonus
+        }
 
-				$.ajax({
-						type: "POST",
-						url: '{% url 'user_preferences_admin_edit' %}',
-						data: {
-								'csrfmiddlewaretoken': '{{ csrf_token }}',
-								'key': id,
-								'command': '{{ change_bonus }}',
-								'bonus': value
-						},
-						success: function(data) {
-								paymentInfo[id].bonus = data['bonus']
-								$('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
-								Materialize.toast(data['msg'], 1000, "success");
-						},
-						error: function(){
-								Materialize.toast("Error setting bonus.", 1000, "error");
-						}
-				});
-			}
+        $.ajax({
+            type: "POST",
+            url: '{% url 'user_preferences_admin_edit' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'key': id,
+                'command': '{{ change_bonus }}',
+                'bonus': value
+            },
+            success: function(data) {
+                paymentInfo[id].bonus = data['bonus']
+                $('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
+                Materialize.toast({
+                  html: data['msg'],
+                  displayLength: 1000,
+                  classes: "success"
+                });
+            },
+            error: function(){
+                Materialize.toast({
+                  html: "Error setting bonus.",
+                  displayLength: 1000,
+                  classes: "error"
+                });
+            }
+        });
+      }
 
       const setPaymentStatus = (id, payment_status) => {
         paymentInfo[id].isPayed = payment_status;
@@ -125,35 +133,43 @@
         }
       }
 
-			const togglePayment = (id) => {
-				$.ajax({
-						type: "POST",
-						url: '{% url 'user_preferences_admin_edit' %}',
-						data: {
-								'csrfmiddlewaretoken': '{{ csrf_token }}',
-								'key': id,
-								'command': '{{ toggle_payment }}'
-						},
-						success: function(data) {
-								Materialize.toast(data['msg'], 1000, "success");
+      const togglePayment = (id) => {
+        $.ajax({
+            type: "POST",
+            url: '{% url 'user_preferences_admin_edit' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'key': id,
+                'command': '{{ toggle_payment }}'
+            },
+            success: function(data) {
+                Materialize.toast({
+                  html: data['msg'],
+                  displayLength: 1000,
+                  classes: "success"
+                });
                 setPaymentStatus(id, data['status']);
-						},
-						error: function(){
-								Materialize.toast("Error setting payment status.", 1000, "error");
-						}
-				});
-			}
+            },
+            error: function(){
+                Materialize.toast({
+                  html: "Error setting payment status.",
+                  displayLength: 1000,
+                  classes: "error"
+                });
+            }
+        });
+      }
 
-			const findPaymentInfoByName = (firstName, lastName) => {
-				for (let id in paymentInfo)
-				{
-					const info = paymentInfo[id];
-					if (info.firstName.toLowerCase() == firstName &&
-							info.lastName.toLowerCase() == lastName) {
-						return info;	
-					}
-				}
-			}
+      const findPaymentInfoByName = (firstName, lastName) => {
+        for (let id in paymentInfo)
+        {
+          const info = paymentInfo[id];
+          if (info.firstName.toLowerCase() == firstName &&
+              info.lastName.toLowerCase() == lastName) {
+            return info;  
+          }
+        }
+      }
 
       const updateBonuses = (entries) => {
         const ratio = (max_bonus - min_bonus)*0.8/entries.length;
@@ -182,39 +198,39 @@
         report.empty();
       }
 
-			const updatePayments = (data) => {
-				console.log(data);
+      const updatePayments = (data) => {
+        console.log(data);
         bonus = []
-				for (let i = 0; i < data.length; i++)
-				{
-					const entry = data[i]
-					const info = findPaymentInfoByName(entry.firstName, entry.lastName);
-					if (!info)
-					{
+        for (let i = 0; i < data.length; i++)
+        {
+          const entry = data[i]
+          const info = findPaymentInfoByName(entry.firstName, entry.lastName);
+          if (!info)
+          {
             reportError("Didn't found user: " + entry.firstName + " " + entry.lastName);
-						continue;
-					}
+            continue;
+          }
 
-					if (info.price == entry.payment)
-					{
-						if (!info.isPayed)
-						{
+          if (info.price == entry.payment)
+          {
+            if (!info.isPayed)
+            {
               reportSuccess("Accepted payment for " + info.firstName + " " + info.lastName + ".");
-							togglePayment(info.id)
-						}
+              togglePayment(info.id)
+            }
             else
             {
               reportSuccess(info.firstName + " " + info.lastName + " already payed")
             }
             bonus.push(info);
-					}
+          }
           else
           {
             reportError("Pay mismatch for " + info.firstName + " " + info.lastName + " (payed=" + entry.payment + ",price=" + info.price + ")")
           }
-				}
+        }
         updateBonuses(bonus);
-			}
+      }
 
       const importPaymentFile = (file) => {
         var reader = new FileReader();
@@ -229,7 +245,7 @@
         }
       }
 
-      $(document).ready(function(){	
+      $(document).ready(function(){  
           $('.range').each(function(_index, obj) {
               let firstUpdate = true;
               noUiSlider.create(obj, {
@@ -250,7 +266,7 @@
                   }
                   let id = $(obj).data('id');
                   let value = parseInt(values[0]);
-									setBonus(id, value);
+                  setBonus(id, value);
               }, 1000));
           });
           
@@ -265,8 +281,8 @@
           });
           $('.lever').on('click', function(event){
             event.preventDefault();
-						let id = $(this).data('id');
-						togglePayment(id);
+            let id = $(this).data('id');
+            togglePayment(id);
           });
       });
   </script>

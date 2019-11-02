@@ -251,7 +251,7 @@ class Main extends React.Component {
   }
 
   refresh() {
-    Materialize.toast('Refreshing..', 1000);
+    Materialize.toast({html:'Refreshing..', displayLength: 1000});
     $.getJSON(this.state.urls.status, (data) => {
       data.rooms = this.sortRooms(data.rooms);
       this.setState(data);
@@ -287,7 +287,10 @@ class Main extends React.Component {
         this.refresh();
       }).catch((err) => {
         log.error(err);
-        Materialize.toast(err.responseJSON['status'], 4000, 'red darken-4');
+        Materialize.toast({
+          html: err.responseJSON['status'],
+          calsses: 'red darken-4'
+        });
       });
     };
   }
