@@ -8,7 +8,7 @@
     <meta content="text/html; charset=UTF-8" http-equiv="Content-Type"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <meta content="Lukasz Czaplinski, Mira Szewczyk" name="author">
-    <title>Zimowy Obóz Studentów Informatyki</title>
+    <title>Zimowy Obóz Studentów Informatyki A</title>
 
     <!--Import Google Icon Font-->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -60,7 +60,7 @@
                 twelveHour: false
             });
             {% for message in messages %}
-                M.toast('{{ message }}', 4000, '{{ message.tags }}');
+                M.toast({html:'{{ message }}', classes:'{{ message.tags }}'});
             {% endfor %}
         });
 
