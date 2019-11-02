@@ -12,7 +12,18 @@
       </div>
     </div>
 
-    <ul class="collection">
+    <ul class="collection with-header">
+      <li class="collection-header row">
+        <div class="col l6 m6 s12">
+          <h5>{% trans "User name" %}</h5>
+        </div>
+        <div class="col l3 m3 s6">
+          <h5>{% trans "Payment accepted" %}</h5>
+        </div>
+        <div class="col l3 m3 s6">
+          <h5>{% trans "Bonus" %}</h5>
+        </div>
+      </li>
       {% for object in objects %}
         <li class="collection-item row">
           <div class="col l6 m6 s12">
@@ -23,14 +34,15 @@
           </div>
           <div class="switch col l3 m3 s6">
             <label>
+              No
               <input type="checkbox" id="set-accepted-{{ object.id }}" {% if object.payment_accepted %}checked{% endif %}>
               <span class="lever" data-id="{{ object.id }}"></span>
-              Payment accepted
+              Yes
             </label>
           </div>
           <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
             <div  id="bonus-value-{{ object.id }}"> Bonus: {{ object.bonus_minutes }} </div>
-            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}">
+            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-top: 5px; margin-bottom: 5px;">
             </div>
           </div>
         </li>
@@ -63,9 +75,9 @@
 {% endblock %}
 
 {% block custom_scripts %}
-  <link type="text/css" rel="stylesheet" href="{% static 'bower_components/materialize/extras/noUiSlider/nouislider.css' %}"  media="screen,projection"/>
-  <script type="text/javascript" src="{% static 'bower_components/materialize/extras/noUiSlider/nouislider.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'bower_components/underscore/underscore-min.js' %}"></script>
+  <link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.css' %}"  media="screen,projection"/>
+  <script type="text/javascript" src="{% static 'script/nouislider.min.js' %}"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
   <script type="text/javascript">
       const max_bonus = {{ max_bonus }}
       const min_bonus = {{ min_bonus }}
@@ -103,14 +115,14 @@
             success: function(data) {
                 paymentInfo[id].bonus = data['bonus']
                 $('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
-                Materialize.toast({
+                M.toast({
                   html: data['msg'],
                   displayLength: 1000,
                   classes: "success"
                 });
             },
             error: function(){
-                Materialize.toast({
+                M.toast({
                   html: "Error setting bonus.",
                   displayLength: 1000,
                   classes: "error"
@@ -143,7 +155,7 @@
                 'command': '{{ toggle_payment }}'
             },
             success: function(data) {
-                Materialize.toast({
+                M.toast({
                   html: data['msg'],
                   displayLength: 1000,
                   classes: "success"
@@ -151,7 +163,7 @@
                 setPaymentStatus(id, data['status']);
             },
             error: function(){
-                Materialize.toast({
+                M.toast({
                   html: "Error setting payment status.",
                   displayLength: 1000,
                   classes: "error"
@@ -250,7 +262,8 @@
               let firstUpdate = true;
               noUiSlider.create(obj, {
                   start: [$(obj).data('bonus')],
-                  step: {{ bonus_step }},
+                  step: 1,
+                  connect: 'lower',
                   range: {
                       'min': min_bonus,
                       'max': max_bonus
