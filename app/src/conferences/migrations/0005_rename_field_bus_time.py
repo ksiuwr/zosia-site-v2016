@@ -4,9 +4,8 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('conferences', '0003_alter_field_contact'),
+        ('conferences', '0004_alter_fields_capacity_and_account'),
     ]
 
     operations = [
