@@ -48,7 +48,7 @@ class RoomManager(models.Manager):
         return self.filter(hidden=False)
 
     def filter_visible(self, **params):
-        if "hidden" in params and params["hidden"]:
+        if params.get("hidden"):
             return None
 
         params["hidden"] = False

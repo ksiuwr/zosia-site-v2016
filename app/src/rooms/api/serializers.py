@@ -142,8 +142,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
 
 class LockMethodAdminSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-    expiration_date = serializers.DateTimeField(input_formats=['iso-8601'],
-                                                required=False)  # only for admin
+    expiration_date = serializers.DateTimeField(input_formats=['iso-8601'], required=False)
 
     def __init__(self, *args, **kwargs):
         super(LockMethodAdminSerializer, self).__init__(*args, **kwargs)

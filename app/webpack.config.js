@@ -26,6 +26,14 @@ const config = {
         to: path.resolve(__dirname, './static/css/materialize.min.css'),
       },
       {
+        from: path.resolve(__dirname, './node_modules/materialize-css/extras/noUiSlider/nouislider.min.js'),
+        to: path.resolve(__dirname, './static/script/nouislider.min.js'),
+      },
+      {
+        from: path.resolve(__dirname, './node_modules/materialize-css/extras/noUiSlider/nouislider.css'),
+        to: path.resolve(__dirname, './static/css/nouislider.css'),
+      },
+      {
         from: path.resolve(__dirname, './node_modules/materialize-css/dist/fonts'),
         to: path.resolve(__dirname, './static/fonts'),
       },
