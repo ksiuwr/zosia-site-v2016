@@ -12,12 +12,12 @@
       </a>
     </div>
     {% if objects %}
-      <ul class="collapsible" data-collapsible="accordion">
+      <ul class="collapsible">
         {% for object in objects %}
           <li>
             <div class="collapsible-header">
               <div class="chip">{{ object.get_lecture_type_display }} - {{ object.duration }}</div>
-              {{ object.author }} <strong>{{ object.title }}</strong>
+              <span style="margin-right: 10px;">{{ object.author }}</span> <strong>{{ object.title }}</strong>
               <div class="switch right">
                 <a href="{% url 'lectures_edit' object.id %}">
                   <i class="material-icons">mode_edit</i>
