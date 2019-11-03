@@ -1,17 +1,16 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
+from conferences.models import Bus, UserPreferences, Zosia
+from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
-from .models import Bus, UserPreferences, Zosia
-from .widgets import OrgSelectWithAjaxAdd
 
 
-class DateWidget(forms.TextInput):
-    def __init__(self, attrs=None):
-        if attrs is None:
-            attrs = {}
-        attrs.update({'class': 'datepicker'})
-        super(DateWidget, self).__init__(attrs)
+class SplitDateTimePickerField(forms.SplitDateTimeField):
+    def __init__(self, *args, **kwargs):
+        kwargs["widget"] = forms.SplitDateTimeWidget(date_attrs={"class": "datepicker"},
+                                                     time_attrs={"class": "timepicker"})
+        super().__init__(*args, **kwargs)
 
 
 class UserPreferencesWithBusForm(forms.ModelForm):
@@ -133,20 +132,25 @@ class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
         exclude = []
+        field_classes = {
+            "departure_time": SplitDateTimePickerField
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class ZosiaForm(forms.ModelForm):
     class Meta:
         model = Zosia
         exclude = []
-        widgets = {
-            'start_date': DateWidget,
-            'registration_start': DateWidget,
-            'registration_end': DateWidget,
-            'rooming_start': DateWidget,
-            'rooming_end': DateWidget,
-            'lecture_registration_start': DateWidget,
-            'lecture_registration_end': DateWidget,
+        field_classes = {
+            "registration_start": SplitDateTimePickerField,
+            "registration_end": SplitDateTimePickerField,
+            "rooming_start": SplitDateTimePickerField,
+            "rooming_end": SplitDateTimePickerField,
+            "lecture_registration_start": SplitDateTimePickerField,
+            "lecture_registration_end": SplitDateTimePickerField
         }
 
     def __init__(self, *args, **kwargs):

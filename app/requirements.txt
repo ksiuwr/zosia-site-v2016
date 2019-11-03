@@ -1,6 +1,6 @@
 Django==2.2.*
 django-anymail==3.*
-django-materializecss-form==1.1.14
+git+git://github.com/ksiuwr/django-materializecss-form@master#egg=django-materializecss-form
 djangorestframework>=3.9.0
 drf-yasg>=1.16.0
 packaging>=19.1

@@ -51,6 +51,13 @@
             $('.dropdown-trigger').dropdown();
             $('.sidenav').sidenav();
             $('.tabs').tabs();
+            $('.datepicker').datepicker({
+                format: 'yyyy-mm-dd',
+                firstDay: 1
+            });
+            $('.timepicker').timepicker({
+                twelveHour: false
+            });
             {% for message in messages %}
                 M.toast({html:'{{ message }}', classes:'{{ message.tags }}'});
             {% endfor %}

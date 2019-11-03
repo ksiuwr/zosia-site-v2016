@@ -44,7 +44,8 @@ def create_place():
     data = {
         'name': 'Old Forest Inn',
         'url': 'http://google.com',
-        'address': 'Bakery Street 23, Glasgow'}
+        'address': 'Bakery Street 23, Glasgow'
+    }
     return Place.objects.create(**data)
 
 
@@ -53,13 +54,15 @@ def create_buses(zosia):
 
     Bus.objects.create(
         zosia=zosia,
-        time=time_point(time.year, time.month, time.day, 16),
-        capacity=45)
+        departure_time=time_point(time.year, time.month, time.day, 16),
+        capacity=45
+    )
 
     Bus.objects.create(
         zosia=zosia,
-        time=time_point(time.year, time.month, time.day, 18),
-        capacity=45)
+        departure_time=time_point(time.year, time.month, time.day, 18),
+        capacity=45
+    )
 
 
 def create_active_zosia(place, **kwargs):
@@ -174,7 +177,7 @@ class Command(BaseCommand):
             self.stdout.write('Created question #%d' % i)
 
         room_num = random.randint(7, 20)
-        for i in range(1, room_num+1):
+        for i in range(1, room_num + 1):
             create_room(i)
             self.stdout.write('Created room #%d' % i)
 
