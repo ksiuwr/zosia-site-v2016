@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Lecture, Schedule
+from lectures.models import Lecture, Schedule
 
 
 class LectureForm(forms.ModelForm):
