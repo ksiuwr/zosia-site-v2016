@@ -25,14 +25,14 @@
         </div>
       </li>
       {% for object in objects %}
-        <li class="collection-item row">
+        <li class="collection-item row" style="padding-top: 20px">
           <div class="col l6 m6 s12">
-            <a href="{% url 'user_preferences_edit' object.id %}">
+            <a href="{% url 'user_preferences_edit' object.id %}" style="font-size: 16px">
               {{ object.user }}
               ({{object.price }} zł)
             </a>
           </div>
-          <div class="switch col l3 m3 s6">
+          <div class="switch col l3 m3 s6" style="margin-bottom: 7px;">
             <label>
               No
               <input type="checkbox" id="set-accepted-{{ object.id }}" {% if object.payment_accepted %}checked{% endif %}>
@@ -42,7 +42,7 @@
           </div>
           <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
             <div  id="bonus-value-{{ object.id }}"> Bonus: {{ object.bonus_minutes }} </div>
-            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-top: 5px; margin-bottom: 5px;">
+            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;">
             </div>
           </div>
         </li>
@@ -117,14 +117,14 @@
                 $('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
                 M.toast({
                   html: data['msg'],
-                  displayLength: 1000,
+                  displayLength: 2000,
                   classes: "success"
                 });
             },
             error: function(){
                 M.toast({
                   html: "Error setting bonus.",
-                  displayLength: 1000,
+                  displayLength: 2000,
                   classes: "error"
                 });
             }
@@ -157,7 +157,7 @@
             success: function(data) {
                 M.toast({
                   html: data['msg'],
-                  displayLength: 1000,
+                  displayLength: 2000,
                   classes: "success"
                 });
                 setPaymentStatus(id, data['status']);
@@ -165,7 +165,7 @@
             error: function(){
                 M.toast({
                   html: "Error setting payment status.",
-                  displayLength: 1000,
+                  displayLength: 2000,
                   classes: "error"
                 });
             }
