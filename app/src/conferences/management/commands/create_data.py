@@ -8,8 +8,8 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
+from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
-from utils.constants import DURATION_CHOICES, LECTURE_TYPE
 
 User = get_user_model()
 
@@ -25,12 +25,13 @@ def create_question():
 def create_lecture(zosia, author):
     data = {
         'zosia': zosia,
-        'info': lorem_ipsum.words(60)[:750],
+        'requests': lorem_ipsum.words(60)[:750],
+        'events': lorem_ipsum.words(60)[:750],
         'title': lorem_ipsum.sentence()[:255],
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
         'duration': random.choice(DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
-        'person_type': '2',
+        'person_type': LectureInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(20)[:255],
         'author': author
     }
@@ -121,7 +122,7 @@ def create_zosia(**kwargs):
     return zosia
 
 
-def create_example_user():
+def create_sample_user():
     data = {
         'email': 'zosia@example.com',
         'first_name': 'ZOSIA',
@@ -165,8 +166,8 @@ class Command(BaseCommand):
         #     create_past_zosia(place)
         #     self.stdout.write('Past zosia #%d has been created' % i)
 
-        admin = create_example_user()
-        self.stdout.write('Example user has been created')
+        admin = create_sample_user()
+        self.stdout.write('Sample user has been created')
 
         for i in range(4):
             create_lecture(zosia, admin)
