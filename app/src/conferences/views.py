@@ -7,6 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -130,14 +131,14 @@ def admin_edit(request):
         status = user_preferences.toggle_payment_accepted()
         user_preferences.save()
         return JsonResponse({'msg': _("Changed payment status of {} to {}").format(
-            user_preferences.user.get_full_name(),
+            escape(user_preferences.user.get_full_name()),
             status),
             'status': status})
     if command == ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS:
         user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
         user_preferences.save()
         return JsonResponse({'msg': _("Changed bonus of {} to {}").format(
-            user_preferences.user.get_full_name(),
+            escape(user_preferences.user.get_full_name()),
             user_preferences.bonus_minutes),
             'bonus': user_preferences.bonus_minutes})
 
