@@ -35,8 +35,11 @@
               <strong>{% trans 'Author description' %}:</strong><br />
               {{ object.description }}
               <br /><br />
-              <strong>{% trans 'Info' %}:</strong><br />
-              {{ object.info }}
+              <strong>{% trans 'Requests or comments' %}:</strong><br />
+              {{ object.requests }}
+              <br /><br />
+              <strong>{% trans 'Events' %}:</strong><br />
+              {{ object.events }}
             </div>
           </li>
         {% endfor %}
