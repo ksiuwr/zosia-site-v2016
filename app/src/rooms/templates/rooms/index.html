@@ -55,7 +55,7 @@ var rooms = {{ rooms_json }};
 var csrf_token = '{{ csrf_token }}';
 var urls = {
   'status': '{% url 'rooms_status' %}',
-  'unlock': '{% url 'rooms_unlock' %}'
+  {% comment %} 'unlock': '{% url 'rooms_unlock' %}' {% endcomment %}
 };
 {% endautoescape %}
  $(document).ready(function() {

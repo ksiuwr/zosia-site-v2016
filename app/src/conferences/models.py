@@ -327,7 +327,7 @@ class UserPreferences(models.Model):
 
     @property
     def room(self):
-        return self.user.room_set.filter(zosia=self.zosia).first()
+        return self.user.room_of_user
 
     @property
     def rooming_start_time(self):
