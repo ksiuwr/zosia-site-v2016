@@ -18,6 +18,10 @@ const config = {
         to: path.resolve(__dirname, './static/script/jquery.min.js'),
       },
       {
+        from: path.resolve(__dirname, './node_modules/underscore/underscore-min.js'),
+        to: path.resolve(__dirname, './static/script/underscore.min.js'),
+      },
+      {
         from: path.resolve(__dirname, './node_modules/materialize-css/dist/js/materialize.min.js'),
         to: path.resolve(__dirname, './static/script/materialize.min.js'),
       },

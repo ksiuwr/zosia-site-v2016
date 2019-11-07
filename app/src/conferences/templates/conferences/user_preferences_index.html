@@ -77,7 +77,7 @@
 {% block custom_scripts %}
   <link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.css' %}"  media="screen,projection"/>
   <script type="text/javascript" src="{% static 'script/nouislider.min.js' %}"></script>
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.9.1/underscore-min.js"></script>
+  <script type="text/javascript" src="{% static 'script/underscore.min.js' %}"></script>
   <script type="text/javascript">
       const max_bonus = {{ max_bonus }}
       const min_bonus = {{ min_bonus }}
