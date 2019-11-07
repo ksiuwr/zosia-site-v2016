@@ -109,8 +109,8 @@ def create_zosia(**kwargs):
     data = {
         'description': 'Once upon a time there were apes',
         'price_accomodation': 50,
-        'price_accomodation_breakfast': 10,
-        'price_accomodation_dinner': 15,
+        'price_accomodation_breakfast': 60,
+        'price_accomodation_dinner': 65,
         'price_whole_day': 70,
         'price_transport': 50,
         'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
