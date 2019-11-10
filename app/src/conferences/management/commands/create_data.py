@@ -4,14 +4,16 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
-from conferences.models import Bus, Place, Zosia
+from conferences.models import Bus, Place, Zosia, UserPreferences
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
-from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals
+from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
 User = get_user_model()
+
+IMIONA = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
 
 def create_question():
@@ -125,8 +127,8 @@ def create_zosia(**kwargs):
 def create_sample_user():
     data = {
         'email': 'zosia@example.com',
-        'first_name': 'ZOSIA',
-        'last_name': 'KSIOWA',
+        'first_name': 'Zosia',
+        'last_name': 'Ksiowa',
     }
     u = User.objects.get_or_create(**data)[0]
     u.set_password('pass')
@@ -134,17 +136,70 @@ def create_sample_user():
     return u
 
 
+def random_bool():
+    return random.random() < 0.5
+
+
+def create_random_user_with_preferences(zosia, id):
+    data = {
+        'email': f'zosia{id}@example.com',
+        'first_name': random.choice(IMIONA),
+        'last_name': f'Testowa{id}',
+    }
+    u = User.objects.get_or_create(**data)[0]
+    u.set_password('pass')
+    u.save()
+
+    # Day 1 (Coming)
+    accomodation_day_1 = random_bool()
+    dinner_1 = random_bool() if accomodation_day_1 else False
+
+    # Day 2 (Regular day)
+    accomodation_day_2 = random_bool()
+    breakfast_2 = random_bool() if accomodation_day_2 else False
+    dinner_2 = random_bool() if accomodation_day_2 else False
+
+    # Day 3 (Regular day)
+    accomodation_day_3 = random_bool()
+    breakfast_3 = random_bool() if accomodation_day_3 else False
+    dinner_3 = random_bool() if accomodation_day_3 else False
+
+    # Day 4 (Return)
+    breakfast_4 = random_bool()
+
+    payment_acc = random_bool()
+    bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
+
+    UserPreferences.objects.create(
+        user=u,
+        zosia=zosia,
+
+        accomodation_day_1=accomodation_day_1,
+        dinner_1=dinner_1,
+        accomodation_day_2=accomodation_day_2,
+        breakfast_2=breakfast_2,
+        dinner_2=dinner_2,
+        accomodation_day_3=accomodation_day_3,
+        breakfast_3=breakfast_3,
+        dinner_3=dinner_3,
+        breakfast_4=breakfast_4,
+
+        payment_accepted=payment_acc,
+        bonus_minutes=bonus,
+        )
+
+
 def create_room(number):
     if random.random() < 0.1:
         data = {
-            'name': f"Room nr. {number}",
+            'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
             'beds_double': 1,
             'available_beds_double': 1,
         }
     else:
         data = {
-            'name': f"Room nr. {number}",
+            'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
             'beds_single': random.randint(1, 6),
             'available_beds_single': random.randint(1, 6),
@@ -166,22 +221,26 @@ class Command(BaseCommand):
         #     create_past_zosia(place)
         #     self.stdout.write('Past zosia #%d has been created' % i)
 
-        admin = create_sample_user()
+        sample_user = create_sample_user()
         self.stdout.write('Sample user has been created')
 
+        for i in range(5):
+            create_random_user_with_preferences(zosia, i+1)
+            self.stdout.write(f"Created random user #{i}")
+
         for i in range(4):
-            create_lecture(zosia, admin)
-            self.stdout.write('Created lecture #%d' % i)
+            create_lecture(zosia, sample_user)
+            self.stdout.write(f"Created lecture #{i}")
 
         question_num = random.randint(3, 13)
         for i in range(question_num):
             create_question()
-            self.stdout.write('Created question #%d' % i)
+            self.stdout.write(f"Created question #{i}")
 
         room_num = random.randint(7, 20)
         for i in range(1, room_num + 1):
             create_room(i)
-            self.stdout.write('Created room #%d' % i)
+            self.stdout.write(f"Created room #{i}")
 
         self.stdout.write(
             self.style.SUCCESS('Database has been filled with some data!'))
