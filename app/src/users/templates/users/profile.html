@@ -102,21 +102,19 @@
             <div class="row">
               <div class="col l3 m6 s12">
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-1-0" {% if current_prefs.accomodation_day_1 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 1" %}</span>
+                    <input type="checkbox" class="filled-in" id="filled-in-box-1-2" {% if
+                           current_prefs.dinner_1 %}checked="checked" {% endif %} disabled />
+                    <span>{% trans "Day 1 - dinner" %}</span>
                 </label>
                 <br/>
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-1-2" {% if current_prefs.dinner_1 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 1 - dinner" %}</span>
+                    <input type="checkbox" class="filled-in" id="filled-in-box-1-0" {% if
+                           current_prefs.accomodation_day_1 %}checked="checked" {% endif %}
+                           disabled />
+                    <span>{% trans "Day 1 - accomodation" %}</span>
                 </label>
               </div>
               <div class="col l3 m6 s12">
-                <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-0" {% if current_prefs.accomodation_day_2 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 2" %}</span>
-                </label>
-                <br/>
                 <label>
                   <input type="checkbox" class="filled-in" id="filled-in-box-2-1" {% if current_prefs.breakfast_2 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 2 - breakfast" %}</span>
@@ -126,13 +124,15 @@
                   <input type="checkbox" class="filled-in" id="filled-in-box-2-2" {% if current_prefs.dinner_2 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 2 - dinner" %}</span>
                 </label>
-              </div>
-              <div class="col l3 m6 s12">
+                  <br />
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-0" {% if current_prefs.accomodation_day_3 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 3" %}</span>
+                    <input type="checkbox" class="filled-in" id="filled-in-box-2-0" {% if
+                           current_prefs.accomodation_day_2 %}checked="checked" {% endif %}
+                           disabled />
+                    <span>{% trans "Day 2 - accomodation" %}</span>
                 </label>
-                <br/>
+              </div>
+                <div class="col l3 m6 s12">
                 <label>
                   <input type="checkbox" class="filled-in" id="filled-in-box-3-1" {% if current_prefs.breakfast_3 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 3 - breakfast" %}</span>
@@ -142,6 +142,13 @@
                   <input type="checkbox" class="filled-in" id="filled-in-box-3-2" {% if current_prefs.dinner_3 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 3 - dinner" %}</span>
                 </label>
+                    <br />
+                    <label>
+                        <input type="checkbox" class="filled-in" id="filled-in-box-3-0" {% if
+                               current_prefs.accomodation_day_3 %}checked="checked" {% endif %}
+                               disabled />
+                        <span>{% trans "Day 3 - accomodation" %}</span>
+                    </label>
               </div>
               <div class="col l3 m6 s12">
                 <label>

@@ -232,18 +232,18 @@ class UserPreferences(models.Model):
     bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL)
 
     # Day 1 (Coming)
-    accomodation_day_1 = models.BooleanField(default=False)
     dinner_1 = models.BooleanField(default=False)
+    accomodation_day_1 = models.BooleanField(default=False)
 
     # Day 2 (Regular day)
-    accomodation_day_2 = models.BooleanField(default=False)
     breakfast_2 = models.BooleanField(default=False)
     dinner_2 = models.BooleanField(default=False)
+    accomodation_day_2 = models.BooleanField(default=False)
 
     # Day 3 (Regular day)
-    accomodation_day_3 = models.BooleanField(default=False)
     breakfast_3 = models.BooleanField(default=False)
     dinner_3 = models.BooleanField(default=False)
+    accomodation_day_3 = models.BooleanField(default=False)
 
     # Day 4 (Return)
     breakfast_4 = models.BooleanField(default=False)
