@@ -284,16 +284,17 @@ class UserPreferences(models.Model):
         return getattr(self, option_name)
 
     def _price_for(self, chosen):
+        # 0 - accommodation, 1 - dinner, 2 - breakfast
         if not chosen[0] and not chosen[1] and not chosen[2]:
             return 0
 
         if chosen[1] and chosen[2]:
             return self.zosia.price_whole_day
 
-        if not chosen[1] and chosen[2]:
+        if chosen[1] and not chosen[2]:
             return self.zosia.price_accomodation_dinner
 
-        if chosen[1] and not chosen[2]:
+        if not chosen[1] and chosen[2]:
             return self.zosia.price_accomodation_breakfast
 
         return self.zosia.price_accomodation
