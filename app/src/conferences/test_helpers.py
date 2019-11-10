@@ -8,7 +8,7 @@ PRICE_BREAKFAST = 1 << 2
 PRICE_DINNER = 1 << 3
 PRICE_BASE = 1 << 4
 PRICE_TRANSPORT = 1 << 5
-PRICE_BONUS = 1 << 6
+PRICE_FULL = 1 << 6
 
 
 def create_zosia(commit=True, **kwargs):
@@ -30,7 +30,7 @@ def create_zosia(commit=True, **kwargs):
         'price_accomodation': PRICE_ACCOMODATION,
         'price_accomodation_breakfast': PRICE_BREAKFAST,
         'price_accomodation_dinner': PRICE_DINNER,
-        'price_whole_day': PRICE_BONUS,
+        'price_whole_day': PRICE_FULL,
         'price_base': PRICE_BASE,
         'price_transport': PRICE_TRANSPORT,
         'account_number': '',

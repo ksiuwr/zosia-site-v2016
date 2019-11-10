@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from conferences.forms import UserPreferencesAdminForm, UserPreferencesForm
 from conferences.models import Bus, UserPreferences, Zosia
-from conferences.test_helpers import PRICE_BASE, PRICE_BONUS, PRICE_BREAKFAST, PRICE_DINNER, \
+from conferences.test_helpers import PRICE_BASE, PRICE_FULL, PRICE_BREAKFAST, PRICE_DINNER, \
     create_bus, create_user, create_user_preferences, create_zosia
 from users.models import Organization
 from utils.time_manager import now, time_point
@@ -138,7 +138,7 @@ class UserPreferencesTestCase(TestCase):
         )
 
         self.assertEqual(user_prefs.price,
-                         PRICE_BASE + PRICE_BONUS)
+                         PRICE_BASE + PRICE_FULL)
 
     def test_price_day_with_dinner(self):
         user_prefs = self.makeUserPrefs(
@@ -171,6 +171,54 @@ class UserPreferencesTestCase(TestCase):
 
         self.assertEqual(user_prefs.price,
                          PRICE_BASE + PRICE_BREAKFAST)
+
+    def test_full_price(self):
+        user_prefs = self.makeUserPrefs(
+            accomodation_day_1=True,
+            dinner_1=True,
+            breakfast_2=True,
+            accomodation_day_2=True,
+            dinner_2=True,
+            breakfast_3=True,
+            accomodation_day_3=True,
+            dinner_3=True,
+            breakfast_4=True,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + 3*PRICE_FULL)
+
+    def test_price_with_everything_except_last_breakfast(self):
+        user_prefs = self.makeUserPrefs(
+            accomodation_day_1=True,
+            dinner_1=True,
+            breakfast_2=True,
+            accomodation_day_2=True,
+            dinner_2=True,
+            breakfast_3=True,
+            accomodation_day_3=True,
+            dinner_3=True,
+            breakfast_4=False,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + 2*PRICE_FULL + PRICE_DINNER)
+
+    def test_price_for_whole_second_day(self):
+        user_prefs = self.makeUserPrefs(
+            accomodation_day_1=False,
+            dinner_1=False,
+            breakfast_2=False,
+            accomodation_day_2=True,
+            dinner_2=True,
+            breakfast_3=True,
+            accomodation_day_3=False,
+            dinner_3=False,
+            breakfast_4=False,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + PRICE_FULL)
 
     def test_toggle_payment_accepted(self):
         user_prefs = self.makeUserPrefs(
