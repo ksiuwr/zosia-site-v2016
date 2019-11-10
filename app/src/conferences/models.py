@@ -1,5 +1,5 @@
-import re
 from datetime import timedelta
+import re
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -9,7 +9,7 @@ from django.http import Http404
 from django.utils.translation import ugettext as _
 
 from users.models import Organization, User
-from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, RoomingStatus, \
+from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, RoomingStatus, \
     SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.time_manager import format_in_zone, now, timedelta_since
 
@@ -46,7 +46,8 @@ def validate_iban(value):
     m = re.match(iban_reg, value)
     if not m:
         raise ValidationError(_('This is not a valid Polish IBAN number'))
-    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego#Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
+    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego
+    # #Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
     iban = m.group(2).replace(" ", "")
     t = iban[2:] + "2521" + iban[:2]  # PL = 25 21
     res = 0
@@ -54,7 +55,9 @@ def validate_iban(value):
         res = (res * 10 + int(t[i])) % 97
 
     if res != 1:
-        raise ValidationError(_('This is not a valid Polish IBAN number. Wrong checksum - please check your bank number!'))
+        raise ValidationError(_(
+            'This is not a valid Polish IBAN number. Wrong checksum - please check your bank '
+            'number!'))
 
 
 # NOTE: Zosia has 4 days. Period.
@@ -182,7 +185,7 @@ class Bus(models.Model):
     capacity = models.IntegerField(
         validators=[MinValueValidator(1),
                     MaxValueValidator(100)]
-        )
+    )
     departure_time = models.DateTimeField()
     name = models.TextField(default="Bus")
 
@@ -280,41 +283,31 @@ class UserPreferences(models.Model):
     def _pays_for(self, option_name):
         return getattr(self, option_name)
 
-    def _price_for(self, option_name):
-        breakfast_price = self.zosia.price_accomodation_breakfast - self.zosia.price_accomodation
-        dinner_price = self.zosia.price_accomodation_dinner - self.zosia.price_accomodation
-        return {
-            'accomodation_day_1': self.zosia.price_accomodation,
-            'dinner_1': dinner_price,
-            'breakfast_2': breakfast_price,
-            'accomodation_day_2': self.zosia.price_accomodation,
-            'dinner_2': dinner_price,
-            'breakfast_3': breakfast_price,
-            'accomodation_day_3': self.zosia.price_accomodation,
-            'dinner_3': dinner_price,
-            'breakfast_4': breakfast_price
-        }[option_name]
+    def _price_for(self, chosen):
+        if not chosen[0] and not chosen[1] and not chosen[2]:
+            return 0
+
+        if chosen[1] and chosen[2]:
+            return self.zosia.price_whole_day
+
+        if not chosen[1] and chosen[2]:
+            return self.zosia.price_accomodation_dinner
+
+        if chosen[1] and not chosen[2]:
+            return self.zosia.price_accomodation_breakfast
+
+        return self.zosia.price_accomodation
 
     @property
     def price(self):
         payment = self.zosia.price_base
 
-        payment_groups = [
-            ['accomodation_day_1', 'dinner_1', 'breakfast_2'],
-            ['accomodation_day_2', 'dinner_2', 'breakfast_3'],
-            ['accomodation_day_3', 'dinner_3', 'breakfast_4'],
-        ]
-
         if self.bus is not None:
             payment += self.zosia.price_transport
 
-        for group in payment_groups:
-            if all(map(lambda d: self._pays_for(d), group)):
-                payment += self.zosia.price_whole_day
-            else:
-                for g in group:
-                    if self._pays_for(g):
-                        payment += self._price_for(g)
+        for group in PAYMENT_GROUPS:
+            chosen = list(map(lambda opt: self._pays_for(opt), group))
+            payment += self._price_for(chosen)
 
         return payment
 

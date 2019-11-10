@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from conferences.models import Bus, UserPreferences, Zosia
 from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
+from utils.constants import PAYMENT_GROUPS
 
 
 class SplitDateTimePickerField(forms.SplitDateTimeField):
@@ -43,13 +44,7 @@ class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
 class UserPreferencesForm(UserPreferencesWithOrgForm):
     use_required_attribute = False
     # NOTE: I'm not sure if that's how it should be:
-    DEPENDENCIES = [
-        # This means you need to check accomodation_1 before you can check dinner_1
-        ['accomodation_day_1', 'dinner_1'],
-        # This means you need to check accomodation_2 before you can check breakfast2 or dinner_2
-        ['accomodation_day_2', 'breakfast_2', 'dinner_2'],
-        ['accomodation_day_3', 'breakfast_3', 'dinner_3']
-    ]
+    DEPENDENCIES = PAYMENT_GROUPS
 
     # NOTE: In hindsight, this sucks.
     # Forget about this whitelist after adding fields
@@ -80,16 +75,15 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
         def _pays_for(d):
             return cleaned_data.get(d, False)
 
-        groups = self.DEPENDENCIES
         errs = []
 
-        for day in groups:
+        for day in self.DEPENDENCIES:
             deps = list(map(_pays_for, day[1:]))
             if any(deps) and not _pays_for(day[0]):
                 errs.append(
                     forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
                                           code='invalid',
-                                          params={'field': day[0],
+                                          params={'REQ': day[0],
                                                   'dep': day[1:][deps.index(True)]}))
 
         if len(errs) > 0:
