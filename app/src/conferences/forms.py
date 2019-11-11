@@ -53,9 +53,6 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
 
-    # Yes, it's required by default. But it's insane - better be verbose than misunderstood.
-    accepted = forms.BooleanField(required=True)
-
     def __init__(self, user, *args, **kwargs):
         super().__init__(user, *args, **kwargs)
         self.user = user
@@ -83,14 +80,13 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
                     forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
                                           code='invalid',
                                           params={'req': accommodation,
-                                                  'dep': meals[chosen.index(True)]}))
+                                                  'dep': meals[chosen.index(True)]})
+                )
 
         if len(errs) > 0:
             raise forms.ValidationError(errs)
 
     def disable(self):
-        self.fields['accepted'].initial = True
-
         for field in self.fields:
             if field not in self.CAN_CHANGE_AFTER_PAYMENT_ACCEPTED:
                 self.fields[field].disabled = True

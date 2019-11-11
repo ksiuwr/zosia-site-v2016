@@ -7,7 +7,7 @@ from django.test import TestCase
 
 from conferences.forms import UserPreferencesAdminForm, UserPreferencesForm
 from conferences.models import Bus, UserPreferences, Zosia
-from conferences.test_helpers import PRICE_BASE, PRICE_FULL, PRICE_BREAKFAST, PRICE_DINNER, \
+from conferences.test_helpers import PRICE_BASE, PRICE_BREAKFAST, PRICE_DINNER, PRICE_FULL, \
     create_bus, create_user, create_user_preferences, create_zosia
 from users.models import Organization
 from utils.time_manager import now, time_point
@@ -186,7 +186,7 @@ class UserPreferencesTestCase(TestCase):
         )
 
         self.assertEqual(user_prefs.price,
-                         PRICE_BASE + 3*PRICE_FULL)
+                         PRICE_BASE + 3 * PRICE_FULL)
 
     def test_price_with_everything_except_last_breakfast(self):
         user_prefs = self.makeUserPrefs(
@@ -202,7 +202,7 @@ class UserPreferencesTestCase(TestCase):
         )
 
         self.assertEqual(user_prefs.price,
-                         PRICE_BASE + 2*PRICE_FULL + PRICE_DINNER)
+                         PRICE_BASE + 2 * PRICE_FULL + PRICE_DINNER)
 
     def test_price_for_whole_second_day(self):
         user_prefs = self.makeUserPrefs(
@@ -237,8 +237,7 @@ class UserPreferencesFormTestCase(TestCase):
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
-            'shirt_type': 'f',
-            'accepted': True
+            'shirt_type': 'f'
         }
         defaults.update(**override)
         return UserPreferencesForm(self.normal, defaults)
@@ -301,8 +300,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f',
-                                        'accepted': True
+                                        'shirt_type': 'f'
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
@@ -316,8 +314,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f',
-                                        'accepted': True
+                                        'shirt_type': 'f'
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
@@ -336,8 +333,7 @@ class RegisterViewTestCase(TestCase):
                                         'accomodation_day_1': True,
                                         'shirt_size': 'M',
                                         'shirt_type': 'f',
-                                        'contact': 'fb: me',
-                                        'accepted': True
+                                        'contact': 'fb: me'
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
