@@ -19,4 +19,4 @@ def zoneformat(time, zonename):
 
 @register.filter
 def isoformat(time):
-    return time.strftime("%Y-%m-%dT%H:%M:%SZ")
+    return format_in_zone(time, 'UTC', "%Y-%m-%dT%H:%M:%SZ")
