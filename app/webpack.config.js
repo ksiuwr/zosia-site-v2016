@@ -14,6 +14,10 @@ const config = {
     new webpack.ProgressPlugin(),
     new CopyWebpackPlugin([
       {
+        from: path.resolve(__dirname, './js/countdown_timer.js'),
+        to: path.resolve(__dirname, './static/script/countdown_timer.js'),
+      },
+      {
         from: path.resolve(__dirname, './node_modules/jquery/dist/jquery.min.js'),
         to: path.resolve(__dirname, './static/script/jquery.min.js'),
       },

@@ -131,7 +131,7 @@ footer.page-footer {
 
 .stroke_main_title
 {
-    -webkit-text-stroke: 2px #7e7e7e;
+    -webkit-text-stroke: 1px #1e1e1e;
 }
 
 /** MESSAGES CLASSES **/
@@ -182,10 +182,11 @@ footer.page-footer {
 
 #index-banner{
     width: 100%;
-    height: 200px;
+    height: 500px;
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
+    background-position: center;
 }
 
 .center-items-horizontal {
@@ -198,38 +199,32 @@ footer.page-footer {
 
 @media screen and (min-width: 2881px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-4896x3264.jpeg");
+        background-image: url("../imgs/blur-bg-4496x1964.png");
     }
 }
 
 @media screen and (max-width: 2880px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-2880x1920.jpeg");
+        background-image: url("../imgs/blur-bg-2280x1258.png");
     }
 }
 
 @media screen and (max-width: 1600px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-1600x1067.jpeg");
-    }
-}
-
-@media screen and (min-width: 600px) {
-    #index-banner {
-        height: 500px;
+        background-image: url("../imgs/blur-bg-1600x699.png");
     }
 }
 
 @media screen and (max-width: 992px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-992x661.jpeg");
+        background-image: url("../imgs/blur-bg-992x433.png");
     }
 }
 
 @media screen and (max-width: 600px){
     #index-banner{
-        background-image: url("../imgs/pexels-photo-600x900.jpeg");
-        height: 400px;
+        background-image: url("../imgs/blur-bg-600x262.png");
+        height: 500px;
     }
 
     .flexbox {
@@ -237,10 +232,35 @@ footer.page-footer {
     }
 }
 
+@media screen and (max-width: 400px){
+    #index-banner{
+        background-image: url("../imgs/blur-bg-600x262.png");
+        height: 600px;
+    }
+
+    .flexbox {
+        display: initial;
+    }
+}
+
+
 .download-btn {
     margin: 0.1em;
 }
 
 .bg-table {
     background-color: #EAECEB;
+}
+
+/* Change indicator color to match other elements */
+.slider .indicators .indicator-item.active {
+    background-color:#546A60;
+}
+
+#sidenav-menu {
+    color: #163E2A;
+}
+
+.btn-large {
+    font-size: 20px;
 }

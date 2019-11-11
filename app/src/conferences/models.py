@@ -127,6 +127,10 @@ class Zosia(models.Model):
         return 'Zosia {}'.format(self.start_date.year)
 
     @property
+    def is_registration_started(self):
+        return self.registration_start <= now()
+
+    @property
     def is_rooming_open(self):
         return now() <= self.rooming_end
 
