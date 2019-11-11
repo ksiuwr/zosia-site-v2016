@@ -11,14 +11,14 @@
 #clockdiv > div{
     padding: 10px;
     border-radius: 3px;
-    background: rgba(85, 105, 95, 0.9);
+    background: rgba(99, 122, 166, 0.9);
     display: inline-block;
 }
 
 #clockdiv div > span{
     padding: 15px;
     border-radius: 3px;
-    background: rgba(25, 40, 25, 0.6);
+    background: rgba(10, 15, 30, 0.8);
     display: inline-block;
 }
 

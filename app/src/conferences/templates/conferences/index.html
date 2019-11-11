@@ -12,7 +12,7 @@
 <div id="index-banner">
     <div class="section flexbox center-items-horizontal full-height">
         <div class="container">
-            <h1 class="header center grey-text text-lighten-4 stroke_main_title">
+            <h1 class="header center grey-text text-lighten-4 main_title">
                 Zimowy Obóz Studentów Informatyki A
             </h1>
             <div class="row center">
@@ -20,10 +20,8 @@
                 <a class="waves-effect waves-light btn-large" href="{% url 'user_zosia_register' zosia.pk %}">
                   {% trans "Register now" %}
                 </a>
-                <h5 class="header col s12 green-text text-lighten-4 light">
-                </h5>
               {% elif zosia %}
-              <h3 class="header center grey-text text-lighten-4 stroke_main_title">
+              <h3 class="header center grey-text text-lighten-4 main_title">
                 {% trans "Registration start in" %}
               </h3>
               <div id="clockdiv">

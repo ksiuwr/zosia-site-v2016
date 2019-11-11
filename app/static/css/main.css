@@ -3,7 +3,7 @@
     New palette:
     almost white: #EAECEB
     gray: #A0A8A4
-    light green: #546A60
+    light green: #1A2236
     dark green: #163E2A
 */
 
@@ -13,7 +13,7 @@
 }
 
 .text-dark-green {
-    color: #546A60;
+    color: #1A2236;
 }
 
 #index-banner .header {
@@ -30,7 +30,7 @@ a {
 }
 
 .tabs .tab a {
-    color: #546A60;
+    color: #1A2236;
 }
 
 .tabs .tab a:hover {
@@ -46,7 +46,7 @@ a {
 }
 
 .tabs .indicator .velocity-animating{
-    background-color: #546A60;
+    background-color: #1A2236;
 }
 
 body {
@@ -69,7 +69,7 @@ main {
 }
 
 footer.page-footer {
-    background-color: #546A60;
+    background-color: #1A2236;
     margin-top: 0;
 }
 
@@ -120,19 +120,6 @@ footer.page-footer {
     margin: 2px;
 }
 
-.stroke_black
-{
-    text-shadow:
-            -2px -2px 0 #000,
-            2px -2px 0 #000,
-            -2px 2px 0 #000,
-            2px 2px 0 #000 !important;
-}
-
-.stroke_main_title
-{
-    -webkit-text-stroke: 1px #1e1e1e;
-}
 
 /** MESSAGES CLASSES **/
 .success {
@@ -162,7 +149,7 @@ footer.page-footer {
 
 .bg-light-green {
     padding: 20px;
-    background-color: #546A60;
+    background-color: #1A2236;
 }
 
 .bg-light-green a {
@@ -199,31 +186,31 @@ footer.page-footer {
 
 @media screen and (min-width: 2881px){
     #index-banner{
-        background-image: url("../imgs/blur-bg-4496x1964.png");
+        background-image: url("../imgs/blur-bg-4496x1986.png");
     }
 }
 
 @media screen and (max-width: 2880px){
     #index-banner{
-        background-image: url("../imgs/blur-bg-2280x1258.png");
+        background-image: url("../imgs/blur-bg-2280x1007.png");
     }
 }
 
 @media screen and (max-width: 1600px){
     #index-banner{
-        background-image: url("../imgs/blur-bg-1600x699.png");
+        background-image: url("../imgs/blur-bg-1600x707.png");
     }
 }
 
 @media screen and (max-width: 992px){
     #index-banner{
-        background-image: url("../imgs/blur-bg-992x433.png");
+        background-image: url("../imgs/blur-bg-992x438.png");
     }
 }
 
 @media screen and (max-width: 600px){
     #index-banner{
-        background-image: url("../imgs/blur-bg-600x262.png");
+        background-image: url("../imgs/blur-bg-600x265.png");
         height: 500px;
     }
 
@@ -234,7 +221,7 @@ footer.page-footer {
 
 @media screen and (max-width: 400px){
     #index-banner{
-        background-image: url("../imgs/blur-bg-600x262.png");
+        background-image: url("../imgs/blur-bg-600x265.png");
         height: 600px;
     }
 
@@ -254,13 +241,26 @@ footer.page-footer {
 
 /* Change indicator color to match other elements */
 .slider .indicators .indicator-item.active {
-    background-color:#546A60;
+    background-color:#1A2236;
 }
 
 #sidenav-menu {
-    color: #163E2A;
+    color: #1A2236;
 }
 
 .btn-large {
     font-size: 20px;
+}
+
+.main_title {
+    -webkit-text-stroke: 1px #1e1e1e;
+    font-weight: 700;
+}
+
+.dropdown-content li > a {
+    color: #1a2236;
+}
+
+.slides li div h3 {
+    font-weight: 500;
 }
