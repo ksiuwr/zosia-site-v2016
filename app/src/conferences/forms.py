@@ -43,8 +43,6 @@ class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
 
 class UserPreferencesForm(UserPreferencesWithOrgForm):
     use_required_attribute = False
-    # NOTE: I'm not sure if that's how it should be:
-    DEPENDENCIES = PAYMENT_GROUPS
 
     # NOTE: In hindsight, this sucks.
     # Forget about this whitelist after adding fields
@@ -77,20 +75,22 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
 
         errs = []
 
-        for day in self.DEPENDENCIES:
-            deps = list(map(_pays_for, day[1:]))
-            if any(deps) and not _pays_for(day[0]):
+        for accommodation, meals in PAYMENT_GROUPS.items():
+            chosen = [_pays_for(m) for m in meals]
+
+            if any(chosen) and not _pays_for(accommodation):
                 errs.append(
                     forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
                                           code='invalid',
-                                          params={'REQ': day[0],
-                                                  'dep': day[1:][deps.index(True)]}))
+                                          params={'req': accommodation,
+                                                  'dep': meals[chosen.index(True)]}))
 
         if len(errs) > 0:
             raise forms.ValidationError(errs)
 
     def disable(self):
         self.fields['accepted'].initial = True
+
         for field in self.fields:
             if field not in self.CAN_CHANGE_AFTER_PAYMENT_ACCEPTED:
                 self.fields[field].disabled = True

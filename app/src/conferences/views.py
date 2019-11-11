@@ -16,10 +16,9 @@ from conferences.models import Bus, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
-from utils.constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
-                             ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
-                             MAX_BONUS_MINUTES, MIN_BONUS_MINUTES,
-                             SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, )
+from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 
 
 @staff_member_required()
@@ -168,10 +167,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    field_dependencies = UserPreferencesForm.DEPENDENCIES
-    ctx = {
-        'field_dependencies': field_dependencies
-    }
+    ctx = {'field_dependencies': PAYMENT_GROUPS}
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()

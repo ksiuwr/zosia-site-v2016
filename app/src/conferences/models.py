@@ -284,17 +284,16 @@ class UserPreferences(models.Model):
         return getattr(self, option_name)
 
     def _price_for(self, chosen):
-        # 0 - accommodation, 1 - dinner, 2 - breakfast
-        if not chosen[0] and not chosen[1] and not chosen[2]:
+        if not chosen["accomodation_day"] and not chosen["dinner"] and not chosen["breakfast"]:
             return 0
 
-        if chosen[1] and chosen[2]:
+        if chosen["dinner"] and chosen["breakfast"]:
             return self.zosia.price_whole_day
 
-        if chosen[1] and not chosen[2]:
+        if chosen["dinner"] and not chosen["breakfast"]:
             return self.zosia.price_accomodation_dinner
 
-        if not chosen[1] and chosen[2]:
+        if not chosen["dinner"] and chosen["breakfast"]:
             return self.zosia.price_accomodation_breakfast
 
         return self.zosia.price_accomodation
@@ -306,8 +305,11 @@ class UserPreferences(models.Model):
         if self.bus is not None:
             payment += self.zosia.price_transport
 
-        for group in PAYMENT_GROUPS:
-            chosen = list(map(lambda opt: self._pays_for(opt), group))
+        for accommodation, meals in PAYMENT_GROUPS.items():
+            chosen = {
+                accommodation[:-2]: self._pays_for(accommodation),
+                **{m[:-2]: self._pays_for(m) for m in meals}
+            }
             payment += self._price_for(chosen)
 
         return payment
