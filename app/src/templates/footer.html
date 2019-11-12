@@ -16,6 +16,7 @@
                 </div>
             </div>
             <div class="col l4 s6">
+                <strong>{% trans 'Informations' %}</strong><br/>
                 <ul>
                     <li>
                         <a class="grey-text text-lighten-4" href="{% url 'terms_and_conditions' %}">
@@ -42,7 +43,7 @@
                     </li>
                 </ul>
             </div>
-            <div class="col l4 s6">
+            <div class="col l4 s12">
                 <p>
                     <i>{% trans 'Server time' %}</i><br />
                     {% server_time %}
