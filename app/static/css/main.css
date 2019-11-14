@@ -230,6 +230,12 @@ footer.page-footer {
     }
 }
 
+@supports (-webkit-overflow-scrolling: touch) {
+    /* CSS specific to iOS devices */
+    #index-banner {  
+        background-attachment: scroll !important;
+    } 
+}
 
 .download-btn {
     margin: 0.1em;
