@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .actions import SendActivationEmail, SendEmailToAll
@@ -102,7 +102,7 @@ class UserForm(UserCreationForm):
             f'Terms & Conditions</a> and the '
             f'<a href="{reverse("privacy_policy")}">Privacy Policy</a>'
         )
-        privacy_consent = self.fields['privacy_consent'].label = mark_safe(label)
+        self.fields['privacy_consent'].label = mark_safe(label)
 
     def save(self, request):
         user = super().save(commit=False)

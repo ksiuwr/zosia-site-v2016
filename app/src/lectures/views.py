@@ -3,6 +3,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -43,7 +44,8 @@ def toggle_accept(request):
     lecture_id = request.POST.get('key', None)
     lecture = get_object_or_404(Lecture, pk=lecture_id)
     lecture.toggle_accepted()
-    return JsonResponse({'msg': "{} changed status!".format(lecture.title)})
+    return JsonResponse({'msg': "{} changed status!".format(
+        escape(lecture.title))})
 
 
 @login_required()
@@ -101,7 +103,7 @@ def schedule_display(request):
         schedule = Schedule.objects.get(zosia=zosia)
         ctx = {'schedule': schedule}
         return render(request, 'lectures/schedule.html', ctx)
-    except Schedule.DoesNotExist as e:
+    except Schedule.DoesNotExist:
         messages.warning(request, _("Schedule is not defined yet."))
         return redirect('lectures_index')
 

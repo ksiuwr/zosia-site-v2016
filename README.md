@@ -90,4 +90,4 @@ Creating network "zosia_default" with the default driver
 ERROR: Failed to program FILTER chain: iptables failed: iptables --wait -I FORWARD -o br-123123123123 -j DOCKER: iptables v1.X.Y: Couldn't load target `DOCKER':No such file or directory
 ```
 
-In case of that error just restar docker daemon service with that command: `systemctl restart docker`
+In case of that error just restar docker daemon service with this command: `systemctl restart docker`

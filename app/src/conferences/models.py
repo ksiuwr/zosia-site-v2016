@@ -46,8 +46,7 @@ def validate_iban(value):
     m = re.match(iban_reg, value)
     if not m:
         raise ValidationError(_('This is not a valid Polish IBAN number'))
-    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego
-    # #Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
+    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego#Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
     iban = m.group(2).replace(" ", "")
     t = iban[2:] + "2521" + iban[:2]  # PL = 25 21
     res = 0
@@ -56,8 +55,8 @@ def validate_iban(value):
 
     if res != 1:
         raise ValidationError(_(
-            'This is not a valid Polish IBAN number. Wrong checksum - please check your bank '
-            'number!'))
+            'This is not a valid Polish IBAN number.''Wrong checksum - please check your bank number!'
+            ))
 
 
 # NOTE: Zosia has 4 days. Period.
