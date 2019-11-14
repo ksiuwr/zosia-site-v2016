@@ -68,10 +68,11 @@
               </div>
             {% else %}
               <blockquote>
-                <strong>{% trans "Payment information" %}</strong> <br />
-                <span>{% trans "Total" %}: {{ current_prefs.price }} PLN</span><br />
-                {{ current_prefs.zosia.account_number }}<br />
-                {{ current_prefs.zosia.account_details }}
+                  <i>{% trans "Payment information for money transfer" %}</i><br />
+                  {% trans "Total price" %}: <strong>{{ current_prefs.price }} PLN</strong><br />
+                  {% trans "Transfer title" %}: <strong>{{ current_prefs.transfer_title }}</strong><br />
+                  {% trans "Account number" %}: <strong>{{ current_prefs.zosia.account_number }}</strong><br />
+                  {% trans "Account details" %}: <strong>{{ current_prefs.zosia.account_details }}</strong>
               </blockquote>
             {% endif %}
 

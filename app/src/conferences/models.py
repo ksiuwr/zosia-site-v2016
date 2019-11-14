@@ -1,5 +1,5 @@
-import re
 from datetime import timedelta
+import re
 
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -109,7 +109,8 @@ class Zosia(models.Model):
     )
     price_base = models.IntegerField(
         verbose_name=_('Organisation fee'),
-        default=0)
+        default=0
+    )
 
     account_number = models.CharField(
         max_length=34,
@@ -188,7 +189,7 @@ class Bus(models.Model):
     capacity = models.IntegerField(
         validators=[MinValueValidator(1),
                     MaxValueValidator(100)]
-        )
+    )
     departure_time = models.DateTimeField()
     name = models.TextField(default="Bus")
 
@@ -334,6 +335,10 @@ class UserPreferences(models.Model):
     @property
     def room(self):
         return self.user.room_of_user
+
+    @property
+    def transfer_title(self):
+        return f"ZOSIA {self.user.first_name} {self.user.last_name} {self.user.hash}"
 
     @property
     def rooming_start_time(self):
