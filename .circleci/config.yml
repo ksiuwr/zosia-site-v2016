@@ -48,6 +48,24 @@ jobs:
           name: Push image to ECR
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload_circle.sh
 
+  # deploy_new_version:
+  #   environment:
+  #   docker:
+  #   steps:
+  #     - run: 
+  #         name: Create new Task Definition
+  #         command: TODO
+  #     - run: 
+  #         name: Update service and wait
+  #         command: TODO
+  #     - run:
+  #         name: Purge cache
+  #         command: |
+  #           curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+  #             -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
+  #             -H "Content-Type: application/json" \
+  #             --data '{"purge_everything":true}'
+
 workflows:
   version: 2
   build:
