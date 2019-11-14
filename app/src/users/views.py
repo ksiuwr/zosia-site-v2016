@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -146,4 +147,5 @@ def toggle_organization(request):
     organization = get_object_or_404(Organization, pk=organization_id)
     organization.accepted = not organization.accepted
     organization.save(update_fields=['accepted'])
-    return JsonResponse({'msg': "{} changed status!".format(organization)})
+    return JsonResponse({'msg': "{} changed status!".format(
+        escape(organization))})

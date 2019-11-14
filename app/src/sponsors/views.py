@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -47,4 +48,5 @@ def toggle_active(request):
     sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
     sponsor.toggle_active()
     sponsor.save()
-    return JsonResponse({'msg': "{} changed status!".format(sponsor.name)})
+    return JsonResponse({'msg': "{} changed status!".format(
+        escape(sponsor.name))})

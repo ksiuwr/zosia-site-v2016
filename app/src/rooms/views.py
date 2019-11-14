@@ -134,7 +134,6 @@ def handle_uploaded_file(csvfile):
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
 def import_room(request):
-    zosia = get_object_or_404(Zosia, active=True)
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
