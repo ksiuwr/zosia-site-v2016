@@ -6,8 +6,9 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 MODAL_TRIGGER = """
-<a class="waves-effect waves-light btn-flat col s1" href="#modal1"><i 
-class="material-icons">add</i></a>
+<a class="waves-effect waves-light btn-flat col s1" href="#modal1">
+  <i class="material-icons">add</i>
+</a>
 """
 
 MODAL_BODY = """

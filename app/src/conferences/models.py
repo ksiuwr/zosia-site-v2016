@@ -54,7 +54,9 @@ def validate_iban(value):
         res = (res * 10 + int(t[i])) % 97
 
     if res != 1:
-        raise ValidationError(_('This is not a valid Polish IBAN number. Wrong checksum - please check your bank number!'))
+        raise ValidationError(_(
+            'This is not a valid Polish IBAN number.''Wrong checksum - please check your bank number!'
+            ))
 
 
 # NOTE: Zosia has 4 days. Period.
