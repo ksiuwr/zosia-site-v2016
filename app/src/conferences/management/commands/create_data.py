@@ -150,22 +150,17 @@ def create_random_user_with_preferences(zosia, id):
     u.set_password('pass')
     u.save()
 
-    # Day 1 (Coming)
     accomodation_day_1 = random_bool()
     dinner_1 = random_bool() if accomodation_day_1 else False
+    breakfast_2 = random_bool() if accomodation_day_1 else False
 
-    # Day 2 (Regular day)
     accomodation_day_2 = random_bool()
-    breakfast_2 = random_bool() if accomodation_day_2 else False
     dinner_2 = random_bool() if accomodation_day_2 else False
+    breakfast_3 = random_bool() if accomodation_day_2 else False
 
-    # Day 3 (Regular day)
     accomodation_day_3 = random_bool()
-    breakfast_3 = random_bool() if accomodation_day_3 else False
     dinner_3 = random_bool() if accomodation_day_3 else False
-
-    # Day 4 (Return)
-    breakfast_4 = random_bool()
+    breakfast_4 = random_bool() if accomodation_day_3 else False
 
     payment_acc = random_bool()
     bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
