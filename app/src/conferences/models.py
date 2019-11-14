@@ -54,9 +54,10 @@ def validate_iban(value):
         res = (res * 10 + int(t[i])) % 97
 
     if res != 1:
-        raise ValidationError(_(
-            'This is not a valid Polish IBAN number.''Wrong checksum - please check your bank number!'
-            ))
+        raise ValidationError(
+            _('This is an invalid Polish IBAN number: wrong checksum - please check your account '
+              'number!')
+        )
 
 
 # NOTE: Zosia has 4 days. Period.
@@ -117,9 +118,9 @@ class Zosia(models.Model):
         verbose_name=_('Organization account for paying'),
         validators=[validate_iban]
     )
-    account_details = models.TextField(
-        verbose_name=_('Details for account (name, address)'),
-        default='',
+    account_owner = models.TextField(
+        verbose_name=_('Account owner name'),
+        default='KSI UWr'
     )
 
     @property
@@ -161,7 +162,7 @@ class Zosia(models.Model):
         # NOTE: If this instance is not yet saved, self.pk == None
         # So this query will take all active objects from db
         if self.active and Zosia.objects.exclude(pk=self.pk).filter(active=True).exists():
-            raise ValidationError(_(u'Only one Zosia may be active at any given time'))
+            raise ValidationError(_('Only one Zosia may be active at any given time'))
 
         super(Zosia, self).validate_unique(**kwargs)
 

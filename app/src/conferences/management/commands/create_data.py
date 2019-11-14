@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
-from conferences.models import Bus, Place, Zosia, UserPreferences
+from conferences.models import Bus, Place, UserPreferences, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
@@ -116,7 +116,7 @@ def create_zosia(**kwargs):
         'price_whole_day': 70,
         'price_transport': 50,
         'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
-        'account_details': 'Joan Doe, Bag End 666, Shire'
+        'account_owner': 'Joan Doe'
     }
     data.update(kwargs)
     zosia = Zosia.objects.create(**data)
@@ -186,7 +186,7 @@ def create_random_user_with_preferences(zosia, id):
 
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
-        )
+    )
 
 
 def create_room(number):
@@ -225,7 +225,7 @@ class Command(BaseCommand):
         self.stdout.write('Sample user has been created')
 
         for i in range(5):
-            create_random_user_with_preferences(zosia, i+1)
+            create_random_user_with_preferences(zosia, i + 1)
             self.stdout.write(f"Created random user #{i}")
 
         for i in range(4):
