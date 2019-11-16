@@ -28,9 +28,9 @@ def export_json(request):
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email',
-                'organization_id__name', 'bus_id', 'accomodation_day_1',
-                'dinner_1', 'accomodation_day_2', 'breakfast_2', 'dinner_2',
-                'accomodation_day_3', 'breakfast_3', 'dinner_3', 'breakfast_4',
+                'organization_id__name', 'bus_id', 'accommodation_day_1',
+                'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
+                'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
                 'shirt_size', 'shirt_type')
 

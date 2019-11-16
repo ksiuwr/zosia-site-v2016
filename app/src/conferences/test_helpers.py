@@ -3,7 +3,7 @@ from users.models import User
 from utils.time_manager import now, timedelta_since_now
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
-PRICE_ACCOMODATION = 1 << 1
+PRICE_ACCOMMODATION = 1 << 1
 PRICE_BREAKFAST = 1 << 2
 PRICE_DINNER = 1 << 3
 PRICE_BASE = 1 << 4
@@ -27,9 +27,9 @@ def create_zosia(commit=True, **kwargs):
         'rooming_end': timedelta_since_now(days=1),
         'lecture_registration_start': time,
         'lecture_registration_end': time,
-        'price_accomodation': PRICE_ACCOMODATION,
-        'price_accomodation_breakfast': PRICE_BREAKFAST,
-        'price_accomodation_dinner': PRICE_DINNER,
+        'price_accommodation': PRICE_ACCOMMODATION,
+        'price_accommodation_breakfast': PRICE_BREAKFAST,
+        'price_accommodation_dinner': PRICE_DINNER,
         'price_whole_day': PRICE_FULL,
         'price_base': PRICE_BASE,
         'price_transport': PRICE_TRANSPORT,

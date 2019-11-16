@@ -56,7 +56,7 @@ def validate_iban(value):
     if res != 1:
         raise ValidationError(_(
             'This is not a valid Polish IBAN number.''Wrong checksum - please check your bank number!'
-            ))
+        ))
 
 
 # NOTE: Zosia has 4 days. Period.
@@ -92,24 +92,25 @@ class Zosia(models.Model):
     )
     lecture_registration_end = models.DateTimeField()
 
-    price_accomodation = models.IntegerField(
+    price_accommodation = models.IntegerField(
         verbose_name=_('Price for sleeping in hotel, per day'),
     )
-    price_accomodation_breakfast = models.IntegerField(
-        verbose_name=_('Price for accomodation + breakfast'),
+    price_accommodation_breakfast = models.IntegerField(
+        verbose_name=_('Price for accommodation + breakfast'),
     )
-    price_accomodation_dinner = models.IntegerField(
-        verbose_name=_('Price for accomodation + dinner'),
+    price_accommodation_dinner = models.IntegerField(
+        verbose_name=_('Price for accommodation + dinner'),
     )
     price_whole_day = models.IntegerField(
-        verbose_name=_('Price for whole day (accomodation + breakfast + dinner)'),
+        verbose_name=_('Price for whole day (accommodation + breakfast + dinner)'),
     )
     price_transport = models.IntegerField(
         verbose_name=_('Price for transportation')
     )
     price_base = models.IntegerField(
         verbose_name=_('Organisation fee'),
-        default=0)
+        default=0
+    )
 
     account_number = models.CharField(
         max_length=34,
@@ -235,21 +236,21 @@ class UserPreferences(models.Model):
     bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL)
 
     # Day 1 (Coming)
-    dinner_1 = models.BooleanField(default=False)
-    accomodation_day_1 = models.BooleanField(default=False)
+    dinner_day_1 = models.BooleanField(default=False)
+    accommodation_day_1 = models.BooleanField(default=False)
 
     # Day 2 (Regular day)
-    breakfast_2 = models.BooleanField(default=False)
-    dinner_2 = models.BooleanField(default=False)
-    accomodation_day_2 = models.BooleanField(default=False)
+    breakfast_day_2 = models.BooleanField(default=False)
+    dinner_day_2 = models.BooleanField(default=False)
+    accommodation_day_2 = models.BooleanField(default=False)
 
     # Day 3 (Regular day)
-    breakfast_3 = models.BooleanField(default=False)
-    dinner_3 = models.BooleanField(default=False)
-    accomodation_day_3 = models.BooleanField(default=False)
+    breakfast_day_3 = models.BooleanField(default=False)
+    dinner_day_3 = models.BooleanField(default=False)
+    accommodation_day_3 = models.BooleanField(default=False)
 
     # Day 4 (Return)
-    breakfast_4 = models.BooleanField(default=False)
+    breakfast_day_4 = models.BooleanField(default=False)
 
     # Misc
     # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
@@ -268,12 +269,14 @@ class UserPreferences(models.Model):
     shirt_size = models.CharField(
         max_length=5,
         choices=SHIRT_SIZE_CHOICES,
-        default=SHIRT_SIZE_CHOICES[0][0])
+        default=SHIRT_SIZE_CHOICES[0][0]
+    )
 
     shirt_type = models.CharField(
         max_length=1,
         choices=SHIRT_TYPES_CHOICES,
-        default=SHIRT_TYPES_CHOICES[0][0])
+        default=SHIRT_TYPES_CHOICES[0][0]
+    )
 
     # Assigned by admin for various reasons (early registration / payment, help, etc)
     # Should allow some users to book room earlier
@@ -287,19 +290,19 @@ class UserPreferences(models.Model):
         return getattr(self, option_name)
 
     def _price_for(self, chosen):
-        if not chosen["accomodation_day"] and not chosen["dinner"] and not chosen["breakfast"]:
+        if not chosen["accommodation"] and not chosen["dinner"] and not chosen["breakfast"]:
             return 0
 
         if chosen["dinner"] and chosen["breakfast"]:
             return self.zosia.price_whole_day
 
         if chosen["dinner"] and not chosen["breakfast"]:
-            return self.zosia.price_accomodation_dinner
+            return self.zosia.price_accommodation_dinner
 
         if not chosen["dinner"] and chosen["breakfast"]:
-            return self.zosia.price_accomodation_breakfast
+            return self.zosia.price_accommodation_breakfast
 
-        return self.zosia.price_accomodation
+        return self.zosia.price_accommodation
 
     @property
     def price(self):
@@ -310,8 +313,9 @@ class UserPreferences(models.Model):
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {
-                accommodation[:-2]: self._pays_for(accommodation),
-                **{m[:-2]: self._pays_for(m) for m in meals}
+                # [:-6] removes day index, so we know which option type has been chosen
+                accommodation[:-6]: self._pays_for(accommodation),
+                **{m[:-6]: self._pays_for(m) for m in meals}
             }
             payment += self._price_for(chosen)
 

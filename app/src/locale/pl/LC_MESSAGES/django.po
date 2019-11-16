@@ -77,15 +77,15 @@ msgid "Price for sleeping in hotel, per day"
 msgstr ""
 
 #: conferences/models.py:70
-msgid "Price for accomodation + breakfast"
+msgid "Price for accommodation + breakfast"
 msgstr ""
 
 #: conferences/models.py:73
-msgid "Price for accomodation + dinner"
+msgid "Price for accommodation + dinner"
 msgstr ""
 
 #: conferences/models.py:76
-msgid "Price for whole day (accomodation + breakfast + dinner)"
+msgid "Price for whole day (accommodation + breakfast + dinner)"
 msgstr ""
 
 #: conferences/models.py:79
