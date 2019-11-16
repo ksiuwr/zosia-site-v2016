@@ -33,7 +33,10 @@ def create_zosia(commit=True, **kwargs):
         'price_whole_day': PRICE_BONUS,
         'price_base': PRICE_BASE,
         'price_transport': PRICE_TRANSPORT,
-        'account_number': '',
+        'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
+        'account_owner': 'Joan Doe',
+        'account_bank': 'SuperBank',
+        'account_address': 'ul. Fajna 42, 51-109, Wrocław'
     }
     defaults.update(kwargs)
     zosia = Zosia(**defaults)
