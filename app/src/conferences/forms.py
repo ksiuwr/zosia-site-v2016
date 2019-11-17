@@ -1,4 +1,6 @@
 from django import forms
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, UserPreferences, Zosia
@@ -56,6 +58,9 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(user, *args, **kwargs)
         self.user = user
+        label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
+        self.fields['terms_accepted'].required = True
+        self.fields['terms_accepted'].label = mark_safe(label)
 
     def call(self, zosia):
         user_preferences = self.save(commit=False)

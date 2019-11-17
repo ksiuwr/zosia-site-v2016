@@ -237,7 +237,8 @@ class UserPreferencesFormTestCase(TestCase):
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
-            'shirt_type': 'f'
+            'shirt_type': 'f',
+            'terms_accepted': True
         }
         defaults.update(**override)
         return UserPreferencesForm(self.normal, defaults)
@@ -300,7 +301,8 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f'
+                                        'shirt_type': 'f',
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
@@ -314,7 +316,8 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f'
+                                        'shirt_type': 'f',
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)

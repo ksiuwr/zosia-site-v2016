@@ -181,6 +181,7 @@ def create_random_user_with_preferences(zosia, id):
 
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
+        terms_accepted=True,
     )
 
 

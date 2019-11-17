@@ -253,15 +253,16 @@ class UserPreferences(models.Model):
     breakfast_day_4 = models.BooleanField(default=False)
 
     # Misc
-    # Mobile, facebook, google+, whatever - always handy when someone forgets to wake up.
-    contact = models.TextField(
-        default='',
-        help_text=('We need some contact to you in case you didn\'t show up. '
-                   'For example your phone number.'))
+    # Mobile phone, Facebook, Google+, whatever - always handy when someone forgets to wake up.
+    contact = models.TextField(help_text=_(
+        "We need some contact to you in case you didn't show up - for example your phone number."
+    ))
     information = models.TextField(
         default='', blank=True,
-        help_text=_('Here is where you can give us information about yourself '
-                    'that may be important during your trip.'))
+        help_text=_(
+            "Here is where you can give us information about yourself that may be important during your trip."
+        )
+    )
     vegetarian = models.BooleanField(default=False)
     # Set by admin after checking payment
     payment_accepted = models.BooleanField(default=False)
@@ -277,6 +278,9 @@ class UserPreferences(models.Model):
         choices=SHIRT_TYPES_CHOICES,
         default=SHIRT_TYPES_CHOICES[0][0]
     )
+
+    # Terms and conditions are accepted
+    terms_accepted = models.BooleanField(default=False)
 
     # Assigned by admin for various reasons (early registration / payment, help, etc)
     # Should allow some users to book room earlier
