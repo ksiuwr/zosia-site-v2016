@@ -205,11 +205,7 @@ def terms_and_conditions(request):
 
 @require_http_methods(['GET'])
 def privacy_policy(request):
-    zosia = Zosia.objects.find_active()
-    if zosia is None:
-        raise Http404
-    ctx = {'zosia': zosia}
-    return render(request, 'conferences/privacy_policy.html', ctx)
+    return render(request, 'conferences/privacy_policy.html')
 
 
 @staff_member_required
