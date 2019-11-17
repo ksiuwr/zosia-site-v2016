@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
-from conferences.models import Bus, Place, Zosia, UserPreferences
+from conferences.models import Bus, Place, UserPreferences, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
@@ -110,9 +110,9 @@ def create_past_zosia(place, **kwargs):
 def create_zosia(**kwargs):
     data = {
         'description': 'Once upon a time there were apes',
-        'price_accomodation': 50,
-        'price_accomodation_breakfast': 60,
-        'price_accomodation_dinner': 65,
+        'price_accommodation': 50,
+        'price_accommodation_breakfast': 60,
+        'price_accommodation_dinner': 65,
         'price_whole_day': 70,
         'price_transport': 50,
         'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
@@ -150,22 +150,17 @@ def create_random_user_with_preferences(zosia, id):
     u.set_password('pass')
     u.save()
 
-    # Day 1 (Coming)
-    accomodation_day_1 = random_bool()
-    dinner_1 = random_bool() if accomodation_day_1 else False
+    accommodation_day_1 = random_bool()
+    dinner_day_1 = random_bool() if accommodation_day_1 else False
+    breakfast_day_2 = random_bool() if accommodation_day_1 else False
 
-    # Day 2 (Regular day)
-    accomodation_day_2 = random_bool()
-    breakfast_2 = random_bool() if accomodation_day_2 else False
-    dinner_2 = random_bool() if accomodation_day_2 else False
+    accommodation_day_2 = random_bool()
+    dinner_day_2 = random_bool() if accommodation_day_2 else False
+    breakfast_day_3 = random_bool() if accommodation_day_2 else False
 
-    # Day 3 (Regular day)
-    accomodation_day_3 = random_bool()
-    breakfast_3 = random_bool() if accomodation_day_3 else False
-    dinner_3 = random_bool() if accomodation_day_3 else False
-
-    # Day 4 (Return)
-    breakfast_4 = random_bool()
+    accommodation_day_3 = random_bool()
+    dinner_day_3 = random_bool() if accommodation_day_3 else False
+    breakfast_day_4 = random_bool() if accommodation_day_3 else False
 
     payment_acc = random_bool()
     bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
@@ -174,19 +169,20 @@ def create_random_user_with_preferences(zosia, id):
         user=u,
         zosia=zosia,
 
-        accomodation_day_1=accomodation_day_1,
-        dinner_1=dinner_1,
-        accomodation_day_2=accomodation_day_2,
-        breakfast_2=breakfast_2,
-        dinner_2=dinner_2,
-        accomodation_day_3=accomodation_day_3,
-        breakfast_3=breakfast_3,
-        dinner_3=dinner_3,
-        breakfast_4=breakfast_4,
+        accommodation_day_1=accommodation_day_1,
+        dinner_day_1=dinner_day_1,
+        accommodation_day_2=accommodation_day_2,
+        breakfast_day_2=breakfast_day_2,
+        dinner_day_2=dinner_day_2,
+        accommodation_day_3=accommodation_day_3,
+        breakfast_day_3=breakfast_day_3,
+        dinner_day_3=dinner_day_3,
+        breakfast_day_4=breakfast_day_4,
 
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
-        )
+        terms_accepted=True,
+    )
 
 
 def create_room(number):
@@ -225,7 +221,7 @@ class Command(BaseCommand):
         self.stdout.write('Sample user has been created')
 
         for i in range(5):
-            create_random_user_with_preferences(zosia, i+1)
+            create_random_user_with_preferences(zosia, i + 1)
             self.stdout.write(f"Created random user #{i}")
 
         for i in range(4):

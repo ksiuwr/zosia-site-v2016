@@ -1,9 +1,12 @@
 from django import forms
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, UserPreferences, Zosia
 from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
+from utils.constants import PAYMENT_GROUPS
 
 
 class SplitDateTimePickerField(forms.SplitDateTimeField):
@@ -42,14 +45,6 @@ class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
 
 class UserPreferencesForm(UserPreferencesWithOrgForm):
     use_required_attribute = False
-    # NOTE: I'm not sure if that's how it should be:
-    DEPENDENCIES = [
-        # This means you need to check accomodation_1 before you can check dinner_1
-        ['accomodation_day_1', 'dinner_1'],
-        # This means you need to check accomodation_2 before you can check breakfast2 or dinner_2
-        ['accomodation_day_2', 'breakfast_2', 'dinner_2'],
-        ['accomodation_day_3', 'breakfast_3', 'dinner_3']
-    ]
 
     # NOTE: In hindsight, this sucks.
     # Forget about this whitelist after adding fields
@@ -60,12 +55,12 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
 
-    # Yes, it's required by default. But it's insane - better be verbose than misunderstood.
-    accepted = forms.BooleanField(required=True)
-
     def __init__(self, user, *args, **kwargs):
         super().__init__(user, *args, **kwargs)
         self.user = user
+        label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
+        self.fields["terms_accepted"].required = True
+        self.fields["terms_accepted"].label = mark_safe(label)
 
     def call(self, zosia):
         user_preferences = self.save(commit=False)
@@ -76,27 +71,26 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        errors = []
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
 
-        groups = self.DEPENDENCIES
-        errs = []
+        for accommodation, meals in PAYMENT_GROUPS.items():
+            for m in meals:
+                if _pays_for(m) and not _pays_for(accommodation):
+                    errors.append(
+                        forms.ValidationError(
+                            _("You need to check %(accomm) before you can check %(meal)"),
+                            code='invalid',
+                            params={'accomm': accommodation, 'meal': m}
+                        )
+                    )
 
-        for day in groups:
-            deps = list(map(_pays_for, day[1:]))
-            if any(deps) and not _pays_for(day[0]):
-                errs.append(
-                    forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
-                                          code='invalid',
-                                          params={'field': day[0],
-                                                  'dep': day[1:][deps.index(True)]}))
-
-        if len(errs) > 0:
-            raise forms.ValidationError(errs)
+        if len(errors) > 0:
+            raise forms.ValidationError(errors)
 
     def disable(self):
-        self.fields['accepted'].initial = True
         for field in self.fields:
             if field not in self.CAN_CHANGE_AFTER_PAYMENT_ACCEPTED:
                 self.fields[field].disabled = True
@@ -109,15 +103,15 @@ class UserPreferencesAdminForm(UserPreferencesWithBusForm):
             'user',
             'zosia',
             'organization',
-            'accomodation_day_1',
-            'dinner_1',
-            'accomodation_day_2',
-            'dinner_2',
-            'breakfast_2',
-            'accomodation_day_3',
-            'dinner_3',
-            'breakfast_3',
-            'breakfast_4',
+            'accommodation_day_1',
+            'dinner_day_1',
+            'accommodation_day_2',
+            'dinner_day_2',
+            'breakfast_day_2',
+            'accommodation_day_3',
+            'dinner_day_3',
+            'breakfast_day_3',
+            'breakfast_day_4',
             'vegetarian'
         ]
 

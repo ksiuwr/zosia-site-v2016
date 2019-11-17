@@ -16,10 +16,9 @@ from conferences.models import Bus, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
-from utils.constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
-                             ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
-                             MAX_BONUS_MINUTES, MIN_BONUS_MINUTES,
-                             SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, )
+from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 
 
 @staff_member_required()
@@ -29,9 +28,9 @@ def export_json(request):
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email',
-                'organization_id__name', 'bus_id', 'accomodation_day_1',
-                'dinner_1', 'accomodation_day_2', 'breakfast_2', 'dinner_2',
-                'accomodation_day_3', 'breakfast_3', 'dinner_3', 'breakfast_4',
+                'organization_id__name', 'bus_id', 'accommodation_day_1',
+                'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
+                'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
                 'shirt_size', 'shirt_type')
 
@@ -168,10 +167,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    field_dependencies = UserPreferencesForm.DEPENDENCIES
-    ctx = {
-        'field_dependencies': field_dependencies
-    }
+    ctx = {'field_dependencies': PAYMENT_GROUPS}
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()

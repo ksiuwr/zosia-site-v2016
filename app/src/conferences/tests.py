@@ -7,8 +7,8 @@ from django.test import TestCase
 
 from conferences.forms import UserPreferencesAdminForm, UserPreferencesForm
 from conferences.models import Bus, UserPreferences, Zosia
-from conferences.test_helpers import (PRICE_BASE, PRICE_BONUS, PRICE_DINNER, create_bus,
-                                      create_user, create_user_preferences, create_zosia, )
+from conferences.test_helpers import PRICE_BASE, PRICE_BREAKFAST, PRICE_DINNER, PRICE_FULL, \
+    create_bus, create_user, create_user_preferences, create_zosia
 from users.models import Organization
 from utils.time_manager import now, time_point
 
@@ -83,7 +83,7 @@ class BusTestCase(TestCase):
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 2)
 
-        UserPreferences.objects.create(
+        create_user_preferences(
             user=self.normal,
             bus=self.bus2,
             zosia=self.zosia
@@ -105,56 +105,121 @@ class UserPreferencesTestCase(TestCase):
             'contact': 'fb: me',
             'shirt_size': 'S',
             'shirt_type': 'f',
+            'terms_accepted': True
         }
         defaults.update(**override)
         return UserPreferences(**defaults)
 
     def test_price_base(self):
         user_prefs = self.makeUserPrefs(
-            accomodation_day_1=False,
-            dinner_1=False,
-            breakfast_2=False,
-            accomodation_day_2=False,
-            dinner_2=False,
-            breakfast_3=False,
-            accomodation_day_3=False,
-            dinner_3=False,
-            breakfast_4=False,
+            accommodation_day_1=False,
+            dinner_day_1=False,
+            breakfast_day_2=False,
+            accommodation_day_2=False,
+            dinner_day_2=False,
+            breakfast_day_3=False,
+            accommodation_day_3=False,
+            dinner_day_3=False,
+            breakfast_day_4=False,
         )
 
         self.assertEqual(user_prefs.price, PRICE_BASE)
 
     def test_price_whole_day(self):
         user_prefs = self.makeUserPrefs(
-            accomodation_day_1=True,
-            dinner_1=True,
-            breakfast_2=True,
-            accomodation_day_2=False,
-            dinner_2=False,
-            breakfast_3=False,
-            accomodation_day_3=False,
-            dinner_3=False,
-            breakfast_4=False,
+            accommodation_day_1=True,
+            dinner_day_1=True,
+            breakfast_day_2=True,
+            accommodation_day_2=False,
+            dinner_day_2=False,
+            breakfast_day_3=False,
+            accommodation_day_3=False,
+            dinner_day_3=False,
+            breakfast_day_4=False,
         )
 
         self.assertEqual(user_prefs.price,
-                         PRICE_BASE + PRICE_BONUS)
+                         PRICE_BASE + PRICE_FULL)
 
-    def test_price_partial_day(self):
+    def test_price_day_with_dinner(self):
         user_prefs = self.makeUserPrefs(
-            accomodation_day_1=True,
-            dinner_1=True,
-            breakfast_2=False,
-            accomodation_day_2=False,
-            dinner_2=False,
-            breakfast_3=False,
-            accomodation_day_3=False,
-            dinner_3=False,
-            breakfast_4=False,
+            accommodation_day_1=True,
+            dinner_day_1=True,
+            breakfast_day_2=False,
+            accommodation_day_2=False,
+            dinner_day_2=False,
+            breakfast_day_3=False,
+            accommodation_day_3=False,
+            dinner_day_3=False,
+            breakfast_day_4=False,
         )
 
         self.assertEqual(user_prefs.price,
                          PRICE_BASE + PRICE_DINNER)
+
+    def test_price_day_with_breakfast(self):
+        user_prefs = self.makeUserPrefs(
+            accommodation_day_1=True,
+            dinner_day_1=False,
+            breakfast_day_2=True,
+            accommodation_day_2=False,
+            dinner_day_2=False,
+            breakfast_day_3=False,
+            accommodation_day_3=False,
+            dinner_day_3=False,
+            breakfast_day_4=False,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + PRICE_BREAKFAST)
+
+    def test_full_price(self):
+        user_prefs = self.makeUserPrefs(
+            accommodation_day_1=True,
+            dinner_day_1=True,
+            breakfast_day_2=True,
+            accommodation_day_2=True,
+            dinner_day_2=True,
+            breakfast_day_3=True,
+            accommodation_day_3=True,
+            dinner_day_3=True,
+            breakfast_day_4=True,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + 3 * PRICE_FULL)
+
+    def test_price_with_everything_except_last_breakfast(self):
+        user_prefs = self.makeUserPrefs(
+            accommodation_day_1=True,
+            dinner_day_1=True,
+            breakfast_day_2=True,
+            accommodation_day_2=True,
+            dinner_day_2=True,
+            breakfast_day_3=True,
+            accommodation_day_3=True,
+            dinner_day_3=True,
+            breakfast_day_4=False,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + 2 * PRICE_FULL + PRICE_DINNER)
+
+    def test_price_for_whole_second_day(self):
+        user_prefs = self.makeUserPrefs(
+            accommodation_day_1=False,
+            dinner_day_1=False,
+            breakfast_day_2=False,
+            accommodation_day_2=True,
+            dinner_day_2=True,
+            breakfast_day_3=True,
+            accommodation_day_3=False,
+            dinner_day_3=False,
+            breakfast_day_4=False,
+        )
+
+        self.assertEqual(user_prefs.price,
+                         PRICE_BASE + PRICE_FULL)
 
     def test_toggle_payment_accepted(self):
         user_prefs = self.makeUserPrefs(
@@ -174,7 +239,7 @@ class UserPreferencesFormTestCase(TestCase):
             'contact': 'fb: me',
             'shirt_size': 'S',
             'shirt_type': 'f',
-            'accepted': True
+            'terms_accepted': True
         }
         defaults.update(**override)
         return UserPreferencesForm(self.normal, defaults)
@@ -182,8 +247,8 @@ class UserPreferencesFormTestCase(TestCase):
     def test_basic_form(self):
         self.assertTrue(self.makeUserPrefsForm().is_valid())
 
-    def test_accomodation_must_be_chosen_for_dinner_or_breakfast(self):
-        form = self.makeUserPrefsForm(breakfast_2=True, accomodation_2=False)
+    def test_accommodation_must_be_chosen_for_dinner_or_breakfast(self):
+        form = self.makeUserPrefsForm(breakfast_day_2=True, accommodation_day_2=False)
         self.assertFalse(form.is_valid())
 
 
@@ -211,9 +276,9 @@ class RegisterViewTestCase(TestCase):
     def test_get_regular_user_already_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         org = Organization.objects.create(name='ksi', accepted=True)
-        user_prefs = UserPreferences.objects.create(zosia=self.zosia,
-                                                    user=self.normal,
-                                                    organization=org)
+        user_prefs = create_user_preferences(zosia=self.zosia,
+                                             user=self.normal,
+                                             organization=org)
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -238,14 +303,14 @@ class RegisterViewTestCase(TestCase):
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
                                         'shirt_type': 'f',
-                                        'accepted': True
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
 
     def test_post_user_already_registered(self):
-        UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        create_user_preferences(user=self.normal, zosia=self.zosia)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
@@ -253,32 +318,32 @@ class RegisterViewTestCase(TestCase):
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
                                         'shirt_type': 'f',
-                                        'accepted': True
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
 
-    def test_user_cannot_change_accomodation_after_paid(self):
-        UserPreferences.objects.create(user=self.normal,
-                                       zosia=self.zosia,
-                                       accomodation_day_1=False,
-                                       shirt_size='M',
-                                       payment_accepted=True)
+    def test_user_cannot_change_accommodation_after_paid(self):
+        create_user_preferences(user=self.normal,
+                                zosia=self.zosia,
+                                accommodation_day_1=False,
+                                shirt_size='M',
+                                payment_accepted=True)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
                                     data={
-                                        'accomodation_day_1': True,
+                                        'accommodation_day_1': True,
                                         'shirt_size': 'M',
                                         'shirt_type': 'f',
                                         'contact': 'fb: me',
-                                        'accepted': True
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         prefs = UserPreferences.objects.filter(user=self.normal).first()
-        self.assertFalse(prefs.accomodation_day_1)
+        self.assertFalse(prefs.accommodation_day_1)
         # Sanity check ;)
         self.assertEqual(prefs.shirt_size, 'M')
 
@@ -316,9 +381,9 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
 
     def test_index_get_staff_user_multiple_zosias(self):
         another_zosia = create_zosia()
-        UserPreferences.objects.create(user=self.normal, zosia=another_zosia)
-        UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
-        UserPreferences.objects.create(user=self.staff, zosia=self.zosia)
+        create_user_preferences(user=self.normal, zosia=another_zosia)
+        create_user_preferences(user=self.normal, zosia=self.zosia)
+        create_user_preferences(user=self.staff, zosia=self.zosia)
         self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -330,7 +395,7 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
 class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        self.user_prefs = create_user_preferences(user=self.normal, zosia=self.zosia)
         self.url = reverse('user_preferences_admin_edit')
 
     def test_post_no_user(self):
@@ -371,8 +436,7 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
 class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia,
-                                                         contact='foo')
+        self.user_prefs = create_user_preferences(user=self.normal, zosia=self.zosia, contact='foo')
         self.url = reverse('user_preferences_edit',
                            kwargs={'user_preferences_id': self.user_prefs.pk})
 
@@ -402,7 +466,8 @@ class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
                                         'shirt_size': 'XXL',
                                         'shirt_type': 'f',
                                         'contact': self.user_prefs.contact,
-                                        'bonus_minutes': 0
+                                        'bonus_minutes': 0,
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)

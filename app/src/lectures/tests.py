@@ -22,7 +22,7 @@ class LectureTestCase(TestCase):
             start_date=timedelta_since_now(days=1),
             active=True,
             place=place,
-            price_accomodation=23,
+            price_accommodation=23,
             registration_end=time,
             registration_start=time,
             rooming_start=time,
@@ -30,8 +30,8 @@ class LectureTestCase(TestCase):
             price_transport=0,
             lecture_registration_start=time,
             lecture_registration_end=time,
-            price_accomodation_dinner=0,
-            price_accomodation_breakfast=0,
+            price_accommodation_dinner=0,
+            price_accommodation_breakfast=0,
             price_whole_day=0
         )
         self.user = User.objects.create_user('john@thebeatles.com', 'johnpassword',

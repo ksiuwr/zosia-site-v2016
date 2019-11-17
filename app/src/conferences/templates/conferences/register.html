@@ -24,17 +24,10 @@
     $('select').formSelect();
     $('textarea').addClass("materialize-textarea");
 
-    var terms_and_conditions_link = $('<a/>')
-                                            .attr('href', "{% url 'terms_and_conditions' %}")
-                                            .text(" {% trans 'terms and conditions' %}");
-    $("label[for='id_accepted']").after(terms_and_conditions_link);
-
-    const dependencies = 
-    {   {% for field_groups in field_dependencies %}
-        "#id_{{ field_groups|first }}" :
-          [ {%  for field in field_groups|slice:"1:" %}
-            "#id_{{ field }}", {% endfor %}
-          ], {% endfor %}
+    const dependencies = {
+        {% for accommodation, meals in field_dependencies.items %}
+        "#id_{{ accommodation }}" : [ {%  for m in meals %} "#id_{{ m }}", {% endfor %} ],
+        {% endfor %}
     }
 
     const onChange = changedIds => {
