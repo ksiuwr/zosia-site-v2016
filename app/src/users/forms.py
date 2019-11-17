@@ -1,23 +1,23 @@
 from django import forms
-from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
 from .actions import SendActivationEmail, SendEmailToAll
-from .models import User, Organization
+from .models import Organization, User
 
 GROUPS = (
-        ('pick', 'Pick users'),
-        ('all_Users', 'All users'),
-        ('staff', 'Staff'),
-        ('active', 'Active'),
-        ('inactive', 'Don\'t activate their account yet'),
-        ('registered', 'Registered to zosia'),
-        ('payed', 'Payed for zosia'),
-        ('not_Payed', 'Didn`t pay for zosia'),
-    )
+    ('pick', 'Pick users'),
+    ('all_Users', 'All users'),
+    ('staff', 'Staff'),
+    ('active', 'Active'),
+    ('inactive', 'Don\'t activate their account yet'),
+    ('registered', 'Registered to zosia'),
+    ('payed', 'Payed for zosia'),
+    ('not_Payed', 'Didn`t pay for zosia'),
+)
 
 
 class MailForm(forms.Form):
@@ -63,15 +63,15 @@ class MailForm(forms.Form):
         )
         self.fields["registered"].initial = (
             User.objects.filter(userpreferences__isnull=False).distinct()
-            .values_list('email', flat=True)
+                .values_list('email', flat=True)
         )
         self.fields["payed"].initial = (
             User.objects.filter(userpreferences__payment_accepted=True).distinct()
-            .values_list('email', flat=True)
+                .values_list('email', flat=True)
         )
         self.fields["not_Payed"].initial = (
             User.objects.filter(userpreferences__payment_accepted=False).distinct()
-            .values_list('email', flat=True)
+                .values_list('email', flat=True)
         )
 
     def receivers(self):
@@ -87,9 +87,7 @@ class MailForm(forms.Form):
 
 
 class UserForm(UserCreationForm):
-    privacy_consent = forms.BooleanField(
-        required=True
-    )
+    privacy_consent = forms.BooleanField(required=True)
 
     class Meta:
         model = User
@@ -97,11 +95,7 @@ class UserForm(UserCreationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        label = (
-            f'I agree to <a href="{reverse("terms_and_conditions")}">'
-            f'Terms & Conditions</a> and the '
-            f'<a href="{reverse("privacy_policy")}">Privacy Policy</a>'
-        )
+        label = f'I agree to the <a href="{reverse("privacy_policy")}">Privacy Policy</a>'
         self.fields['privacy_consent'].label = mark_safe(label)
 
     def save(self, request):
