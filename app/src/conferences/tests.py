@@ -83,7 +83,7 @@ class BusTestCase(TestCase):
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 2)
 
-        UserPreferences.objects.create(
+        create_user_preferences(
             user=self.normal,
             bus=self.bus2,
             zosia=self.zosia
@@ -105,6 +105,7 @@ class UserPreferencesTestCase(TestCase):
             'contact': 'fb: me',
             'shirt_size': 'S',
             'shirt_type': 'f',
+            'terms_accepted': True
         }
         defaults.update(**override)
         return UserPreferences(**defaults)
@@ -275,9 +276,9 @@ class RegisterViewTestCase(TestCase):
     def test_get_regular_user_already_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         org = Organization.objects.create(name='ksi', accepted=True)
-        user_prefs = UserPreferences.objects.create(zosia=self.zosia,
-                                                    user=self.normal,
-                                                    organization=org)
+        user_prefs = create_user_preferences(zosia=self.zosia,
+                                             user=self.normal,
+                                             organization=org)
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -309,7 +310,7 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
 
     def test_post_user_already_registered(self):
-        UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        create_user_preferences(user=self.normal, zosia=self.zosia)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
@@ -324,11 +325,11 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
 
     def test_user_cannot_change_accommodation_after_paid(self):
-        UserPreferences.objects.create(user=self.normal,
-                                       zosia=self.zosia,
-                                       accommodation_day_1=False,
-                                       shirt_size='M',
-                                       payment_accepted=True)
+        create_user_preferences(user=self.normal,
+                                zosia=self.zosia,
+                                accommodation_day_1=False,
+                                shirt_size='M',
+                                payment_accepted=True)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.post(self.url,
@@ -336,7 +337,8 @@ class RegisterViewTestCase(TestCase):
                                         'accommodation_day_1': True,
                                         'shirt_size': 'M',
                                         'shirt_type': 'f',
-                                        'contact': 'fb: me'
+                                        'contact': 'fb: me',
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
@@ -379,9 +381,9 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
 
     def test_index_get_staff_user_multiple_zosias(self):
         another_zosia = create_zosia()
-        UserPreferences.objects.create(user=self.normal, zosia=another_zosia)
-        UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
-        UserPreferences.objects.create(user=self.staff, zosia=self.zosia)
+        create_user_preferences(user=self.normal, zosia=another_zosia)
+        create_user_preferences(user=self.normal, zosia=self.zosia)
+        create_user_preferences(user=self.staff, zosia=self.zosia)
         self.client.login(email="starr@thebeatles.com", password='ringopassword')
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -393,7 +395,7 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
 class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
+        self.user_prefs = create_user_preferences(user=self.normal, zosia=self.zosia)
         self.url = reverse('user_preferences_admin_edit')
 
     def test_post_no_user(self):
@@ -434,8 +436,7 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
 class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia,
-                                                         contact='foo')
+        self.user_prefs = create_user_preferences(user=self.normal, zosia=self.zosia, contact='foo')
         self.url = reverse('user_preferences_edit',
                            kwargs={'user_preferences_id': self.user_prefs.pk})
 
@@ -465,7 +466,8 @@ class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
                                         'shirt_size': 'XXL',
                                         'shirt_type': 'f',
                                         'contact': self.user_prefs.contact,
-                                        'bonus_minutes': 0
+                                        'bonus_minutes': 0,
+                                        'terms_accepted': True
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)

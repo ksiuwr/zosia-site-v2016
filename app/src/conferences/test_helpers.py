@@ -77,4 +77,4 @@ def create_bus(commit=True, **override):
 
 
 def create_user_preferences(**kwargs):
-    return UserPreferences.objects.create(**kwargs)
+    return UserPreferences.objects.create(terms_accepted=True, **kwargs)

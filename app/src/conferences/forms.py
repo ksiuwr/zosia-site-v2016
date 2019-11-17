@@ -59,8 +59,8 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
         super().__init__(user, *args, **kwargs)
         self.user = user
         label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
-        self.fields['terms_accepted'].required = True
-        self.fields['terms_accepted'].label = mark_safe(label)
+        self.fields["terms_accepted"].required = True
+        self.fields["terms_accepted"].label = mark_safe(label)
 
     def call(self, zosia):
         user_preferences = self.save(commit=False)
@@ -71,25 +71,24 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
 
     def clean(self):
         cleaned_data = super().clean()
+        errors = []
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
 
-        errs = []
-
         for accommodation, meals in PAYMENT_GROUPS.items():
-            chosen = [_pays_for(m) for m in meals]
+            for m in meals:
+                if _pays_for(m) and not _pays_for(accommodation):
+                    errors.append(
+                        forms.ValidationError(
+                            _("You need to check %(accomm) before you can check %(meal)"),
+                            code='invalid',
+                            params={'accomm': accommodation, 'meal': m}
+                        )
+                    )
 
-            if any(chosen) and not _pays_for(accommodation):
-                errs.append(
-                    forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
-                                          code='invalid',
-                                          params={'req': accommodation,
-                                                  'dep': meals[chosen.index(True)]})
-                )
-
-        if len(errs) > 0:
-            raise forms.ValidationError(errs)
+        if len(errors) > 0:
+            raise forms.ValidationError(errors)
 
     def disable(self):
         for field in self.fields:

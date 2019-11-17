@@ -215,6 +215,11 @@ class UserPreferencesManager(models.Manager):
         return self.filter(**defaults)
 
 
+def validate_terms(value):
+    if not value:
+        raise ValidationError(_("Terms and conditions must be accepted"))
+
+
 # UserPreferences is placed in `conferences` app because of cyclic dependencies
 # between models Bus and UserPreferences
 class UserPreferences(models.Model):
@@ -280,7 +285,7 @@ class UserPreferences(models.Model):
     )
 
     # Terms and conditions are accepted
-    terms_accepted = models.BooleanField(default=False)
+    terms_accepted = models.BooleanField(validators=[validate_terms])
 
     # Assigned by admin for various reasons (early registration / payment, help, etc)
     # Should allow some users to book room earlier
