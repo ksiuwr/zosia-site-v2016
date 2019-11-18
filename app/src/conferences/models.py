@@ -55,7 +55,7 @@ def validate_iban(value):
 
     if res != 1:
         raise ValidationError(_(
-            'This is not a valid Polish IBAN number.''Wrong checksum - please check your bank number!'
+            'This is not a valid Polish IBAN number: wrong checksum. Please check your bank number!'
         ))
 
 
@@ -164,8 +164,7 @@ class Zosia(models.Model):
 
     @property
     def is_lectures_open(self):
-        return self.lecture_registration_start <= now() <= \
-               self.lecture_registration_end
+        return self.lecture_registration_start <= now() <= self.lecture_registration_end
 
 
 class BusManager(models.Manager):
@@ -319,7 +318,7 @@ class UserPreferences(models.Model):
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {
-                # [:-6] removes day index, so we know which option type has been chosen
+                # [:-6] removes day index, so we know which option has been chosen
                 accommodation[:-6]: self._pays_for(accommodation),
                 **{m[:-6]: self._pays_for(m) for m in meals}
             }

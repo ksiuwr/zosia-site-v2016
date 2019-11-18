@@ -72,7 +72,7 @@
                   {% trans "Total price" %}: <strong>{{ current_prefs.price }} PLN</strong><br />
                   {% trans "Transfer title" %}: <strong>{{ current_prefs.transfer_title }}</strong><br />
                   {% trans "Account number" %}: <strong>{{ current_prefs.zosia.account_number }}</strong><br />
-                  ({% trans "Check bank name" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)<br />
+                  ({% trans "Check if bank name is correct" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)<br />
                   {% trans "Receiver name" %}: <strong>{{ current_prefs.zosia.account_owner }}</strong><br />
                   {% trans "Receiver address" %}: <strong>{{ current_prefs.zosia.account_address }}</strong>
               </blockquote>
@@ -97,7 +97,7 @@
                 {% if current_prefs.bus %}
                   {{ current_prefs.bus }}
                 {% else %}
-                  {% trans "You didn't select bus" %}
+                  {% trans "You haven't selected any bus" %}
                 {% endif %}
               </div>
             </div>
