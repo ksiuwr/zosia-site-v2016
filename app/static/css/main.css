@@ -22,8 +22,13 @@
 
 
 a {
-    color: #757575;
+    color: #6060A5;
 }
+
+a:hover {
+    color: #9191cf;
+}
+
 
 .tabs {
     background-color: inherit;
@@ -34,19 +39,23 @@ a {
 }
 
 .tabs .tab a:hover {
-    color: #163E2A;
+    color: #4060b3;
 }
 
 .tabs .tab a.active{
-    color: #163E2A;
+    color: #4060b3;
 }
 
 .tabs .indicator {
-    background-color: #163E2A;
+    background-color: #4060b3;
 }
 
 .tabs .indicator .velocity-animating{
     background-color: #1A2236;
+}
+
+.tabs .tab a:focus, .tabs .tab a:focus.active {
+    background-color: #4060b315;
 }
 
 body {
