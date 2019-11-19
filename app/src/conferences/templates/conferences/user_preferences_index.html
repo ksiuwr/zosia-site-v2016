@@ -14,8 +14,11 @@
 
     <ul class="collection with-header">
       <li class="collection-header row">
-        <div class="col l6 m6 s12">
-          <h5>{% trans "User name" %}</h5>
+        <div class="col l1 m1 s2">
+          <h5>{% trans "User hash" %}</h5>
+        </div>
+        <div class="col l5 m5 s10">
+          <h5>{% trans "User name (with payment)" %}</h5>
         </div>
         <div class="col l3 m3 s6">
           <h5>{% trans "Payment accepted" %}</h5>
@@ -26,10 +29,12 @@
       </li>
       {% for object in objects %}
         <li class="collection-item row" style="padding-top: 20px">
-          <div class="col l6 m6 s12">
+          <div class="col l1 m1 s2">
+            {{ object.user.hash }}
+          </div>
+          <div class="col l5 m5 s10">
             <a href="{% url 'user_preferences_edit' object.id %}" style="font-size: 16px">
-              {{ object.user }}
-              ({{object.price }} zł)
+              {{ object.user }} ({{ object.price }} PLN)
             </a>
           </div>
           <div class="switch col l3 m3 s6" style="margin-bottom: 7px;">
@@ -41,9 +46,8 @@
             </label>
           </div>
           <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
-            <div  id="bonus-value-{{ object.id }}"> Bonus: {{ object.bonus_minutes }} </div>
-            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;">
-            </div>
+            <div>Bonus: <span id="bonus-value-{{ object.id }}">{{ object.bonus_minutes }}</span> min</div>
+            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
           </div>
         </li>
       {% endfor %}
@@ -114,7 +118,7 @@
             },
             success: function(data) {
                 paymentInfo[id].bonus = data['bonus']
-                $('#bonus-value-' + id).text('Bonus: ' + data['bonus']);
+                $('#bonus-value-' + id).text(data['bonus']);
                 M.toast({
                   html: data['msg'],
                   displayLength: 2000,
@@ -178,7 +182,7 @@
           const info = paymentInfo[id];
           if (info.firstName.toLowerCase() == firstName &&
               info.lastName.toLowerCase() == lastName) {
-            return info;  
+            return info;
           }
         }
       }
@@ -257,7 +261,7 @@
         }
       }
 
-      $(document).ready(function(){  
+      $(document).ready(function(){
           $('.range').each(function(_index, obj) {
               let firstUpdate = true;
               noUiSlider.create(obj, {
@@ -282,7 +286,7 @@
                   setBonus(id, value);
               }, 1000));
           });
-          
+
           $('#import_payments').on('click', function(event){
             clearReport();
             const files = document.getElementById("payments").files;

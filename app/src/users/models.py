@@ -1,3 +1,5 @@
+import hashlib
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.validators import MinLengthValidator
 from django.db import models
@@ -32,6 +34,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
     objects = UserManager()
+
+    @property
+    def hash(self):
+        return hashlib.sha256(
+            f"{self.email}{self.first_name}{self.last_name}{self.date_joined}".encode('utf-8')
+        ).hexdigest()[:8]
 
     @property
     def display_name(self):

@@ -55,7 +55,7 @@ def validate_iban(value):
 
     if res != 1:
         raise ValidationError(_(
-            'This is not a valid Polish IBAN number.''Wrong checksum - please check your bank number!'
+            'This is not a valid Polish IBAN number: wrong checksum. Please check your bank number!'
         ))
 
 
@@ -114,12 +114,20 @@ class Zosia(models.Model):
 
     account_number = models.CharField(
         max_length=34,
-        verbose_name=_('Organization account for paying'),
-        validators=[validate_iban]
+        validators=[validate_iban],
+        verbose_name=_('Organization account for paying')
     )
-    account_details = models.TextField(
-        verbose_name=_('Details for account (name, address)'),
-        default='',
+    account_owner = models.TextField(
+        max_length=100,
+        verbose_name=_('Account owner name')
+    )
+    account_bank = models.TextField(
+        max_length=50,
+        verbose_name=_('Bank name where account has been opened')
+    )
+    account_address = models.TextField(
+        max_length=150,
+        verbose_name=_('Account owner address')
     )
 
     @property
@@ -161,14 +169,13 @@ class Zosia(models.Model):
         # NOTE: If this instance is not yet saved, self.pk == None
         # So this query will take all active objects from db
         if self.active and Zosia.objects.exclude(pk=self.pk).filter(active=True).exists():
-            raise ValidationError(_(u'Only one Zosia may be active at any given time'))
+            raise ValidationError(_('Only one Zosia may be active at any given time'))
 
         super(Zosia, self).validate_unique(**kwargs)
 
     @property
     def is_lectures_open(self):
-        return self.lecture_registration_start <= now() <= \
-               self.lecture_registration_end
+        return self.lecture_registration_start <= now() <= self.lecture_registration_end
 
 
 class BusManager(models.Manager):
@@ -322,7 +329,7 @@ class UserPreferences(models.Model):
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {
-                # [:-6] removes day index, so we know which option type has been chosen
+                # [:-6] removes day index, so we know which option has been chosen
                 accommodation[:-6]: self._pays_for(accommodation),
                 **{m[:-6]: self._pays_for(m) for m in meals}
             }
@@ -340,6 +347,10 @@ class UserPreferences(models.Model):
     @property
     def room(self):
         return self.user.room_of_user
+
+    @property
+    def transfer_title(self):
+        return f"ZOSIA - {self.user.first_name} {self.user.last_name} - {self.user.hash}"
 
     @property
     def rooming_start_time(self):

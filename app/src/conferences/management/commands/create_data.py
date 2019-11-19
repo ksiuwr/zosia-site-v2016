@@ -116,7 +116,9 @@ def create_zosia(**kwargs):
         'price_whole_day': 70,
         'price_transport': 50,
         'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
-        'account_details': 'Joan Doe, Bag End 666, Shire'
+        'account_owner': 'Joan Doe',
+        'account_bank': 'SuperBank',
+        'account_address': 'ul. Fajna 42, 51-109, Wrocław'
     }
     data.update(kwargs)
     zosia = Zosia.objects.create(**data)
