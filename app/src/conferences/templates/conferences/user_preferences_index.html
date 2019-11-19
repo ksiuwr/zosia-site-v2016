@@ -46,7 +46,7 @@
             </label>
           </div>
           <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
-            <div id="bonus-value-{{ object.id }}">Bonus: {{ object.bonus_minutes }} min</div>
+            <div>Bonus: <span id="bonus-value-{{ object.id }}">{{ object.bonus_minutes }}</span> min</div>
             <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
           </div>
         </li>
@@ -118,7 +118,7 @@
             },
             success: function(data) {
                 paymentInfo[id].bonus = data['bonus']
-                $('#bonus-value-' + id).text((ix, txt) => txt.replace(/[0-9]+/g, data['bonus']));
+                $('#bonus-value-' + id).text(data['bonus']);
                 M.toast({
                   html: data['msg'],
                   displayLength: 2000,
