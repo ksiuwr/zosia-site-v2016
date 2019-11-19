@@ -118,7 +118,7 @@
             },
             success: function(data) {
                 paymentInfo[id].bonus = data['bonus']
-                $('#bonus-value-' + id).text('Bonus: ' + data['bonus'] + ' min');
+                $('#bonus-value-' + id).text((ix, txt) => txt.replace(/[0-9]+/g, data['bonus']));
                 M.toast({
                   html: data['msg'],
                   displayLength: 2000,

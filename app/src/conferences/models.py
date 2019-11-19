@@ -112,12 +112,23 @@ class Zosia(models.Model):
         default=0
     )
 
-    account_number = models.CharField(max_length=34, validators=[validate_iban],
-                                      verbose_name=_('Organization account for paying'))
-    account_owner = models.TextField(max_length=100, verbose_name=_('Account owner name'))
-    account_bank = models.TextField(max_length=50,
-                                    verbose_name=_('Bank name where account has been opened'))
-    account_address = models.TextField(max_length=150, verbose_name=_('Account owner address'))
+    account_number = models.CharField(
+        max_length=34,
+        validators=[validate_iban],
+        verbose_name=_('Organization account for paying')
+    )
+    account_owner = models.TextField(
+        max_length=100,
+        verbose_name=_('Account owner name')
+    )
+    account_bank = models.TextField(
+        max_length=50,
+        verbose_name=_('Bank name where account has been opened')
+    )
+    account_address = models.TextField(
+        max_length=150,
+        verbose_name=_('Account owner address')
+    )
 
     @property
     def end_date(self):
@@ -339,7 +350,7 @@ class UserPreferences(models.Model):
 
     @property
     def transfer_title(self):
-        return f"ZOSIA {self.user.first_name} {self.user.last_name} {self.user.hash}"
+        return f"ZOSIA - {self.user.first_name} {self.user.last_name} - {self.user.hash}"
 
     @property
     def rooming_start_time(self):
