@@ -20,10 +20,10 @@
         <div class="col l5 m5 s10">
           <h5>{% trans "User name (with payment)" %}</h5>
         </div>
-        <div class="col l3 m3 s6">
+        <div class="col l2 m2 s4">
           <h5>{% trans "Payment accepted" %}</h5>
         </div>
-        <div class="col l3 m3 s6">
+        <div class="col l4 m4 s8">
           <h5>{% trans "Bonus" %}</h5>
         </div>
       </li>
@@ -37,7 +37,7 @@
               {{ object.user }} ({{ object.price }} PLN)
             </a>
           </div>
-          <div class="switch col l3 m3 s6" style="margin-bottom: 7px;">
+          <div class="switch col l2 m2 s4" style="margin-bottom: 7px;">
             <label>
               No
               <input type="checkbox" id="set-accepted-{{ object.id }}" {% if object.payment_accepted %}checked{% endif %}>
@@ -45,7 +45,7 @@
               Yes
             </label>
           </div>
-          <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
+          <div id="set-bonus-{{ object.id }}" class="col l4 m4 s8 {% if not object.payment_accepted %}hide{% endif %}">
             <div>Bonus: <span id="bonus-value-{{ object.id }}">{{ object.bonus_minutes }}</span> min</div>
             <div class="bonus-range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
           </div>
@@ -270,9 +270,14 @@
                       'min': min_bonus,
                       'max': max_bonus
                   },
-                  format: wNumb({
-                      decimals: 0
-                  })
+                  format: {
+                      to: function(value) {
+                          return Math.round(value).toString();
+                      },
+                      from: function(value) {
+                          return Math.round(Number(value));
+                      }
+                  }
               });
               obj.noUiSlider.on('set', function(values) {
                   let id = $(obj).data('id');
