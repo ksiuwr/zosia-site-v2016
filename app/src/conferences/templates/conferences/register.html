@@ -24,6 +24,12 @@
     $('select').formSelect();
     $('textarea').addClass("materialize-textarea");
 
+    {% if payed %}
+    const payed = true;
+    {% else %}
+    const payed = false;
+    {% endif %}
+
     const dependencies = {
         {% for accommodation, meals in field_dependencies.items %}
         "#id_{{ accommodation }}" : [ {%  for m in meals %} "#id_{{ m }}", {% endfor %} ],
@@ -34,7 +40,7 @@
       changedIds.forEach(par => {
         const isParentChecked = $(par).is(':checked')
         dependencies[par].forEach(child => {
-          $(child).attr('disabled', !isParentChecked);
+          $(child).attr('disabled', payed || !isParentChecked);
           if (!isParentChecked) {
             $(child).prop('checked', false);
           }
