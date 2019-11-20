@@ -47,7 +47,7 @@
           </div>
           <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
             <div>Bonus: <span id="bonus-value-{{ object.id }}">{{ object.bonus_minutes }}</span> min</div>
-            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
+            <div class="bonus-range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
           </div>
         </li>
       {% endfor %}
@@ -262,8 +262,7 @@
       }
 
       $(document).ready(function(){
-          $('.range').each(function(_index, obj) {
-              let firstUpdate = true;
+          $('.bonus-range').each(function(_index, obj) {
               noUiSlider.create(obj, {
                   start: [$(obj).data('bonus')],
                   step: 1,
@@ -276,15 +275,11 @@
                       decimals: 0
                   })
               });
-              obj.noUiSlider.on('update', _.debounce(function(values) {
-                  if (firstUpdate) {
-                      firstUpdate = false;
-                      return
-                  }
+              obj.noUiSlider.on('set', function(values) {
                   let id = $(obj).data('id');
                   let value = parseInt(values[0]);
                   setBonus(id, value);
-              }, 1000));
+              });
           });
 
           $('#import_payments').on('click', function(event){
