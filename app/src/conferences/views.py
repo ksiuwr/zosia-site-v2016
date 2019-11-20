@@ -167,7 +167,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    ctx = {'field_dependencies': PAYMENT_GROUPS}
+    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False}
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
@@ -180,6 +180,7 @@ def register(request, zosia_id):
                                **form_args)
 
     if user_prefs and user_prefs.payment_accepted:
+        ctx['payed'] = True
         form.disable()
 
     ctx['form'] = form
