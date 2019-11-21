@@ -14,30 +14,30 @@
 
     <ul class="collection with-header">
       <li class="collection-header row">
-        <div class="col l1 m1 s2">
+        <div class="col l1 m2 s12">
           <h5>{% trans "User hash" %}</h5>
         </div>
-        <div class="col l5 m5 s10">
+        <div class="col l4 m6 s12">
           <h5>{% trans "User name (with payment)" %}</h5>
         </div>
-        <div class="col l3 m3 s6">
+        <div class="col l2 m4 s12">
           <h5>{% trans "Payment accepted" %}</h5>
         </div>
-        <div class="col l3 m3 s6">
+        <div class="col l5 m12 s12">
           <h5>{% trans "Bonus" %}</h5>
         </div>
       </li>
       {% for object in objects %}
         <li class="collection-item row" style="padding-top: 20px">
-          <div class="col l1 m1 s2">
+          <div class="col l1 m2 s12">
             {{ object.user.hash }}
           </div>
-          <div class="col l5 m5 s10">
+          <div class="col l4 m6 s12">
             <a href="{% url 'user_preferences_edit' object.id %}" style="font-size: 16px">
               {{ object.user }} ({{ object.price }} PLN)
             </a>
           </div>
-          <div class="switch col l3 m3 s6" style="margin-bottom: 7px;">
+          <div class="switch col l2 m4 s12" style="margin-bottom: 7px;">
             <label>
               No
               <input type="checkbox" id="set-accepted-{{ object.id }}" {% if object.payment_accepted %}checked{% endif %}>
@@ -45,9 +45,9 @@
               Yes
             </label>
           </div>
-          <div id="set-bonus-{{ object.id }}" class="col l3 m3 s6 {% if not object.payment_accepted %}hide{% endif %}">
+          <div id="set-bonus-{{ object.id }}" class="col l5 m12 s12 {% if not object.payment_accepted %}hide{% endif %}">
             <div>Bonus: <span id="bonus-value-{{ object.id }}">{{ object.bonus_minutes }}</span> min</div>
-            <div class="range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
+            <div class="bonus-range" data-bonus="{{ object.bonus_minutes }}" data-id="{{ object.id }}" style="margin-bottom: 5px;"></div>
           </div>
         </li>
       {% endfor %}
@@ -81,7 +81,6 @@
 {% block custom_scripts %}
   <link type="text/css" rel="stylesheet" href="{% static 'css/nouislider.css' %}"  media="screen,projection"/>
   <script type="text/javascript" src="{% static 'script/nouislider.min.js' %}"></script>
-  <script type="text/javascript" src="{% static 'script/underscore.min.js' %}"></script>
   <script type="text/javascript">
       const max_bonus = {{ max_bonus }}
       const min_bonus = {{ min_bonus }}
@@ -262,8 +261,7 @@
       }
 
       $(document).ready(function(){
-          $('.range').each(function(_index, obj) {
-              let firstUpdate = true;
+          $('.bonus-range').each(function(_index, obj) {
               noUiSlider.create(obj, {
                   start: [$(obj).data('bonus')],
                   step: 1,
@@ -272,19 +270,20 @@
                       'min': min_bonus,
                       'max': max_bonus
                   },
-                  format: wNumb({
-                      decimals: 0
-                  })
-              });
-              obj.noUiSlider.on('update', _.debounce(function(values) {
-                  if (firstUpdate) {
-                      firstUpdate = false;
-                      return
+                  format: {
+                      to: function(value) {
+                          return Math.round(value).toString();
+                      },
+                      from: function(value) {
+                          return Math.round(Number(value));
+                      }
                   }
+              });
+              obj.noUiSlider.on('set', function(values) {
                   let id = $(obj).data('id');
                   let value = parseInt(values[0]);
                   setBonus(id, value);
-              }, 1000));
+              });
           });
 
           $('#import_payments').on('click', function(event){
