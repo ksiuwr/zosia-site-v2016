@@ -5,8 +5,8 @@ const ModalContext = React.createContext(
     {
         component: null,
         props: {},
-        closeModal: () => { console.log("XDD") },
-        openModal: () => { console.log("XD") },
+        closeModal: () => { },
+        openModal: () => { },
     }
 );
 

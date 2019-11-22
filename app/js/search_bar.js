@@ -43,8 +43,8 @@ const SearchBar = (props) =>
         </li>
         <li className="hide-on-small-only" style={{float: "right", margin: "5px"}}>
           <select id="sorting" onChange={props.onSortingStrategyChange}>
-            <option value="1">Sort by room numbers</option>
-            <option value="2">Sort by fullness</option>
+            <option value="room_numbers">Sort by room numbers</option>
+            <option value="fullness">Sort by fullness</option>
           </select>
         </li>
       </ul>

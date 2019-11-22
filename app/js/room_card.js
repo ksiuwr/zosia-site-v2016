@@ -2,12 +2,10 @@
 import React from "react";
 import styled from "styled-components";
 
-import { delete_room, join_room, me, edit_room } from "./zosia_api";
-import { exists } from "./helpers";
+import { exists, roomCapacity } from "./helpers";
 import { useModal } from "./modals/modals";
 import AddRoomModal from './modals/add_room_modal';
 
-const roomCapacity = beds => beds.single + beds.double * 2
 
 const Members = ({beds, members}) => {
   const room_size = roomCapacity(beds);
@@ -39,9 +37,8 @@ const MemberList = ({members, users}) => {
   return (
     <span>
       {members.map(member => {
-        const id = member.user;
-        const first_name = users[id].first_name;
-        const last_name = users[id].last_name;
+        const first_name = member.user.first_name;
+        const last_name = member.user.last_name;
         return first_name + " " + last_name;
       })}
     </span>
@@ -51,7 +48,7 @@ const MemberList = ({members, users}) => {
 export const RoomCard = (props) => {
   const {room_ops} = props
   const isMyRoom = () => {
-    return exists(props.members, ({user}) => props.me.id == user);
+    return exists(props.members, ({user}) => props.me.id == user.id);
   }
   const canEnter = () => !isMyRoom() && roomCapacity(props.available_beds) > props.members.length
   const canLeave = () => isMyRoom()
@@ -63,7 +60,7 @@ export const RoomCard = (props) => {
     return hasLockPackword;
   }
   const canLock = () => {
-    const isNotLocked = props.lock != null;
+    const isNotLocked = props.lock == null;
     return isNotLocked && isMyRoom();
   }
   const canDelete = () => {
@@ -78,12 +75,15 @@ export const RoomCard = (props) => {
     openModal(AddRoomModal, {
       data: props,
       closeModal,
-      submit: data => edit_room(props.id, data)
+      submit: data => room_ops.edit_room(props.id, data)
     }) 
+  const lock = () => {
+    room_ops.lock(props.id);
+  }
 
   return (
     <div className="col s12 xl6">
-      <div className="card">
+      <div className={ isMyRoom() ? "card teal lighten-3" : "card" }>
         <div className="card-content">
             <span className="card-title grey-text text-darken-4"> {props.name} 
             <Members 
@@ -91,6 +91,7 @@ export const RoomCard = (props) => {
               members={props.members}
             />
             </span>
+            <p> {canUnlock() ? "Password: " + props.lock.password : ""} </p>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
@@ -102,8 +103,8 @@ export const RoomCard = (props) => {
         <div className="card-action">
           { canEnter() ? <a href="#" onClick={() => room_ops.join(props.id)}> enter </a> : '' }
           { canLeave() ? <a href="#" onClick={() => room_ops.leave(props.id)}> leave </a> : '' }
-          { canUnlock() ? <a href="#"> unlock </a> : '' }
-          { canLock() ? <a href="#"> lock </a> : '' }
+          { canUnlock() ? <a href="#" onClick={() => room_ops.unlock(props.id)}> unlock </a> : '' }
+          { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }
           { canDelete() ? <a href="#" onClick={() => room_ops.delete(props.id) }> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={openEditModal}> edit </a> : ""}
           <a href="javascript:void(0)" className="activator right" style={{"marginRight": 0}}> more </a>

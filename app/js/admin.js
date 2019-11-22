@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import RoomView from "./room";
 import styled from "styled-components";
 import { ModalRoot, ModalProvider } from "./modals/modals";
+import RoomsView from "./room";
 
 const Users = () => {
   return (
@@ -70,12 +71,11 @@ const Lectures = () => (
 )
 
 const Rooms = () => (
-  <div id="rooms" className="col s12">
-    <ul className="collection">
-      <a href="/rooms/report/" className="collection-item">Rooms</a>
-      <a href="/rooms/import/" className="collection-item">Add room</a>
-    </ul>
-  </div>
+  <RoomsView permissions={{
+    canAddRoom: true,
+    canDeleteRoom: true,
+    canEditRoom: true,
+  }}/>
 )
 
 const AdminView = props => {
@@ -106,7 +106,7 @@ const AdminView = props => {
       name: "Schedule"
     },
     "rooms": {
-      component: RoomView,
+      component: Rooms,
       name: "Rooms"
     },
   }

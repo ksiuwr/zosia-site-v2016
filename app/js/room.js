@@ -6,8 +6,8 @@ import styled from "styled-components";
 
 import useInterval from "./use_interval";
 import { useModal, ModalProvider, ModalRoot } from "./modals/modals";
-import { exists, map_of_arr } from "./helpers";
-import { get_rooms, get_users, me, delete_room } from "./zosia_api";
+import { exists, map_of_arr, roomCapacity, roomFullness } from "./helpers";
+import { get_rooms, get_users, me, delete_room, edit_room } from "./zosia_api";
 
 import { RoomCard } from "./room_card";
 import SearchBar from "./search_bar";
@@ -15,27 +15,34 @@ import SearchBar from "./search_bar";
 const RoomsView = (props) =>
 {
   const [state, setState] = React.useState({
-    users: [],
     rooms: [],
   });
   const [searchWords, setSearchWords] = React.useState([]);
   const [showFull, setShowFull] = React.useState(true);
+  const [sortingStrategy, setSortingStrategy] = React.useState("room_number");
 
   const refresh = () => {
-    Promise.all([get_rooms(), get_users(), me.info()])
-      .then(([rooms, users_arr, info]) => {
-        const users = map_of_arr(users_arr, user => user.id);
-        return { rooms, users, me: info}
+    Promise.all([get_rooms(), me.info()])
+      .then(([rooms, info]) => {
+        return { rooms, me: info}
       })
       .then(setState);
   }
 
-  useInterval(refresh, 1000);
+  const refresh_and_pass_arg = (arg) => {
+    refresh();
+    return arg;
+  }
+
+  useInterval(refresh, 60 * 1000);
 
   const room_ops = {
-    join: (room_id) => me.join_room(room_id).then(refresh),
-    leave: (room_id) => me.leave_room(room_id).then(refresh),
-    delete: (room_id) => delete_room(room_id).then(refresh)
+    join: (room_id) => me.join_room(room_id).then(refresh_and_pass_arg),
+    leave: (room_id) => me.leave_room(room_id).then(refresh_and_pass_arg),
+    delete: (room_id) => delete_room(room_id).then(refresh_and_pass_arg),
+    lock: (room_id) => me.lock_room(room_id).then(refresh_and_pass_arg),
+    unlock: (room_id) => me.unlock_room(room_id).then(refresh_and_pass_arg),
+    edit_room: (room_id, data) => edit_room(room_id, data).then(refresh_and_pass_arg),
   }
 
   const onSearch = event =>
@@ -54,6 +61,10 @@ const RoomsView = (props) =>
   const onShowFullRoomsToggle = event =>
   {
     setShowFull(!showFull);
+  }
+
+  const onSortingStrategyChange = event => {
+    setSortingStrategy(event.target.value);
   }
 
   const searchResults = state.rooms.filter(room => {
@@ -78,7 +89,37 @@ const RoomsView = (props) =>
   })
 
   const sortedResults = filteredResults.sort((lhs, rhs) => {
-    return lhs.room_number - rhs.room_number
+    if (sortingStrategy == "room_number")
+    {
+      const l_num = parseInt(lhs.name);
+      const r_num = parseInt(rhs.name);
+
+      if (l_num != NaN && r_num != NaN)
+      {
+        if (l_num > r_num)
+          return 1;
+        if (l_num < r_num)
+          return -1;
+      }
+      
+      if (lhs.name > rhs.name)
+        return 1;
+      
+      if (lhs.name < rhs.name)
+        return -1;
+    }
+
+    if (sortingStrategy == "fullness")
+    {
+      const f_rhs = roomFullness(rhs);
+      const f_lhs = roomFullness(lhs);
+      if (f_lhs > f_rhs)
+        return 1
+      if (f_lhs < f_rhs)
+        return -1
+    }
+    // Fallback sorting
+    return lhs.id - rhs.id
   })
   
   return (
@@ -87,9 +128,15 @@ const RoomsView = (props) =>
         permissions={props.permissions}
         onSearch={onSearch}
         onShowFullRoomsToggle={onShowFullRoomsToggle}
+        onSortingStrategyChange={onSortingStrategyChange}
        />
       {sortedResults.map(data => {
-        return (<RoomCard permissions={props.permissions} key={data.id} me={state.me} users={state.users} room_ops={room_ops} {...data}/>);
+        return (
+          <RoomCard 
+            permissions={props.permissions}
+            key={data.id} me={state.me} 
+            room_ops={room_ops} 
+            {...data}/>);
       })}
     </div>
   )
