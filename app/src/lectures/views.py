@@ -1,13 +1,15 @@
+from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
 from django.http import JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.views.decorators.http import require_http_methods
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.http import require_http_methods
+
 from conferences.models import Zosia
-from .forms import LectureForm, LectureAdminForm, ScheduleForm
-from .models import Lecture, Schedule
+from lectures.forms import LectureAdminForm, LectureForm, ScheduleForm
+from lectures.models import Lecture, Schedule
 
 
 @require_http_methods(['GET'])
@@ -16,8 +18,7 @@ def index(request):
     Display all accepted lectures
     """
     zosia = Zosia.objects.find_active()
-    lectures = Lecture.objects.select_related('author').filter(
-                zosia=zosia).filter(accepted=True)
+    lectures = Lecture.objects.select_related('author').filter(zosia=zosia).filter(accepted=True)
     ctx = {'objects': lectures}
     return render(request, 'lectures/index.html', ctx)
 
@@ -43,7 +44,8 @@ def toggle_accept(request):
     lecture_id = request.POST.get('key', None)
     lecture = get_object_or_404(Lecture, pk=lecture_id)
     lecture.toggle_accepted()
-    return JsonResponse({'msg': "{} changed status!".format(lecture.title)})
+    return JsonResponse({'msg': "{} changed status!".format(
+        escape(lecture.title))})
 
 
 @login_required()
@@ -101,7 +103,7 @@ def schedule_display(request):
         schedule = Schedule.objects.get(zosia=zosia)
         ctx = {'schedule': schedule}
         return render(request, 'lectures/schedule.html', ctx)
-    except Schedule.DoesNotExist as e:
+    except Schedule.DoesNotExist:
         messages.warning(request, _("Schedule is not defined yet."))
         return redirect('lectures_index')
 

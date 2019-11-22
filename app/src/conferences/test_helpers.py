@@ -3,12 +3,12 @@ from users.models import User
 from utils.time_manager import now, timedelta_since_now
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
-PRICE_ACCOMODATION = 1 << 1
+PRICE_ACCOMMODATION = 1 << 1
 PRICE_BREAKFAST = 1 << 2
 PRICE_DINNER = 1 << 3
 PRICE_BASE = 1 << 4
 PRICE_TRANSPORT = 1 << 5
-PRICE_BONUS = 1 << 6
+PRICE_FULL = 1 << 6
 
 
 def create_zosia(commit=True, **kwargs):
@@ -27,13 +27,16 @@ def create_zosia(commit=True, **kwargs):
         'rooming_end': timedelta_since_now(days=1),
         'lecture_registration_start': time,
         'lecture_registration_end': time,
-        'price_accomodation': PRICE_ACCOMODATION,
-        'price_accomodation_breakfast': PRICE_BREAKFAST,
-        'price_accomodation_dinner': PRICE_DINNER,
-        'price_whole_day': PRICE_BONUS,
+        'price_accommodation': PRICE_ACCOMMODATION,
+        'price_accommodation_breakfast': PRICE_BREAKFAST,
+        'price_accommodation_dinner': PRICE_DINNER,
+        'price_whole_day': PRICE_FULL,
         'price_base': PRICE_BASE,
         'price_transport': PRICE_TRANSPORT,
-        'account_number': '',
+        'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
+        'account_owner': 'Joan Doe',
+        'account_bank': 'SuperBank',
+        'account_address': 'ul. Fajna 42, 51-109, Wrocław'
     }
     defaults.update(kwargs)
     zosia = Zosia(**defaults)
@@ -65,7 +68,7 @@ def create_bus(commit=True, **override):
     zosia = override['zosia'] or create_zosia()
     defaults = {
         'capacity': 0,
-        'time': now(),
+        'departure_time': now(),
         'zosia': zosia,
 
     }
@@ -77,4 +80,4 @@ def create_bus(commit=True, **override):
 
 
 def create_user_preferences(**kwargs):
-    return UserPreferences.objects.create(**kwargs)
+    return UserPreferences.objects.create(terms_accepted=True, **kwargs)

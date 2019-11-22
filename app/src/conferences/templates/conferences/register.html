@@ -21,27 +21,26 @@
 {% block custom_scripts %}
 <script type="text/javascript">
   $(document).ready(function() {
-    $('select').material_select();
+    $('select').formSelect();
     $('textarea').addClass("materialize-textarea");
 
-    var terms_and_conditions_link = $('<a/>')
-                                            .attr('href', "{% url 'terms_and_conditions' %}")
-                                            .text(" {% trans 'terms and conditions' %}");
-    $("label[for='id_accepted']").after(terms_and_conditions_link);
+    {% if payed %}
+    const payed = true;
+    {% else %}
+    const payed = false;
+    {% endif %}
 
-    const dependencies = 
-    {   {% for field_groups in field_dependencies %}
-        "#id_{{ field_groups|first }}" :
-          [ {%  for field in field_groups|slice:"1:" %}
-            "#id_{{ field }}", {% endfor %}
-          ], {% endfor %}
+    const dependencies = {
+        {% for accommodation, meals in field_dependencies.items %}
+        "#id_{{ accommodation }}" : [ {%  for m in meals %} "#id_{{ m }}", {% endfor %} ],
+        {% endfor %}
     }
 
     const onChange = changedIds => {
       changedIds.forEach(par => {
         const isParentChecked = $(par).is(':checked')
         dependencies[par].forEach(child => {
-          $(child).attr('disabled', !isParentChecked);
+          $(child).attr('disabled', payed || !isParentChecked);
           if (!isParentChecked) {
             $(child).prop('checked', false);
           }

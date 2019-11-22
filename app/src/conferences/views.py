@@ -7,6 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -15,10 +16,9 @@ from conferences.models import Bus, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
-from utils.constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
-                             ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
-                             MAX_BONUS_MINUTES, MIN_BONUS_MINUTES,
-                             SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, )
+from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 
 
 @staff_member_required()
@@ -28,15 +28,14 @@ def export_json(request):
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email',
-                'organization_id__name', 'bus_id', 'accomodation_day_1',
-                'dinner_1', 'accomodation_day_2', 'breakfast_2', 'dinner_2',
-                'accomodation_day_3', 'breakfast_3', 'dinner_3', 'breakfast_4',
+                'organization_id__name', 'bus_id', 'accommodation_day_1',
+                'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
+                'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
                 'shirt_size', 'shirt_type')
 
     rooms = Room.objects \
-        .filter(zosia=zosia) \
-        .values('users__first_name', 'users__last_name', 'name')
+        .values('members__first_name', 'members__last_name', 'name')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
@@ -131,14 +130,14 @@ def admin_edit(request):
         status = user_preferences.toggle_payment_accepted()
         user_preferences.save()
         return JsonResponse({'msg': _("Changed payment status of {} to {}").format(
-            user_preferences.user.get_full_name(),
+            escape(user_preferences.user.get_full_name()),
             status),
             'status': status})
     if command == ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS:
         user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
         user_preferences.save()
         return JsonResponse({'msg': _("Changed bonus of {} to {}").format(
-            user_preferences.user.get_full_name(),
+            escape(user_preferences.user.get_full_name()),
             user_preferences.bonus_minutes),
             'bonus': user_preferences.bonus_minutes})
 
@@ -168,10 +167,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    field_dependencies = UserPreferencesForm.DEPENDENCIES
-    ctx = {
-        'field_dependencies': field_dependencies
-    }
+    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False}
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
@@ -184,6 +180,7 @@ def register(request, zosia_id):
                                **form_args)
 
     if user_prefs and user_prefs.payment_accepted:
+        ctx['payed'] = True
         form.disable()
 
     ctx['form'] = form
@@ -209,11 +206,7 @@ def terms_and_conditions(request):
 
 @require_http_methods(['GET'])
 def privacy_policy(request):
-    zosia = Zosia.objects.find_active()
-    if zosia is None:
-        raise Http404
-    ctx = {'zosia': zosia}
-    return render(request, 'conferences/privacy_policy.html', ctx)
+    return render(request, 'conferences/privacy_policy.html')
 
 
 @staff_member_required

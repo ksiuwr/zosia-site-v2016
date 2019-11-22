@@ -14,6 +14,7 @@ ${bold}Commands:${normal}
   one_click       - Runs zosia website (on localhost on port 8000)
   setup           - Spins up the containers and prepares development enviromanet
   shell           - Runs Bash shell inside the container
+  psql            - Run psql inside the container with database (Postgres)
   runserver       - Runs django development server inside the container
   test            - Runs django tests inside the container
   py_install      - Installs python dependencies specified in requirements.txt
@@ -28,6 +29,7 @@ ${bold}Commands:${normal}
 ${bold}Options:${normal}
   --no-cache      - Do not use cache when building the container image.
   --create-admin  - Create super user account (you need to specify the password).
+  --create-data   - Create some random data to work on like conference, buses, rooms, etc.
 "
 
 
@@ -41,10 +43,17 @@ function configure_env () {
   DOCKER_COMPOSE="${ROOT_PATH}/docker-compose.dev.yml"
   PROJECT_NAME="zosia"
   WEB_CONTAINER_NAME="${PROJECT_NAME}_web_1"
+  DB_CONTAINER_NAME="${PROJECT_NAME}_db_1"
   CREATE_ADMIN=false
+  CREATE_DATA=false
 }
 
 configure_env
+
+function psql() {
+  # POSTGRES_USER=zosia - this user is defined in docker-compose.dev.sh
+  docker exec -it ${DB_CONTAINER_NAME} psql -U zosia
+}
 
 function build() {
   docker-compose -f ${DOCKER_COMPOSE} build ${NO_CACHE}
@@ -100,6 +109,10 @@ function runtests () {
   run "python src/manage.py test"
 }
 
+function create_random_data () {
+  run "python src/manage.py create_data"
+}
+
 function setup () {
   build
   docker-compose -f ${DOCKER_COMPOSE} -p ${PROJECT_NAME} up -d
@@ -116,6 +129,13 @@ function one_click () {
   setup
   echo "${bold}-- Run migrations --${normal}"
   migrate
+
+  if [ "${CREATE_DATA}" = true ]
+  then
+    echo "${bold}-- Prepare some random data --${normal}"
+    create_random_data
+  fi
+
   echo "${bold}-- Run webserver --${normal}"
   runserver
   echo "${bold}-- Exiting - ${purple}Remember to run \`./dev.sh shutdown\`, if you've just finished${normal}"
@@ -139,6 +159,9 @@ do
     ;;
     --create-admin)
     CREATE_ADMIN=true
+    ;;
+    --create-data)
+    CREATE_DATA=true
     ;;
     "")
     break
@@ -168,6 +191,9 @@ case ${command} in
   ;;
   shell)
   shell
+  ;;
+  psql)
+  psql
   ;;
   js_watch)
   js_watch

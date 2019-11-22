@@ -1,8 +1,8 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.index, name='blog_index'),
-    url(r'^create$', views.create, name='blog_create'),
+    re_path(r'^$', views.index, name='blog_index'),
+    re_path(r'^create$', views.create, name='blog_create'),
 ]

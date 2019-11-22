@@ -1,5 +1,6 @@
 {% load static %}
 {% load i18n %}
+{% load time_utils %}
 
 <footer class="page-footer">
     <div class="container">
@@ -15,6 +16,9 @@
                 </div>
             </div>
             <div class="col l4 s6">
+                <div class="grey-text text-lighten-4">
+                    <strong>{% trans 'Informations' %}</strong><br/>
+                </div>
                 <ul>
                     <li>
                         <a class="grey-text text-lighten-4" href="{% url 'terms_and_conditions' %}">
@@ -40,6 +44,12 @@
                         </a>
                     </li>
                 </ul>
+            </div>
+            <div class="col l4 s12">
+                <p>
+                    <i>{% trans 'Server time' %}</i><br />
+                    {% server_time %}
+                </p>
             </div>
         </div>
     </div>

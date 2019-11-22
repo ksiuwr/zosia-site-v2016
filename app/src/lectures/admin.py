@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Lecture
 
+from lectures.models import Lecture
 
 admin.site.register(Lecture)

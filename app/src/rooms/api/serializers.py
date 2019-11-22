@@ -49,21 +49,32 @@ class RoomSerializer(serializers.ModelSerializer):
     def validate(self, data):
         super().validate(data)
 
-        beds_single_data = data.get("beds_single", 0)
-        beds_double_data = data.get("beds_double", 0)
-        available_beds_single_data = data.get("available_beds_single", 0)
-        available_beds_double_data = data.get("available_beds_double", 0)
+        beds_single_data = data.get("beds_single",
+                                    0 if self.instance is None else self.instance.beds_single)
+        beds_double_data = data.get("beds_double",
+                                    0 if self.instance is None else self.instance.beds_double)
+        available_beds_single_data = data.get("available_beds_single",
+                                              0 if self.instance is None
+                                              else self.instance.available_beds_single)
+        available_beds_double_data = data.get("available_beds_double",
+                                              0 if self.instance is None
+                                              else self.instance.available_beds_double)
 
         if available_beds_single_data > beds_single_data + beds_double_data:
             raise serializers.ValidationError(
-                "Cannot set more available single beds than real single beds plus double beds")
+                "Available single beds cannot exceed real single beds plus double beds")
 
         double_as_single = max(0, available_beds_single_data - beds_single_data)
 
         if available_beds_double_data > beds_double_data - double_as_single:
             raise serializers.ValidationError(
-                "Cannot set more available double beds than real double beds minus "
-                "double-as-single beds")
+                "Available double beds cannot exceed real double beds minus double-as-single beds")
+
+        available_members = available_beds_single_data + 2 * available_beds_double_data
+        members_count = 0 if self.instance is None else len(self.instance.members.all())
+
+        if available_members < members_count:
+            raise serializers.ValidationError("Available beds must exceed already joined members")
 
         return data
 
@@ -131,8 +142,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
 
 class LockMethodAdminSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-    expiration_date = serializers.DateTimeField(input_formats=['iso-8601'],
-                                                required=False)  # only for admin
+    expiration_date = serializers.DateTimeField(input_formats=['iso-8601'], required=False)
 
     def __init__(self, *args, **kwargs):
         super(LockMethodAdminSerializer, self).__init__(*args, **kwargs)

@@ -82,3 +82,12 @@ ERROR: could not find an available, non-overlapping IPv4 address pool among the 
 This error can appear during `docker-compose up` command if you have VPN activated on your system.
  There has been no solution found yet. You have to disconnect from VPN, run `docker-compose up` and 
  when containers are finally up you may enable your VPN again.
+
+---
+
+```
+Creating network "zosia_default" with the default driver
+ERROR: Failed to program FILTER chain: iptables failed: iptables --wait -I FORWARD -o br-123123123123 -j DOCKER: iptables v1.X.Y: Couldn't load target `DOCKER':No such file or directory
+```
+
+In case of that error just restar docker daemon service with this command: `systemctl restart docker`
