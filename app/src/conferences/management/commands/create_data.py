@@ -196,11 +196,12 @@ def create_room(number):
             'available_beds_double': 1,
         }
     else:
+        bed_single = random.randint(1, 6)
         data = {
             'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
-            'beds_single': random.randint(1, 6),
-            'available_beds_single': random.randint(1, 6),
+            'beds_single': bed_single,
+            'available_beds_single': random.randint(1, bed_single),
         }
     return Room.objects.create(**data)
 
