@@ -166,8 +166,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["email"], "starr@thebeatles.com")
-        self.assertEqual(response.data["lock"]["user"]["email"], "starr@thebeatles.com")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
 
     def test_user_cannot_view_hidden_room(self):
         self.client.force_authenticate(user=self.normal_2)
