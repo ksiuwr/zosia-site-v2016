@@ -209,6 +209,13 @@ class Command(BaseCommand):
     help = 'Create custom data in database'
 
     def handle(self, *args, **kwargs):
+        if Zosia.objects.filter(active=True).count() > 0:
+            self.stdout.write('\033[1;91mThere is already active Zosia in database.'
+                              '\033[0m Do you want to create data anyway? [y/n]')
+            choice = input().lower()
+            if choice not in {'yes', 'y'}:
+                return
+
         place = create_place()
         self.stdout.write('Place for zosia has been created!')
 

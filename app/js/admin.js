@@ -116,7 +116,7 @@ const AdminView = props => {
       <h3>Admin panel</h3>
       <div className="row">
         <div className="col s12">
-          <ul className="tabs">
+          <ul className="tabs tabs-fixed-width">
             {Object.keys(views).map(view_id =>
               <li className="tab col" key={view_id}>
                 <a
