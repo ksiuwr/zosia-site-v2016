@@ -119,6 +119,8 @@ export const RoomCard = (props) => {
           { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }
           { canDelete() ? <a href="#" onClick={() => room_ops.delete(props.id) }> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={openEditModal}> edit </a> : ""}
+          <a></a>{ // this empty a tag is needed to fix visual problem when room is full
+          }
           <a href="javascript:void(0)" className="activator right" style={{"marginRight": 0}}> more </a>
         </div>
       </div>
