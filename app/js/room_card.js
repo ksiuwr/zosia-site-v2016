@@ -27,9 +27,9 @@ const Members = ({beds, members}) => {
   }
 
   return (
-    <a className="right">
+    <span className="right">
       {tenants}
-    </a>
+    </span>
   )
 }
 
@@ -81,17 +81,29 @@ export const RoomCard = (props) => {
     room_ops.lock(props.id);
   }
 
+  const card_class = () => {
+    let cls = "card" 
+    if (isMyRoom()) {
+      cls += " teal lighten-3"
+    }
+    if (props.hidden) {
+      cls += " hidden"
+    } 
+    return cls;
+  }
+
   return (
     <div className="col s12 xl6">
-      <div className={ isMyRoom() ? "card teal lighten-3" : "card" }>
+      <div className={ card_class() }>
         <div className="card-content">
-            <span className="card-title grey-text text-darken-4"> {props.name} 
+            <span className="card-title grey-text text-darken-4"> {props.name}
+            <i className="material-icons">{canUnlock() ? "lock" : ""}</i>
             <Members 
               beds={props.available_beds}
               members={props.members}
             />
             </span>
-            <p> {canUnlock() ? "Password: " + props.lock.password : ""} </p>
+            <pre> {(canUnlock() && props.lock.password != null) ? "Password: " + props.lock.password : ""} </pre>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
@@ -107,6 +119,8 @@ export const RoomCard = (props) => {
           { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }
           { canDelete() ? <a href="#" onClick={() => room_ops.delete(props.id) }> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={openEditModal}> edit </a> : ""}
+          <a></a>{ // this empty a tag is needed to fix visual problem when room is full
+          }
           <a href="javascript:void(0)" className="activator right" style={{"marginRight": 0}}> more </a>
         </div>
       </div>

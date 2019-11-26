@@ -79,11 +79,10 @@ const RoomsView = (props) =>
     if (showFull)
     {
       return true;
-    }
-    else
+    } 
+    else 
     {
-      return 
-        room.available_beds.single + room.available_beds.double * 2 > 
+      return room.available_beds.single + room.available_beds.double * 2 > 
         room.members.length;
     }
   })
