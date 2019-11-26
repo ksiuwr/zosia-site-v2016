@@ -22,7 +22,11 @@ class Lecture(models.Model):
     title = models.CharField(verbose_name=_("Title"), max_length=256)
     abstract = models.CharField(verbose_name=_("Abstract"), max_length=2048)
     duration = models.PositiveSmallIntegerField(
-        verbose_name=_("Duration (in minutes)"), choices=DURATION_CHOICES)
+        choices=DURATION_CHOICES,
+        verbose_name=_("Duration (in minutes)"),
+        help_text=_("Please remember that organizers <u>ARE ALLOWED</u> to cut you off during your "
+                    "lecture or workshop when you're out of declared time!")
+    )
     lecture_type = models.CharField(verbose_name=_("Type"), max_length=1, choices=LECTURE_TYPE)
     events = models.CharField(
         verbose_name=_("Additional events"), max_length=800, blank=True, null=True,
@@ -30,7 +34,7 @@ class Lecture(models.Model):
             "Are you planning any event after your lecture or workshop (e.g. pizza, drinks, "
             "games, recruitment)? <b>TELL US ABOUT IT!</b> Beware that organizers <u>WON'T ALLOW</u> "
             "you to arrange your event if you don't announce it here!")
-        )
+    )
 
     # about author
     person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE)
