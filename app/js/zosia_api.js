@@ -45,7 +45,7 @@ function getCSRFToken() {
 
 const post = (uri, json) => {
     return fetch(root + uri, {
-        method: 'POST',    
+        method: 'POST',
         body: JSON.stringify(json), // string or object
         headers: {
           'Content-Type': 'application/json',
@@ -98,8 +98,8 @@ export const get_rooms = () => get('/api/v1/rooms/')
             ...room_
         } = room;
         return {
-            ...room_, 
-            beds: { 
+            ...room_,
+            beds: {
                 single: beds_single,
                 double: beds_double,
             },
@@ -121,17 +121,17 @@ const convert_room_to_api = (room_) => {
     }
 }
 
-export const create_room = (json) => 
+export const create_room = (json) =>
     post('/api/v1/rooms/', convert_room_to_api(json))
 export const delete_room = (id) => delete_('/api/v1/rooms/' + id + '/')
-export const edit_room = (id, json) => 
+export const edit_room = (id, json) =>
     put('/api/v1/rooms/' + id + '/', convert_room_to_api(json))
 const get_room = (id) => get('/api/v1/rooms/' + id)
 export const join_room = (id, user) => post('/api/v1/rooms/' + id + '/join/', { user })
 export const leave_room = (id, user) => post('/api/v1/rooms/' + id + '/leave/', { user })
 export const users = () => get('/api/v1/users/');
-const hide_room = (id) => post('/api/v1/rooms/' + id + '/join/', {})
-const unhide_room = (id) => post('/api/v1/rooms/' + id + '/join/', {})
+const hide_room = (id) => post('/api/v1/rooms/' + id + '/hide/', {})
+const unhide_room = (id) => post('/api/v1/rooms/' + id + '/unhide/', {})
 const lock_room = (id, user) => post('/api/v1/rooms/' + id + '/lock/', { user })
-const unlock_room = (id, user) => post('/api/v1/rooms/' + id + '/unlock/', { user })
+const unlock_room = (id, user) => post('/api/v1/rooms/' + id + '/unlock/', {})
 
