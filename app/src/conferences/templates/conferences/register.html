@@ -3,6 +3,23 @@
 {% load materializecss %}
 
 {% block content %}
+<!-- Modal Structure -->
+<div id="add_org" class="modal">
+  <div class="modal-content">
+    <h4>Add organization</h4>
+    <div class="row">
+      <div class="input-field col s12">
+        <textarea id="org_name" class="materialize-textarea" name="contact" cols="40" rows="10"></textarea>
+        <label class="" for="org_name">
+          Organization name
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a id="add_org_accept" href="#!" class="modal-close waves-effect waves-green btn-flat">Add</a>
+  </div>
+</div>
 <div class="container">
   <h3>
     {% if object %}
@@ -21,8 +38,48 @@
 {% block custom_scripts %}
 <script type="text/javascript">
   $(document).ready(function() {
+    var elems = document.querySelectorAll('.modal');
+    var instances = M.Modal.init(elems, {});
     $('select').formSelect();
     $('textarea').addClass("materialize-textarea");
+
+
+    const allowAddingOrgs = () => {
+      const getOrganizationInput = () => {
+        const labels = Array.from(document.getElementsByTagName("label"));
+        const maybe_org_label = labels.filter(label => label.textContent == "Organization")[0];
+        if (!maybe_org_label)
+        {
+          console.error("No label organization");
+          return;
+        }
+        const org_label = maybe_org_label;
+        return org_label.parentElement;
+      }
+
+      const org_input = getOrganizationInput();
+      const add_org_link = document.createElement("a");
+      add_org_link.textContent = "Add organization";
+      add_org_link.href = "javascript:void(0)";
+      add_org_link.onclick = () => { 
+        M.Modal.getInstance(document.getElementById("add_org")).open();
+      }
+      org_input.append(add_org_link);
+
+      const add_org_accept = document.getElementById("add_org_accept");
+      add_org_accept.onclick = () => {
+        const org_select = document.getElementsByName('organization')[0];
+        const new_org_option = document.createElement("option");
+        new_org_option.innerText = "KSI";
+        new_org_option.value = "KSI";
+        org_select.append(new_org_option);
+        const m_org_select = M.FormSelect.getInstance(org_select);
+        const elems = document.querySelectorAll('select');
+        const instances = M.FormSelect.init(elems, {});
+      }
+    }
+
+    allowAddingOrgs();
 
     {% if payed %}
     const payed = true;
