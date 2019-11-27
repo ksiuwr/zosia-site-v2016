@@ -1,5 +1,5 @@
 from conferences.models import Bus, Place, UserPreferences, Zosia
-from users.models import User
+from users.models import Organization, User
 from utils.time_manager import now, timedelta_since_now
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
@@ -55,6 +55,10 @@ USER_DATA = [
 
 def create_user(index, **kwargs):
     return User.objects.create_user(*USER_DATA[index], **kwargs)
+
+
+def create_organization(name, user=None):
+    return Organization.objects.create(name=name, user=user)
 
 
 def user_login(user):
