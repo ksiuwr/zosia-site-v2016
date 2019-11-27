@@ -201,7 +201,7 @@ def create_room(number):
             'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
             'beds_single': bed_single,
-            'available_beds_single': random.randint(1, bed_single),
+            'available_beds_single': random.randint(2, bed_single),
         }
     return Room.objects.create(**data)
 

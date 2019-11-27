@@ -84,12 +84,12 @@ export const RoomCard = (props) => {
 
   const card_class = () => {
     let cls = "card" 
-    if (isMyRoom()) {
-      cls += " teal lighten-3"
-    }
     if (props.hidden) {
       cls += " hidden"
     } 
+    if (isMyRoom()) {
+      cls += " teal lighten-3"
+    }
     else if (isFull()) {
       cls += " full"
     }

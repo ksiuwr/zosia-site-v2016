@@ -288,6 +288,14 @@ footer.page-footer {
         );
 }
 
+.locked {
+    background-color: #ffd700;
+}
+
+.full {
+    background-color: #b2b9de;
+}
+
 .card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
     color: #1A2236;
 }
