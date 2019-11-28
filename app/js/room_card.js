@@ -51,7 +51,7 @@ export const RoomCard = (props) => {
     return exists(props.members, ({user}) => props.me.id == user.id);
   }
   const isFull = () => roomCapacity(props.available_beds) <= props.members.length
-  const isLocked = () => props.lock != null
+  const isLocked = () => props.lock != null && new Date(props.lock.expiration_date) > new Date()
   const canEnter = () => !isMyRoom() && !isFull()
   const canLeave = () => isMyRoom()
   const canUnlock = () => {
@@ -109,7 +109,7 @@ export const RoomCard = (props) => {
               members={props.members}
             />
             </span>
-            <pre> {canUnlock() ? "Password: " + props.lock.password : ""} </pre>
+            <pre> {isLocked() ? (canUnlock() ? "Password: " + props.lock.password : "Locked until: " + props.lock.expiration_date) : ""} </pre>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
