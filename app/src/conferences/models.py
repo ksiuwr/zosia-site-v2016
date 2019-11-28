@@ -346,7 +346,7 @@ class UserPreferences(models.Model):
 
     @property
     def room(self):
-        return self.user.room_of_user
+        return self.user.room_of_user.all().first()
 
     @property
     def transfer_title(self):

@@ -25,13 +25,10 @@ def profile(request):
         'bus', 'zosia').filter(user=request.user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
-    all_prefs = user_preferences.exclude(zosia=current_zosia).values_list(
-        'zosia', flat=True)
 
     ctx = {
         'zosia': current_zosia,
-        'current_prefs': current_prefs,
-        'all_prefs': all_prefs
+        'current_prefs': current_prefs
     }
     return render(request, 'users/profile.html', ctx)
 
