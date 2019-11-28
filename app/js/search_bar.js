@@ -2,7 +2,7 @@
 import React from "react";
 
 import {useModal} from "./modals/modals";
-import AddRoomModal from './modals/add_room_modal';
+import RoomPropertiesModal from './modals/room_properties_modal';
 import { create_room } from "./zosia_api";
 
 
@@ -22,7 +22,7 @@ const SearchBar = (props) =>
       <ul style={{height: "50px", lineHeight: "45px", margin: 0}}>
         <li style={{float:"left", margin: "5px"}}>
           <a href="#" className="waves-effect waves-light btn" onClick={
-            () => openModal(AddRoomModal, {closeModal, submit: create_room})
+            () => openModal(RoomPropertiesModal, {closeModal, submit: create_room})
           }> Add room </a>
         </li>
       </ul>

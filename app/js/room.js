@@ -156,7 +156,7 @@ ReactDOM.render(
       </div>
     </ModalProvider>
     ),
-    document.getElementById('react-root')
+    document.getElementById('rooms_tab')
 );
 
 export default RoomsView;

@@ -5,25 +5,25 @@ import { useForm } from '../forms/forms';
 import RoomForm from '../forms/room_form';
 import { create_room } from '../zosia_api';
 
-const AddRoomModal = props => {
+const RoomPropertiesModal = props => {
   const {submit, data} = props
   const [FormInput, formValue, setValue] = useForm(RoomForm, data);
   
   return (
     <Modal closeModal={props.closeModal}>
       <div className="modal-content">
-        <h4>Add Room</h4>
+        <h4>{data ? "Edit" : "Add"} Room</h4>
         <div className="row">
           <FormInput name="" value={formValue} onChange={setValue}></FormInput>
         </div>
       </div>
       <div className="modal-footer">
-        <a href="#!" className="modal-close waves-effect waves-green btn-flat" onClick={() => submit(formValue)}>
-          Add
+        <a href="#!" className="modal-close waves-effect waves-light btn" onClick={() => submit(formValue)}>
+          Save
         </a>
       </div>
     </Modal>
   );
 }
 
-export default AddRoomModal;
+export default RoomPropertiesModal;

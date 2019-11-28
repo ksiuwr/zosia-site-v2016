@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import { exists, roomCapacity } from "./helpers";
 import { useModal } from "./modals/modals";
-import AddRoomModal from './modals/add_room_modal';
+import RoomPropertiesModal from './modals/room_properties_modal';
 
 
 const Members = ({beds, members}) => {
@@ -73,7 +73,7 @@ export const RoomCard = (props) => {
 
   const [openModal, closeModal] = useModal()
   const openEditModal = () => 
-    openModal(AddRoomModal, {
+    openModal(RoomPropertiesModal, {
       data: props,
       closeModal,
       submit: data => room_ops.edit_room(props.id, data)
