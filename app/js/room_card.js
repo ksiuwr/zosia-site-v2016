@@ -46,47 +46,37 @@ const MemberList = ({members, users}) => {
 }
 
 export const RoomCard = (props) => {
-  const {room_ops} = props
-  const isMyRoom = () => {
-    return exists(props.members, ({user}) => props.me.id == user.id);
-  }
-  const isFull = () => roomCapacity(props.available_beds) <= props.members.length
-  const isLocked = () => props.lock != null && new Date(props.lock.expiration_date) > new Date()
-  const canEnter = () => !isMyRoom() && !isFull()
-  const canLeave = () => isMyRoom()
-  const canUnlock = () => {
-    if (!isLocked())
-      return false;
-    const hasLockPackword = 'password' in props.lock
-    return hasLockPackword && props.lock.password != null;
-  }
-  const canLock = () => {
-    const isNotLocked = props.lock == null;
-    return isNotLocked && isMyRoom();
-  }
-  const canDelete = () => {
-    return props.permissions.canDeleteRoom;
-  }
-  const canEdit = () => {
-    return props.permissions.canEditRoom;
-  }
+  const {room_ops} = props;
+
+  const isAdmin = props.isAdminView;
+  const isMyRoom = () => exists(props.members, ({user}) => props.me.id == user.id);
+  const isFull = () => roomCapacity(props.available_beds) <= props.members.length;
+  const isLocked = () => props.lock != null && new Date(props.lock.expiration_date) > new Date();
+
+  const canEnter = () => !isAdmin && !isMyRoom() && !isFull();
+  const canLeave = () => !isAdmin && isMyRoom();
+  const canUnlock = () => !isAdmin && isLocked() && 'password' in props.lock && props.lock.password != null;
+  const canLock = () => !isAdmin && !isLocked() && isMyRoom();
+
+  const canDelete = () => isAdmin;
+  const canEdit = () => isAdmin;
 
   const [openModal, closeModal] = useModal()
-  const openEditModal = () => 
+  const openEditModal = () =>
     openModal(RoomPropertiesModal, {
       data: props,
       closeModal,
       submit: data => room_ops.edit_room(props.id, data)
-    }) 
+    })
   const lock = () => {
     room_ops.lock(props.id);
   }
 
   const card_class = () => {
-    let cls = "card" 
+    let cls = "card"
     if (props.hidden) {
       cls += " hidden"
-    } 
+    }
     if (isMyRoom()) {
       cls += " teal lighten-3"
     }
@@ -104,16 +94,16 @@ export const RoomCard = (props) => {
       <div className={ card_class() }>
         <div className="card-content">
             <span className="card-title grey-text text-darken-4"> {props.name}
-            <Members 
+            <Members
               beds={props.available_beds}
               members={props.members}
             />
             </span>
-            <pre> {isLocked() ? (canUnlock() ? "Password: " + props.lock.password : "Locked until: " + props.lock.expiration_date) : ""} </pre>
+            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + props.lock.expiration_date : ""}</pre>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
-          <p> 
+          <p>
             Members: {props.members.length == 0 ? "-" : <MemberList users={props.users} members={props.members}/> } <br/>
             Description: {props.description}
           </p>

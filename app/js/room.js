@@ -79,10 +79,10 @@ const RoomsView = (props) =>
     if (showFull)
     {
       return true;
-    } 
-    else 
+    }
+    else
     {
-      return room.available_beds.single + room.available_beds.double * 2 > 
+      return room.available_beds.single + room.available_beds.double * 2 >
         room.members.length;
     }
   })
@@ -100,10 +100,10 @@ const RoomsView = (props) =>
         if (l_num < r_num)
           return -1;
       }
-      
+
       if (lhs.name > rhs.name)
         return 1;
-      
+
       if (lhs.name < rhs.name)
         return -1;
     }
@@ -120,21 +120,21 @@ const RoomsView = (props) =>
     // Fallback sorting
     return lhs.id - rhs.id
   })
-  
+
   return (
     <div>
-      <SearchBar 
-        permissions={props.permissions}
+      <SearchBar
+        isAdminView={props.isAdminView}
         onSearch={onSearch}
         onShowFullRoomsToggle={onShowFullRoomsToggle}
         onSortingStrategyChange={onSortingStrategyChange}
        />
       {sortedResults.map(data => {
         return (
-          <RoomCard 
-            permissions={props.permissions}
-            key={data.id} me={state.me} 
-            room_ops={room_ops} 
+          <RoomCard
+            isAdminView={props.isAdminView}
+            key={data.id} me={state.me}
+            room_ops={room_ops}
             {...data}/>);
       })}
     </div>
@@ -147,11 +147,7 @@ ReactDOM.render(
       <ModalRoot/>
       <div className="container">
         <div className="row">
-          <RoomsView permissions={{
-            canAddRoom: false,
-            canDeleteRoom: false,
-            canEditRoom: false,
-          }}/>
+          <RoomsView isAdminView={false}/>
         </div>
       </div>
     </ModalProvider>

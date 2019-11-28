@@ -14,10 +14,10 @@ const SearchBar = (props) =>
   }, []);
 
   const [openModal, closeModal] = useModal()
-  
+
   return (
     <div>
-    { props.permissions.canAddRoom ?
+    { props.isAdminView ?
     <div className="col s12">
       <ul style={{height: "50px", lineHeight: "45px", margin: 0}}>
         <li style={{float:"left", margin: "5px"}}>

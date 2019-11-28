@@ -7,11 +7,7 @@ import { ModalRoot, ModalProvider } from "./modals/modals";
 const Rooms = () => (
   <ModalProvider>
     <ModalRoot />
-    <RoomsView permissions={{
-      canAddRoom: true,
-      canDeleteRoom: true,
-      canEditRoom: true,
-    }}/>
+    <RoomsView isAdminView={true}/>
   </ModalProvider>
 )
 
