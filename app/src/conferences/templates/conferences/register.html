@@ -21,17 +21,37 @@
   </div>
 </div>
 <div class="container">
-  <h3>
-    {% if object %}
-      {% trans "Update preferences" %}
-    {% else %}
-      {% trans "Register" %}
-    {% endif %}
-  </h3>
-  <form method="post">
-    {% csrf_token %}
-    {% include '_form.html' %}
-  </form>
+    <h3>
+        {% if object %}
+        {% trans "Update preferences" %}
+        {% else %}
+        {% trans "Register" %}
+        {% endif %}
+    </h3>
+    <div class="row">
+        <div class="col s12 m8">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">{% trans "Cost" %}</span>
+                    <blockquote style="border-left-color: #3333cc">
+                        <i>{% trans "Prices (per night)" %}:</i><br />
+                        {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br />
+                        {% trans "Accommodation + breakfast" %}: <strong>{{ zosia.price_accommodation_breakfast }} PLN</strong><br />
+                        {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br />
+                        {% trans "Accommodation + both meals" %}: <strong>{{ zosia.price_whole_day }} PLN</strong><br />
+                    </blockquote>
+                    <blockquote style="border-left-color: #9900ff">
+                        <i>{% trans "Total cost (updated automatically)" %}:</i><br />
+                        <strong><span id="total-price">{% if object %}{{object.price}}{% else %}0{% endif %}</span> PLN</strong>
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        {% include '_form.html' %}
+    </form>
 </div>
 {% endblock content %}
 
@@ -89,29 +109,61 @@
 
     const dependencies = {
         {% for accommodation, meals in field_dependencies.items %}
-        "#id_{{ accommodation }}" : [ {%  for m in meals %} "#id_{{ m }}", {% endfor %} ],
+        "#id_{{ accommodation }}" : [ {% for m in meals %} "#id_{{ m }}", {% endfor %} ],
         {% endfor %}
     }
 
-    const onChange = changedIds => {
-      changedIds.forEach(par => {
-        const isParentChecked = $(par).is(':checked')
-        dependencies[par].forEach(child => {
-          $(child).attr('disabled', payed || !isParentChecked);
-          if (!isParentChecked) {
-            $(child).prop('checked', false);
-          }
+    const enableMeals = accommodations => {
+        accommodations.forEach(accommId => {
+            const isAccommChecked = $(accommId).is(':checked')
+            dependencies[accommId].forEach(mealId => {
+                $(mealId).attr('disabled', payed || !isAccommChecked);
+                if (!isAccommChecked) {
+                  $(mealId).prop('checked', false);
+                }
+            })
         })
-      })
     }
 
-    for (par in dependencies) {
-      $(par).change(event => {
-        onChange(["#" + event.currentTarget.id])
-      })
+    const countPayment = () => {
+        let totalPayment = 0;
+
+        for (accommId in dependencies) {
+            const breakfastId = dependencies[accommId].find(mealId => /breakfast/.test(mealId));
+            const dinnerId = dependencies[accommId].find(mealId => /dinner/.test(mealId));
+            const isAccommChecked = $(accommId).is(':checked')
+            const isBreakfastChecked = $(breakfastId).is(':checked')
+            const isDinnerChecked = $(dinnerId).is(':checked')
+
+            if (!isAccommChecked && !isBreakfastChecked && !isDinnerChecked) {
+                totalPayment += 0;
+            } else if (isBreakfastChecked && isDinnerChecked) {
+                totalPayment += {{ zosia.price_whole_day }};
+            } else if (isBreakfastChecked && !isDinnerChecked) {
+                totalPayment += {{ zosia.price_accommodation_breakfast }};
+            } else if (!isBreakfastChecked && isDinnerChecked) {
+                totalPayment += {{ zosia.price_accommodation_dinner }};
+            } else {
+                totalPayment += {{ zosia.price_accommodation }};
+            }
+        }
+
+        $("#total-price").text(totalPayment);
     }
 
-    onChange(Object.keys(dependencies));
+    for (accommId in dependencies) {
+        $(accommId).change(event => {
+            enableMeals(["#" + event.currentTarget.id])
+            countPayment()
+        })
+        dependencies[accommId].forEach(mealId => $(mealId).change(event => countPayment()))
+    }
+
+    enableMeals(Object.keys(dependencies));
+
+    if(!payed) {
+        countPayment();
+    }
   });
 </script>
 {% endblock custom_scripts %}

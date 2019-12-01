@@ -58,12 +58,16 @@
           </div>
           {% if current_prefs %}
             {% if current_prefs.payment_accepted %}
-              <blockquote>
+              <blockquote style="border-left-color: #0cb30c">
                 {% trans "Your payment has been accepted :)" %}
               </blockquote>
               <div class="row">
                 <div class="col s12">
+                  {% if current_prefs.room is not None %}
+                    <span style="font-size: 1.1rem">{% trans "You have been assigned to" %} <b>{{ current_prefs.room }}</b></span>
+                  {% else %}
                     <p>{% trans "Your rooms assignment will start at" %}: {{current_prefs.rooming_start_time | zoneformat:"Europe/Warsaw"}}</p>
+                  {% endif %}
                 </div>
               </div>
             {% else %}
@@ -163,15 +167,6 @@
             <div class="card-content">
               <p> No preferences set. </p>
             </div>
-          {% endif %}
-
-          {% if all_prefs %}
-            <h6>{% trans "Your previous conferences" %}</h6>
-            <p>
-              {% for zosia in all_prefs %}
-                <div class="chip">{{ zosia }}</div>
-              {% endfor %}
-            </p>
           {% endif %}
         </div>
         <div class="card-action">

@@ -10,10 +10,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from conferences.models import UserPreferences, Zosia
-from . import forms
-from .actions import ActivateUser
-from .forms import OrganizationForm
-from .models import Organization
+from users import forms
+from users.actions import ActivateUser
+from users.forms import OrganizationForm
+from users.models import Organization
 
 
 # Create your views here.
@@ -25,13 +25,10 @@ def profile(request):
         'bus', 'zosia').filter(user=request.user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
-    all_prefs = user_preferences.exclude(zosia=current_zosia).values_list(
-        'zosia', flat=True)
 
     ctx = {
         'zosia': current_zosia,
-        'current_prefs': current_prefs,
-        'all_prefs': all_prefs
+        'current_prefs': current_prefs
     }
     return render(request, 'users/profile.html', ctx)
 

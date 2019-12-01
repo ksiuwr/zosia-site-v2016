@@ -167,10 +167,11 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def register(request, zosia_id):
     zosia = get_object_or_404(Zosia, pk=zosia_id)
-    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False}
+    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
+
     if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
