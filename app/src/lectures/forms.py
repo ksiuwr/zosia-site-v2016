@@ -6,8 +6,7 @@ from lectures.models import Lecture, Schedule
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['title', 'abstract', 'duration', 'lecture_type', 'person_type', 'requests',
-                  'events']
+        fields = ['title', 'abstract', 'duration', 'lecture_type', 'requests', 'events']
         widgets = {
             'abstract': forms.Textarea,
             'requests': forms.Textarea,

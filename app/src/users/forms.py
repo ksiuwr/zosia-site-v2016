@@ -5,8 +5,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 
-from .actions import SendActivationEmail, SendEmailToAll
-from .models import Organization, User
+from users.actions import SendActivationEmail, SendEmailToAll
+from users.models import Organization, User
 
 GROUPS = (
     ('pick', 'Pick users'),

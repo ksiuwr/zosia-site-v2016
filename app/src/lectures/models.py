@@ -37,7 +37,8 @@ class Lecture(models.Model):
     )
 
     # about author
-    person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE)
+    person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE,
+                                   default=LectureInternals.PERSON_NORMAL)
     description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,
                                    blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("Author"),
@@ -60,12 +61,25 @@ class Lecture(models.Model):
             return
 
         lecture_max_time = 90 if self.person_type == LectureInternals.PERSON_SPONSOR else 60
+        workshop_min_time = 30
 
         if self.lecture_type == LectureInternals.TYPE_LECTURE and self.duration > lecture_max_time:
-            raise ValidationError({"duration": _("Lecture is too long")})
+            raise ValidationError({
+                "duration": ValidationError(
+                    _("Lecture is too long, maximal time for you is %(time)s minutes"),
+                    code="invalid",
+                    params={"time": lecture_max_time}
+                )
+            })
 
-        if self.lecture_type == LectureInternals.TYPE_WORKSHOP and self.duration < 30:
-            raise ValidationError({"duration": _("Workshop is too short")})
+        if self.lecture_type == LectureInternals.TYPE_WORKSHOP and self.duration < workshop_min_time:
+            raise ValidationError({
+                "duration": ValidationError(
+                    _("Workshop is too short, minimal time is %(time)s minutes"),
+                    code="invalid",
+                    params={"time": workshop_min_time}
+                )
+            })
 
 
 class Schedule(models.Model):
