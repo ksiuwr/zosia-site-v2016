@@ -1,8 +1,9 @@
-from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect
-from .models import BlogPost
-from .forms import BlogPostForm
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
+
+from blog.forms import BlogPostForm
+from blog.models import BlogPost
 
 
 @require_http_methods(['GET'])

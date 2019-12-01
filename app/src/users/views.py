@@ -10,10 +10,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from conferences.models import UserPreferences, Zosia
-from . import forms
-from .actions import ActivateUser
-from .forms import OrganizationForm
-from .models import Organization
+from users import forms
+from users.actions import ActivateUser
+from users.forms import OrganizationForm
+from users.models import Organization
 
 
 # Create your views here.
