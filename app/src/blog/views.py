@@ -1,8 +1,9 @@
-from django.views.decorators.http import require_http_methods
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import render, redirect
-from .models import BlogPost
+from django.shortcuts import redirect, render
+from django.views.decorators.http import require_http_methods
+
 from .forms import BlogPostForm
+from .models import BlogPost
 
 
 @require_http_methods(['GET'])
@@ -14,10 +15,11 @@ def index(request):
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
 def create(request):
-    ctx = {'form': BlogPostForm(request.POST or None)}
+    form = BlogPostForm(request.POST or None)
+    ctx = {'form': form}
 
     if request.method == 'POST':
-        if ctx['form'].is_valid():
-            ctx['form'].save()
+        if form.is_valid():
+            form.save()
             return redirect('blog_index')
     return render(request, 'blog/create.html', ctx)
