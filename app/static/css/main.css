@@ -279,3 +279,7 @@ footer.page-footer {
 .slides li div h3 {
     font-weight: 500;
 }
+
+.error-text {
+    color: #F44336
+}
