@@ -15,5 +15,4 @@ urlpatterns = [
     path("<int:pk>/hide/", views.RoomViewSet.as_view({"post": "hide"}), name="rooms_api_hide"),
     path("<int:pk>/unhide/", views.RoomViewSet.as_view({"post": "unhide"}),
          name="rooms_api_unhide"),
-    path("members/", views.RoomMembersViewSet.as_view({"get": "list"}), name="rooms_api_members"),
 ]
