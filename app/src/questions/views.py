@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect, render
-from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.vary import vary_on_cookie
 
 from questions.forms import QAForm
 from questions.models import QA
+from utils.forms import errors_format
 
 
 @cache_page(60 * 60 * 24)
@@ -44,7 +44,8 @@ def update(request, question_id=None):
             form.save()
             return redirect('questions_index_staff')
         else:
-            messages.error(request, _('There has been error'))
+            messages.error(request, errors_format(form))
+
     ctx = {'form': form, 'question': question}
     return render(request, 'questions/update.html', ctx)
 
