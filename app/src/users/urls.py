@@ -2,7 +2,7 @@ from django.contrib.auth.views import LoginView
 from django.urls import include, re_path
 
 from users import views
-from utils.wrappers import anonymous_required
+from utils.views import anonymous_required
 
 urlpatterns = [
     re_path(r'^profile/$', views.profile, name='accounts_profile'),

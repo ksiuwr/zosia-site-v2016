@@ -127,7 +127,7 @@ export const delete_room = (id) => delete_('/api/v1/rooms/' + id + '/')
 export const edit_room = (id, json) =>
     put('/api/v1/rooms/' + id + '/', convert_room_to_api(json))
 const get_room = (id) => get('/api/v1/rooms/' + id)
-export const join_room = (id, user) => post('/api/v1/rooms/' + id + '/join/', { user })
+export const join_room = (id, user, password) => post('/api/v1/rooms/' + id + '/join/', { user, password })
 export const leave_room = (id, user) => post('/api/v1/rooms/' + id + '/leave/', { user })
 export const users = () => get('/api/v1/users/');
 const hide_room = (id) => post('/api/v1/rooms/' + id + '/hide/', {})

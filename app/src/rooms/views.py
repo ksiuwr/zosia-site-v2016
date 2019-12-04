@@ -7,7 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.template import Context, loader
+from django.template import loader
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
@@ -91,9 +91,7 @@ def csv_response(data, template, filename='file'):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
     t = loader.get_template(template)
-    c = Context({
-        'data': data,
-    })
+    c = {'data': data}
     response.write(t.render(c))
     return response
 
