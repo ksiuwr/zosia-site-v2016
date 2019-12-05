@@ -81,7 +81,7 @@ const me_id = () => get_me().then(({ id }) => id)
 export const me = {
     id: me_id,
     info: get_me,
-    join_room: (room) => me_id().then(id => join_room(room, id)),
+    join_room: (room, password) => me_id().then(id => join_room(room, id, password)),
     leave_room: (room) => me_id().then(id => leave_room(room, id)),
     lock_room: (room) => me_id().then(id => lock_room(room, id)),
     unlock_room: (room) => me_id().then(id => unlock_room(room, id)),
