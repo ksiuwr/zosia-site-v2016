@@ -79,6 +79,15 @@ def list_by_user(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
+def list_by_room(request):
+    rooms = Room.objects.prefetch_related('members').all()
+    data_list = sorted(([str(r), r.members_to_string] for r in rooms),
+                       key=lambda e: e[0])
+    return csv_response(data_list, template='rooms/by_room.txt', filename='rooms_by_room')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
 def report(request):
     zosia = get_object_or_404(Zosia, active=True)
     rooms = Room.objects.all_visible().prefetch_related('members').all()
