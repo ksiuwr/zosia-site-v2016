@@ -5,7 +5,7 @@ import json
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.template import loader
 from django.utils.translation import ugettext_lazy as _
@@ -16,7 +16,7 @@ from django.views.decorators.vary import vary_on_cookie
 from conferences.models import UserPreferences, Zosia
 from rooms.forms import UploadFileForm
 from rooms.models import Room
-from rooms.serializers import room_to_dict, user_to_dict
+from rooms.serializers import room_to_dict
 
 
 # Cache hard (15mins)
@@ -55,34 +55,6 @@ def index(request):
         'rooms_json': rooms_json,
     }
     return render(request, 'rooms/index.html', context)
-
-
-# GET
-@vary_on_cookie
-@login_required
-@require_http_methods(['GET'])
-def status(request):
-    # Ajax
-    # Return JSON view of rooms
-    zosia = get_object_or_404(Zosia, active=True)
-    user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=request.user)
-    can_start_rooming = zosia.can_user_choose_room(user_prefs)
-    rooms = Room.objects.all_visible().select_related('lock').prefetch_related('members').all()
-    rooms_view = []
-
-    for room in rooms:
-        dic = room_to_dict(room)
-        dic['is_owned_by'] = room.is_locked and room.lock.is_owned_by(
-            request.user) and room.lock.password
-        dic['people'] = list(map(user_to_dict, room.members.all()))
-        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.members.all())
-        rooms_view.append(dic)
-
-    view = {
-        'can_start_rooming': can_start_rooming,
-        'rooms': rooms_view,
-    }
-    return JsonResponse(view)
 
 
 # https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
