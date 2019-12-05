@@ -61,11 +61,20 @@ def index(request):
 # NOTE: Might not be the best approach - consider using csv module instead
 def csv_response(data, template, filename='file'):
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
+    response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
     t = loader.get_template(template)
     c = {'data': data}
     response.write(t.render(c))
     return response
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_by_user(request):
+    prefs = UserPreferences.objects.all()
+    data_list = sorted(([p.user.display_name, str(p.room) if p.room else ''] for p in prefs),
+                       key=lambda e: e[0])
+    return csv_response(data_list, template='rooms/by_user.txt', filename='rooms_by_users')
 
 
 @staff_member_required
