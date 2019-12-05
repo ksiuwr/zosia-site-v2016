@@ -3,7 +3,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from conferences.models import Bus, UserPreferences, Zosia
+from conferences.models import Bus, Place, UserPreferences, Zosia
 from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
 from utils.constants import PAYMENT_GROUPS
@@ -129,6 +129,15 @@ class BusForm(forms.ModelForm):
         field_classes = {
             "departure_time": SplitDateTimePickerField
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class PlaceForm(forms.ModelForm):
+    class Meta:
+        model = Place
+        exclude = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

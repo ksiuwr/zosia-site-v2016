@@ -11,8 +11,8 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from conferences.forms import BusForm, UserPreferencesAdminForm, UserPreferencesForm, ZosiaForm
-from conferences.models import Bus, UserPreferences, Zosia
+from conferences.forms import BusForm, PlaceForm, UserPreferencesAdminForm, UserPreferencesForm, ZosiaForm
+from conferences.models import Bus, Place, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
@@ -278,3 +278,29 @@ def update_zosia(request, pk=None):
 
     ctx = {'form': form, 'zosia': zosia}
     return render(request, 'conferences/conference_add.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def place(request):
+    places = Place.objects.filter()
+    ctx = {'places': places}
+    return render(request, 'conferences/place.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def place_add(request, pk=None):
+    if pk is not None:
+        instance = get_object_or_404(Place, pk=pk)
+        form = PlaceForm(request.POST or None, instance=instance)
+    else:
+        instance = None
+        form = PlaceForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, _('Place has been saved'))
+        return redirect('place')
+    ctx = {'form': form, 'object': instance}
+    return render(request, 'conferences/place_add.html', ctx)
