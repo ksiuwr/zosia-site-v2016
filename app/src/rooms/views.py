@@ -6,8 +6,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.template import loader
+from django.shortcuts import redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
@@ -57,14 +56,15 @@ def index(request):
     return render(request, 'rooms/index.html', context)
 
 
-# https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
-# NOTE: Might not be the best approach - consider using csv module instead
-def csv_response(data, template, filename='file'):
+def csv_response(header, data, filename='file'):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
-    t = loader.get_template(template)
-    c = {'data': data}
-    response.write(t.render(c))
+    writer = csv.writer(response)
+    writer.writerow(header)
+
+    for row in data:
+        writer.writerow(row)
+
     return response
 
 
@@ -74,7 +74,8 @@ def list_by_user(request):
     prefs = UserPreferences.objects.all()
     data_list = sorted(([p.user.display_name, str(p.room) if p.room else ''] for p in prefs),
                        key=lambda e: e[0])
-    return csv_response(data_list, template='rooms/by_user.txt', filename='rooms_by_users')
+
+    return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
 
 
 @staff_member_required
@@ -83,30 +84,8 @@ def list_by_room(request):
     rooms = Room.objects.prefetch_related('members').all()
     data_list = sorted(([str(r), r.members_to_string] for r in rooms),
                        key=lambda e: e[0])
-    return csv_response(data_list, template='rooms/by_room.txt', filename='rooms_by_room')
 
-
-@staff_member_required
-@require_http_methods(['GET'])
-def report(request):
-    zosia = get_object_or_404(Zosia, active=True)
-    rooms = Room.objects.all_visible().prefetch_related('members').all()
-    rooms = sorted(rooms, key=lambda x: str(x))
-    users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
-    users = sorted(users, key=lambda x: str(x))
-    ctx = {
-        'zosia': zosia,
-        'rooms': rooms,
-        'user_preferences': users
-    }
-
-    download = request.GET.get('download', False)
-    if download == 'users':
-        return csv_response(users, template='rooms/users.txt', filename='users')
-    if download == 'rooms':
-        return csv_response(rooms, template='rooms/rooms.txt', filename='rooms')
-
-    return render(request, 'rooms/report.html', ctx)
+    return csv_response(("Room", "Users"), data_list, filename='rooms_by_room')
 
 
 def handle_uploaded_file(csvfile):

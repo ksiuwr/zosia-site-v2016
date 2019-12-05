@@ -1,3 +1,0 @@
-{% load i18n %}"{% trans 'Room' %}", "{% trans 'Users' %}"
-{% for row in data %}"{{ row.0|addslashes }}", "{{ row.1|addslashes }}"
-{% endfor %}
