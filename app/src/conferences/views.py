@@ -188,7 +188,7 @@ def register(request, zosia_id):
         if form.is_valid():
             form.call(zosia)
             messages.success(request, _("Form saved!"))
-            return redirect('accounts_profile')
+            return redirect(reverse('accounts_profile')+'#zosia')
         else:
             messages.error(request, errors_format(form))
 
