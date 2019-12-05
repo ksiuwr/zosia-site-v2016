@@ -1,6 +1,7 @@
 import csv
 from io import TextIOWrapper
 import json
+import re
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -71,9 +72,15 @@ def csv_response(header, data, filename='file'):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_user(request):
+    def to_key(user_name):
+        user_name = user_name.lower()
+        m = re.match(r"(\w+) (\w+)", user_name)
+
+        return tuple(reversed(m.groups()))
+
     prefs = UserPreferences.objects.all()
     data_list = sorted(([p.user.display_name, str(p.room) if p.room else ''] for p in prefs),
-                       key=lambda e: e[0])
+                       key=lambda e: to_key(e[0]))
 
     return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
 
@@ -81,9 +88,16 @@ def list_by_user(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_room(request):
+    def to_key(room_name):
+        room_name = room_name.lower()
+        m = re.match(r"(\D?)(\d*)(.*)", room_name[::-1])
+        g = [x[::-1] for x in reversed(m.groups())]
+
+        return (g[0], int(g[1]), g[2]) if g[1] != '' else (room_name, 0, '')
+
     rooms = Room.objects.prefetch_related('members').all()
     data_list = sorted(([str(r), r.members_to_string] for r in rooms),
-                       key=lambda e: e[0])
+                       key=lambda e: to_key(e[0]))
 
     return csv_response(("Room", "Users"), data_list, filename='rooms_by_room')
 
