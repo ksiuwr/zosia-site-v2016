@@ -24,4 +24,7 @@ urlpatterns = [
     re_path(r'^conferences/export_data/$', views.export_data, name='export_data'),
     re_path(r'^conferences/export_shirts/$', views.export_shirts, name='export_shirts'),
     re_path(r'^conferences/export_json/$', views.export_json, name='export_json'),
+    re_path(r'^place/$', views.place, name='place'),
+    re_path(r'^place/add/$', views.place_add, name='place_add'),
+    re_path(r'^place/(?P<pk>\d+)/update/$', views.place_add, name='place_update'),
 ]
