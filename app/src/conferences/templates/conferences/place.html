@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <h3>{% trans "Places" %}</h3>
+
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+              <li class="tab col s6"><a href="#place">{% trans 'Places' %}</a></li>
+              <li class="tab col s6"><a href="{% url 'place_add' %}" target='_self'>{% trans 'Add' %}</a></li>
+            </ul>
+        </div>
+
+        <div id="places" class="col s12">
+            <ul class="collection">
+              {% for place in places %}
+              <li class='collection-item'>
+                  {{ place }}
+                <div class='right'>
+                  <a href="{% url 'place_update' place.id %}">
+                    <i class="material-icons">mode_edit</i>
+                  </a>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+        </div>
+
+  </div>
+{% endblock %}
