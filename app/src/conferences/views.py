@@ -312,9 +312,7 @@ def place_add(request, pk=None):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_user(request):
-    prefs = UserPreferences.objects \
-        .select_related('user') \
-        .exclude(bus__isnull=True)
+    prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True)
     data_list = sorted(([str(p.user), str(p.bus)] for p in prefs),
                        key=lambda e: last_first_name_key(e[0]))
 

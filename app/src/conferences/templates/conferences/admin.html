@@ -17,6 +17,7 @@
                 <li class="tab col"><a href="#lectures_tab">{% trans 'Lectures' %}</a></li>
                 <li class="tab col"><a href="#rooms_tab">{% trans 'Rooms' %}</a></li>
                 <li class="tab col"><a href="#zosia_tab">{% trans 'Zosia' %}</a></li>
+                <li class="tab col"><a href="#downloads_tab">{% trans 'Downloads' %}</a></li>
             </ul>
         </div>
 
@@ -59,15 +60,23 @@
         {% comment %} This is root for React app {% endcomment %}
         </div>
 
-            <div id="zosia_tab" class="col s12">
-              <ul class="collection">
+        <div id="zosia_tab" class="col s12">
+            <ul class="collection">
                 <a href="{% url 'conferences' %}" class="collection-item">{% trans "Conferences" %}</a>
                 <a href="{% url 'place' %}" class="collection-item">{% trans 'Places' %}</a>
                 <a href="{% url 'bus_admin' %}" class="collection-item">{% trans 'Bus' %}</a>
                 <a href="{% url 'organizations' %}" class="collection-item">{% trans 'Organizations' %}</a>
                 <a href="{% url 'export_data' %}" class="collection-item"> {% trans 'Export data' %}</a>
-              </ul>
-            </div>
+            </ul>
+        </div>
+
+        <div id="downloads_tab" class="col s12">
+            <ul class="collection">
+                <a href="{% url 'rooms_list_by_user' %}" class="collection-item">{% trans 'User --> Room' %}</a>
+                <a href="{% url 'rooms_list_by_room' %}" class="collection-item">{% trans 'Room --> Users' %}</a>
+                <a href="{% url 'bus_list_by_user' %}" class="collection-item">{% trans 'User --> Bus' %}</a>
+                <a href="{% url 'bus_list_by_bus' %}" class="collection-item">{% trans 'Bus --> Users' %}</a>
+            </ul>
         </div>
     </div>
 </div>

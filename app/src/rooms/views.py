@@ -61,7 +61,7 @@ def index(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_user(request):
-    prefs = UserPreferences.objects.all()
+    prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True)
     data_list = sorted(([str(p.user), str(p.room) if p.room else ''] for p in prefs),
                        key=lambda e: last_first_name_key(e[0]))
 
