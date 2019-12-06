@@ -17,12 +17,11 @@ from conferences.models import UserPreferences, Zosia
 from rooms.forms import UploadFileForm
 from rooms.models import Room
 from rooms.serializers import room_to_dict
-# Cache hard (15mins)
 from utils.functions import last_first_name_key
 from utils.views import csv_response
 
 
-@cache_page(60 * 15)
+@cache_page(60 * 15)  # Cache hard (15mins)
 @vary_on_cookie
 @login_required
 @require_http_methods(['GET'])
