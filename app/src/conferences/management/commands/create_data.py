@@ -196,11 +196,12 @@ def create_room(number):
             'available_beds_double': 1,
         }
     else:
+        bed_single = random.randint(2, 6)
         data = {
             'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
-            'beds_single': random.randint(1, 6),
-            'available_beds_single': random.randint(1, 6),
+            'beds_single': bed_single,
+            'available_beds_single': random.randint(2, bed_single),
         }
     return Room.objects.create(**data)
 
@@ -209,6 +210,13 @@ class Command(BaseCommand):
     help = 'Create custom data in database'
 
     def handle(self, *args, **kwargs):
+        if Zosia.objects.filter(active=True).count() > 0:
+            self.stdout.write('\033[1;91mThere is already active Zosia in database.'
+                              '\033[0m Do you want to create data anyway? [y/n]')
+            choice = input().lower()
+            if choice not in {'yes', 'y'}:
+                return
+
         place = create_place()
         self.stdout.write('Place for zosia has been created!')
 

@@ -26,6 +26,20 @@ class RoomMembersSerializer(serializers.ModelSerializer):
 
 class RoomLockSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
+    password = serializers.SerializerMethodField("send_password")
+
+    class Meta:
+        model = RoomLock
+        fields = ("user", "password", "expiration_date")
+
+    def send_password(self, obj):
+        request = self.context.get("request")
+
+        return obj.password if request and obj.user == request.user else None
+
+
+class RoomLockWithPasswordSerializer(serializers.ModelSerializer):
+    user = UserDataSerializer()
 
     class Meta:
         model = RoomLock
@@ -77,6 +91,10 @@ class RoomSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Available beds must exceed already joined members")
 
         return data
+
+
+class RoomWithLockPasswordSerializer(RoomSerializer):
+    lock = RoomLockWithPasswordSerializer(read_only=True)
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):

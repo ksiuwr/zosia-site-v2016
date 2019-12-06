@@ -241,9 +241,9 @@ footer.page-footer {
 
 @supports (-webkit-overflow-scrolling: touch) {
     /* CSS specific to iOS devices */
-    #index-banner {  
+    #index-banner {
         background-attachment: scroll !important;
-    } 
+    }
 }
 
 .download-btn {
@@ -278,6 +278,30 @@ footer.page-footer {
 
 .slides li div h3 {
     font-weight: 500;
+}
+
+.hidden {
+    background: repeating-linear-gradient(
+        45deg,
+        #c7d0ffa0, #c7d0ffa0 20px,
+        #919bd6a0 20px, #919bd6a0 40px
+        );
+}
+
+.locked {
+    background-color: #ffd700;
+}
+
+.full {
+    background-color: #b2b9de;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating) {
+    color: #1A2236;
+}
+
+.card .card-action a:not(.btn):not(.btn-large):not(.btn-small):not(.btn-large):not(.btn-floating):hover {
+    color: #5272c5;
 }
 
 .error-text {

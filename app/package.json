@@ -4,7 +4,7 @@
   "description": "Django 2.2 version of ZOSIA registration page",
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch --mode development"
   },
   "repository": {
     "type": "git",
