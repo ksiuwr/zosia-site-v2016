@@ -11,7 +11,8 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from conferences.forms import BusForm, PlaceForm, UserPreferencesAdminForm, UserPreferencesForm, ZosiaForm
+from conferences.forms import BusForm, PlaceForm, UserPreferencesAdminForm, UserPreferencesForm, \
+    ZosiaForm
 from conferences.models import Bus, Place, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
@@ -20,6 +21,8 @@ from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
     ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
     PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.forms import errors_format
+from utils.functions import last_first_name_key
+from utils.views import csv_response
 
 
 @staff_member_required()
@@ -188,7 +191,7 @@ def register(request, zosia_id):
         if form.is_valid():
             form.call(zosia)
             messages.success(request, _("Form saved!"))
-            return redirect(reverse('accounts_profile')+'#zosia')
+            return redirect(reverse('accounts_profile') + '#zosia')
         else:
             messages.error(request, errors_format(form))
 
@@ -304,3 +307,24 @@ def place_add(request, pk=None):
         return redirect('place')
     ctx = {'form': form, 'object': instance}
     return render(request, 'conferences/place_add.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_by_user(request):
+    prefs = UserPreferences.objects \
+        .select_related('user') \
+        .exclude(bus__isnull=True)
+    data_list = sorted(([str(p.user), str(p.bus)] for p in prefs),
+                       key=lambda e: last_first_name_key(e[0]))
+
+    return csv_response(("User", "Bus"), data_list, filename='buses_by_users')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_by_bus(request):
+    buses = Bus.objects.all()
+    data_list = sorted(([str(b), b.passengers_to_string] for b in buses), key=lambda e: e[0])
+
+    return csv_response(("Bus", "Users"), data_list, filename='buses_by_bus')

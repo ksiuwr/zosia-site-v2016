@@ -6,7 +6,7 @@ import re
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_page
@@ -17,9 +17,11 @@ from conferences.models import UserPreferences, Zosia
 from rooms.forms import UploadFileForm
 from rooms.models import Room
 from rooms.serializers import room_to_dict
-
-
 # Cache hard (15mins)
+from utils.functions import last_first_name_key
+from utils.views import csv_response
+
+
 @cache_page(60 * 15)
 @vary_on_cookie
 @login_required
@@ -57,30 +59,12 @@ def index(request):
     return render(request, 'rooms/index.html', context)
 
 
-def csv_response(header, data, filename='file'):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
-    writer = csv.writer(response)
-    writer.writerow(header)
-
-    for row in data:
-        writer.writerow(row)
-
-    return response
-
-
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_user(request):
-    def to_key(user_name):
-        user_name = user_name.lower()
-        m = re.match(r"(\w+) (\w+)", user_name)
-
-        return tuple(reversed(m.groups()))
-
     prefs = UserPreferences.objects.all()
-    data_list = sorted(([p.user.display_name, str(p.room) if p.room else ''] for p in prefs),
-                       key=lambda e: to_key(e[0]))
+    data_list = sorted(([str(p.user), str(p.room) if p.room else ''] for p in prefs),
+                       key=lambda e: last_first_name_key(e[0]))
 
     return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
 
