@@ -81,7 +81,7 @@ const me_id = () => get_me().then(({ id }) => id)
 export const me = {
     id: me_id,
     info: get_me,
-    join_room: (room) => me_id().then(id => join_room(room, id)),
+    join_room: (room, password) => me_id().then(id => join_room(room, id, password)),
     leave_room: (room) => me_id().then(id => leave_room(room, id)),
     lock_room: (room) => me_id().then(id => lock_room(room, id)),
     unlock_room: (room) => me_id().then(id => unlock_room(room, id)),
@@ -127,7 +127,7 @@ export const delete_room = (id) => delete_('/api/v1/rooms/' + id + '/')
 export const edit_room = (id, json) =>
     put('/api/v1/rooms/' + id + '/', convert_room_to_api(json))
 const get_room = (id) => get('/api/v1/rooms/' + id)
-export const join_room = (id, user) => post('/api/v1/rooms/' + id + '/join/', { user })
+export const join_room = (id, user, password) => post('/api/v1/rooms/' + id + '/join/', { user, password })
 export const leave_room = (id, user) => post('/api/v1/rooms/' + id + '/leave/', { user })
 export const users = () => get('/api/v1/users/');
 const hide_room = (id) => post('/api/v1/rooms/' + id + '/hide/', {})

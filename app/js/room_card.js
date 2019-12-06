@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { exists, roomCapacity } from "./helpers";
 import { useModal } from "./modals/modals";
 import RoomPropertiesModal from './modals/room_properties_modal';
+import EnterLockedRoomModal from "./modals/enter_locked_room_modal";
 
 
 const Members = ({beds, members}) => {
@@ -68,8 +69,17 @@ export const RoomCard = (props) => {
       closeModal,
       submit: data => room_ops.edit_room(props.id, data)
     })
+
   const lock = () => {
     room_ops.lock(props.id);
+  }
+
+  const enter = () => {
+    return isLocked() ? openModal(EnterLockedRoomModal, {
+      data: props,
+      closeModal,
+      submit: password => room_ops.join(props.id, password)
+    }) : room_ops.join(props.id);
   }
 
   const card_class = () => {
@@ -109,7 +119,7 @@ export const RoomCard = (props) => {
           </p>
         </div>
         <div className="card-action">
-          { canEnter() ? <a href="#" onClick={() => room_ops.join(props.id)}> enter </a> : '' }
+          { canEnter() ? <a href="#" onClick={enter}> enter </a> : '' }
           { canLeave() ? <a href="#" onClick={() => room_ops.leave(props.id)}> leave </a> : '' }
           { canUnlock() ? <a href="#" onClick={() => room_ops.unlock(props.id)}> unlock </a> : '' }
           { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }

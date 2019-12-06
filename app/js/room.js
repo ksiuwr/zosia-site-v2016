@@ -37,7 +37,7 @@ const RoomsView = (props) =>
   useInterval(refresh, 60 * 1000);
 
   const room_ops = {
-    join: (room_id) => me.join_room(room_id).then(refresh_and_pass_arg),
+    join: (room_id, password) => me.join_room(room_id, password).then(refresh_and_pass_arg),
     leave: (room_id) => me.leave_room(room_id).then(refresh_and_pass_arg),
     delete: (room_id) => delete_room(room_id).then(refresh_and_pass_arg),
     lock: (room_id) => me.lock_room(room_id).then(refresh_and_pass_arg),
