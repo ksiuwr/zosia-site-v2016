@@ -11,14 +11,15 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from conferences.forms import BusForm, UserPreferencesAdminForm, UserPreferencesForm, ZosiaForm
-from conferences.models import Bus, UserPreferences, Zosia
+from conferences.forms import BusForm, PlaceForm, UserPreferencesAdminForm, UserPreferencesForm, ZosiaForm
+from conferences.models import Bus, Place, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
     ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
     PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from utils.forms import errors_format
 
 
 @staff_member_required()
@@ -106,16 +107,16 @@ def user_preferences_edit(request, user_preferences_id=None):
         ctx['object'] = user_preferences
         kwargs['instance'] = user_preferences
 
-    ctx['form'] = UserPreferencesAdminForm(request.POST or None,
-                                           **kwargs)
+    form = UserPreferencesAdminForm(request.POST or None, **kwargs)
+    ctx['form'] = form
 
     if request.method == 'POST':
-        if ctx['form'].is_valid():
-            ctx['form'].save()
+        if form.is_valid():
+            form.save()
             messages.success(request, _("Form saved!"))
             return redirect(reverse('user_preferences_index'))
         else:
-            messages.error(request, _("Errors occured during validation"))
+            messages.error(request, errors_format(form))
 
     return render(request, 'conferences/user_preferences_edit.html', ctx)
 
@@ -176,22 +177,20 @@ def register(request, zosia_id):
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
 
-    form = UserPreferencesForm(request.user,
-                               request.POST or None,
-                               **form_args)
+    form = UserPreferencesForm(request.user, request.POST or None, **form_args)
+    ctx['form'] = form
 
     if user_prefs and user_prefs.payment_accepted:
         ctx['payed'] = True
         form.disable()
 
-    ctx['form'] = form
     if request.method == 'POST':
         if form.is_valid():
             form.call(zosia)
             messages.success(request, _("Form saved!"))
-            return redirect('accounts_profile')
+            return redirect(reverse('accounts_profile')+'#zosia')
         else:
-            messages.error(request, _("There are some mistakes in your registration form."))
+            messages.error(request, errors_format(form))
 
     return render(request, 'conferences/register.html', ctx)
 
@@ -240,9 +239,8 @@ def bus_add(request, pk=None):
     active_zosia = Zosia.objects.find_active()
     if pk is not None:
         instance = get_object_or_404(Bus, pk=pk)
-        form = BusForm(
-            request.POST or None, initial={'zosia': active_zosia},
-            instance=instance)
+        form = BusForm(request.POST or None, initial={'zosia': active_zosia},
+                       instance=instance)
     else:
         instance = None
         form = BusForm(request.POST or None, initial={'zosia': active_zosia})
@@ -280,3 +278,29 @@ def update_zosia(request, pk=None):
 
     ctx = {'form': form, 'zosia': zosia}
     return render(request, 'conferences/conference_add.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def place(request):
+    places = Place.objects.filter()
+    ctx = {'places': places}
+    return render(request, 'conferences/place.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET', 'POST'])
+def place_add(request, pk=None):
+    if pk is not None:
+        instance = get_object_or_404(Place, pk=pk)
+        form = PlaceForm(request.POST or None, instance=instance)
+    else:
+        instance = None
+        form = PlaceForm(request.POST or None)
+
+    if form.is_valid():
+        form.save()
+        messages.success(request, _('Place has been saved'))
+        return redirect('place')
+    ctx = {'form': form, 'object': instance}
+    return render(request, 'conferences/place_add.html', ctx)

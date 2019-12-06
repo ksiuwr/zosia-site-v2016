@@ -9,7 +9,8 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from conferences.models import UserPreferences, Zosia
 from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
-    LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer
+    LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer, \
+    RoomWithLockPasswordSerializer
 from rooms.models import Room, UserRoom
 from users.models import User
 from utils.api import ReadAuthenticatedWriteAdmin
@@ -128,7 +129,7 @@ def lock(request, version, pk):  # only locks the room
         except exceptions.ValidationError as e:
             return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
-        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+        return Response(RoomWithLockPasswordSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

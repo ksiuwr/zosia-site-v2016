@@ -8,6 +8,7 @@ from django.views.decorators.http import require_http_methods
 
 from sponsors.forms import SponsorForm
 from sponsors.models import Sponsor
+from utils.forms import errors_format
 
 
 @staff_member_required()
@@ -27,16 +28,16 @@ def update(request, sponsor_id=None):
         ctx['object'] = sponsor
         kwargs['instance'] = sponsor
 
-    ctx['form'] = SponsorForm(request.POST or None, request.FILES or None,
-                              **kwargs)
+    form = SponsorForm(request.POST or None, request.FILES or None, **kwargs)
+    ctx['form'] = form
 
     if request.method == 'POST':
-        if ctx['form'].is_valid():
-            ctx['form'].save()
+        if form.is_valid():
+            form.save()
             messages.success(request, _("Form saved!"))
             return redirect(reverse('sponsors_index'))
         else:
-            messages.error(request, _("There has been errors"))
+            messages.error(request, errors_format(form))
 
     return render(request, 'sponsors/update.html', ctx)
 
