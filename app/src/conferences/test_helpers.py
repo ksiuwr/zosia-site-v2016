@@ -54,7 +54,9 @@ USER_DATA = [
 
 
 def create_user(index, **kwargs):
-    return User.objects.create_user(*USER_DATA[index], **kwargs)
+    name = USER_DATA[index][0].split("@", 1)[0]
+
+    return User.objects.create_user(*USER_DATA[index], last_name=name, **kwargs)
 
 
 def create_organization(name, user=None):
