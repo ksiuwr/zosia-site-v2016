@@ -40,7 +40,7 @@ const MemberList = ({members, users}) => {
       {members.map(member => {
         const first_name = member.user.first_name;
         const last_name = member.user.last_name;
-        return first_name + " " + last_name;
+        return first_name + " " + last_name + "; ";
       })}
     </span>
   )
