@@ -91,17 +91,22 @@
             }
         }
 
+        if ($('select[name="bus"]').val() !== '') {
+            totalPayment += {{ zosia.price_transport }};
+        }
+
         $("#total-price").text(totalPayment);
     }
 
     for (accommId in dependencies) {
         $(accommId).change(event => {
-            enableMeals(["#" + event.currentTarget.id])
-            countPayment()
-        })
-        dependencies[accommId].forEach(mealId => $(mealId).change(event => countPayment()))
+            enableMeals(["#" + event.currentTarget.id]);
+            countPayment();
+        });
+        dependencies[accommId].forEach(mealId => $(mealId).change(event => countPayment()));
     }
 
+    $('select[name="bus"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
     if(!payed) {
