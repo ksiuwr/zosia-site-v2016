@@ -3,14 +3,15 @@ from django.core import exceptions
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.decorators import action, api_view
+from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from conferences.models import UserPreferences, Zosia
 from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
-    LockMethodAdminSerializer, LockMethodSerializer, RoomSerializer, \
+    LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer, \
     RoomWithLockPasswordSerializer
-from rooms.models import Room
+from rooms.models import Room, UserRoom
 from users.models import User
 from utils.api import ReadAuthenticatedWriteAdmin
 from utils.constants import RoomingStatus
@@ -145,3 +146,9 @@ def unlock(request, version, pk):
         return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
     return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+
+
+class RoomMembersViewSet(ReadOnlyModelViewSet):
+    queryset = UserRoom.objects.all()
+    serializer_class = RoomMembersSerializer
+    permission_classes = [IsAdminUser]

@@ -15,6 +15,15 @@ class UserInRoomSerializer(serializers.ModelSerializer):
         fields = ("user", "joined_at")
 
 
+class RoomMembersSerializer(serializers.ModelSerializer):
+    room_name = serializers.CharField(source="room.name")
+    user = UserDataSerializer()
+
+    class Meta:
+        model = UserRoom
+        fields = ("room_name", "user")
+
+
 class RoomLockSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
     password = serializers.SerializerMethodField("send_password")
