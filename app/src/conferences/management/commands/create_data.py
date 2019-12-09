@@ -164,6 +164,9 @@ def create_random_user_with_preferences(zosia, id):
     dinner_day_3 = random_bool() if accommodation_day_3 else False
     breakfast_day_4 = random_bool() if accommodation_day_3 else False
 
+    phone_number = f'+48 {random.randint(100,999)} {random.randint(100,999)} {random.randint(100,999)}'
+    bus = random.choice(Bus.objects.find_with_free_places(zosia)) if random_bool() else None
+
     payment_acc = random_bool()
     bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
 
@@ -181,6 +184,8 @@ def create_random_user_with_preferences(zosia, id):
         dinner_day_3=dinner_day_3,
         breakfast_day_4=breakfast_day_4,
 
+        bus=bus,
+        contact=phone_number,
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
         terms_accepted=True,
