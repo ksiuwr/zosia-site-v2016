@@ -42,25 +42,17 @@ class User(AbstractBaseUser, PermissionsMixin):
         ).hexdigest()[:8]
 
     @property
-    def display_name(self):
-        full_name = self.get_full_name()
-        return full_name
+    def full_name(self):
+        '''Returns the first_name plus the last_name, with a space in between.'''
+        return f'{self.first_name} {self.last_name}'
+
+    @property
+    def reversed_name(self):
+        '''Returns the last_name plus the first_name, with a space in between.'''
+        return f'{self.last_name} {self.first_name}'
 
     def __str__(self):
-        return self.display_name
-
-    def get_full_name(self):
-        '''
-        Returns the first_name plus the last_name, with a space in between.
-        '''
-        full_name = '%s %s' % (self.first_name, self.last_name)
-        return full_name.strip()
-
-    def get_short_name(self):
-        '''
-        Returns the short name for the user.
-        '''
-        return self.first_name
+        return self.full_name
 
 
 class Organization(models.Model):

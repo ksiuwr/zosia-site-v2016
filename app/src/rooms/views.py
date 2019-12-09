@@ -17,7 +17,6 @@ from conferences.models import UserPreferences, Zosia
 from rooms.forms import UploadFileForm
 from rooms.models import Room
 from rooms.serializers import room_to_dict
-from utils.functions import last_first_name_key
 from utils.views import csv_response
 
 
@@ -62,8 +61,8 @@ def index(request):
 @require_http_methods(['GET'])
 def list_by_user(request):
     prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True)
-    data_list = sorted(([str(p.user), str(p.room) if p.room else ''] for p in prefs),
-                       key=lambda e: last_first_name_key(e[0]))
+    data_list = sorted(([p.user.reversed_name, str(p.room) if p.room else ''] for p in prefs),
+                       key=lambda e: e[0])
 
     return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
 

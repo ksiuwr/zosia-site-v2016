@@ -21,7 +21,6 @@ from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
     ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
     PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.forms import errors_format
-from utils.functions import last_first_name_key
 from utils.views import csv_response
 
 
@@ -134,14 +133,14 @@ def admin_edit(request):
         status = user_preferences.toggle_payment_accepted()
         user_preferences.save()
         return JsonResponse({'msg': _("Changed payment status of {} to {}").format(
-            escape(user_preferences.user.get_full_name()),
+            escape(user_preferences.user.full_name),
             status),
             'status': status})
     if command == ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS:
         user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
         user_preferences.save()
         return JsonResponse({'msg': _("Changed bonus of {} to {}").format(
-            escape(user_preferences.user.get_full_name()),
+            escape(user_preferences.user.full_name),
             user_preferences.bonus_minutes),
             'bonus': user_preferences.bonus_minutes})
 
@@ -313,8 +312,7 @@ def place_add(request, pk=None):
 @require_http_methods(['GET'])
 def list_by_user(request):
     prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True)
-    data_list = sorted(([str(p.user), str(p.bus)] for p in prefs),
-                       key=lambda e: last_first_name_key(e[0]))
+    data_list = sorted(([p.user.reversed_name, str(p.bus)] for p in prefs), key=lambda e: e[0])
 
     return csv_response(("User", "Bus"), data_list, filename='buses_by_users')
 
