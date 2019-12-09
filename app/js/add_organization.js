@@ -70,19 +70,24 @@ const initAddOrgModal = (onAdd) => {
   return add_org_modal;
 }
 
+const addOrgToSelect = (id, name) => {
+	const new_org_option = document.createElement("option");
+	new_org_option.value = id;
+	new_org_option.innerText = name;
+
+	const org_select = document.getElementsByName('organization')[0];
+	org_select.append(new_org_option);
+	org_select.value = id;
+
+	const elems = document.querySelectorAll('select');
+	M.FormSelect.init(elems, {});
+}
+
 const addOrg = (name) => {
   return add_organization(name)
     .then(json => {
-      const org_select = document.getElementsByName('organization')[0];
-      const new_org_option = document.createElement("option");
       const org_name = json.name + " (" + json.user.first_name + " " + json.user.last_name + ")";
-      new_org_option.innerText = org_name;
-      new_org_option.value = json.id;
-      org_select.append(new_org_option);
-      const m_org_select = M.FormSelect.getInstance(org_select);
-      const elems = document.querySelectorAll('select');
-      const instances = M.FormSelect.init(elems, {});
-      progress_type.className = "";
+			addOrgToSelect(json.id, org_name);
       return Promise.resolve();
     }, ({json, status}) => {
         json.name.forEach(appendError);
@@ -97,8 +102,6 @@ const allowAddingOrgs = () => {
 
   const org_input = getOrganizationInput();
   org_input.append(add_org_link);
-
-  const add_org_accept = document.getElementById("add_org_accept");
 }
 
 $(document).ready(function() {
