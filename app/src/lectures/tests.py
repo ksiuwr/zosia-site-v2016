@@ -6,6 +6,7 @@ from django.shortcuts import reverse
 from django.test import TestCase
 
 from conferences.models import Place, Zosia
+from conferences.test_helpers import create_user
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
 from utils.constants import LectureInternals
@@ -34,8 +35,7 @@ class LectureTestCase(TestCase):
             price_accommodation_breakfast=0,
             price_whole_day=0
         )
-        self.user = User.objects.create_user('john@thebeatles.com', 'johnpassword',
-                                             first_name='John', last_name='Lennon')
+        self.user = create_user(0)
 
 
 class ModelTestCase(LectureTestCase):
@@ -268,7 +268,7 @@ class ModelTestCase(LectureTestCase):
             author=self.user
         )
 
-        self.assertEqual(str(lecture), "John Lennon - foo")
+        self.assertEqual(str(lecture), "john lennon - foo")
 
     def test_toggle_accepted(self):
         lecture = Lecture.objects.create(
@@ -333,8 +333,7 @@ class FormTestCase(LectureTestCase):
 class ViewsTestCase(LectureTestCase):
     def setUp(self):
         super().setUp()
-        self.superuser = User.objects.create_user('paul@thebeatles.com',
-                                                  'paulpassword')
+        self.superuser = create_user(1, is_staff=True)
 
     def test_index_get(self):
         response = self.client.get(reverse('lectures_index'), follow=True)
@@ -349,13 +348,13 @@ class ViewsTestCase(LectureTestCase):
         self.assertRedirects(response, '/admin/login/?next=/lectures/all')
 
     def test_display_all_normal(self):
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.client.login(email=self.user.email, password=self.user.password)
         response = self.client.get(reverse('lectures_all_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/lectures/all')
 
     def test_display_all_staff(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        self.client.login(email=self.superuser.email, password=self.superuser.password)
         response = self.client.get(reverse('lectures_all_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('lectures/all.html')
