@@ -72,10 +72,8 @@ def list_by_user(request):
 def list_by_room(request):
     def to_key(room_name):
         room_name = room_name.lower()
-        m = re.match(r"(\D?)(\d*)(.*)", room_name[::-1])
-        g = [x[::-1] for x in reversed(m.groups())]
-
-        return (g[0], int(g[1]), g[2]) if g[1] != '' else (room_name, 0, '')
+        groups = re.split(r"(\d+)", room_name)
+        return tuple(int(g) if re.match(r"\d+", g) else g for g in groups)
 
     rooms = Room.objects.prefetch_related('members').all()
     data_list = sorted(([str(r), r.members_to_string] for r in rooms),

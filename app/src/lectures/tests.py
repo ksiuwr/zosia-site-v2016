@@ -35,7 +35,7 @@ class LectureTestCase(TestCase):
             price_whole_day=0
         )
         self.user = User.objects.create_user('john@thebeatles.com', 'johnpassword',
-                                             first_name='John')
+                                             first_name='John', last_name='Lennon')
 
 
 class ModelTestCase(LectureTestCase):
@@ -268,7 +268,7 @@ class ModelTestCase(LectureTestCase):
             author=self.user
         )
 
-        self.assertEqual(str(lecture), "John - foo")
+        self.assertEqual(str(lecture), "John Lennon - foo")
 
     def test_toggle_accepted(self):
         lecture = Lecture.objects.create(

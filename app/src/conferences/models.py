@@ -9,8 +9,8 @@ from django.http import Http404
 from django.utils.translation import ugettext as _
 
 from users.models import Organization, User
-from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, RoomingStatus, \
-    SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from utils.constants import DELIMITER, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, \
+    RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.time_manager import format_in_zone, now, timedelta_since
 
 
@@ -210,7 +210,9 @@ class Bus(models.Model):
 
     @property
     def passengers_to_string(self):
-        return ", ".join(sorted(map(lambda p: p.user.reversed_name, self.passengers.all())))
+        return DELIMITER.join(map(lambda p: str(p.user),
+                                  sorted(self.passengers.all(),
+                                         key=lambda p: p.user.reversed_name)))
 
 
 class UserPreferencesManager(models.Manager):
