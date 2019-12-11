@@ -28,7 +28,7 @@ class UserViewSet(ReadOnlyModelViewSet):
 
 
 class OrganizationAPIView(ListCreateAPIView):
-    queryset = Organization.objects.all()
+    queryset = Organization.objects.order_by("-accepted", "name")
     serializer_class = OrganizationSerializer
     permission_classes = [IsAuthenticated]
 
