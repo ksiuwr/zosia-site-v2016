@@ -4,7 +4,7 @@
 {% load materializecss %}
 
 {% block content %}
-<!-- Modal Structure -->
+<!-- Start: Modal Structure -->
 <div id="add_org" class="modal">
   <div class="modal-content">
     <h4>Add organization</h4>
@@ -13,11 +13,11 @@
     </div>
     <div class="row">
       <div class="input-field col s12">
-        <textarea id="org_name" class="materialize-textarea" name="contact" cols="40" rows="10"></textarea>
+        <input id="org_name" type="text"></input>
         <label class="" for="org_name">
           Organization name
         </label>
-        <span id="name_error">
+        <span id="name_error" class="error-text">
 
         </span>
       </div>
@@ -28,6 +28,7 @@
     <a id="close_org_accept" href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
   </div>
 </div>
+<!-- End: Modal Structure -->
 <div class="container">
     <h3>
         {% if object %}
