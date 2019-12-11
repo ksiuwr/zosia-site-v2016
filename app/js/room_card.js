@@ -40,7 +40,7 @@ const MemberList = ({members, users}) => {
       {members.map(member => {
         const first_name = member.user.first_name;
         const last_name = member.user.last_name;
-        return first_name + " " + last_name;
+        return first_name + " " + last_name + "; ";
       })}
     </span>
   )
@@ -109,12 +109,13 @@ export const RoomCard = (props) => {
               members={props.members}
             />
             </span>
-            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + props.lock.expiration_date : ""}</pre>
+            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + props.lock.expiration_date : " "}</pre>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
           <p>
             Members: {props.members.length == 0 ? "-" : <MemberList users={props.users} members={props.members}/> } <br/>
+            Beds: {props.available_beds.single} single, {props.available_beds.double} double <br/>
             Description: {props.description}
           </p>
         </div>
@@ -125,8 +126,7 @@ export const RoomCard = (props) => {
           { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }
           { canDelete() ? <a href="#" onClick={() => room_ops.delete(props.id) }> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={openEditModal}> edit </a> : ""}
-          <a></a>{ // this empty a tag is needed to fix visual problem when room is full
-          }
+          <a></a>{ /* this empty a tag is needed to fix visual problem when room is full */ }
           <a href="javascript:void(0)" className="activator right" style={{"marginRight": 0}}> more </a>
         </div>
       </div>
