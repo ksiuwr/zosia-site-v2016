@@ -60,9 +60,9 @@ def index(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_user(request):
-    prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True)
-    data_list = sorted(([p.user.reversed_name, str(p.room) if p.room else ''] for p in prefs),
-                       key=lambda e: e[0])
+    prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True) \
+        .order_by("user__last_name", "user__first_name")
+    data_list = [(str(p.user), str(p.room) if p.room else '') for p in prefs]
 
     return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
 
@@ -70,14 +70,13 @@ def list_by_user(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_room(request):
-    def to_key(room_name):
-        room_name = room_name.lower()
+    def to_key(room):
+        room_name = room.name.lower()
         groups = re.split(r"(\d+)", room_name)
         return tuple(int(g) if re.match(r"\d+", g) else g for g in groups)
 
     rooms = Room.objects.prefetch_related('members').all()
-    data_list = sorted(([str(r), r.members_to_string] for r in rooms),
-                       key=lambda e: to_key(e[0]))
+    data_list = [(str(r), r.members_to_string) for r in sorted(rooms, key=to_key)]
 
     return csv_response(("Room", "Users"), data_list, filename='rooms_by_room')
 

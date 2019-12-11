@@ -211,8 +211,7 @@ class Bus(models.Model):
     @property
     def passengers_to_string(self):
         return DELIMITER.join(map(lambda p: str(p.user),
-                                  sorted(self.passengers.all(),
-                                         key=lambda p: p.user.reversed_name)))
+                                  self.passengers.order_by("user__last_name", "user__first_name")))
 
 
 class UserPreferencesManager(models.Manager):

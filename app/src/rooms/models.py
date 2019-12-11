@@ -97,7 +97,7 @@ class Room(models.Model):
 
     @property
     def members_to_string(self):
-        return DELIMITER.join(map(str, sorted(self.members.all(), key=lambda m: m.reversed_name)))
+        return DELIMITER.join(map(str, self.members.order_by("last_name", "first_name")))
 
     def __str__(self):
         return "Room " + self.name

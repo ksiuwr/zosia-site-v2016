@@ -311,8 +311,9 @@ def place_add(request, pk=None):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_user(request):
-    prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True)
-    data_list = sorted(([p.user.reversed_name, str(p.bus)] for p in prefs), key=lambda e: e[0])
+    prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True) \
+        .order_by("user__last_name", "user__first_name")
+    data_list = [(str(p.user), str(p.bus)) for p in prefs]
 
     return csv_response(("User", "Bus"), data_list, filename='buses_by_users')
 
@@ -320,7 +321,7 @@ def list_by_user(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_by_bus(request):
-    buses = Bus.objects.all()
-    data_list = sorted(([str(b), b.passengers_to_string] for b in buses), key=lambda e: e[0])
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string) for b in buses]
 
     return csv_response(("Bus", "Users"), data_list, filename='buses_by_bus')
