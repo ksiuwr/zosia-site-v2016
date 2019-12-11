@@ -10,7 +10,7 @@ from users.models import User
 
 
 class UserViewSet(ReadOnlyModelViewSet):
-    queryset = User.objects.all()
+    queryset = User.objects.order_by("last_name", "first_name")
     serializer_class = UserSerializer
 
     def get_permissions(self):
