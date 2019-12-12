@@ -2,6 +2,8 @@ from datetime import timedelta
 
 from django.utils.translation import ugettext_lazy as _
 
+DELIMITER = ", "
+
 # Shirts
 SHIRT_SIZE_CHOICES = [
     ("S", "S"),
