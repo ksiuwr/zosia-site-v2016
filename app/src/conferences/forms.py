@@ -4,7 +4,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, Place, UserPreferences, Zosia
-from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
 from utils.constants import PAYMENT_GROUPS
 
@@ -28,22 +27,7 @@ class UserPreferencesWithBusForm(forms.ModelForm):
         self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
 
 
-class UserPreferencesWithOrgForm(UserPreferencesWithBusForm):
-    class Meta:
-        widgets = {'organization': OrgSelectWithAjaxAdd}
-
-    def org_queryset(self, user):
-        org_queryset = Organization.objects.filter(accepted=True)
-        org_queryset = org_queryset | Organization.objects.filter(user=user)
-        return org_queryset
-
-    def __init__(self, user, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        org_form = self.fields['organization']
-        org_form.queryset = self.org_queryset(user)
-
-
-class UserPreferencesForm(UserPreferencesWithOrgForm):
+class UserPreferencesForm(UserPreferencesWithBusForm):
     use_required_attribute = False
 
     # NOTE: In hindsight, this sucks.
@@ -51,16 +35,17 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
     # and weird stuff happens when someone tries to update preferences.
     CAN_CHANGE_AFTER_PAYMENT_ACCEPTED = ['contact', 'shirt_size', 'shirt_type']
 
-    class Meta(UserPreferencesWithOrgForm.Meta):
+    class Meta:
         model = UserPreferences
         exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
 
     def __init__(self, user, *args, **kwargs):
-        super().__init__(user, *args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.user = user
-        label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
+        terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
         self.fields["terms_accepted"].required = True
-        self.fields["terms_accepted"].label = mark_safe(label)
+        self.fields["terms_accepted"].label = mark_safe(terms_label)
+        self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
 
     def call(self, zosia):
         user_preferences = self.save(commit=False)
