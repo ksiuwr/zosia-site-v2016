@@ -8,10 +8,8 @@ from django.db.models import Count, F
 from django.http import Http404
 from django.utils.translation import ugettext as _
 
-from users.models import Organization, User
-from utils.constants import DELIMITER, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, \
-    RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-from utils.time_manager import format_in_zone, now, timedelta_since
+from utils.constants import DELIMITER, RoomingStatus
+from utils.time_manager import format_in_zone, now
 
 
 class Place(models.Model):
@@ -206,159 +204,9 @@ class Bus(models.Model):
 
     @property
     def passengers_count(self):
-        return UserPreferences.objects.filter(bus=self).count()
+        return self.passengers.count()
 
     @property
     def passengers_to_string(self):
         return DELIMITER.join(map(lambda p: str(p.user),
                                   self.passengers.order_by("user__last_name", "user__first_name")))
-
-
-class UserPreferencesManager(models.Manager):
-    def for_zosia(self, zosia, **override):
-        defaults = {
-            'zosia': zosia
-        }
-        defaults.update(**override)
-        return self.filter(**defaults)
-
-
-def validate_terms(value):
-    if not value:
-        raise ValidationError(_("Terms and conditions must be accepted"))
-
-
-# UserPreferences is placed in `conferences` app because of cyclic dependencies
-# between models Bus and UserPreferences
-class UserPreferences(models.Model):
-    class Meta:
-        verbose_name_plural = 'Users preferences'
-
-    objects = UserPreferencesManager()
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
-
-    organization = models.ForeignKey(
-        Organization,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL
-    )
-
-    # NOTE: Deleting bus will render some payment information inaccessible
-    # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
-    bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL,
-                            related_name="passengers")
-
-    # Day 1 (Coming)
-    dinner_day_1 = models.BooleanField(default=False)
-    accommodation_day_1 = models.BooleanField(default=False)
-
-    # Day 2 (Regular day)
-    breakfast_day_2 = models.BooleanField(default=False)
-    dinner_day_2 = models.BooleanField(default=False)
-    accommodation_day_2 = models.BooleanField(default=False)
-
-    # Day 3 (Regular day)
-    breakfast_day_3 = models.BooleanField(default=False)
-    dinner_day_3 = models.BooleanField(default=False)
-    accommodation_day_3 = models.BooleanField(default=False)
-
-    # Day 4 (Return)
-    breakfast_day_4 = models.BooleanField(default=False)
-
-    # Misc
-    # Mobile phone, Facebook, Google+, whatever - always handy when someone forgets to wake up.
-    contact = models.TextField(help_text=_(
-        "We need some contact to you in case you didn't show up - for example your phone number."
-    ))
-    information = models.TextField(
-        default='', blank=True,
-        help_text=_(
-            "Here is where you can give us information about yourself that may be important during your trip."
-        )
-    )
-    vegetarian = models.BooleanField(default=False)
-    # Set by admin after checking payment
-    payment_accepted = models.BooleanField(default=False)
-
-    shirt_size = models.CharField(
-        max_length=5,
-        choices=SHIRT_SIZE_CHOICES,
-        default=SHIRT_SIZE_CHOICES[0][0]
-    )
-
-    shirt_type = models.CharField(
-        max_length=1,
-        choices=SHIRT_TYPES_CHOICES,
-        default=SHIRT_TYPES_CHOICES[0][0]
-    )
-
-    # Terms and conditions are accepted
-    terms_accepted = models.BooleanField(validators=[validate_terms])
-
-    # Assigned by admin for various reasons (early registration / payment, help, etc)
-    # Should allow some users to book room earlier
-    # Typically, almost everyone has some bonus, so we don't get trampled
-    # by wave of users booking room at the same time
-    bonus_minutes = models.IntegerField(default=MIN_BONUS_MINUTES,
-                                        validators=[MinValueValidator(MIN_BONUS_MINUTES),
-                                                    MaxValueValidator(MAX_BONUS_MINUTES)])
-
-    def _pays_for(self, option_name):
-        return getattr(self, option_name)
-
-    def _price_for(self, chosen):
-        if not chosen["accommodation"] and not chosen["dinner"] and not chosen["breakfast"]:
-            return 0
-
-        if chosen["dinner"] and chosen["breakfast"]:
-            return self.zosia.price_whole_day
-
-        if chosen["dinner"] and not chosen["breakfast"]:
-            return self.zosia.price_accommodation_dinner
-
-        if not chosen["dinner"] and chosen["breakfast"]:
-            return self.zosia.price_accommodation_breakfast
-
-        return self.zosia.price_accommodation
-
-    @property
-    def price(self):
-        payment = self.zosia.price_base
-
-        if self.bus is not None:
-            payment += self.zosia.price_transport
-
-        for accommodation, meals in PAYMENT_GROUPS.items():
-            chosen = {
-                # [:-6] removes day index, so we know which option has been chosen
-                accommodation[:-6]: self._pays_for(accommodation),
-                **{m[:-6]: self._pays_for(m) for m in meals}
-            }
-            payment += self._price_for(chosen)
-
-        return payment
-
-    def __str__(self):
-        return str(self.user) + " preferences"
-
-    def toggle_payment_accepted(self):
-        self.payment_accepted = not self.payment_accepted
-        return self.payment_accepted
-
-    @property
-    def room(self):
-        return self.user.room_of_user.all().first()
-
-    @property
-    def transfer_title(self):
-        return f"ZOSIA - {self.user.first_name} {self.user.last_name} - {self.user.hash}"
-
-    @property
-    def rooming_start_time(self):
-        if not self.payment_accepted:
-            return None
-
-        return timedelta_since(self.zosia.rooming_start, minutes=-self.bonus_minutes)

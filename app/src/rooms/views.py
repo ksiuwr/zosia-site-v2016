@@ -13,10 +13,11 @@ from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.vary import vary_on_cookie
 
-from conferences.models import UserPreferences, Zosia
+from conferences.models import Zosia
 from rooms.forms import UploadFileForm
 from rooms.models import Room
 from rooms.serializers import room_to_dict
+from users.models import UserPreferences
 from utils.views import csv_response
 
 
