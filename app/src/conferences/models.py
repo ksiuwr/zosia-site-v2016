@@ -9,8 +9,8 @@ from django.http import Http404
 from django.utils.translation import ugettext as _
 
 from users.models import Organization, User
-from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, RoomingStatus, \
-    SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from utils.constants import DELIMITER, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, \
+    RoomingStatus, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.time_manager import format_in_zone, now, timedelta_since
 
 
@@ -182,8 +182,8 @@ class BusManager(models.Manager):
     def find_with_free_places(self, zosia):
         return self \
             .filter(zosia=zosia) \
-            .annotate(seats_taken=Count('userpreferences')) \
-            .filter(capacity__gt=F('seats_taken'))
+            .annotate(passengers_num=Count('passengers')) \
+            .filter(capacity__gt=F('passengers_num'))
 
 
 class Bus(models.Model):
@@ -193,24 +193,25 @@ class Bus(models.Model):
     objects = BusManager()
 
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
-    capacity = models.IntegerField(
-        validators=[MinValueValidator(1),
-                    MaxValueValidator(100)]
-    )
+    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
     departure_time = models.DateTimeField()
     name = models.TextField(default="Bus")
 
     def __str__(self):
-        return '{} {}'.format(self.name,
-                              format_in_zone(self.departure_time, "Europe/Warsaw", "(%H:%M %Z)"))
+        return f'{self.name} {format_in_zone(self.departure_time, "Europe/Warsaw", "(%H:%M %Z)")}'
 
     @property
     def free_seats(self):
-        return self.capacity - self.taken
+        return self.capacity - self.passengers_count
 
     @property
-    def taken(self):
+    def passengers_count(self):
         return UserPreferences.objects.filter(bus=self).count()
+
+    @property
+    def passengers_to_string(self):
+        return DELIMITER.join(map(lambda p: str(p.user),
+                                  self.passengers.order_by("user__last_name", "user__first_name")))
 
 
 class UserPreferencesManager(models.Manager):
@@ -247,7 +248,8 @@ class UserPreferences(models.Model):
 
     # NOTE: Deleting bus will render some payment information inaccessible
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
-    bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL)
+    bus = models.ForeignKey(Bus, null=True, blank=True, on_delete=models.SET_NULL,
+                            related_name="passengers")
 
     # Day 1 (Coming)
     dinner_day_1 = models.BooleanField(default=False)

@@ -12,7 +12,7 @@ def room_to_dict(room):
 
 
 def user_to_dict(user):
-    name = user.display_name
+    name = user.full_name
     dic = {'name': name}
 
     return dic

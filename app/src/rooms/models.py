@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
-from utils.constants import ROOM_LOCK_TIMEOUT
+from utils.constants import DELIMITER, ROOM_LOCK_TIMEOUT
 from utils.time_manager import now, timedelta_since_now
 
 
@@ -97,7 +97,7 @@ class Room(models.Model):
 
     @property
     def members_to_string(self):
-        return ", ".join(map(str, self.members.all()))
+        return DELIMITER.join(map(str, self.members.order_by("last_name", "first_name")))
 
     def __str__(self):
         return "Room " + self.name

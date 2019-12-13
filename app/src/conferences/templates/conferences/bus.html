@@ -19,7 +19,7 @@
               <li class='collection-item'>
                   <div class='chip'>
                     <i class="fa fa-bus" aria-hidden="true"></i>
-                    {{ bus.taken }} / {{ bus.capacity }}
+                    {{ bus.passengers_count }} / {{ bus.capacity }}
                   </div>
                   {{ bus }}
                 <div class='right'>
@@ -34,6 +34,6 @@
               {% endfor %}
             </ul>
         </div>
-
+    </div>
   </div>
 {% endblock %}

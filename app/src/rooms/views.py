@@ -1,13 +1,13 @@
 import csv
 from io import TextIOWrapper
 import json
+import re
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
-from django.template import loader
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import require_http_methods
@@ -16,11 +16,11 @@ from django.views.decorators.vary import vary_on_cookie
 from conferences.models import UserPreferences, Zosia
 from rooms.forms import UploadFileForm
 from rooms.models import Room
-from rooms.serializers import room_to_dict, user_to_dict
+from rooms.serializers import room_to_dict
+from utils.views import csv_response
 
 
-# Cache hard (15mins)
-@cache_page(60 * 15)
+@cache_page(60 * 15)  # Cache hard (15mins)
 @vary_on_cookie
 @login_required
 @require_http_methods(['GET'])
@@ -57,66 +57,28 @@ def index(request):
     return render(request, 'rooms/index.html', context)
 
 
-# GET
-@vary_on_cookie
-@login_required
+@staff_member_required
 @require_http_methods(['GET'])
-def status(request):
-    # Ajax
-    # Return JSON view of rooms
-    zosia = get_object_or_404(Zosia, active=True)
-    user_prefs = get_object_or_404(UserPreferences, zosia=zosia, user=request.user)
-    can_start_rooming = zosia.can_user_choose_room(user_prefs)
-    rooms = Room.objects.all_visible().select_related('lock').prefetch_related('members').all()
-    rooms_view = []
+def list_by_user(request):
+    prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True) \
+        .order_by("user__last_name", "user__first_name")
+    data_list = [(str(p.user), str(p.room) if p.room else '') for p in prefs]
 
-    for room in rooms:
-        dic = room_to_dict(room)
-        dic['is_owned_by'] = room.is_locked and room.lock.is_owned_by(
-            request.user) and room.lock.password
-        dic['people'] = list(map(user_to_dict, room.members.all()))
-        dic['inside'] = request.user.pk in map(lambda x: x.pk, room.members.all())
-        rooms_view.append(dic)
-
-    view = {
-        'can_start_rooming': can_start_rooming,
-        'rooms': rooms_view,
-    }
-    return JsonResponse(view)
-
-
-# https://docs.djangoproject.com/en/1.11/howto/outputting-csv/
-# NOTE: Might not be the best approach - consider using csv module instead
-def csv_response(data, template, filename='file'):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}.csv"'.format(filename)
-    t = loader.get_template(template)
-    c = {'data': data}
-    response.write(t.render(c))
-    return response
+    return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def report(request):
-    zosia = get_object_or_404(Zosia, active=True)
-    rooms = Room.objects.all_visible().prefetch_related('members').all()
-    rooms = sorted(rooms, key=lambda x: str(x))
-    users = UserPreferences.objects.for_zosia(zosia).prefetch_related('user').all()
-    users = sorted(users, key=lambda x: str(x))
-    ctx = {
-        'zosia': zosia,
-        'rooms': rooms,
-        'user_preferences': users
-    }
+def list_by_room(request):
+    def to_key(room):
+        room_name = room.name.lower()
+        groups = re.split(r"(\d+)", room_name)
+        return tuple(int(g) if re.match(r"\d+", g) else g for g in groups)
 
-    download = request.GET.get('download', False)
-    if download == 'users':
-        return csv_response(users, template='rooms/users.txt', filename='users')
-    if download == 'rooms':
-        return csv_response(rooms, template='rooms/rooms.txt', filename='rooms')
+    rooms = Room.objects.prefetch_related('members').all()
+    data_list = [(str(r), r.members_to_string) for r in sorted(rooms, key=to_key)]
 
-    return render(request, 'rooms/report.html', ctx)
+    return csv_response(("Room", "Users"), data_list, filename='rooms_by_room')
 
 
 def handle_uploaded_file(csvfile):

@@ -1,3 +1,5 @@
+import re
+
 from conferences.models import Bus, Place, UserPreferences, Zosia
 from users.models import Organization, User
 from utils.time_manager import now, timedelta_since_now
@@ -54,9 +56,11 @@ USER_DATA = [
 
 
 def create_user(index, **kwargs):
-    name = USER_DATA[index][0].split("@", 1)[0]
+    first_name = re.split(r"password", USER_DATA[index][1], 1)[0]
+    last_name = USER_DATA[index][0].split("@", 1)[0]
 
-    return User.objects.create_user(*USER_DATA[index], last_name=name, **kwargs)
+    return User.objects.create_user(email=USER_DATA[index][0], password=USER_DATA[index][1],
+                                    first_name=first_name, last_name=last_name, **kwargs)
 
 
 def create_organization(name, user=None):
