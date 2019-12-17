@@ -1,127 +1,279 @@
-from datetime import datetime, timedelta
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from django.db.utils import IntegrityError
 from django.forms import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
-from lectures.models import Lecture
-from lectures.forms import LectureForm, LectureAdminForm
-from conferences.models import Zosia, Place
 
+from conferences.models import Place, Zosia
+from lectures.forms import LectureAdminForm, LectureForm
+from lectures.models import Lecture
+from utils.constants import LectureInternals
+from utils.time_manager import now, timedelta_since_now
 
 User = get_user_model()
 
 
 class LectureTestCase(TestCase):
     def setUp(self):
-        now = datetime.now()
+        time = now()
         place = Place.objects.create(name="Mieszko", address="foo")
         self.zosia = Zosia.objects.create(
-            start_date=datetime.today() + timedelta(days=1),
-            active=True, place=place, price_accomodation=23, registration_end=now,
-            registration_start=now, rooming_start=now, rooming_end=now, price_transport=0,
-            lecture_registration_start=now, lecture_registration_end=now,
-            price_accomodation_dinner=0, price_accomodation_breakfast=0,
-            price_whole_day=0)
-        self.user = User.objects.create_user('john@thebeatles.com',
-                                             'johnpassword',
-                                             first_name='john')
+            start_date=timedelta_since_now(days=1),
+            active=True,
+            place=place,
+            price_accomodation=23,
+            registration_end=time,
+            registration_start=time,
+            rooming_start=time,
+            rooming_end=time,
+            price_transport=0,
+            lecture_registration_start=time,
+            lecture_registration_end=time,
+            price_accomodation_dinner=0,
+            price_accomodation_breakfast=0,
+            price_whole_day=0
+        )
+        self.user = User.objects.create_user('john@thebeatles.com', 'johnpassword',
+                                             first_name='John')
 
 
 class ModelTestCase(LectureTestCase):
-    def test_must_have_zosia(self):
+    def test_lecture_is_invalid_without_zosia(self):
         lecture = Lecture(
             title="foo",
             abstract="foo",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
+            duration=10,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_must_have_title(self):
+    def test_lecture_is_invalid_without_title(self):
         lecture = Lecture(
             zosia=self.zosia,
             abstract="foo",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
+            duration=10,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_must_have_abstract(self):
+    def test_lecture_is_invalid_without_abstract(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
+            duration=10,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_must_have_duration(self):
+    def test_lecture_is_invalid_without_duration(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
-            abstract="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
+            abstract="foo",
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_must_have_lecture_type(self):
+    def test_lecture_is_invalid_without_lecture_type(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
-            duration="5",
-            abstract="1",
-            person_type="0",
-            author=self.user)
+            abstract="foo",
+            duration=10,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_must_have_person_type(self):
+    def test_lecture_is_invalid_without_person_type(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
-            duration="5",
-            lecture_type="1",
-            abstract="0",
-            author=self.user)
+            abstract="foo",
+            duration=10,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            author=self.user
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_must_have_author(self):
+    def test_lecture_is_invalid_without_author(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            abstract="foo")
+            abstract="foo",
+            duration=10,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL
+        )
+
         with self.assertRaises(ValidationError):
             lecture.full_clean()
 
-    def test_create(self):
+    def test_lecture_is_invalid_for_normal_person_with_duration_more_than_60(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
+            duration=90,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
+        with self.assertRaises(ValidationError):
+            lecture.full_clean()
+
+    def test_lecture_is_valid_for_sponsor_person_with_duration_more_than_60(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=90,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_SPONSOR,
+            author=self.user
+        )
 
         count = Lecture.objects.count()
+
         try:
             lecture.full_clean()
-        except ValidationError:
-            self.fail("Full clean fail!")
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
+        lecture.save()
+        self.assertEqual(count + 1, Lecture.objects.count())
+
+    def test_lecture_is_invalid_for_guest_person_with_duration_more_than_60(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=90,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_GUEST,
+            author=self.user
+        )
+
+        with self.assertRaises(ValidationError):
+            lecture.full_clean()
+
+    def test_lecture_is_valid_for_normal_person(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=60,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
+        count = Lecture.objects.count()
+
+        try:
+            lecture.full_clean()
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
+        lecture.save()
+        self.assertEqual(count + 1, Lecture.objects.count())
+
+    def test_lecture_is_valid_for_guest_person(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=20,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_GUEST,
+            author=self.user
+        )
+
+        count = Lecture.objects.count()
+
+        try:
+            lecture.full_clean()
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
+        lecture.save()
+        self.assertEqual(count + 1, Lecture.objects.count())
+
+    def test_workshop_is_invalid_with_duration_less_than_30(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=15,
+            lecture_type=LectureInternals.TYPE_WORKSHOP,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
+
+        with self.assertRaises(ValidationError):
+            lecture.full_clean()
+
+    def test_lecture_is_valid(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=75,
+            lecture_type=LectureInternals.TYPE_WORKSHOP,
+            person_type=LectureInternals.PERSON_SPONSOR,
+            author=self.user
+        )
+
+        count = Lecture.objects.count()
+
+        try:
+            lecture.full_clean()
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
+        lecture.save()
+        self.assertEqual(count + 1, Lecture.objects.count())
+
+    def test_lecture_is_valid_with_maximal_duration(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=120,
+            lecture_type=LectureInternals.TYPE_WORKSHOP,
+            person_type=LectureInternals.PERSON_GUEST,
+            author=self.user
+        )
+
+        count = Lecture.objects.count()
+
+        try:
+            lecture.full_clean()
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
         lecture.save()
         self.assertEqual(count + 1, Lecture.objects.count())
 
@@ -130,23 +282,29 @@ class ModelTestCase(LectureTestCase):
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
-        self.assertEqual(str(lecture), "john - foo")
+            duration=15,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_NORMAL,
+            author=self.user
+        )
 
-    def test_toggle_accept(self):
+        self.assertEqual(str(lecture), "John - foo")
+
+    def test_toggle_accepted(self):
         lecture = Lecture.objects.create(
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration="5",
-            lecture_type="1",
-            person_type="0",
-            author=self.user)
+            duration=45,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            person_type=LectureInternals.PERSON_GUEST,
+            author=self.user
+        )
+
         self.assertFalse(lecture.accepted)
+
         lecture.toggle_accepted()
+
         self.assertTrue(lecture.accepted)
 
 
@@ -156,12 +314,14 @@ class FormTestCase(LectureTestCase):
         self.assertFalse(form.is_valid())
 
     def test_user_create_object(self):
-        form = LectureForm({'title': 'foo', 'abstract': 'bar',
-                            'duration': '5', 'lecture_type': '1',
-                            'person_type': '0'})
+        form = LectureForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
+                            'lecture_type': LectureInternals.TYPE_LECTURE,
+                            'person_type': LectureInternals.PERSON_NORMAL})
+
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
                 form.save()
+
         count = Lecture.objects.count()
         obj = form.save(commit=False)
         obj.zosia = self.zosia
@@ -174,12 +334,15 @@ class FormTestCase(LectureTestCase):
         self.assertFalse(form.is_valid())
 
     def test_admin_create_object(self):
-        form = LectureAdminForm({'title': 'foo', 'abstract': 'bar',
-                                'duration': '5', 'lecture_type': '1',
-                                 'person_type': '0', 'author': self.user.id})
+        form = LectureAdminForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
+                                 'lecture_type': LectureInternals.TYPE_LECTURE,
+                                 'person_type': LectureInternals.PERSON_NORMAL,
+                                 'author': self.user.id})
+
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
                 form.save()
+
         count = Lecture.objects.count()
         obj = form.save(commit=False)
         obj.zosia = self.zosia

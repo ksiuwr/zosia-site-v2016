@@ -1,33 +1,30 @@
-import os
-from datetime import datetime, time, timedelta
+from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
 
+from conferences.forms import UserPreferencesAdminForm, UserPreferencesForm
+from conferences.models import Bus, UserPreferences, Zosia
+from conferences.test_helpers import (PRICE_BASE, PRICE_BONUS, PRICE_DINNER, create_bus,
+                                      create_user, create_user_preferences, create_zosia, )
 from users.models import Organization
-
-from conferences.forms import UserPreferencesForm, UserPreferencesAdminForm
-from conferences.models import Bus, Place, UserPreferences, Zosia
-from conferences.test_helpers import (
-    PRICE_ACCOMODATION, PRICE_BASE, PRICE_BONUS,
-    PRICE_BREAKFAST, PRICE_DINNER, PRICE_TRANSPORT,
-    new_bus, new_user, new_zosia, user_preferences)
+from utils.time_manager import now, time_point
 
 User = get_user_model()
 
 
 class ZosiaTestCase(TestCase):
     def setUp(self):
-        new_zosia()
-        self.active = new_zosia(active=True)
-        new_zosia()
+        create_zosia()
+        self.active = create_zosia(active=True)
+        create_zosia()
 
     def test_only_one_active_Zosia_can_exist(self):
         """Creating another active Zosia throws an error"""
         with self.assertRaises(ValidationError):
-            new_zosia(active=True, commit=False).full_clean()
+            create_zosia(active=True, commit=False).full_clean()
 
     def test_find_active(self):
         """Zosia.find_active returns active Zosia"""
@@ -35,37 +32,52 @@ class ZosiaTestCase(TestCase):
 
     def test_end_date(self):
         """Zosia has 4 days"""
-        self.assertEqual(self.active.end_date, self.active.start_date + timedelta(3))
+        self.assertEqual(self.active.end_date, self.active.start_date + timedelta(days=3))
 
-    def test_can_start_rooming(self):
-        self.active.rooming_start = datetime.now()
+    def test_can_user_choose_room_when_at_user_start_time(self):
+        self.active.rooming_start = now()
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=0, user=new_user(0), zosia=self.active)
-        self.assertTrue(self.active.can_start_rooming(user_prefs))
+        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=0,
+                                             user=create_user(0),
+                                             zosia=self.active)
 
-    def test_can_start_rooming_2(self):
-        self.active.rooming_start = datetime(2016, 12, 23)
-        self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=1, user=new_user(0), zosia=self.active)
-        self.assertFalse(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+        result = self.active.can_user_choose_room(user_prefs)
 
-    def test_can_start_rooming_3(self):
-        self.active.rooming_start = datetime(2016, 12, 23)
+        self.assertTrue(result)
+
+    def test_can_user_choose_room_when_before_user_start_time(self):
+        self.active.rooming_start = time_point(2016, 12, 23, 0, 0)
         self.active.save()
-        user_prefs = user_preferences(payment_accepted=True, bonus_minutes=3, user=new_user(0), zosia=self.active)
-        self.assertTrue(self.active.can_start_rooming(user_prefs, now=datetime(2016, 12, 22, 23, 58)))
+        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=1,
+                                             user=create_user(0),
+                                             zosia=self.active)
+
+        result = self.active.can_user_choose_room(user_prefs,
+                                                  time=time_point(2016, 12, 22, 23, 58))
+        self.assertFalse(result)
+
+    def test_can_user_choose_room_when_after_user_start_time(self):
+        self.active.rooming_start = time_point(2016, 12, 23, 0, 0)
+        self.active.save()
+        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=3,
+                                             user=create_user(0),
+                                             zosia=self.active)
+
+        result = self.active.can_user_choose_room(user_prefs,
+                                                  time=time_point(2016, 12, 22, 23, 58))
+        self.assertTrue(result)
 
 
 class BusTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.normal2 = new_user(1)
-        self.zosia = new_zosia()
+        self.normal = create_user(0)
+        self.normal2 = create_user(1)
+        self.zosia = create_zosia()
 
-        self.bus1 = new_bus(zosia=self.zosia, capacity=0)
-        self.bus2 = new_bus(zosia=self.zosia, capacity=1)
-        self.bus3 = new_bus(zosia=self.zosia, capacity=2)
+        self.bus1 = create_bus(zosia=self.zosia, capacity=0)
+        self.bus2 = create_bus(zosia=self.zosia, capacity=1)
+        self.bus3 = create_bus(zosia=self.zosia, capacity=2)
 
     def test_find_buses_with_free_places(self):
         buses = Bus.objects.find_with_free_places(self.zosia)
@@ -83,8 +95,8 @@ class BusTestCase(TestCase):
 class UserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.zosia = new_zosia()
+        self.normal = create_user(0)
+        self.zosia = create_zosia()
 
     def makeUserPrefs(self, **override):
         defaults = {
@@ -157,7 +169,7 @@ class UserPreferencesTestCase(TestCase):
 
 class UserPreferencesFormTestCase(TestCase):
     def makeUserPrefsForm(self, **override):
-        self.normal = new_user(0)
+        self.normal = create_user(0)
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
@@ -174,16 +186,12 @@ class UserPreferencesFormTestCase(TestCase):
         form = self.makeUserPrefsForm(breakfast_2=True, accomodation_2=False)
         self.assertFalse(form.is_valid())
 
-    def test_bus_choices_with_user(self):
-        # TODO
-        pass
-
 
 class RegisterViewTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.zosia = new_zosia()
+        self.normal = create_user(0)
+        self.zosia = create_zosia()
         self.url = reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk})
 
     def test_get_no_user(self):
@@ -278,9 +286,9 @@ class RegisterViewTestCase(TestCase):
 class AdminUserPreferencesTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.normal = new_user(0)
-        self.staff = new_user(1, is_staff=True)
-        self.zosia = new_zosia(active=True)
+        self.normal = create_user(0)
+        self.staff = create_user(1, is_staff=True)
+        self.zosia = create_zosia(active=True)
 
 
 class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
@@ -307,7 +315,7 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         self.assertEqual(list(context['objects']), list(UserPreferences.objects.all()))
 
     def test_index_get_staff_user_multiple_zosias(self):
-        another_zosia = new_zosia()
+        another_zosia = create_zosia()
         UserPreferences.objects.create(user=self.normal, zosia=another_zosia)
         UserPreferences.objects.create(user=self.normal, zosia=self.zosia)
         UserPreferences.objects.create(user=self.staff, zosia=self.zosia)
@@ -315,7 +323,8 @@ class UserPreferencesIndexTestCase(AdminUserPreferencesTestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
-        self.assertEqual(list(context['objects']), list(UserPreferences.objects.filter(zosia=self.zosia).all()))
+        self.assertEqual(list(context['objects']),
+                         list(UserPreferences.objects.filter(zosia=self.zosia).all()))
 
 
 class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
@@ -344,7 +353,8 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
                                      'command': 'toggle_payment_accepted'},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
+        self.assertTrue(
+            UserPreferences.objects.filter(pk=self.user_prefs.pk).first().payment_accepted)
 
     def test_post_staff_user_can_bonus(self):
         self.client.login(email="starr@thebeatles.com", password='ringopassword')
@@ -354,14 +364,17 @@ class UserPreferencesAdminEditTestCase(AdminUserPreferencesTestCase):
                                      'bonus': 20},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(UserPreferences.objects.filter(pk=self.user_prefs.pk).first().bonus_minutes, 20)
+        self.assertEqual(
+            UserPreferences.objects.filter(pk=self.user_prefs.pk).first().bonus_minutes, 20)
 
 
 class UserPreferencesEditTestCase(AdminUserPreferencesTestCase):
     def setUp(self):
         super().setUp()
-        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia, contact='foo')
-        self.url = reverse('user_preferences_edit', kwargs={'user_preferences_id': self.user_prefs.pk})
+        self.user_prefs = UserPreferences.objects.create(user=self.normal, zosia=self.zosia,
+                                                         contact='foo')
+        self.url = reverse('user_preferences_edit',
+                           kwargs={'user_preferences_id': self.user_prefs.pk})
 
     def test_get_no_user(self):
         response = self.client.get(self.url, follow=True)

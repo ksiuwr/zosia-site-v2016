@@ -23,8 +23,7 @@ from rest_framework import permissions
 
 schema_view = get_schema_view(
     openapi.Info(title="ZOSIA API", default_version='v1', description="API for ZOSIA site"),
-    public=True,
-    permission_classes=(permissions.AllowAny,)
+    public=True, permission_classes=(permissions.AllowAny,)
 )
 
 urlpatterns = \
@@ -42,6 +41,7 @@ urlpatterns = \
 
         # API URLs
         re_path(r'^api/(?P<version>(v1))/rooms/', include('rooms.api.urls')),
+        re_path(r'^api/(?P<version>(v1))/users/', include('users.api.urls')),
 
         # Swagger URLs
         re_path(r'^api/swagger/', schema_view.with_ui('swagger', cache_timeout=0),

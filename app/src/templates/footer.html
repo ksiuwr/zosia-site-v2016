@@ -1,15 +1,16 @@
 {% load static %}
 {% load i18n %}
+{% load time_utils %}
 
 <footer class="page-footer">
     <div class="container">
         <div class="row">
             <div class="col l4 s6">
                 <div class="grey-text text-lighten-4">
-                    <strong>Koło Studentów Informatyki</strong><br />
+                    <strong>Koło Studentów Informatyki</strong><br/>
                     <p>
-                        {% trans 'Room 24A' %}<br />
-                        Fryderyka Joliot-Curie 15<br />
+                        {% trans 'Room 24A' %}<br/>
+                        Fryderyka Joliot-Curie 15<br/>
                         51-137 Wrocław
                     </p>
                 </div>
@@ -17,17 +18,17 @@
             <div class="col l4 s6">
                 <ul>
                     <li>
-                        <a href="{% url 'terms_and_conditions' %}" class="grey-text text-lighten-4">
+                        <a class="grey-text text-lighten-4" href="{% url 'terms_and_conditions' %}">
                             {% trans 'Terms and conditions' %}
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'privacy_policy' %}" class="grey-text text-lighten-4">
+                        <a class="grey-text text-lighten-4" href="{% url 'privacy_policy' %}">
                             {% trans 'Privacy policy' %}
                         </a>
                     </li>
                     <li>
-                        <a href="{% url 'questions_index' %}" class="grey-text text-lighten-4">
+                        <a class="grey-text text-lighten-4" href="{% url 'questions_index' %}">
                             {% trans 'Q&A' %}
                         </a>
                     </li>
@@ -36,18 +37,25 @@
                             <i class="fa fa-facebook white-text"></i>
                         </a>
                         <a href="https://github.com/ksiuwr" target="_blank">
-                            <i class="fa fa-github white-text" aria-hidden="true"></i>
+                            <i aria-hidden="true" class="fa fa-github white-text"></i>
                         </a>
                     </li>
                 </ul>
+            </div>
+            <div class="col l4 s6">
+                <p>
+                    <i>{% trans 'Server time' %}</i><br />
+                    {% server_time %}
+                </p>
             </div>
         </div>
     </div>
     <div class="footer-copyright">
         <div class="container">
             © 2019 Copyright Koło Studentów Informatyki
-            <a href="mailto:ksi@cs.uni.wroc.pl" target="_blank" class="white-text right">
-                <i class="fa fa-envelope-o white-text"></i> ksi@cs.uni.wroc.pl
+            <a class="white-text right" href="mailto:ksi@cs.uni.wroc.pl" target="_blank">
+                <i class="fa fa-envelope-o white-text"></i>
+                ksi@cs.uni.wroc.pl
             </a>
         </div>
     </div>

@@ -1,14 +1,14 @@
-from datetime import timedelta
 import random
 import string
 
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
+from utils.constants import ROOM_LOCK_TIMEOUT
+from utils.time_manager import now, timedelta_since_now
 
 
 def random_string(length=10):
@@ -17,12 +17,9 @@ def random_string(length=10):
 
 
 class RoomLockManager(models.Manager):
-    # 3 hours
-    TIMEOUT = timedelta(0, 3 * 3600)
-
     def make(self, user, expiration_date=None):
-        if not expiration_date:
-            expiration_date = timezone.now() + settings.LOCK_TIMEOUT
+        if expiration_date is None:
+            expiration_date = timedelta_since_now(delta=ROOM_LOCK_TIMEOUT)
 
         return self.create(user=user, password=random_string(4), expiration_date=expiration_date)
 
@@ -37,7 +34,7 @@ class RoomLock(models.Model):
 
     @property
     def is_expired(self):
-        return self.expiration_date < timezone.now()
+        return self.expiration_date < now()
 
     def is_opened_by(self, password):
         return self.password == password
@@ -51,7 +48,7 @@ class RoomManager(models.Manager):
         return self.filter(hidden=False)
 
     def filter_visible(self, **params):
-        if "hidden" in params and params["hidden"]:
+        if params.get("hidden"):
             return None
 
         params["hidden"] = False
@@ -107,8 +104,11 @@ class Room(models.Model):
 
     @transaction.atomic
     def join(self, user, sender=None, password=None):
-        if not sender:
+        if sender is None:
             sender = user
+
+        if not sender.is_staff and sender != user:
+            raise ValidationError(_("Only staff can add other users to rooms."), code="invalid")
 
         if self.hidden and not sender.is_staff:
             raise ValidationError(_("Cannot join %(room)s, room is unavailable."),
@@ -130,14 +130,21 @@ class Room(models.Model):
         # Remove user from previous room
         prev_room = user.room_of_user.all().first()
 
-        if prev_room:
+        if prev_room is not None:
             prev_room.leave(user)
 
         self.members.add(user)
         self.save()
 
     @transaction.atomic
-    def leave(self, user):
+    def leave(self, user, sender=None):
+        if not sender:
+            sender = user
+
+        if not sender.is_staff and sender != user:
+            raise ValidationError(_("Only staff can remove other users from rooms."),
+                                  code="invalid")
+
         try:
             self.unlock(user)
         except ValidationError:
@@ -148,13 +155,13 @@ class Room(models.Model):
 
     @transaction.atomic
     def set_lock(self, owner, sender=None, expiration_date=None):
-        if not sender:
+        if sender is None:
             sender = owner
 
-        if expiration_date and timezone.is_naive(expiration_date):
-            expiration_date = timezone.make_aware(expiration_date)
+        if not sender.is_staff and sender != owner:
+            raise ValidationError(_("Only staff can lock rooms for other users."), code="invalid")
 
-        if not self.members.filter(pk__exact=owner.pk):
+        if not self.members.filter(pk__exact=owner.pk).exists():
             raise ValidationError(_("Cannot lock %(room)s, user must first join the room."),
                                   code="invalid",
                                   params={"room": self})

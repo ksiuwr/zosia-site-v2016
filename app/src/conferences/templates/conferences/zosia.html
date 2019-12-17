@@ -1,6 +1,8 @@
 {% load i18n %}
+{% load time_utils %}
+
 {% if zosia %}
-<div id="active-zosia" class="bg-light-green grey-text text-lighten-2">
+<div class="bg-light-green grey-text text-lighten-2" id="active-zosia">
     <div class="container">
         <div class="row">
             <div class="col l12 m12 s12 center-align">
@@ -12,45 +14,46 @@
         <div class="row center-items-horizontal">
             <div class="col l4 m6 s12 offset-l3">
                 <div class="text-block">
-                  <!-- FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http -->
-                  <a href="{{ zosia.place.url }}" target="_blank">
-                      <strong>{{ zosia.place.name }}</strong>
-                  </a>
-                  <br>
+                    <!-- FIXME: Make sure this url is absolute. Django WILL try to make it relative if it doesn't start with http -->
+                    <a href="{{ zosia.place.url }}" target="_blank">
+                        <strong>{{ zosia.place.name }}</strong>
+                    </a>
+                    <br />
                     {% trans "Address" %}:
                     <br />
                     {{ zosia.place.address }}
-                  <br>
+                    <br />
                 </div>
             </div>
             <div class="col l4 m6 s12">
                 <div class="dates">
-                    <span>{% trans "Registration" %}:</span>
+                    <i>{% trans "Registration" %}:</i>
                     <br />
-                    <span>{{ zosia.registration_start }} - {{ zosia.registration_end }}</span>
-                </div>
-
-                <div class="dates">
-                    <span>{% trans "Rooms enrollment" %}:</span>
+                    <span>{% trans "Start" %}: {{ zosia.registration_start | zoneformat:"Europe/Warsaw" }}</span>
                     <br />
-                    <span>{{ zosia.rooming_start }} - {{ zosia.rooming_end }}</span>
+                    <span>{% trans "End" %}: {{ zosia.registration_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
                 <div class="dates">
-                    <span>{% trans "Call for papers" %}:</span>
+                    <i>{% trans "Call for papers" %}:</i>
                     <br />
-                    <span>{{ zosia.lecture_registration_start }} - {{ zosia.lecture_registration_end }}</span>
+                    <span>{% trans "Start" %}: {{ zosia.lecture_registration_start | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>{% trans "End" %}: {{ zosia.lecture_registration_end | zoneformat:"Europe/Warsaw" }}</span>
+                </div>
+                <div class="dates">
+                    <i>{% trans "Rooms enrollment" %}:</i>
+                    <br />
+                    <span>{% trans "Start" %}: {{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }}</span>
+                    <br />
+                    <span>{% trans "End" %}:{{ zosia.rooming_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 <div style="height: 15%">
-    <iframe
-        class="full-width full-height"
-        frameborder="0" style="border:0"
-        src={{ gapi_place_src }}
-        allowfullscreen>
+    <iframe allowfullscreen class="full-width full-height" frameborder="0" src={{gapi_place_src}}
+            style="border:0">
     </iframe>
 </div>
 {% endif %}

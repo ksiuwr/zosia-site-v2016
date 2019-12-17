@@ -1,23 +1,22 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
-from .widgets import OrgSelectWithAjaxAdd
-from .models import UserPreferences, Zosia, Bus
+from conferences.models import Bus, UserPreferences, Zosia
+from conferences.widgets import OrgSelectWithAjaxAdd
 from users.models import Organization
 
 
-class DateWidget(forms.TextInput):
-    def __init__(self, attrs=None):
-        if attrs is None:
-            attrs = {}
-        attrs.update({'class': 'datepicker'})
-        super(DateWidget, self).__init__(attrs)
+class SplitDateTimePickerField(forms.SplitDateTimeField):
+    def __init__(self, *args, **kwargs):
+        kwargs["widget"] = forms.SplitDateTimeWidget(date_attrs={"class": "datepicker"},
+                                                     time_attrs={"class": "timepicker"})
+        super().__init__(*args, **kwargs)
 
 
 class UserPreferencesWithBusForm(forms.ModelForm):
     def bus_queryset(self, instance=None):
         bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
-        if instance:
+        if instance is not None:
             bus_queryset = bus_queryset | Bus.objects.filter(userpreferences=instance)
         return bus_queryset.distinct()
 
@@ -87,10 +86,11 @@ class UserPreferencesForm(UserPreferencesWithOrgForm):
         for day in groups:
             deps = list(map(_pays_for, day[1:]))
             if any(deps) and not _pays_for(day[0]):
-                errs.append(forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
-                                                  code='invalid',
-                                                  params={'field': day[0],
-                                                          'dep': day[1:][deps.index(True)]}))
+                errs.append(
+                    forms.ValidationError(_('You need to check %(req) before you can check %(dep)'),
+                                          code='invalid',
+                                          params={'field': day[0],
+                                                  'dep': day[1:][deps.index(True)]}))
 
         if len(errs) > 0:
             raise forms.ValidationError(errs)
@@ -132,20 +132,25 @@ class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
         exclude = []
+        field_classes = {
+            "departure_time": SplitDateTimePickerField
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
 
 class ZosiaForm(forms.ModelForm):
     class Meta:
         model = Zosia
         exclude = []
-        widgets = {
-            'start_date': DateWidget,
-            'registration_start': DateWidget,
-            'registration_end': DateWidget,
-            'rooming_start': DateWidget,
-            'rooming_end': DateWidget,
-            'lecture_registration_start': DateWidget,
-            'lecture_registration_end': DateWidget,
+        field_classes = {
+            "registration_start": SplitDateTimePickerField,
+            "registration_end": SplitDateTimePickerField,
+            "rooming_start": SplitDateTimePickerField,
+            "rooming_end": SplitDateTimePickerField,
+            "lecture_registration_start": SplitDateTimePickerField,
+            "lecture_registration_end": SplitDateTimePickerField
         }
 
     def __init__(self, *args, **kwargs):

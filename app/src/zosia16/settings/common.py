@@ -9,15 +9,17 @@ https://docs.djangoproject.com/en/1.10/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
-from datetime import timedelta
 import os
 import random
 import string
 
+from django.conf.global_settings import DATETIME_INPUT_FORMATS
 import raven
 
 # Google API key
 GAPI_KEY = os.environ.get('GAPI_KEY')
+
+GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -52,7 +54,7 @@ DEFAULT_FROM_EMAIL = "admin@" + ANYMAIL["MAILGUN_SENDER_DOMAIN"]
 # integrated in any place anyway, so if you feel like it it would be
 # really cool if you added the support
 sentry_dsn = os.environ.get('SENTRY_DSN')
-if sentry_dsn:
+if sentry_dsn is not None:
     RAVEN_CONFIG = {
         'dsn': sentry_dsn,
         # If you are using git, you can also automatically configure the
@@ -83,14 +85,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'drf_yasg',
     'raven.contrib.django.raven_compat',
-    'rooms.apps.RoomsConfig',
     'blog.apps.BlogConfig',
     'boardgames.apps.BoardgameConfig',
     'conferences.apps.ConferencesConfig',
-    'users.apps.UsersConfig',
-    'sponsors.apps.SponsorsConfig',
     'lectures.apps.LecturesConfig',
     'questions.apps.QuestionsConfig',
+    'sponsors.apps.SponsorsConfig',
+    'rooms.apps.RoomsConfig',
+    'users.apps.UsersConfig',
+    'utils.apps.UtilsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -181,14 +184,15 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATE_FORMAT = 'd.n.o'
+DATE_FORMAT = 'Y-m-d'
+
+TIME_FORMAT = 'H:i'
+
+# ISO 8601 datetime format to accept html5 datetime input values
+DATETIME_INPUT_FORMATS += ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
-
-# Code constants
-
-LOCK_TIMEOUT = timedelta(0, 3 * 3600)

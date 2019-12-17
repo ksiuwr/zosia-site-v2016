@@ -1,26 +1,25 @@
+import csv
 from urllib.parse import urlencode
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.http import Http404, JsonResponse, HttpResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from sponsors.models import Sponsor
+from conferences.forms import BusForm, UserPreferencesAdminForm, UserPreferencesForm, ZosiaForm
+from conferences.models import Bus, UserPreferences, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
-
-from .constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
-                        ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
-                        BONUS_STEP, GAPI_PLACE_BASE_URL, MAX_BONUS, MIN_BONUS,
-                        SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES)
-from .forms import (UserPreferencesAdminForm, UserPreferencesForm, BusForm,
-                    ZosiaForm)
-from .models import UserPreferences, Zosia, Bus
-import csv
+from sponsors.models import Sponsor
+from utils.constants import (ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
+                             ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
+                             MAX_BONUS_MINUTES, MIN_BONUS_MINUTES,
+                             SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, )
 
 
 @staff_member_required()
@@ -37,8 +36,7 @@ def export_json(request):
                 'shirt_size', 'shirt_type')
 
     rooms = Room.objects \
-        .filter(zosia=zosia) \
-        .values('users__first_name', 'users__last_name', 'name')
+        .values('members__first_name', 'members__last_name', 'name')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
@@ -69,7 +67,8 @@ def export_shirts(request):
                 .filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0]) \
                 .count()
             pay_count = UserPreferences.objects. \
-                filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0], payment_accepted=True) \
+                filter(zosia=zosia, shirt_size=shirt_size[0], shirt_type=shirt_type[0],
+                       payment_accepted=True) \
                 .count()
             writer.writerow([shirt_size[1], shirt_type[1], reg_count, pay_count])
 
@@ -93,9 +92,8 @@ def user_preferences_index(request):
     ctx = {'objects': user_preferences,
            'change_bonus': ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
            'toggle_payment': ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
-           'min_bonus': MIN_BONUS,
-           'max_bonus': MAX_BONUS,
-           'bonus_step': BONUS_STEP}
+           'min_bonus': MIN_BONUS_MINUTES,
+           'max_bonus': MAX_BONUS_MINUTES}
     return render(request, 'conferences/user_preferences_index.html', ctx)
 
 
@@ -104,7 +102,7 @@ def user_preferences_index(request):
 def user_preferences_edit(request, user_preferences_id=None):
     ctx = {}
     kwargs = {}
-    if user_preferences_id:
+    if user_preferences_id is not None:
         user_preferences = get_object_or_404(UserPreferences, pk=user_preferences_id)
         ctx['object'] = user_preferences
         kwargs['instance'] = user_preferences
@@ -133,16 +131,16 @@ def admin_edit(request):
         status = user_preferences.toggle_payment_accepted()
         user_preferences.save()
         return JsonResponse({'msg': _("Changed payment status of {} to {}").format(
-            user_preferences.user.get_full_name(),
+            escape(user_preferences.user.get_full_name()),
             status),
-                             'status': status})
+            'status': status})
     if command == ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS:
         user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
         user_preferences.save()
         return JsonResponse({'msg': _("Changed bonus of {} to {}").format(
-            user_preferences.user.get_full_name(),
+            escape(user_preferences.user.get_full_name()),
             user_preferences.bonus_minutes),
-                             'bonus': user_preferences.bonus_minutes})
+            'bonus': user_preferences.bonus_minutes})
 
     return Http404()
 
@@ -155,12 +153,12 @@ def index(request):
         'zosia': zosia,
         'sponsors': sponsors
     }
-    if zosia:
+    if zosia is not None:
         query = {
             'key': settings.GAPI_KEY,
             'q': zosia.place.address,
         }
-        context['gapi_place_src'] = GAPI_PLACE_BASE_URL + '?' + urlencode(query)
+        context['gapi_place_src'] = settings.GAPI_PLACE_BASE_URL + '?' + urlencode(query)
         # FIXME: Make sure this url starts with http. Django WILL try to make it relative otherwise
         context['zosia_url'] = zosia.place.url
     return render(request, 'conferences/index.html', context)
@@ -177,7 +175,7 @@ def register(request, zosia_id):
     form_args = {}
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
-    if user_prefs:
+    if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
 
@@ -203,7 +201,7 @@ def register(request, zosia_id):
 @require_http_methods(['GET'])
 def terms_and_conditions(request):
     zosia = Zosia.objects.find_active()
-    if not zosia:
+    if zosia is None:
         raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/terms_and_conditions.html', ctx)
@@ -212,7 +210,7 @@ def terms_and_conditions(request):
 @require_http_methods(['GET'])
 def privacy_policy(request):
     zosia = Zosia.objects.find_active()
-    if not zosia:
+    if zosia is None:
         raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/privacy_policy.html', ctx)
@@ -246,7 +244,7 @@ def bus_people(request, pk):
 @require_http_methods(['GET', 'POST'])
 def bus_add(request, pk=None):
     active_zosia = Zosia.objects.find_active()
-    if pk:
+    if pk is not None:
         instance = get_object_or_404(Bus, pk=pk)
         form = BusForm(
             request.POST or None, initial={'zosia': active_zosia},
@@ -274,7 +272,7 @@ def conferences(request):
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
 def update_zosia(request, pk=None):
-    if pk:
+    if pk is not None:
         zosia = get_object_or_404(Zosia, pk=pk)
         form = ZosiaForm(request.POST or None, instance=zosia)
     else:

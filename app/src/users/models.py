@@ -11,7 +11,7 @@ class UserManager(BaseUserManager):
         email = UserManager.normalize_email(email)
         user = self.model(email=email, is_active=is_active,
                           is_staff=is_staff, **extra_fields)
-        if password:
+        if password is not None:
             user.set_password(password)
         user.save()
         return user
