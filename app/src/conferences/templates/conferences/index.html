@@ -17,7 +17,7 @@
             </h1>
             <div class="row center">
               {% if zosia.is_registration_open  %}
-                <a class="waves-effect waves-light btn-large" href="{% url 'user_zosia_register' zosia.pk %}">
+                <a class="waves-effect waves-light btn-large" href="{% url 'user_zosia_register' %}">
                   {% trans "Register now" %}
                 </a>
               {% elif zosia %}

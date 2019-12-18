@@ -26,6 +26,7 @@ urlpatterns = [
             name='user_preferences_admin_edit'),
     re_path(r'^preferences/(?P<pk>\d+)/edit$', views.user_preferences_edit,
             name='user_preferences_edit'),
+    re_path(r'^register/$', views.register, name='user_zosia_register'),
     re_path(r'^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
     # ^logout/$ [name='logout']

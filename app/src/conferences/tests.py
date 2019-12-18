@@ -2,13 +2,10 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
-from django.shortcuts import reverse
 from django.test import TestCase
 
 from conferences.models import Bus, Zosia
 from conferences.test_helpers import create_bus, create_user, create_user_preferences, create_zosia
-from users.forms import UserPreferencesForm
-from users.models import Organization, UserPreferences
 from utils.time_manager import now, time_point
 
 User = get_user_model()
@@ -89,99 +86,3 @@ class BusTestCase(TestCase):
         )
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 1)
-
-
-class RegisterViewTestCase(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.normal = create_user(0)
-        self.zosia = create_zosia()
-        self.url = reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk})
-
-    def test_get_no_user(self):
-        response = self.client.get(self.url, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, '/accounts/login/?next={}'.format(self.url))
-
-    def test_get_regular_user_not_registered(self):
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        response = self.client.get(self.url, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-        context = response.context[-1]
-        self.assertEqual(context['form'].__class__, UserPreferencesForm)
-        self.assertFalse('object' in context)
-
-    def test_get_regular_user_already_registered(self):
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        org = Organization.objects.create(name='ksi', accepted=True)
-        user_prefs = create_user_preferences(zosia=self.zosia,
-                                             user=self.normal,
-                                             organization=org)
-        response = self.client.get(self.url, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-        context = response.context[-1]
-        self.assertEqual(context['form'].__class__, UserPreferencesForm)
-        self.assertEqual(context['object'], user_prefs)
-
-    def test_post_user_not_registered_empty_data(self):
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        response = self.client.post(self.url,
-                                    data={},
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
-
-    def test_post_user_not_registered_with_data(self):
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        response = self.client.post(self.url,
-                                    data={
-                                        'contact': 'fb: me',
-                                        'shirt_size': 'S',
-                                        'shirt_type': 'f',
-                                        'terms_accepted': True
-                                    },
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
-
-    def test_post_user_already_registered(self):
-        create_user_preferences(user=self.normal, zosia=self.zosia)
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        response = self.client.post(self.url,
-                                    data={
-                                        'contact': 'fb: me',
-                                        'shirt_size': 'S',
-                                        'shirt_type': 'f',
-                                        'terms_accepted': True
-                                    },
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
-
-    def test_user_cannot_change_accommodation_after_paid(self):
-        create_user_preferences(user=self.normal,
-                                zosia=self.zosia,
-                                accommodation_day_1=False,
-                                shirt_size='M',
-                                payment_accepted=True)
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        response = self.client.post(self.url,
-                                    data={
-                                        'accommodation_day_1': True,
-                                        'shirt_size': 'M',
-                                        'shirt_type': 'f',
-                                        'contact': 'fb: me',
-                                        'terms_accepted': True
-                                    },
-                                    follow=True)
-        self.assertEqual(response.status_code, 200)
-        prefs = UserPreferences.objects.filter(user=self.normal).first()
-        self.assertFalse(prefs.accommodation_day_1)
-        # Sanity check ;)
-        self.assertEqual(prefs.shirt_size, 'M')

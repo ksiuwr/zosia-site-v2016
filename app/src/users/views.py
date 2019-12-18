@@ -13,10 +13,11 @@ from django.views.decorators.http import require_http_methods
 from conferences.models import Zosia
 from users import forms
 from users.actions import ActivateUser
-from users.forms import OrganizationForm, UserPreferencesAdminForm
+from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferencesForm
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
-    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS
 from utils.forms import errors_format
 
 
@@ -225,3 +226,35 @@ def user_preferences_admin_edit(request):
         })
 
     return Http404()
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def register(request):
+    zosia = Zosia.objects.find_active_or_404()
+    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
+    form_args = {}
+
+    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
+
+    if user_prefs is not None:
+        ctx['object'] = user_prefs
+        form_args['instance'] = user_prefs
+
+    form = UserPreferencesForm(request.user, request.POST or None, **form_args)
+    ctx['form'] = form
+
+    if user_prefs and user_prefs.payment_accepted:
+        ctx['payed'] = True
+        form.disable()
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.call(zosia)
+            messages.success(request, _("Preferences saved!"))
+
+            return redirect(reverse('accounts_profile') + '#zosia')
+        else:
+            messages.error(request, errors_format(form))
+
+    return render(request, 'users/register.html', ctx)

@@ -37,7 +37,7 @@ def index(request):
         preferences = UserPreferences.objects.get(zosia=zosia, user=request.user)
     except UserPreferences.DoesNotExist:
         messages.error(request, _('Please register first'))
-        return redirect(reverse('user_zosia_register', kwargs={'zosia_id': zosia.pk}))
+        return redirect(reverse('user_zosia_register'))
 
     paid = preferences.payment_accepted
     if not paid:

@@ -4,9 +4,8 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse, JsonResponse
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
@@ -15,10 +14,8 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
-from users.forms import UserPreferencesForm
 from users.models import UserPreferences
-from utils.constants import PAYMENT_GROUPS, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-from utils.forms import errors_format
+from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.views import csv_response
 
 
@@ -99,37 +96,6 @@ def index(request):
         # FIXME: Make sure this url starts with http. Django WILL try to make it relative otherwise
         context['zosia_url'] = zosia.place.url
     return render(request, 'conferences/index.html', context)
-
-
-@login_required
-@require_http_methods(['GET', 'POST'])
-def register(request, zosia_id):
-    zosia = get_object_or_404(Zosia, pk=zosia_id)
-    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
-    form_args = {}
-
-    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
-
-    if user_prefs is not None:
-        ctx['object'] = user_prefs
-        form_args['instance'] = user_prefs
-
-    form = UserPreferencesForm(request.user, request.POST or None, **form_args)
-    ctx['form'] = form
-
-    if user_prefs and user_prefs.payment_accepted:
-        ctx['payed'] = True
-        form.disable()
-
-    if request.method == 'POST':
-        if form.is_valid():
-            form.call(zosia)
-            messages.success(request, _("Form saved!"))
-            return redirect(reverse('accounts_profile') + '#zosia')
-        else:
-            messages.error(request, errors_format(form))
-
-    return render(request, 'conferences/register.html', ctx)
 
 
 @require_http_methods(['GET'])
