@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% load string_utils %}
 
 {% block content %}
@@ -7,30 +8,24 @@
 <div id="choose_logo" class="modal">
   <div class="modal-content">
     <h4>Select file from S3 bucket</h4>
-    <div class="progress">
-      <div id="progress_type" class=""></div>
-    </div>
     <div class="row">
       <div class="input-field col s12">
-        <select>
+        <select id="select_logo">
           <option value="" disabled selected>Choose logo</option>
           {% if s3_objects is not None %}
             {% for obj in s3_objects %}
-              <option value="" data-icon="https://zosia-storage.s3.eu-central-1.amazonaws.com/{{ obj.Key }}">{{ obj.Key|basename }}</option>
+              <option value="{{ bucket_url }}{{ obj.Key }}" data-icon="{{ bucket_url }}{{ obj.Key }}">{{ obj.Key|basename }}</option>
             {% endfor %}
           {% endif %}
         </select>
         <label>
           Sponsors uploded to S3
         </label>
-        <span id="name_error" class="error-text">
-
-        </span>
       </div>
     </div>
   </div>
   <div class="modal-footer">
-    <a id="choose_logo_btn" href="#!" class="waves-effect waves-green btn-flat">Add</a>
+    <a id="choose_logo_for_sponsor" href="#!" class="waves-effect waves-green btn-flat">Add</a>
     <a id="close_form" href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
   </div>
 </div>
@@ -47,4 +42,8 @@
   </div>
 </form>
 
-{% endblock %}
+{% endblock content %}
+
+{% block custom_scripts %}
+<script type="text/javascript" src="{% static 'script/choose_from_s3.min.js' %}"></script>
+{% endblock custom_scripts %}
