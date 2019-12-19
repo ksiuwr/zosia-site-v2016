@@ -1,7 +1,6 @@
 import hashlib
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from django.core.validators import MinLengthValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -57,8 +56,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Organization(models.Model):
     name = models.CharField(
+        unique=True,
         max_length=300,
-        validators=[MinLengthValidator(1)]
+        blank=False,
+        null=False
     )
     accepted = models.BooleanField(
         default=False

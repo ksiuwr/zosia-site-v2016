@@ -241,8 +241,10 @@ class UserPreferences(models.Model):
 
     organization = models.ForeignKey(
         Organization,
-        null=True, blank=True,
-        on_delete=models.SET_NULL)
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL
+    )
 
     # NOTE: Deleting bus will render some payment information inaccessible
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)

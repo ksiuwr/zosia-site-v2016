@@ -1,8 +1,34 @@
 {% extends "base.html" %}
 {% load i18n %}
+{% load static %}
 {% load materializecss %}
 
 {% block content %}
+<!-- Start: Modal Structure -->
+<div id="add_org" class="modal">
+  <div class="modal-content">
+    <h4>Add organization</h4>
+    <div class="progress">
+      <div id="progress_type" class=""></div>
+    </div>
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="org_name" type="text"></input>
+        <label class="" for="org_name">
+          Organization name
+        </label>
+        <span id="name_error" class="error-text">
+
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a id="add_org_accept" href="#!" class="waves-effect waves-green btn-flat">Add</a>
+    <a id="close_org_accept" href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+  </div>
+</div>
+<!-- End: Modal Structure -->
 <div class="container">
     <h3>
         {% if object %}
@@ -39,6 +65,7 @@
 {% endblock content %}
 
 {% block custom_scripts %}
+<script type="text/javascript" src="{% static 'script/add_organization.min.js' %}"></script>
 <script type="text/javascript">
   $(document).ready(function() {
     $('select').formSelect();

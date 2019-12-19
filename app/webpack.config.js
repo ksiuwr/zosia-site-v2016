@@ -6,6 +6,7 @@ const config = {
   entry: {
     room: './js/room.js',
     admin: './js/admin.js',
+    add_organization: './js/add_organization.js',
   },
   output: {
     filename: '[name].min.js',
