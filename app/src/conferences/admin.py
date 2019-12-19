@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from conferences.models import Bus, Place, UserPreferences, Zosia
+from conferences.models import Bus, Place, Zosia
 
-for model in [Zosia, Bus, Place, UserPreferences]:
-    admin.site.register(model)
+admin.site.register(Zosia)
+admin.site.register(Bus)
+admin.site.register(Place)
