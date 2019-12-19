@@ -16,7 +16,7 @@
           <option value="" disabled selected>Choose logo</option>
           {% if s3_objects is not None %}
             {% for obj in s3_objects %}
-              <option value="" data-icon="https://zosia-storage.s3.eu-central-1.amazonaws.com/{{ obj.Key }}">{{ obj.Key | name_only }}</option>
+              <option value="" data-icon="https://zosia-storage.s3.eu-central-1.amazonaws.com/{{ obj.Key }}">{{ obj.Key|basename }}</option>
             {% endfor %}
           {% endif %}
         </select>

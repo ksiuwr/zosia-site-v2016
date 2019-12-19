@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
-import re
+import os
+
 from django import template
 
 register = template.Library()
 
 
 @register.filter
-def name_only(path):
-    m = re.match(r'([^/]*/)*([^\.]*).\w+$', path)
-    if m:
-        return m.group(2)
-    return path
+def basename(filepath):
+    return os.path.basename(filepath)
