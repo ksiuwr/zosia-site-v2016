@@ -1,4 +1,4 @@
-import { add_organization } from "./zosia_api";
+import { add_organization, get_organizations } from "./zosia_api";
 import { resolve } from "uri-js";
 import { rejects } from "assert";
 
@@ -70,6 +70,21 @@ const initAddOrgModal = (onAdd) => {
   return add_org_modal;
 }
 
+const selectOrg = (id) => {
+  const org_select = document.getElementsByName('organization')[0];
+  org_select.value = id;
+}
+
+const clearOrgSelect = () => {
+  const org_select = document.getElementsByName('organization')[0];
+  org_select.innerHTML = '';
+}
+
+const initSelects = () => {
+  const elems = document.querySelectorAll('select');
+  M.FormSelect.init(elems, {});
+}
+
 const addOrgToSelect = (id, name) => {
   const new_org_option = document.createElement("option");
   new_org_option.value = id;
@@ -77,19 +92,31 @@ const addOrgToSelect = (id, name) => {
 
   const org_select = document.getElementsByName('organization')[0];
   org_select.append(new_org_option);
-  org_select.value = id;
-
-  const elems = document.querySelectorAll('select');
-  M.FormSelect.init(elems, {});
 }
 
 const addOrg = (name) => {
   return add_organization(name)
-    .then(json => {
-      const org_name = json.name + " (" + json.user.first_name + " " + json.user.last_name + ")";
-      addOrgToSelect(json.id, org_name);
-      return Promise.resolve();
-    }, ({json, status}) => {
+    .then(added_org => (
+      get_organizations()
+        .then(json => {
+          clearOrgSelect();
+          json.forEach((org) => {
+            if (org.accepted)
+            {
+              addOrgToSelect(org.id, org.name)
+            }
+            else
+            {
+              const org_name = org.name + " (" + org.user.first_name + " " + org.user.last_name + ")";
+              addOrgToSelect(org.id, org_name);
+            }
+          })
+          selectOrg(added_org.id);
+          initSelects();
+        }, () => {
+          window.location.reload(false);
+        })
+    ), ({json, status}) => {
         json.name.forEach(appendError);
         return Promise.reject();
       }
