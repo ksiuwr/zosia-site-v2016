@@ -4,10 +4,11 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
-from conferences.models import Bus, Place, UserPreferences, Zosia
+from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
+from users.models import UserPreferences
 from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
@@ -164,7 +165,7 @@ def create_random_user_with_preferences(zosia, id):
     dinner_day_3 = random_bool() if accommodation_day_3 else False
     breakfast_day_4 = random_bool() if accommodation_day_3 else False
 
-    phone_number = f'+48 {random.randint(100,999)} {random.randint(100,999)} {random.randint(100,999)}'
+    phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} {random.randint(100, 999)}'
     bus = random.choice(Bus.objects.find_with_free_places(zosia)) if random_bool() else None
 
     payment_acc = random_bool()

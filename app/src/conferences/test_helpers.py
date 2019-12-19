@@ -1,7 +1,7 @@
 import re
 
-from conferences.models import Bus, Place, UserPreferences, Zosia
-from users.models import Organization, User
+from conferences.models import Bus, Place, Zosia
+from users.models import Organization, User, UserPreferences
 from utils.time_manager import now, timedelta_since_now
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
