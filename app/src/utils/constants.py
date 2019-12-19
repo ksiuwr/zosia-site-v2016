@@ -81,3 +81,6 @@ PERSON_TYPE = [
 
 # Time
 DEFAULT_TIME_FORMAT = "%d.%m.%Y %H:%M %Z"
+
+# S3 bucket name
+BUCKET_NAME = "zosia-storage"

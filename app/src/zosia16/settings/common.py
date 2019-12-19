@@ -21,6 +21,8 @@ GAPI_KEY = os.environ.get('GAPI_KEY')
 
 GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 
+ENV = os.environ.get('DJANGO_ENV', 'dev')
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):

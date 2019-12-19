@@ -10,3 +10,4 @@ pytz==2018.9
 raven==6.4.0
 uwsgi==2.0.17.1
 argon2-cffi
+boto3
