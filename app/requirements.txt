@@ -10,3 +10,4 @@ pytz==2018.9
 sentry-sdk==0.13.5
 uwsgi==2.0.17.1
 argon2-cffi
+boto3

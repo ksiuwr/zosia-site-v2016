@@ -27,7 +27,7 @@
                 <i class="material-icons">mode_edit</i>
               </a>
               <label>
-                <input type="checkbox" {% if object.accepted %}checked{% endif %}>
+                <input type="checkbox" {% if object.is_active %}checked{% endif %}>
                 <span class="lever" data-id="{{ object.id }}"></span>
               </label>
             </div>
