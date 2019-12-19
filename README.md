@@ -91,3 +91,7 @@ ERROR: Failed to program FILTER chain: iptables failed: iptables --wait -I FORWA
 ```
 
 In case of that error just restar docker daemon service with this command: `systemctl restart docker`
+
+---
+
+In case of other problems I recommend to rebuild container with `--no-cache` option (`./tools/dev.sh one_click --no-cache`).
