@@ -40,8 +40,8 @@ const MemberList = ({members, users}) => {
       {members.map(member => {
         const first_name = member.user.first_name;
         const last_name = member.user.last_name;
-        return first_name + " " + last_name + "; ";
-      })}
+        return first_name + " " + last_name;
+      }).join("; ")}
     </span>
   )
 }
@@ -75,11 +75,26 @@ export const RoomCard = (props) => {
   }
 
   const enter = () => {
-    return isLocked() ? openModal(EnterLockedRoomModal, {
-      data: props,
-      closeModal,
-      submit: password => room_ops.join(props.id, password)
-    }) : room_ops.join(props.id);
+    const response = isLocked()
+        ? openModal(EnterLockedRoomModal, {
+            data: props,
+            closeModal,
+            submit: password => room_ops.join(props.id, password)
+        })
+        : room_ops.join(props.id);
+
+    response.then(
+        room => M.toast({
+            html: "You've joined room " + room.name,
+            displayLength: 2000,
+            classes: "success"
+        }),
+        err => M.toast({
+            html: "You cannot join room " + err.body.name,
+            displayLength: 2000,
+            classes: "error"
+        })
+    );
   }
 
   const card_class = () => {

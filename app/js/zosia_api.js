@@ -25,8 +25,16 @@ const api_cache = cache();
 const get = uri => {
     return fetch(root + uri, {
         method: 'GET',
-    })
-    .then(response => response.json())
+    }).then(response => {
+        if (response.status == 200) {
+            return response.json().then(json => Promise.resolve(json));
+        }
+
+        return response.json().then(json => Promise.reject({
+            'status': response.status,
+            'body': json
+        }));
+    });
 }
 
 function getCSRFToken() {
@@ -52,19 +60,15 @@ const post = (uri, json) => {
           'Content-Type': 'application/json',
           'X-CSRFToken': getCSRFToken()
         }
-    })
-    .then(response => {
-        if (response.status != 201 && response.status != 200)
-        {
-            return response.json().then(json => Promise.reject({
-                status: response.status,
-                json
-            }))
+    }).then(response => {
+        if (response.status == 200 || response.status == 201) {
+            return response.json().then(json => Promise.resolve(json));
         }
-        else
-        {
-            return response.json();
-        }
+
+        return response.json().then(json => Promise.reject({
+            'status': response.status,
+            'body': json
+        }));
     });
 }
 
@@ -74,7 +78,16 @@ const delete_ = (uri) => {
         headers: {
             'X-CSRFToken': getCSRFToken()
         }
-    })
+    }).then(response => {
+        if (response.status == 200 || response.status == 204) {
+            return response.json().then(json => Promise.resolve(json));
+        }
+
+        return response.json().then(json => Promise.reject({
+            'status': response.status,
+            'body': json
+        }));
+    });
 }
 
 const put = (uri, json) => {
@@ -85,7 +98,16 @@ const put = (uri, json) => {
           'X-CSRFToken': getCSRFToken(),
           'Content-Type': 'application/json',
         }
-    })
+    }).then(response => {
+        if (response.status == 200) {
+            return response.json().then(json => Promise.resolve(json));
+        }
+
+        return response.json().then(json => Promise.reject({
+            'status': response.status,
+            'body': json
+        }));
+    });
 }
 
 
@@ -134,11 +156,9 @@ const convert_room_to_api = (room_) => {
     }
 }
 
-export const create_room = (json) =>
-    post('/api/v1/rooms/', convert_room_to_api(json))
+export const create_room = (json) => post('/api/v1/rooms/', convert_room_to_api(json))
 export const delete_room = (id) => delete_('/api/v1/rooms/' + id + '/')
-export const edit_room = (id, json) =>
-    put('/api/v1/rooms/' + id + '/', convert_room_to_api(json))
+export const edit_room = (id, json) => put('/api/v1/rooms/' + id + '/', convert_room_to_api(json))
 const get_room = (id) => get('/api/v1/rooms/' + id)
 export const join_room = (id, user, password) => post('/api/v1/rooms/' + id + '/join/', { user, password })
 export const leave_room = (id, user) => post('/api/v1/rooms/' + id + '/leave/', { user })
