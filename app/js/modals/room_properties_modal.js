@@ -1,31 +1,10 @@
 
 import React from 'react';
-import styled, { keyframes } from 'styled-components';
 import Modal from './materialize_modal';
 import { useForm } from '../forms/forms';
 import RoomForm from '../forms/room_form';
 import { get_users, get_users_room, join_room, leave_room } from '../zosia_api';
 import { map_of_arr, map_obj_as_obj } from '../helpers';
-
-const spinner_rotate = keyframes`
-  from {transform: rotate(0deg);}
-  to {transform: rotate(359deg);}
-`;
-
-const Spinner = styled.div`
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  height:60px;
-  width:60px;
-  margin:0px auto;
-  animation: ${spinner_rotate} .6s infinite linear;
-  border-left:6px solid rgba(0,174,239,.15);
-  border-right:6px solid rgba(0,174,239,.15);
-  border-bottom:6px solid rgba(0,174,239,.15);
-  border-top:6px solid rgba(0,174,239,.8);
-  border-radius:100%;
-`;
 
 const userTag = user => user.first_name + " " + user.last_name + " #" + user.id
 
@@ -53,7 +32,6 @@ const Autocomplete = props => {
   React.useEffect(() => {
     const elem = document.getElementById(props.name);
     M.Autocomplete.getInstance(elem).updateData(props.data);
-    console.log(props.data);
   }, [props.data]);
 
   return (
