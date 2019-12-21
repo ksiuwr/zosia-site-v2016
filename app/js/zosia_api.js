@@ -126,12 +126,12 @@ export const create_room = (json) =>
 export const delete_room = (id) => delete_('/api/v1/rooms/' + id + '/')
 export const edit_room = (id, json) =>
     put('/api/v1/rooms/' + id + '/', convert_room_to_api(json))
-const get_room = (id) => get('/api/v1/rooms/' + id)
+export const get_room = (id) => get('/api/v1/rooms/' + id)
 export const join_room = (id, user, password) => post('/api/v1/rooms/' + id + '/join/', { user, password })
 export const leave_room = (id, user) => post('/api/v1/rooms/' + id + '/leave/', { user })
-export const users = () => get('/api/v1/users/');
-const hide_room = (id) => post('/api/v1/rooms/' + id + '/hide/', {})
-const unhide_room = (id) => post('/api/v1/rooms/' + id + '/unhide/', {})
-const lock_room = (id, user) => post('/api/v1/rooms/' + id + '/lock/', { user })
-const unlock_room = (id, user) => post('/api/v1/rooms/' + id + '/unlock/', {})
+export const get_users_room = () => get('/api/v1/rooms/members')
+export const hide_room = (id) => post('/api/v1/rooms/' + id + '/hide/', {})
+export const unhide_room = (id) => post('/api/v1/rooms/' + id + '/unhide/', {})
+export const lock_room = (id, user) => post('/api/v1/rooms/' + id + '/lock/', { user })
+export const unlock_room = (id, user) => post('/api/v1/rooms/' + id + '/unlock/', {})
 
