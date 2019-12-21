@@ -65,6 +65,9 @@
                 <div class="col s12">
                   {% if current_prefs.room is not None %}
                     <span style="font-size: 1.1rem">{% trans "You have been assigned to" %} <b>{{ current_prefs.room }}</b></span>
+                    {% if current_prefs.roommate is not None %}
+                    </br><span>{% trans "Room will be occupied by: " %}{{ current_prefs.roommate }}</span>
+                    {% endif %}
                   {% else %}
                     <p>{% trans "Your rooms assignment will start at" %}: {{current_prefs.rooming_start_time | zoneformat:"Europe/Warsaw"}}</p>
                   {% endif %}
