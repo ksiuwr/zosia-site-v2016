@@ -26,7 +26,7 @@ const get = uri => {
     return fetch(root + uri, {
         method: 'GET',
     }).then(response => {
-        if (response.status == 200) {
+        if (response.ok) {
             return response.json().then(json => Promise.resolve(json));
         }
 
@@ -61,7 +61,7 @@ const post = (uri, json) => {
           'X-CSRFToken': getCSRFToken()
         }
     }).then(response => {
-        if (response.status == 200 || response.status == 201) {
+        if (response.ok) {
             return response.json().then(json => Promise.resolve(json));
         }
 
@@ -79,8 +79,8 @@ const delete_ = (uri) => {
             'X-CSRFToken': getCSRFToken()
         }
     }).then(response => {
-        if (response.status == 200 || response.status == 204) {
-            return response.json().then(json => Promise.resolve(json));
+        if (response.ok) {
+            return response.json().then(json => Promise.resolve(json), () => Promise.resolve(""));
         }
 
         return response.json().then(json => Promise.reject({
@@ -99,7 +99,7 @@ const put = (uri, json) => {
           'Content-Type': 'application/json',
         }
     }).then(response => {
-        if (response.status == 200) {
+        if (response.ok) {
             return response.json().then(json => Promise.resolve(json));
         }
 

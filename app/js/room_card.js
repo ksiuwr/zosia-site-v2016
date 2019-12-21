@@ -79,7 +79,7 @@ export const RoomCard = (props) => {
                 displayLength: 2000,
                 classes: "error"
             })
-        );
+        )
     })
 
   const lockRoom = () => {
@@ -152,8 +152,8 @@ export const RoomCard = (props) => {
 
   const deleteRoom = () => {
     room_ops.delete(props.id).then(
-        room => M.toast({
-            html: "You've deleted room " + room.name + ".<br/>You should inform its inhabitants about this.",
+        () => M.toast({
+            html: "You've deleted room " + props.name + ".<br/>You should inform its inhabitants about this.",
             displayLength: 2000,
             classes: "success"
         }),
