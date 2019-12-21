@@ -48,6 +48,10 @@ def index(request):
         messages.error(request, _('Room registration is not active yet'))
         return redirect(reverse('accounts_profile'))
 
+    if zosia.is_rooming_over:
+        messages.error(request, _('Room registration is over'))
+        return redirect(reverse('accounts_profile'))
+
     rooms = Room.objects.all_visible().prefetch_related('members').all()
     rooms = sorted(rooms, key=lambda x: x.pk)
     rooms_json = json.dumps(list(map(room_to_dict, rooms)))

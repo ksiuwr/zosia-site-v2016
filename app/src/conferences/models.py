@@ -8,7 +8,7 @@ from django.db.models import Count, F
 from django.http import Http404
 from django.utils.translation import ugettext as _
 
-from utils.constants import DELIMITER, RoomingStatus
+from utils.constants import DELIMITER, MAX_BONUS_MINUTES, RoomingStatus
 from utils.time_manager import format_in_zone, now
 
 
@@ -137,11 +137,15 @@ class Zosia(models.Model):
 
     @property
     def is_registration_open(self):
-        return self.registration_start <= now()
+        return self.registration_start <= now() <= self.registration_end
 
     @property
     def is_rooming_open(self):
-        return now() <= self.rooming_end
+        return self.rooming_start - timedelta(minutes=MAX_BONUS_MINUTES) <= now()
+
+    @property
+    def is_rooming_over(self):
+        return self.rooming_end < now()
 
     def can_user_choose_room(self, user_prefs, time=None):
         return self.get_rooming_status(user_prefs, time) == RoomingStatus.ROOMING_PROGRESS
