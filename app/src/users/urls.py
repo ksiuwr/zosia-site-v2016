@@ -15,12 +15,17 @@ urlpatterns = [
     re_path(r'^login/$',
             anonymous_required(LoginView.as_view(template_name='registration/login.html')),
             name='login'),
-    re_path(r'^ajax/organization/create', views.create_organization, name='create_organization'),
     re_path(r'^organizations/$', views.organizations, name='organizations'),
     re_path(r'^organizations/accept/$', views.toggle_organization, name='toggle_organization'),
     re_path(r'^organizations/add/$', views.update_organization, name='organization_add'),
     re_path(r'^organizations/(?P<pk>\d+)/edit/$', views.update_organization,
             name='organization_update'),
+    re_path(r'^preferences/$', views.user_preferences_index, name='user_preferences_index'),
+    re_path(r'^preferences/admin_edit/$', views.user_preferences_admin_edit,
+            name='user_preferences_admin_edit'),
+    re_path(r'^preferences/(?P<pk>\d+)/edit$', views.user_preferences_edit,
+            name='user_preferences_edit'),
+    re_path(r'^register/$', views.register, name='user_zosia_register'),
     re_path(r'^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
     # ^logout/$ [name='logout']

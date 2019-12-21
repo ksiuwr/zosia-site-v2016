@@ -165,12 +165,18 @@
             </h5>
           {% else %}
             <div class="card-content">
-              <p> No preferences set. </p>
+              <p>{% trans "You are not registered - no preferences set." %}</p>
             </div>
           {% endif %}
         </div>
         <div class="card-action">
-          <a href="{% url 'user_zosia_register' zosia.id %}">{% trans "Update preferences" %}</a>
+          <a href="{% url 'user_zosia_register' %}">
+              {% if current_prefs %}
+              {% trans "Update preferences" %}
+              {% else %}
+              {% trans "Register" %}
+              {% endif %}
+          </a>
         </div>
       </div>
     </div>

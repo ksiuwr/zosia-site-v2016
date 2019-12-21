@@ -7,12 +7,12 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from conferences.models import UserPreferences, Zosia
+from conferences.models import Zosia
 from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
     LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer, \
     RoomWithLockPasswordSerializer
 from rooms.models import Room, UserRoom
-from users.models import User
+from users.models import User, UserPreferences
 from utils.api import ReadAuthenticatedWriteAdmin
 from utils.constants import RoomingStatus
 

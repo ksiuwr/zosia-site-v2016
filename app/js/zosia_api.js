@@ -1,3 +1,4 @@
+import { resolve } from "path";
 
 const root = location.protocol + '//' + location.host;
 
@@ -52,7 +53,19 @@ const post = (uri, json) => {
           'X-CSRFToken': getCSRFToken()
         }
     })
-    .then(response => response.json());
+    .then(response => {
+        if (response.status != 201 && response.status != 200)
+        {
+            return response.json().then(json => Promise.reject({
+                status: response.status,
+                json
+            }))
+        }
+        else
+        {
+            return response.json();
+        }
+    });
 }
 
 const delete_ = (uri) => {
@@ -134,4 +147,6 @@ export const hide_room = (id) => post('/api/v1/rooms/' + id + '/hide/', {})
 export const unhide_room = (id) => post('/api/v1/rooms/' + id + '/unhide/', {})
 export const lock_room = (id, user) => post('/api/v1/rooms/' + id + '/lock/', { user })
 export const unlock_room = (id, user) => post('/api/v1/rooms/' + id + '/unlock/', {})
+export const add_organization = name => post('/api/v1/users/organizations/', {name})
+export const get_organizations = name => get('/api/v1/users/organizations/')
 
