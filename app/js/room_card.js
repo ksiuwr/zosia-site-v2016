@@ -63,18 +63,56 @@ export const RoomCard = (props) => {
   const canEdit = () => isAdmin;
 
   const [openModal, closeModal] = useModal()
+
   const openEditModal = () =>
     openModal(RoomPropertiesModal, {
       data: props,
       closeModal,
-      submit: data => room_ops.edit_room(props.id, data)
+      submit: data => room_ops.edit_room(props.id, data).then(
+            room => M.toast({
+                html: "You've edited room " + room.name,
+                displayLength: 2000,
+                classes: "success"
+            }),
+            err => M.toast({
+                html: err.body,
+                displayLength: 2000,
+                classes: "error"
+            })
+        );
     })
 
-  const lock = () => {
-    room_ops.lock(props.id);
+  const lockRoom = () => {
+    room_ops.lock(props.id).then(
+        room => M.toast({
+            html: "You've locked room " + room.name + " until " + room.lock.expiration_date,
+            displayLength: 2000,
+            classes: "success"
+        }),
+        err => M.toast({
+            html: err.body,
+            displayLength: 2000,
+            classes: "error"
+        })
+    );
   }
 
-  const enter = () => {
+  const unlockRoom = () => {
+    room_ops.unlock(props.id).then(
+        room => M.toast({
+            html: "You've unlocked room " + room.name,
+            displayLength: 2000,
+            classes: "success"
+        }),
+        err => M.toast({
+            html: err.body,
+            displayLength: 2000,
+            classes: "error"
+        })
+    );
+  }
+
+  const enterRoom = () => {
     const response = isLocked()
         ? openModal(EnterLockedRoomModal, {
             data: props,
@@ -90,7 +128,37 @@ export const RoomCard = (props) => {
             classes: "success"
         }),
         err => M.toast({
-            html: "You cannot join room " + err.body.name,
+            html: err.body,
+            displayLength: 2000,
+            classes: "error"
+        })
+    );
+  }
+
+  const leaveRoom = () => {
+    room_ops.leave(props.id).then(
+        room => M.toast({
+            html: "You've left room " + room.name + ".<br/>The room would be unlocked if you locked it.",
+            displayLength: 2000,
+            classes: "success"
+        }),
+        err => M.toast({
+            html: err.body,
+            displayLength: 2000,
+            classes: "error"
+        })
+    );
+  }
+
+  const deleteRoom = () => {
+    room_ops.delete(props.id).then(
+        room => M.toast({
+            html: "You've deleted room " + room.name + ".<br/>You should inform its inhabitants about this.",
+            displayLength: 2000,
+            classes: "success"
+        }),
+        err => M.toast({
+            html: err.body,
             displayLength: 2000,
             classes: "error"
         })
@@ -135,11 +203,11 @@ export const RoomCard = (props) => {
           </p>
         </div>
         <div className="card-action">
-          { canEnter() ? <a href="#" onClick={enter}> enter </a> : '' }
-          { canLeave() ? <a href="#" onClick={() => room_ops.leave(props.id)}> leave </a> : '' }
-          { canUnlock() ? <a href="#" onClick={() => room_ops.unlock(props.id)}> unlock </a> : '' }
-          { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }
-          { canDelete() ? <a href="#" onClick={() => room_ops.delete(props.id) }> delete </a> : ''}
+          { canEnter() ? <a href="#" onClick={enterRoom}> enter </a> : '' }
+          { canLeave() ? <a href="#" onClick={leaveRoom}> leave </a> : '' }
+          { canUnlock() ? <a href="#" onClick={unlockRoom}> unlock </a> : '' }
+          { canLock() ? <a href="#" onClick={lockRoom}> lock </a> : '' }
+          { canDelete() ? <a href="#" onClick={deleteRoom}> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={openEditModal}> edit </a> : ""}
           <a></a>{ /* this empty a tag is needed to fix visual problem when room is full */ }
           <a href="javascript:void(0)" className="activator right" style={{"marginRight": 0}}> more </a>

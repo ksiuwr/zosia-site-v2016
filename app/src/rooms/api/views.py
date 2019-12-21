@@ -71,7 +71,7 @@ def join(request, version, pk):  # only room joining
         user = User.objects.filter(pk=user_id).first()
 
         if not user:
-            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Specified user does not exist.", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             _check_rooming(user, sender)
@@ -95,7 +95,7 @@ def leave(request, version, pk):
         user = User.objects.filter(pk=user_id).first()
 
         if not user:
-            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Specified user does not exist.", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             _check_rooming(user, sender)
@@ -121,7 +121,7 @@ def lock(request, version, pk):  # only locks the room
         user = User.objects.filter(pk=user_id).first()
 
         if not user:
-            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
+            return Response("Specified user does not exist.", status=status.HTTP_400_BAD_REQUEST)
 
         try:
             _check_rooming(user, sender)
