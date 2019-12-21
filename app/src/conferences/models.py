@@ -137,7 +137,11 @@ class Zosia(models.Model):
 
     @property
     def is_registration_open(self):
-        return self.registration_start <= now() <= self.registration_end
+        return self.registration_start <= now()
+
+    @property
+    def is_registration_over(self):
+        return self.registration_end < now()
 
     @property
     def is_rooming_open(self):
