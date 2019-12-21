@@ -82,6 +82,12 @@ const MemberInput = props => {
             loading: false,
             error: room
           })
+      }, ({status, json}) => {
+          setState({
+            ...state,
+            loading: false,
+            error: json
+          })
       })
   }
 
@@ -105,8 +111,12 @@ const MemberInput = props => {
             loading: false,
             error: room,
           })
-      }, error => {
-
+      }, ({status, json}) => {
+          setState({
+            ...state,
+            loading: false,
+            error: json
+          })
       })
   }
 
@@ -151,7 +161,7 @@ const MemberInput = props => {
         </div>
         <div className="col s12">
           {state.members.map(member => (
-            <MemberChip member={member} onRemove={() => removeUser(state)(member.user.id)}/>
+            <MemberChip key={member.user.id} member={member} onRemove={() => removeUser(state)(member.user.id)}/>
           ))}
         </div>
       </div>
