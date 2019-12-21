@@ -24,6 +24,8 @@ GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 
 ENV = os.environ.get('DJANGO_ENV', 'dev')
 
+CSRF_COOKIE_HTTPONLY = True
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 def random_string(length=10):
