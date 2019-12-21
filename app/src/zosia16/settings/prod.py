@@ -50,3 +50,11 @@ DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD')
 # This, in conjunction with DEBUG=True enables 'debug' directives in templates
 # Especially room.js makes heavy use of it
 INTERNAL_IPS = ['127.0.0.1']
+
+# Django REST framework (https://www.django-rest-framework.org)
+# Disable BrowsableAPIRenderer for production
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
