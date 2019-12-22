@@ -10,8 +10,13 @@ server {
 
     add_header X-XSS-Protection "1; mode=block";
     add_header X-Content-Type-Options nosniff;
-    add_header Referrer-Policy no-referrer;
-    add_header Content-Security-Policy "default-src https: 'unsafe-inline'";
+
+    # Referrer-Policy set to 'no-referrer' will cause a CSRF failure on requests 
+    # https://docs.djangoproject.com/en/2.2/ref/csrf/
+    add_header Referrer-Policy no-referrer-when-downgrade;
+
+    # TODO: Create proper CSP
+    add_header Content-Security-Policy-Report-Only "default-src https: 'unsafe-inline'";
 
 
     location / {
