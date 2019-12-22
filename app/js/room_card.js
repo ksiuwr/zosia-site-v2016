@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { exists, roomCapacity } from "./helpers";
+import { exists, roomCapacity, formatDate } from "./helpers";
 import { useModal } from "./modals/modals";
 import RoomPropertiesModal from './modals/room_properties_modal';
 import EnterLockedRoomModal from "./modals/enter_locked_room_modal";
@@ -62,6 +62,12 @@ export const RoomCard = (props) => {
   const canDelete = () => isAdmin;
   const canEdit = () => isAdmin;
 
+  const errorToast = err => M.toast({
+      html: 'ERROR!<br/>' + ('detail' in err.body ? err.body.detail : err.body),
+      displayLength: 2000,
+      classes: "error"
+  })
+
   const [openModal, closeModal] = useModal()
 
   const openEditModal = () =>
@@ -74,26 +80,18 @@ export const RoomCard = (props) => {
                 displayLength: 2000,
                 classes: "success"
             }),
-            err => M.toast({
-                html: err.body,
-                displayLength: 2000,
-                classes: "error"
-            })
+            errorToast
         )
     })
 
   const lockRoom = () => {
     room_ops.lock(props.id).then(
         room => M.toast({
-            html: "You've locked room " + room.name + " until " + room.lock.expiration_date,
+            html: "You've locked room " + room.name + " until " + formatDate(room.lock.expiration_date),
             displayLength: 2000,
             classes: "success"
         }),
-        err => M.toast({
-            html: err.body,
-            displayLength: 2000,
-            classes: "error"
-        })
+        errorToast
     );
   }
 
@@ -104,35 +102,34 @@ export const RoomCard = (props) => {
             displayLength: 2000,
             classes: "success"
         }),
-        err => M.toast({
-            html: err.body,
-            displayLength: 2000,
-            classes: "error"
-        })
+        errorToast
     );
   }
 
   const enterRoom = () => {
-    const response = isLocked()
-        ? openModal(EnterLockedRoomModal, {
+    if (isLocked()) {
+        openModal(EnterLockedRoomModal, {
             data: props,
             closeModal,
-            submit: password => room_ops.join(props.id, password)
+            submit: password => room_ops.join(props.id, password).then(
+                room => M.toast({
+                    html: "Password is correct!<br/>You've joined room " + room.name,
+                    displayLength: 2000,
+                    classes: "success"
+                }),
+                errorToast
+            )
         })
-        : room_ops.join(props.id);
-
-    response.then(
-        room => M.toast({
-            html: "You've joined room " + room.name,
-            displayLength: 2000,
-            classes: "success"
-        }),
-        err => M.toast({
-            html: err.body,
-            displayLength: 2000,
-            classes: "error"
-        })
-    );
+    } else {
+        room_ops.join(props.id).then(
+            room => M.toast({
+                html: "You've joined room " + room.name,
+                displayLength: 2000,
+                classes: "success"
+            }),
+            errorToast
+        )
+    }
   }
 
   const leaveRoom = () => {
@@ -142,11 +139,7 @@ export const RoomCard = (props) => {
             displayLength: 2000,
             classes: "success"
         }),
-        err => M.toast({
-            html: err.body,
-            displayLength: 2000,
-            classes: "error"
-        })
+        errorToast
     );
   }
 
@@ -157,11 +150,7 @@ export const RoomCard = (props) => {
             displayLength: 2000,
             classes: "success"
         }),
-        err => M.toast({
-            html: err.body,
-            displayLength: 2000,
-            classes: "error"
-        })
+        errorToast
     );
   }
 
@@ -192,7 +181,7 @@ export const RoomCard = (props) => {
               members={props.members}
             />
             </span>
-            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + props.lock.expiration_date : " "}</pre>
+            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + formatDate(props.lock.expiration_date) : " "}</pre>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
