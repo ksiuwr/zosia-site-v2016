@@ -56,15 +56,10 @@ INTERNAL_IPS = ['127.0.0.1']
 
 # Find IP addres of EC2 instance
 EC2_PRIVATE_IP = None
-METADATA_URI = os.environ.get('ECS_CONTAINER_METADATA_URI')
 
 try:
-    resp = requests.get(METADATA_URI)
-    data = resp.json()
-
-    container_meta = data['Containers'][0]
-    EC2_PRIVATE_IP = container_meta['Networks'][0]['IPv4Addresses'][0]
-except:
+    EC2_PRIVATE_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4', timeout=0.01).text
+except requests.exceptions.RequestException:
     # silently fail as we may not be in an ECS environment
     pass
 

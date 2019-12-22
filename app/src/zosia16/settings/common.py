@@ -24,7 +24,9 @@ GAPI_PLACE_BASE_URL = "https://www.google.com/maps/embed/v1/place"
 
 ENV = os.environ.get('DJANGO_ENV', 'dev')
 
-CSRF_COOKIE_HTTPONLY = True
+# https://security.stackexchange.com/a/175540
+# In our case React apps need this token
+CSRF_COOKIE_HTTPONLY = False
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
