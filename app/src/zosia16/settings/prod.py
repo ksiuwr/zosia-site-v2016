@@ -54,8 +54,22 @@ DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD')
 # Especially room.js makes heavy use of it
 INTERNAL_IPS = ['127.0.0.1']
 
-# Add separate middleware for health checks
-MIDDLEWARE.append('utils.hc_middleware.HealthCheckMiddleware')
+# Find IP addres of EC2 instance
+EC2_PRIVATE_IP = None
+METADATA_URI = os.environ.get('ECS_CONTAINER_METADATA_URI')
+
+try:
+    resp = requests.get(METADATA_URI)
+    data = resp.json()
+
+    container_meta = data['Containers'][0]
+    EC2_PRIVATE_IP = container_meta['Networks'][0]['IPv4Addresses'][0]
+except:
+    # silently fail as we may not be in an ECS environment
+    pass
+
+if EC2_PRIVATE_IP:
+    ALLOWED_HOSTS.append(EC2_PRIVATE_IP)
 
 # Django REST framework (https://www.django-rest-framework.org)
 # Disable BrowsableAPIRenderer for production
