@@ -31,13 +31,21 @@ class RoomTestCase(TestCase):
         room_assertions.assertJoined(self.normal_1, self.room_1)
         room_assertions.assertUnlocked(self.room_1)
 
-    def test_locked_room_cannot_be_joined_without_password(self):
+    def test_user_cannot_join_locked_room_without_password(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
         with self.assertRaises(ValidationError):
             self.room_1.join(self.normal_2)
+
+    def test_staff_cannot_join_locked_room_without_password(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        with self.assertRaises(ValidationError):
+            self.room_1.join(self.staff_2)
 
     def test_locked_room_can_be_joined_with_password(self):
         self.room_1.join(self.normal_1)
@@ -74,6 +82,25 @@ class RoomTestCase(TestCase):
         self.room_1.join(self.normal_1)
         self.room_1.leave(self.normal_1)
         self.assertEqual(self.room_1.members_count, 0)
+
+    def test_user_can_leave_locked_room(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        self.room_1.leave(self.normal_1)
+        self.assertEqual(self.room_1.members_count, 0)
+        room_assertions.assertUnlocked(self.room_1)
+
+    def test_staff_can_leave_locked_room(self):
+        self.room_1.join(self.staff_2)
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        self.room_1.leave(self.staff_2)
+        self.assertEqual(self.room_1.members_count, 1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_staff_can_remove_user_from_room(self):
         self.room_1.join(self.normal_1)
@@ -202,13 +229,21 @@ class RoomTestCase(TestCase):
         self.refresh()
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
-    def test_staff_can_unlock_room(self):
+    def test_staff_can_unlock_room_by_API(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
-        self.room_1.unlock(self.staff_1)
+        self.room_1.unlock(self.staff_1, False)
         room_assertions.assertUnlocked(self.room_1)
+
+    def test_staff_cannot_unlock_room_by_leaving(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        with self.assertRaises(ValidationError):
+            self.room_1.unlock(self.staff_1, True)
 
     def test_staff_can_lock_hidden_room(self):
         self.room_3.join(self.normal_1, self.staff_1)

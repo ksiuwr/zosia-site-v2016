@@ -183,7 +183,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                 if _pays_for(m) and not _pays_for(accommodation):
                     errors.append(
                         forms.ValidationError(
-                            _("You need to check %(accomm) before you can check %(meal)"),
+                            _("You need to check %(accomm)s before you can check %(meal)s"),
                             code='invalid',
                             params={'accomm': accommodation, 'meal': m}
                         )

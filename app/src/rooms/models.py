@@ -115,9 +115,8 @@ class Room(models.Model):
                                   code="invalid",
                                   params={"room": self})
 
-        if self.is_locked and not self.lock.is_opened_by(password) \
-                and not sender.is_staff:
-            raise ValidationError(_("Cannot join %(room)s, room is locked."),
+        if self.is_locked and not self.lock.is_opened_by(password) and sender == user:
+            raise ValidationError(_("Cannot join %(room)s, incorrect password for locked room."),
                                   code="invalid",
                                   params={"room": self})
 
@@ -146,7 +145,7 @@ class Room(models.Model):
                                   code="invalid")
 
         try:
-            self.unlock(user)
+            self.unlock(user, True)
         except ValidationError:
             pass
 
@@ -181,10 +180,10 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def unlock(self, sender):
+    def unlock(self, sender, leaving=False):
         if self.is_locked:
-            if not self.lock.is_owned_by(sender) and not sender.is_staff:
-                raise ValidationError(_("Cannot unlock %(room)s, no permission to do this."),
+            if not self.lock.is_owned_by(sender) and (not sender.is_staff or leaving):
+                raise ValidationError(_("Cannot unlock %(room)s, lock belongs to other user."),
                                       code="invalid",
                                       params={"room": self})
 
