@@ -4,10 +4,14 @@ server {
     server_name zosia.org www.zosia.org;
 
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
     # X-Frame-Options is managed by DJango
     # add_header X-Frame-Options SAMEORIGIN;
+
     add_header X-XSS-Protection "1; mode=block";
     add_header X-Content-Type-Options nosniff;
+    add_header Referrer-Policy no-referrer;
+    add_header Content-Security-Policy "default-src https: 'unsafe-inline'";
 
 
     location / {
@@ -24,7 +28,7 @@ server {
     location /static/ {    
         autoindex off;    
         alias /static/; 
-        
+
         # We serve static files from nginx
         add_header X-Frame-Options SAMEORIGIN;
     }
