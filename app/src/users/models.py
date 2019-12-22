@@ -227,6 +227,12 @@ class UserPreferences(models.Model):
         return self.user.room_of_user.all().first()
 
     @property
+    def roommate(self):
+        if self.room.members_count <= 1:
+            return None
+        return self.room.members_to_string
+
+    @property
     def transfer_title(self):
         return f"ZOSIA - {self.user.first_name} {self.user.last_name} - {self.user.hash}"
 

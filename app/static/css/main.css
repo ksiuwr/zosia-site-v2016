@@ -307,3 +307,11 @@ footer.page-footer {
 .error-text {
     color: #F44336
 }
+
+.chip .remove {
+    cursor: pointer;
+    float: right;
+    font-size: 16px;
+    line-height: 32px;
+    padding-left: 8px;
+}

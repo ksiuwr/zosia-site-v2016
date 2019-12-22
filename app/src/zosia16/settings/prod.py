@@ -1,3 +1,6 @@
+import os
+import requests
+
 from .common import *
 
 DEBUG = False
@@ -50,3 +53,28 @@ DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD')
 # This, in conjunction with DEBUG=True enables 'debug' directives in templates
 # Especially room.js makes heavy use of it
 INTERNAL_IPS = ['127.0.0.1']
+
+# Find IP addres of EC2 instance
+EC2_PRIVATE_IP = None
+METADATA_URI = os.environ.get('ECS_CONTAINER_METADATA_URI')
+
+try:
+    resp = requests.get(METADATA_URI)
+    data = resp.json()
+
+    container_meta = data['Containers'][0]
+    EC2_PRIVATE_IP = container_meta['Networks'][0]['IPv4Addresses'][0]
+except:
+    # silently fail as we may not be in an ECS environment
+    pass
+
+if EC2_PRIVATE_IP:
+    ALLOWED_HOSTS.append(EC2_PRIVATE_IP)
+
+# Django REST framework (https://www.django-rest-framework.org)
+# Disable BrowsableAPIRenderer for production
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}
