@@ -24,5 +24,8 @@ server {
     location /static/ {    
         autoindex off;    
         alias /static/; 
+        
+        # We serve static files from nginx
+        add_header X-Frame-Options SAMEORIGIN;
     }
 }
