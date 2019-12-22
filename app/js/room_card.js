@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { exists, roomCapacity, formatDate } from "./helpers";
+import { exists, roomCapacity, formatDate, escapeHtml } from "./helpers";
 import { useModal } from "./modals/modals";
 import RoomPropertiesModal from './modals/room_properties_modal';
 import EnterLockedRoomModal from "./modals/enter_locked_room_modal";
@@ -62,11 +62,21 @@ export const RoomCard = (props) => {
   const canDelete = () => isAdmin;
   const canEdit = () => isAdmin;
 
-  const errorToast = err => M.toast({
-      html: 'ERROR!<br/>' + ('detail' in err.body ? err.body.detail : err.body),
-      displayLength: 2000,
-      classes: "error"
-  })
+  const errorToast = err => {
+      const message = typeof err.body === 'string' || err.body instanceof String
+          ? 'ERROR!<br/>' + escapeHtml(err.body)
+          : 'There was an internal error with your request.';
+
+      if (!message.startsWith('ERROR!')) {
+        console.log(err);
+      }
+
+      return M.toast({
+          html: message,
+          displayLength: 2000,
+          classes: "error"
+      });
+  }
 
   const [openModal, closeModal] = useModal()
 
