@@ -176,7 +176,7 @@ const RoomPropertiesModal = props => {
   const [FormInput, formValue, setValue] = useForm(RoomForm, data);
   
   return (
-    <Modal closeModal={props.closeModal}>
+    <Modal closeModal={props.closeModal} fixed_footer={true} >
       <div className="modal-content">
         <h4>{data ? "Edit" : "Add"} Room</h4>
         <div className="row">
