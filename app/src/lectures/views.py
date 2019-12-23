@@ -68,7 +68,10 @@ def lecture_add(request):
             lecture.zosia = zosia
             lecture.author = request.user
             lecture.save()
-            messages.success(request, _("Lecture has been saved"))
+            messages.success(
+                request,
+                _("Lecture has been saved, it'll be displayed after it's accepted by organizers.")
+            )
             return redirect('lectures_index')
         else:
             messages.error(request, errors_format(form))
@@ -98,7 +101,7 @@ def lecture_update(request, lecture_id=None):
             lecture = form.save(commit=False)
             lecture.zosia = zosia
             lecture.save()
-            messages.success(request, _("Lecture has been saved"))
+            messages.success(request, _("Lecture has been saved."))
             return redirect('lectures_all_staff')
         else:
             messages.error(request, errors_format(form))
