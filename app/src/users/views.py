@@ -220,10 +220,19 @@ def user_preferences_admin_edit(request):
 @require_http_methods(['GET', 'POST'])
 def register(request):
     zosia = Zosia.objects.find_active_or_404()
-    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
-    form_args = {}
+
+    if not zosia.is_registration_open:
+        messages.error(request, _('Registration for ZOSIA is not open yet'))
+        return redirect(reverse('index'))
 
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
+
+    if zosia.is_registration_over and user_prefs is None:
+        messages.error(request, _('You missed registration for ZOSIA'))
+        return redirect(reverse('index'))
+
+    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
+    form_args = {}
 
     if user_prefs is not None:
         ctx['object'] = user_prefs

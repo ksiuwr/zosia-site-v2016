@@ -24,11 +24,11 @@ def create_zosia(commit=True, **kwargs):
         'start_date': time,
         'place': place,
         'registration_start': time,
-        'registration_end': time,
+        'registration_end': timedelta_since_now(minutes=10),
         'rooming_start': timedelta_since_now(days=-1),
         'rooming_end': timedelta_since_now(days=1),
         'lecture_registration_start': time,
-        'lecture_registration_end': time,
+        'lecture_registration_end': timedelta_since_now(minutes=10),
         'price_accommodation': PRICE_ACCOMMODATION,
         'price_accommodation_breakfast': PRICE_BREAKFAST,
         'price_accommodation_dinner': PRICE_DINNER,
@@ -63,8 +63,8 @@ def create_user(index, **kwargs):
                                     first_name=first_name, last_name=last_name, **kwargs)
 
 
-def create_organization(name, user=None):
-    return Organization.objects.create(name=name, user=user)
+def create_organization(name, user=None, **kwargs):
+    return Organization.objects.create(name=name, user=user, **kwargs)
 
 
 def user_login(user):

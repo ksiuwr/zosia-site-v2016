@@ -2,9 +2,10 @@ from django.test import TestCase
 from django.urls import reverse
 
 from conferences.test_helpers import PRICE_BASE, PRICE_BREAKFAST, PRICE_DINNER, PRICE_FULL, \
-    create_user, create_user_preferences, create_zosia
+    create_organization, create_user, create_user_preferences, create_zosia
 from users.forms import UserPreferencesAdminForm, UserPreferencesForm
-from users.models import Organization, UserPreferences
+from users.models import UserPreferences
+from utils.time_manager import timedelta_since_now
 
 
 class UserPreferencesTestCase(TestCase):
@@ -310,9 +311,40 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(context['form'].__class__, UserPreferencesForm)
         self.assertFalse('object' in context)
 
+    def test_get_regular_user_before_registration(self):
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.zosia.registration_start = timedelta_since_now(hours=1)
+        self.zosia.save()
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('index'))
+
+    def test_get_regular_user_after_registration_without_prefs(self):
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.zosia.registration_end = timedelta_since_now(hours=-1)
+        self.zosia.save()
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('index'))
+
+    def test_get_regular_user_after_registration_with_prefs(self):
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.zosia.registration_end = timedelta_since_now(hours=-1)
+        self.zosia.save()
+        org = create_organization(name='ksi', accepted=True)
+        user_prefs = create_user_preferences(zosia=self.zosia,
+                                             user=self.normal,
+                                             organization=org)
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, UserPreferencesForm)
+        self.assertEqual(context['object'], user_prefs)
+
     def test_get_regular_user_already_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        org = Organization.objects.create(name='ksi', accepted=True)
+        org = create_organization(name='ksi', accepted=True)
         user_prefs = create_user_preferences(zosia=self.zosia,
                                              user=self.normal,
                                              organization=org)

@@ -66,7 +66,8 @@
                   {% if current_prefs.room is not None %}
                     <span style="font-size: 1.1rem">{% trans "You have been assigned to" %} <b>{{ current_prefs.room }}</b></span>
                     {% if current_prefs.roommate is not None %}
-                    </br><span>{% trans "Room will be occupied by: " %}{{ current_prefs.roommate }}</span>
+                    <br/>
+                    <span>{% trans "Room will be occupied by: " %}{{ current_prefs.roommate }}</span>
                     {% endif %}
                   {% else %}
                     <p>{% trans "Your rooms assignment will start at" %}: {{current_prefs.rooming_start_time | zoneformat:"Europe/Warsaw"}}</p>
@@ -168,11 +169,18 @@
             </h5>
           {% else %}
             <div class="card-content">
+              {% if not zosia.is_registration_open %}
+              <p>{% trans "Registration will open at" %} {{zosia.registration_start | zoneformat:"Europe/Warsaw"}}</p>
+              {% elif zosia.is_registration_over %}
+              <p>{% trans "Registration has ended - we hope to see you next year :)" %}</p>
+              {% else %}
               <p>{% trans "You are not registered - no preferences set." %}</p>
+              {% endif %}
             </div>
           {% endif %}
         </div>
         <div class="card-action">
+          {% if zosia.is_registration_open and not zosia.is_registration_over or zosia.is_registration_over and current_prefs %}
           <a href="{% url 'user_zosia_register' %}">
               {% if current_prefs %}
               {% trans "Update preferences" %}
@@ -180,6 +188,7 @@
               {% trans "Register" %}
               {% endif %}
           </a>
+          {% endif %}
         </div>
       </div>
     </div>

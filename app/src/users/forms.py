@@ -153,7 +153,25 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
 
     class Meta:
         model = UserPreferences
-        exclude = ['user', 'zosia', 'payment_accepted', 'bonus_minutes']
+        fields = [
+            'organization',
+            'bus',
+            'dinner_day_1',
+            'accommodation_day_1',
+            'breakfast_day_2',
+            'dinner_day_2',
+            'accommodation_day_2',
+            'breakfast_day_3',
+            'dinner_day_3',
+            'accommodation_day_3',
+            'breakfast_day_4',
+            'contact',
+            'information',
+            'vegetarian',
+            'shirt_size',
+            'shirt_type',
+            'terms_accepted'
+        ]
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
