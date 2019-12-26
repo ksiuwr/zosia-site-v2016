@@ -1,5 +1,6 @@
 import os
 import requests
+import socket
 
 from .common import *
 
@@ -59,12 +60,16 @@ EC2_PRIVATE_IP = None
 
 try:
     EC2_PRIVATE_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4', timeout=0.01).text
+    # If above line did not fail we are in ECS.
+    hostname, aliaslist, LB_IPs = socket.gethostbyname_ex('zosia-elb-839568892.eu-central-1.elb.amazonaws.com')
 except requests.exceptions.RequestException:
     # silently fail as we may not be in an ECS environment
     pass
 
 if EC2_PRIVATE_IP:
     ALLOWED_HOSTS.append(EC2_PRIVATE_IP)
+    # We need LB IPS too
+    ALLOWED_HOSTS.extend(LB_IPs)
 
 # Django REST framework (https://www.django-rest-framework.org)
 # Disable BrowsableAPIRenderer for production
