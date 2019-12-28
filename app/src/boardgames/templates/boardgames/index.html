@@ -4,6 +4,18 @@
 {% block content %}
   <div class="container">
     <h3>{% trans "Boardgames" %}</h3>
+
+    {% if paid %}
+      <div>
+        <a class="waves-effect waves-light btn" href="{% url 'boardgames_create' %}">
+          {% trans "Add boardgame" %} </a>
+        <a class="waves-effect waves-light btn" href="{% url 'boardgames_vote' %}">
+          {% trans "Vote" %} </a>
+      </div>
+    {% else %} 
+      <p>To add boardgames your payment must be accepted first</p>
+    {% endif %}
+
       <table>
         <tr>
           <th>Name</th>
@@ -16,12 +28,6 @@
           <td>{{boardgame.votes}}</td>
           <td>{{boardgame.state}}</td>
         </tr>
-        {% empty %}
-        <div class="row">
-          <div class="col l12 m12 s12">
-            {% trans "Nothing to display" %}
-          </div>
-        </div>
         {% endfor %}
       </table>
   </div>

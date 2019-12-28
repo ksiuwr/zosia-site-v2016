@@ -18,7 +18,7 @@ class Boardgame(models.Model):
     )
     
     class Meta:
-        ordering = ["votes"]
+        ordering = ["state", "-votes"]
 
     def __str__(self):
         return self.name
