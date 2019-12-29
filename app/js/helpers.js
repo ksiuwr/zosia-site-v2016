@@ -16,6 +16,28 @@ export const map_obj_as_obj = (obj, fun) => {
   return result;
 }
 
+export const formatDate = isoDate => new Date(isoDate).toLocaleString('en-GB', {
+    hour12: false,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short'
+});
+
+export const escapeHtml = input => {
+    let mapping = {
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+    };
+
+    return input.replace(/[&<>"']/g, match => mapping[match]);
+}
+
 export const roomCapacity = beds => beds.single + beds.double * 2
 
 export const roomFullness = room => room.members.length / roomCapacity(room.available_beds)

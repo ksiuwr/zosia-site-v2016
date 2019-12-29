@@ -2,7 +2,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import { exists, roomCapacity } from "./helpers";
+import { exists, roomCapacity, formatDate, escapeHtml } from "./helpers";
 import { useModal } from "./modals/modals";
 import RoomPropertiesModal from './modals/room_properties_modal';
 import EnterLockedRoomModal from "./modals/enter_locked_room_modal";
@@ -40,8 +40,8 @@ const MemberList = ({members, users}) => {
       {members.map(member => {
         const first_name = member.user.first_name;
         const last_name = member.user.last_name;
-        return first_name + " " + last_name + "; ";
-      })}
+        return first_name + " " + last_name;
+      }).join("; ")}
     </span>
   )
 }
@@ -62,24 +62,87 @@ export const RoomCard = (props) => {
   const canDelete = () => isAdmin;
   const canEdit = () => isAdmin;
 
+  const errorToast = err => {
+      const message = typeof err.body === 'string' || err.body instanceof String
+          ? 'ERROR!<br/>' + escapeHtml(err.body)
+          : 'There was an internal error with your request.';
+
+      if (!message.startsWith('ERROR!')) {
+        console.log(err);
+      }
+
+      return M.toast({
+          html: message,
+          displayLength: 3000,
+          classes: "error"
+      });
+  }
+
+  /* messageGen: room => string
+   * messageGen is a function that generates toast message for specified room
+   */
+  const successToast = messageGen => room => M.toast({
+      html: messageGen(room),
+      displayLength: 3000,
+      classes: "success"
+  });
+
   const [openModal, closeModal] = useModal()
+
   const openEditModal = () =>
     openModal(RoomPropertiesModal, {
       data: props,
       closeModal,
-      submit: data => room_ops.edit_room(props.id, data)
+      submit: data => room_ops.edit_room(props.id, data).then(
+            successToast(room => "You've edited room " + escapeHtml(room.name)),
+            errorToast
+        )
     })
 
-  const lock = () => {
-    room_ops.lock(props.id);
+  const lockRoom = () => {
+    room_ops.lock(props.id).then(
+        successToast(room => "You've locked room " + escapeHtml(room.name) + " until " + formatDate(room.lock.expiration_date) + ".<br/>Send the room password to your friends."),
+        errorToast
+    );
   }
 
-  const enter = () => {
-    return isLocked() ? openModal(EnterLockedRoomModal, {
-      data: props,
-      closeModal,
-      submit: password => room_ops.join(props.id, password)
-    }) : room_ops.join(props.id);
+  const unlockRoom = () => {
+    room_ops.unlock(props.id).then(
+        successToast(room => "You've unlocked room " + escapeHtml(room.name) + ".<br/>Now everybody can join the room."),
+        errorToast
+    );
+  }
+
+  const enterRoom = () => {
+    if (isLocked()) {
+        openModal(EnterLockedRoomModal, {
+            data: props,
+            closeModal,
+            submit: password => room_ops.join(props.id, password).then(
+                successToast(room => "Password is correct!<br/>You've joined room " + escapeHtml(room.name)),
+                errorToast
+            )
+        })
+    } else {
+        room_ops.join(props.id).then(
+            successToast(room => "You've joined room " + escapeHtml(room.name)),
+            errorToast
+        )
+    }
+  }
+
+  const leaveRoom = () => {
+    room_ops.leave(props.id).then(
+        successToast(room => "You've left room " + escapeHtml(room.name) + ".<br/>The room would be unlocked if you locked it."),
+        errorToast
+    );
+  }
+
+  const deleteRoom = () => {
+    room_ops.delete(props.id).then(
+        successToast(room => "You've deleted room " + escapeHtml(props.name) + ".<br/>You should inform its inhabitants about this."),
+        errorToast
+    );
   }
 
   const card_class = () => {
@@ -109,7 +172,7 @@ export const RoomCard = (props) => {
               members={props.members}
             />
             </span>
-            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + props.lock.expiration_date : " "}</pre>
+            <pre>{isLocked() ? (canUnlock() ? "Password: " + props.lock.password + "\n" : "") + "Locked until: " + formatDate(props.lock.expiration_date) : " "}</pre>
         </div>
         <div className="card-reveal">
           <span className="card-title grey-text text-darken-4">{props.name}<i className="material-icons right">close</i></span>
@@ -120,11 +183,11 @@ export const RoomCard = (props) => {
           </p>
         </div>
         <div className="card-action">
-          { canEnter() ? <a href="#" onClick={enter}> enter </a> : '' }
-          { canLeave() ? <a href="#" onClick={() => room_ops.leave(props.id)}> leave </a> : '' }
-          { canUnlock() ? <a href="#" onClick={() => room_ops.unlock(props.id)}> unlock </a> : '' }
-          { canLock() ? <a href="#" onClick={lock}> lock </a> : '' }
-          { canDelete() ? <a href="#" onClick={() => room_ops.delete(props.id) }> delete </a> : ''}
+          { canEnter() ? <a href="#" onClick={enterRoom}> enter </a> : '' }
+          { canLeave() ? <a href="#" onClick={leaveRoom}> leave </a> : '' }
+          { canUnlock() ? <a href="#" onClick={unlockRoom}> unlock </a> : '' }
+          { canLock() ? <a href="#" onClick={lockRoom}> lock </a> : '' }
+          { canDelete() ? <a href="#" onClick={deleteRoom}> delete </a> : ''}
           { canEdit() ? <a href="#" onClick={openEditModal}> edit </a> : ""}
           <a></a>{ /* this empty a tag is needed to fix visual problem when room is full */ }
           <a href="javascript:void(0)" className="activator right" style={{"marginRight": 0}}> more </a>
