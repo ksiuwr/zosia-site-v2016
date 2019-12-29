@@ -13,10 +13,6 @@ class LectureForm(forms.ModelForm):
             'events': forms.Textarea
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['duration'].choices = []
-
 
 class LectureAdminForm(forms.ModelForm):
     class Meta:
@@ -32,7 +28,6 @@ class LectureAdminForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['duration'].choices = []
         self.fields['accepted'].checkbox = True
 
 
