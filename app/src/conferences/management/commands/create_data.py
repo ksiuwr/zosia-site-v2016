@@ -9,7 +9,7 @@ from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
 from users.models import UserPreferences
-from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
+from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
 User = get_user_model()
@@ -32,7 +32,7 @@ def create_lecture(zosia, author):
         'events': lorem_ipsum.words(60)[:750],
         'title': lorem_ipsum.sentence()[:255],
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
-        'duration': random.choice(DURATION_CHOICES)[0],
+        'duration': random.choice(FULL_DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
         'person_type': LectureInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(20)[:255],
