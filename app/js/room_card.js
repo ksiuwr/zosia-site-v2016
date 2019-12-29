@@ -73,10 +73,19 @@ export const RoomCard = (props) => {
 
       return M.toast({
           html: message,
-          displayLength: 2000,
+          displayLength: 3000,
           classes: "error"
       });
   }
+
+  /* messageGen: room => string
+   * messageGen is a function that generates toast message for specified room
+   */
+  const successToast = messageGen => room => M.toast({
+      html: messageGen(room),
+      displayLength: 3000,
+      classes: "success"
+  });
 
   const [openModal, closeModal] = useModal()
 
@@ -85,33 +94,21 @@ export const RoomCard = (props) => {
       data: props,
       closeModal,
       submit: data => room_ops.edit_room(props.id, data).then(
-            room => M.toast({
-                html: "You've edited room " + room.name,
-                displayLength: 2000,
-                classes: "success"
-            }),
+            successToast(room => "You've edited room " + escapeHtml(room.name)),
             errorToast
         )
     })
 
   const lockRoom = () => {
     room_ops.lock(props.id).then(
-        room => M.toast({
-            html: "You've locked room " + room.name + " until " + formatDate(room.lock.expiration_date),
-            displayLength: 2000,
-            classes: "success"
-        }),
+        successToast(room => "You've locked room " + escapeHtml(room.name) + " until " + formatDate(room.lock.expiration_date) + ".<br/>Send the room password to your friends."),
         errorToast
     );
   }
 
   const unlockRoom = () => {
     room_ops.unlock(props.id).then(
-        room => M.toast({
-            html: "You've unlocked room " + room.name,
-            displayLength: 2000,
-            classes: "success"
-        }),
+        successToast(room => "You've unlocked room " + escapeHtml(room.name) + ".<br/>Now everybody can join the room."),
         errorToast
     );
   }
@@ -122,21 +119,13 @@ export const RoomCard = (props) => {
             data: props,
             closeModal,
             submit: password => room_ops.join(props.id, password).then(
-                room => M.toast({
-                    html: "Password is correct!<br/>You've joined room " + room.name,
-                    displayLength: 2000,
-                    classes: "success"
-                }),
+                successToast(room => "Password is correct!<br/>You've joined room " + escapeHtml(room.name)),
                 errorToast
             )
         })
     } else {
         room_ops.join(props.id).then(
-            room => M.toast({
-                html: "You've joined room " + room.name,
-                displayLength: 2000,
-                classes: "success"
-            }),
+            successToast(room => "You've joined room " + escapeHtml(room.name)),
             errorToast
         )
     }
@@ -144,22 +133,14 @@ export const RoomCard = (props) => {
 
   const leaveRoom = () => {
     room_ops.leave(props.id).then(
-        room => M.toast({
-            html: "You've left room " + room.name + ".<br/>The room would be unlocked if you locked it.",
-            displayLength: 2000,
-            classes: "success"
-        }),
+        successToast(room => "You've left room " + escapeHtml(room.name) + ".<br/>The room would be unlocked if you locked it."),
         errorToast
     );
   }
 
   const deleteRoom = () => {
     room_ops.delete(props.id).then(
-        () => M.toast({
-            html: "You've deleted room " + props.name + ".<br/>You should inform its inhabitants about this.",
-            displayLength: 2000,
-            classes: "success"
-        }),
+        successToast(room => "You've deleted room " + escapeHtml(props.name) + ".<br/>You should inform its inhabitants about this."),
         errorToast
     );
   }
