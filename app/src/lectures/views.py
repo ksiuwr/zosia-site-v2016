@@ -132,9 +132,9 @@ def schedule_update(request):
     return render(request, 'lectures/schedule_add.html', ctx)
 
 
-def ajax_get_durations(request):
+def ajax_load_durations(request):
     lecture_type = request.GET.get("lecture_type")
     person_type = request.GET.get("person_type")
-    durations = get_durations(lecture_type, person_type)
+    durations = {'durations': [d[0] for d in get_durations(lecture_type, person_type)]}
 
-    return render(request, 'lectures/duration_options.html', {'durations': durations})
+    return JsonResponse(durations);
