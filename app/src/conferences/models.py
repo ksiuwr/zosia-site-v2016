@@ -80,15 +80,15 @@ class Zosia(models.Model):
     )
     registration_end = models.DateTimeField()
 
-    rooming_start = models.DateTimeField(
-        verbose_name=_('Users room picking starts'),
-    )
-    rooming_end = models.DateTimeField()
-
     lecture_registration_start = models.DateTimeField(
         verbose_name=_('Registration for lectures starts'),
     )
     lecture_registration_end = models.DateTimeField()
+
+    rooming_start = models.DateTimeField(
+        verbose_name=_('Users room picking starts'),
+    )
+    rooming_end = models.DateTimeField()
 
     price_accommodation = models.IntegerField(
         verbose_name=_('Price for sleeping in hotel, per day'),

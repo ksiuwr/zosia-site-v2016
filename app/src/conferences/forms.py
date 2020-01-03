@@ -13,7 +13,7 @@ class SplitDateTimePickerField(forms.SplitDateTimeField):
 class BusForm(forms.ModelForm):
     class Meta:
         model = Bus
-        exclude = []
+        fields = '__all__'
         field_classes = {
             "departure_time": SplitDateTimePickerField
         }
@@ -24,8 +24,8 @@ class BusForm(forms.ModelForm):
 
 class PlaceForm(forms.ModelForm):
     class Meta:
+        fields = '__all__'
         model = Place
-        exclude = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -34,7 +34,7 @@ class PlaceForm(forms.ModelForm):
 class ZosiaForm(forms.ModelForm):
     class Meta:
         model = Zosia
-        exclude = []
+        fields = '__all__'
         field_classes = {
             "registration_start": SplitDateTimePickerField,
             "registration_end": SplitDateTimePickerField,

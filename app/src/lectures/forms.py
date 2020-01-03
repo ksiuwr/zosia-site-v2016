@@ -34,4 +34,4 @@ class LectureAdminForm(forms.ModelForm):
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        exclude = ['zosia']
+        fields = ['content']
