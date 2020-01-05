@@ -8,6 +8,7 @@ class SplitDateTimePickerField(forms.SplitDateTimeField):
         kwargs["widget"] = forms.SplitDateTimeWidget(date_attrs={"class": "datepicker"},
                                                      time_attrs={"class": "timepicker"})
         super().__init__(*args, **kwargs)
+        self.help_text = "Provide date and time in <b>UTC</b> time zone!"
 
 
 class BusForm(forms.ModelForm):
