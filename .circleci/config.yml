@@ -63,10 +63,10 @@ jobs:
       - checkout
       - run: 
           name: Create new Task Definition
-          command: VERSION_TAG=${CIRCLE_SHA1} .ecs/prepare_task_def.sh
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/prepare_task_def.sh
       - run: 
           name: Update service and wait
-          command: .ecs/update_service_with_rollback.sh
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} .ecs/update_service_with_rollback.sh
   #     - run:
   #         name: Purge cache
   #         command: |
