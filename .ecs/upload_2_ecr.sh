@@ -6,10 +6,9 @@ Please remember about setting proper repository URL and AWS region.
 '
 
 # Configuration
-DOCKER_REPO_URI_BASE="463715963173.dkr.ecr.eu-central-1.amazonaws.com"
-AWS_REGION="eu-central-1"
+DOCKER_REPO_URI_BASE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-TAG="latest"
+TAG="${VERSION_TAG}"
 ZOSIA_IMG_NAME="zosia_prod_web:${TAG}"
 NGINX_IMG_NAME="zosia_prod_nginx:${TAG}"
    

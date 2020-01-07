@@ -30,6 +30,7 @@ jobs:
     environment:
       AWS_ACCOUNT_ID: "463715963173"
       AWS_DEFAULT_REGION: "eu-central-1"
+      VERSION_TAG: "${CIRCLE_SHA1}"
     docker:
       - image: docker:git
     steps:
@@ -48,16 +49,19 @@ jobs:
           name: Push image to ECR
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} .ecs/upload_2_ecr.sh
 
-  # deploy_new_version:
-  #   environment:
-  #   docker:
-  #   steps:
-  #     - run: 
-  #         name: Create new Task Definition
-  #         command: TODO
-  #     - run: 
-  #         name: Update service and wait
-  #         command: TODO
+  deploy_new_version:
+    environment:
+      AWS_ACCOUNT_ID: "463715963173"
+      AWS_DEFAULT_REGION: "eu-central-1"
+      VERSION_TAG: "${CIRCLE_SHA1}"
+    docker:
+    steps:
+      - run: 
+        name: Create new Task Definition
+        command: .ecs/prepare_task_def.sh
+      - run: 
+          name: Update service and wait
+          command: .ecs/update_service_with_rollback.sh
   #     - run:
   #         name: Purge cache
   #         command: |
@@ -74,6 +78,13 @@ workflows:
       - build_and_push_to_ecr:
           requires:
             - run_tests
+          filters:
+            branches:
+              only: 
+                - master
+      - deploy_new_version:
+          requires:
+            - build_and_push_to_ecr
           filters:
             branches:
               only: 

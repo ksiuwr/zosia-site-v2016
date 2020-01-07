@@ -1,13 +1,13 @@
 {
     "family": "zosia-site",
-    "taskRoleArn": "__TASK_ROLE_ARN__",
+    "taskRoleArn": "arn:aws:iam::__AWS_ACCOUNT_ID__:role/ecs_task_role_for_zosia",
+    "executionRoleArn": "arn:aws:iam::__AWS_ACCOUNT_ID__:role/ecsTaskExecutionRole",
     "containerDefinitions": [
         {
             "name": "zosia-web",
             "hostname": "zosia-web",
             "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/zosia_web:__VERSION__",
             "essential": true,
-            "memory": null,
             "memoryReservation": 50,
             "cpu": 100,
             "portMappings": [],
@@ -78,7 +78,6 @@
             "hostname": "zosia",
             "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/zosia_nginx:__VERSION__",
             "essential": true,
-            "memory": null,
             "memoryReservation": 50,
             "cpu": 100,
             "portMappings": [
