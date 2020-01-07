@@ -24,6 +24,11 @@ ZOSIA_IMG_ID=`docker images ${ZOSIA_IMG_NAME} | tail -1 | awk '{ print $3 }'`
 
 DOCKER_REPO_URI="${DOCKER_REPO_URI_BASE}/zosia_web"
 REGISTRY_IMG_NAME="${DOCKER_REPO_URI}:${TAG}"
+
+echo ${ZOSIA_IMG_ID}
+echo ${DOCKER_REPO_URI}
+echo ${REGISTRY_IMG_NAME}
+
 docker tag ${ZOSIA_IMG_ID} ${REGISTRY_IMG_NAME}
 docker push ${REGISTRY_IMG_NAME}
 
