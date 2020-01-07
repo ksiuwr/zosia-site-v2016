@@ -12,6 +12,7 @@ function update_service () {
 }
 
 function wait_for_service () {
+    echo "Waiting for service to become stable..."
     aws ecs wait services-stable --region ${AWS_DEFAULT_REGION} --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME}
     return $?
 }
@@ -22,7 +23,9 @@ current_task_definition=$(aws ecs describe-services --region ${AWS_DEFAULT_REGIO
 
 if ! update_service ${TASK_DEF} || ! wait_for_service ;
 then
-    echo "ERROR: Update service ${SERVICE_NAME} failure, ROLLBACK!"
+    echo "ERROR: Fail to update service ${SERVICE_NAME}, ROLLBACK!"
     update_service ${current_task_definition}
     exit -1
 fi
+
+echo "Done"
