@@ -55,10 +55,17 @@ jobs:
       AWS_DEFAULT_REGION: "eu-central-1"
       VERSION_TAG: "${CIRCLE_SHA1}"
     docker:
+      - image: docker:git
     steps:
+      - run:
+          name: Install awscli
+          command: |
+            apk add --no-cache python3
+            pip3 install awscli
+      - checkout
       - run: 
-        name: Create new Task Definition
-        command: .ecs/prepare_task_def.sh
+          name: Create new Task Definition
+          command: .ecs/prepare_task_def.sh
       - run: 
           name: Update service and wait
           command: .ecs/update_service_with_rollback.sh
