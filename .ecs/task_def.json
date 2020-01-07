@@ -6,7 +6,7 @@
         {
             "name": "zosia-web",
             "hostname": "zosia-web",
-            "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/zosia_web:__VERSION__",
+            "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_DEFAULT_REGION__.amazonaws.com/zosia_web:__VERSION__",
             "essential": true,
             "memoryReservation": 50,
             "cpu": 100,
@@ -24,43 +24,43 @@
             "workingDirectory": "/code",
             "secrets": [
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/DB_HOST",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/DB_HOST",
                     "name": "DB_HOST"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/DB_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/DB_PASSWORD",
                     "name": "DB_PASSWORD"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/DB_USERNAME",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/DB_USERNAME",
                     "name": "DB_USERNAME"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/GOOGLE_API_KEY",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/GOOGLE_API_KEY",
                     "name": "GAPI_KEY"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/HOSTS",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/HOSTS",
                     "name": "HOSTS"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/MAILGUN_API_KEY",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/MAILGUN_API_KEY",
                     "name": "MAILGUN_API_KEY"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/MAILGUN_API_URL",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/MAILGUN_API_URL",
                     "name": "MAILGUN_API_URL"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/MAILGUN_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/MAILGUN_PASSWORD",
                     "name": "MAILGUN_PASSWORD"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/SECRET_KEY",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/SECRET_KEY",
                     "name": "SECRET_KEY"
                 },
                 {
-                    "valueFrom": "arn:aws:ssm:__AWS_REGION__:__AWS_ACCOUNT_ID__:parameter/SENTRY_DSN",
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/SENTRY_DSN",
                     "name": "SENTRY_DSN"
                 }
             ],
@@ -76,7 +76,7 @@
         {
             "name": "zosia-nginx",
             "hostname": "zosia",
-            "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/zosia_nginx:__VERSION__",
+            "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_DEFAULT_REGION__.amazonaws.com/zosia_nginx:__VERSION__",
             "essential": true,
             "memoryReservation": 50,
             "cpu": 100,
