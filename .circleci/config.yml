@@ -46,7 +46,7 @@ jobs:
           command: TAG="latest" docker-compose -f docker-compose.prod.yml build
       - run:
           name: Push image to ECR
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload_circle.sh
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} .ecs/upload_2_ecr.sh
 
   # deploy_new_version:
   #   environment:
