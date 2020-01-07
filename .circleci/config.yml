@@ -30,7 +30,6 @@ jobs:
     environment:
       AWS_ACCOUNT_ID: "463715963173"
       AWS_DEFAULT_REGION: "eu-central-1"
-      VERSION_TAG: "${CIRCLE_SHA1}"
     docker:
       - image: docker:git
     steps:
@@ -48,13 +47,12 @@ jobs:
           command: TAG="latest" docker-compose -f docker-compose.prod.yml build
       - run:
           name: Push image to ECR
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} .ecs/upload_2_ecr.sh
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/upload_2_ecr.sh
 
   deploy_new_version:
     environment:
       AWS_ACCOUNT_ID: "463715963173"
       AWS_DEFAULT_REGION: "eu-central-1"
-      VERSION_TAG: "${CIRCLE_SHA1}"
     docker:
       - image: docker:git
     steps:
@@ -66,7 +64,7 @@ jobs:
       - checkout
       - run: 
           name: Create new Task Definition
-          command: .ecs/prepare_task_def.sh
+          command: VERSION_TAG=${CIRCLE_SHA1} .ecs/prepare_task_def.sh
       - run: 
           name: Update service and wait
           command: .ecs/update_service_with_rollback.sh
