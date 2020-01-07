@@ -1,4 +1,5 @@
 #!/bin/bash
+
 CLUSTER_NAME="zosia-cluster"
 SERVICE_NAME="zosia-site-v2"
 TASK_DEF="zosia-site"
@@ -10,12 +11,16 @@ function update_service () {
     return $?
 }
 
+function wait_for_service () {
+    aws ecs wait services-stable --region ${AWS_DEFAULT_REGION} --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME}
+    return $?
+}
+
 echo "Updating service ${SERVICE_NAME} in ${CLUSTER_NAME}."
 
 current_task_definition=$(aws ecs describe-services --region ${AWS_DEFAULT_REGION} --cluster ${CLUSTER_NAME} --services ${SERVICE_NAME} | jq -c -r ".services[0].taskDefinition")
 
-# TODO: Wait for deployment to finish
-if ! update_service ${TASK_DEF};
+if ! update_service ${TASK_DEF} || ! wait_for_service ;
 then
     echo "ERROR: Update service ${SERVICE_NAME} failure, ROLLBACK!"
     update_service ${current_task_definition}
