@@ -11,7 +11,9 @@ DOCKER_REPO_URI_BASE="${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.
 TAG="${VERSION_TAG}"
 ZOSIA_IMG_NAME="zosia_prod_web:${TAG}"
 NGINX_IMG_NAME="zosia_prod_nginx:${TAG}"
-   
+
+echo ${TAG}
+
 # Login and upload images
 DOCKER_LOGIN_CMD=`aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email`
 echo "Logging to remote registry with command"
