@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from conferences.models import Bus, Zosia
-from conferences.test_helpers import create_bus, create_user, create_user_preferences, create_zosia
+from utils.test_helpers import create_bus, create_user, create_user_preferences, create_zosia
 from utils.time_manager import now, time_point
 
 User = get_user_model()
@@ -13,9 +13,8 @@ User = get_user_model()
 
 class ZosiaTestCase(TestCase):
     def setUp(self):
-        create_zosia()
+        self.normal = create_user(0)
         self.active = create_zosia(active=True)
-        create_zosia()
 
     def test_only_one_active_Zosia_can_exist(self):
         """Creating another active Zosia throws an error"""
@@ -33,9 +32,8 @@ class ZosiaTestCase(TestCase):
     def test_can_user_choose_room_when_at_user_start_time(self):
         self.active.rooming_start = now()
         self.active.save()
-        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=0,
-                                             user=create_user(0),
-                                             zosia=self.active)
+        user_prefs = create_user_preferences(self.normal, self.active, payment_accepted=True,
+                                             bonus_minutes=0)
 
         result = self.active.can_user_choose_room(user_prefs)
 
@@ -44,23 +42,19 @@ class ZosiaTestCase(TestCase):
     def test_can_user_choose_room_when_before_user_start_time(self):
         self.active.rooming_start = time_point(2016, 12, 23, 0, 0)
         self.active.save()
-        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=1,
-                                             user=create_user(0),
-                                             zosia=self.active)
+        user_prefs = create_user_preferences(self.normal, self.active, payment_accepted=True,
+                                             bonus_minutes=1)
 
-        result = self.active.can_user_choose_room(user_prefs,
-                                                  time=time_point(2016, 12, 22, 23, 58))
+        result = self.active.can_user_choose_room(user_prefs, time=time_point(2016, 12, 22, 23, 58))
         self.assertFalse(result)
 
     def test_can_user_choose_room_when_after_user_start_time(self):
         self.active.rooming_start = time_point(2016, 12, 23, 0, 0)
         self.active.save()
-        user_prefs = create_user_preferences(payment_accepted=True, bonus_minutes=3,
-                                             user=create_user(0),
-                                             zosia=self.active)
+        user_prefs = create_user_preferences(self.normal, self.active, payment_accepted=True,
+                                             bonus_minutes=3)
 
-        result = self.active.can_user_choose_room(user_prefs,
-                                                  time=time_point(2016, 12, 22, 23, 58))
+        result = self.active.can_user_choose_room(user_prefs, time=time_point(2016, 12, 22, 23, 58))
         self.assertTrue(result)
 
 
@@ -68,7 +62,6 @@ class BusTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.normal = create_user(0)
-        self.normal2 = create_user(1)
         self.zosia = create_zosia()
 
         self.bus1 = create_bus(zosia=self.zosia, capacity=0)
@@ -79,10 +72,6 @@ class BusTestCase(TestCase):
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 2)
 
-        create_user_preferences(
-            user=self.normal,
-            bus=self.bus2,
-            zosia=self.zosia
-        )
+        create_user_preferences(self.normal, self.zosia, bus=self.bus2)
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 1)

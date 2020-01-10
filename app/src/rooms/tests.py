@@ -1,8 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from conferences.test_helpers import create_user
 from rooms.test_helpers import RoomAssertions, create_room
+from utils.test_helpers import create_user
 from utils.time_manager import timedelta_since_now
 
 room_assertions = RoomAssertions()

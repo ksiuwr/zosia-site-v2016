@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from conferences.test_helpers import create_organization, create_user, create_zosia
+from utils.test_helpers import create_organization, create_user, create_zosia
 
 
 class UsersAPITestCase(APITestCase):

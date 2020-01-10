@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 
 from conferences.models import Bus, Place, Zosia
@@ -89,5 +90,5 @@ def create_bus(commit=True, **override):
     return bus
 
 
-def create_user_preferences(**kwargs):
-    return UserPreferences.objects.create(terms_accepted=True, **kwargs)
+def create_user_preferences(user, zosia, **kwargs):
+    return UserPreferences.objects.create(user=user, zosia=zosia, terms_accepted=True, **kwargs)

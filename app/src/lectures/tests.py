@@ -6,10 +6,10 @@ from django.shortcuts import reverse
 from django.test import TestCase
 
 from conferences.models import Place, Zosia
-from conferences.test_helpers import create_user
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
 from utils.constants import LectureInternals
+from utils.test_helpers import create_user
 from utils.time_manager import now, timedelta_since_now
 
 User = get_user_model()
