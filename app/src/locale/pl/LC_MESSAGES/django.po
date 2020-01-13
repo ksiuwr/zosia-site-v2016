@@ -826,7 +826,7 @@ msgid "Sign Up"
 msgstr ""
 
 #: users/templates/users/signup_done.html:7
-msgid "Signup complete"
+msgid "Sign up complete"
 msgstr ""
 
 #: users/templates/users/signup_done.html:11
