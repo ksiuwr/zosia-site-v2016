@@ -8,8 +8,8 @@
             "hostname": "zosia-web",
             "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_DEFAULT_REGION__.amazonaws.com/zosia_web:__VERSION__",
             "essential": true,
-            "memoryReservation": 50,
-            "cpu": 100,
+            "memoryReservation": 150,
+            "cpu": 150,
             "portMappings": [],
             "command": [
                 "./run.sh"
