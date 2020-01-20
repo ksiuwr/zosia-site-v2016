@@ -1,17 +1,20 @@
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .models import Boardgame
+from django.shortcuts import get_object_or_404, redirect, render, reverse
+from .models import Boardgame, Vote
 from .forms import BoardgameForm
 from conferences.models import UserPreferences, Zosia
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 
+from django.http import Http404, HttpResponse, JsonResponse
+import json
+
 @login_required
 @require_http_methods(['GET'])
 def index(request):
     boardgames = Boardgame.objects.all()
-    # boardgames = sorted(boardgames, key=lambda x: x.state)
+    boardgames = sorted(boardgames, key=lambda x: x.state)
     try:
         current_zosia = Zosia.objects.find_active()
         preferences = UserPreferences.objects.get(zosia=current_zosia, user=request.user)
@@ -36,15 +39,33 @@ def create(request):
     return render(request, 'boardgames/create.html', ctx)
 
 
+@login_required
+@require_http_methods(['GET','POST'])
 def vote(request):
-    ctx = {'boardgames': Boardgame.objects.filter(state="A")}
-
+    ctx = {'boardgames': Boardgame.objects.filter(state="A"),
+    'user_voted': Vote.objects.filter(user=request.user).values_list('boardgame', flat=True) }
     if request.method == 'POST':
-        pass
+        old_ids = json.loads(request.POST.get('old_ids'))
+        new_ids = json.loads(request.POST.get('new_ids'))
+        common_ids = [x for x in old_ids if x in new_ids]
+        old_ids = [x for x in old_ids if not x in common_ids]
+        new_ids = [x for x in new_ids if not x in common_ids]
+        for x in old_ids:
+            boardgame = get_object_or_404(Boardgame, pk=x)
+            boardgame.votes_down()
+            boardgame.save() 
+            Vote.objects.get(boardgame=x).delete()
+        for x in new_ids:
+            boardgame = get_object_or_404(Boardgame, pk=x)
+            boardgame.votes_up()
+            boardgame.save()
+            vote = Vote(user=request.user, boardgame=boardgame)
+            vote.save()
+        return JsonResponse({'old_ids': old_ids, 'new_ids': new_ids})
     return render(request, 'boardgames/vote.html', ctx)
 
 
-def accept(request):
+def accept(request):    
     ctx = {'boardgames': Boardgame.objects.filter(state="S")}
 
     if request.method == 'POST':
