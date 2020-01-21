@@ -17,7 +17,7 @@ from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferen
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
     ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
-    PAYMENT_GROUPS
+    PAYMENT_GROUPS, BONUS_STEP
 from utils.forms import errors_format
 
 
@@ -154,7 +154,8 @@ def user_preferences_index(request):
         'change_bonus': ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
         'toggle_payment': ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
         'min_bonus': MIN_BONUS_MINUTES,
-        'max_bonus': MAX_BONUS_MINUTES
+        'max_bonus': MAX_BONUS_MINUTES,
+        'bonus_step': BONUS_STEP,
     }
 
     return render(request, 'users/user_preferences_index.html', ctx)

@@ -41,8 +41,8 @@ class RoomingStatus:
 
 
 MIN_BONUS_MINUTES = 0
-
 MAX_BONUS_MINUTES = 600
+BONUS_STEP = 1
 
 ROOM_LOCK_TIMEOUT = timedelta(hours=3)
 

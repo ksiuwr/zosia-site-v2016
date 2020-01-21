@@ -87,6 +87,7 @@
   <script type="text/javascript">
       const max_bonus = {{ max_bonus }}
       const min_bonus = {{ min_bonus }}
+      const bonus_step = {{ bonus_step }}
       let paymentInfo = {
         {% for object in objects %}
         "{{ object.id }}": {
@@ -190,11 +191,10 @@
       }
 
       const updateBonuses = (entries) => {
-        const ratio = (max_bonus - min_bonus)*0.8/entries.length;
         for (let i = 0; i < entries.length; i++)
         {
           const entry = entries[i];
-          const bonus = Math.floor(ratio * (entries.length - i));
+          const bonus = Math.max(Math.floor(max_bonus - bonus_step * i), min_bonus);
           setBonus(entry.id, bonus);
           reportSuccess("Bonus for " + entry.firstName + " " + entry.lastName + " set to " + bonus);
         }
@@ -249,7 +249,7 @@
             reportError("Pay mismatch for " + info.firstName + " " + info.hash + " " + info.lastName + " (payed=" + entry.payment + ",price=" + info.price + ")")
           }
         }
-        // updateBonuses(bonus);
+        updateBonuses(bonus);
       }
 
       const importPaymentFile = (file) => {
