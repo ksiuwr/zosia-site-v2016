@@ -1,136 +1,32 @@
-{% extends "base.html" %}
+{% extends "checkboxes.html" %}
 {% load i18n %}
-{% load materializecss %}
 
-{% block content %}
-<div class="container">
-<form method="post">
-    {% csrf_token %}
-    <div class="row">
-    <div class="col s12 m6">
-    <div class="card">
-    <div class="card-content">
-        <div class="row">
-            <span class="card-title">{% trans "Boardgames" %}</span>
-            <p>
-                {% blocktrans %}
-                Vote for your favourite boardgames. You can choose up to three of them.
-                {% endblocktrans %}
-            </p>
-        </div>
-        <div class="row">
-            {% for boardgame in boardgames %}
-                <p>
-                    <label>
-                        <input data-id="{{boardgame.pk}}" data-name="{{boardgame.name}}" type="checkbox" {% if boardgame.pk in user_voted %}checked{% endif %}/>
-                        <span>{{boardgame.name}}</span>
-                    </label>
-                </p>
-                {% empty %}
-                <div class="row">
-                <div class="col l12 m12 s12">
-                    {% trans "Nothing to display" %}
-                </div>
-                </div>
-            {% endfor %}
-        </div>
-        <div class="card-action">
-            <button type="submit" class="waves-effect waves-light btn">{% trans 'Submit' %}</button>
-            <a href="{% url 'boardgames_index' %}" class="btn btn-default">Go Back</a>
-        </div>
-    </div>
-    </div>
-    </div>
-    </div>
-</form>
+
+{% block description %}
+<p>
+{% trans "Vote for your favourite boardgames. You can choose up to three of them." %}
+</p>
+{% endblock %}
+
+{% block elems %}
+<div>
+    <label>
+        <input data-id="{{boardgame.pk}}" data-name="{{boardgame.name}}" type="checkbox" {% if boardgame.pk in user_voted %}checked{% endif %}/>
+        <span>{{boardgame.name}}</span>
+    </label>
 </div>
-{% endblock content %}
+{% endblock %}
 
 
-
- {% block custom_scripts %}
-  <script type="text/javascript">
-
-    const getNewInfo = () => {
-        var new_info=[];
-        var names=''; 
-        $('input:checkbox').each(function(){
-            var $this = $(this);
-            if($this.is(':checked')){
-                var vote = parseInt($this.data('id'), 10);
-                new_info.push(vote);
-                var name = $this.data('name');
-                names += name + ", ";
-            }
-        })
-        names = names.slice(0,-2);
-        return [new_info, names];
-    }
-
-    const getOldIds = () => {
-        var old_ids = [];
-        {% for id in user_voted %}
-            old_ids.push({{id}});
-        {% endfor %}
-        return old_ids;
-    }
-
-    let oldIds = getOldIds();
-
-    $('.boardgame-checkbox').on('change', function() {
-        if($('.boardgame-checkbox:checked').length > 3) {
-            this.checked = false;
-        }
-    });
-
-    const changeVote = (old_ids, new_ids, new_names) => {
-        $.ajax({
-            type: "POST",
-            dataType: 'json',
-            data: {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'old_ids': JSON.stringify(old_ids),
-                'new_ids': JSON.stringify(new_ids),
-            },
-            success: function() { 
-                oldIds = new_ids;
-                let msg = 'Voted for boardgames: '+ new_names;
-                if(new_ids.length == 0)
-                    msg = 'Votes were successfully reset'
-                M.toast({
-                  html: msg,
-                  displayLength: 2000,
-                  classes: "success"
-                });
-            },
-            error: function(){
-                M.toast({
-                  html: "Error setting boardgames votes.",
-                  displayLength: 2000,
-                  classes: "error"
-                });
-            }
-        });
-    }
-
-    $(document).ready(function(){  
-        $("button").on('click', function(event){
-            event.preventDefault();
-            var new_info = getNewInfo();
-            var new_ids = new_info[0];
-            var new_names = new_info[1];
-            console.log(oldIds, new_ids, new_names);
-            changeVote(oldIds, new_ids, new_names);
-        });     
+{% block action %}
+{% with 'boardgames_index' as url_name %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}
 
 
-        // $('select').material_select();
-        // $('textarea').addClass("materialize-textarea");
-
-    });
-
-
-  </script>
-
-{{ form.media }}
-{% endblock custom_scripts %}
+{% block message %}
+let msg = 'Voted for the boardgames: '+ new_names;
+if(new_ids.length == 0)
+    msg = 'Votes were successfully reset'
+{% endblock %}

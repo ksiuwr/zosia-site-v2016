@@ -1,5 +1,6 @@
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect, render, reverse
 from .models import Boardgame, Vote
 from .forms import BoardgameForm
@@ -14,7 +15,7 @@ import json
 @require_http_methods(['GET'])
 def index(request):
     boardgames = Boardgame.objects.all()
-    boardgames = sorted(boardgames, key=lambda x: x.state)
+    boardgames = sorted(boardgames, key=lambda x: x.accepted, reverse=True)
     try:
         current_zosia = Zosia.objects.find_active()
         preferences = UserPreferences.objects.get(zosia=current_zosia, user=request.user)
@@ -42,7 +43,7 @@ def create(request):
 @login_required
 @require_http_methods(['GET','POST'])
 def vote(request):
-    ctx = {'boardgames': Boardgame.objects.filter(state="A"),
+    ctx = {'boardgames': Boardgame.objects.filter(accepted=True),
     'user_voted': Vote.objects.filter(user=request.user).values_list('boardgame', flat=True) }
     if request.method == 'POST':
         old_ids = json.loads(request.POST.get('old_ids'))
@@ -65,10 +66,20 @@ def vote(request):
     return render(request, 'boardgames/vote.html', ctx)
 
 
-def accept(request):    
-    ctx = {'boardgames': Boardgame.objects.filter(state="S")}
+@staff_member_required
+@require_http_methods(['GET','POST'])
+def accept(request):
+    boardgames = Boardgame.objects.all()
+    boardgames = sorted(boardgames, key=lambda x: x.accepted, reverse=True)    
+    accepted = Boardgame.objects.filter(accepted=True)
+    ctx = {'boardgames': boardgames, 'accepted': accepted}
 
     if request.method == 'POST':
-        pass
+        old_ids = json.loads(request.POST.get('old_ids'))
+        new_ids = json.loads(request.POST.get('new_ids'))
+        common_ids = [x for x in old_ids if x in new_ids]
+        old_ids = [x for x in old_ids if not x in common_ids]
+        new_ids = [x for x in new_ids if not x in common_ids]
+        return JsonResponse({'old_ids': old_ids, 'new_ids': new_ids})
     return render(request, 'boardgames/accept.html', ctx)
 

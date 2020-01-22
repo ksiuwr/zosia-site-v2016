@@ -6,34 +6,22 @@ from users.models import User
 class Boardgame(models.Model):
     name = models.CharField(verbose_name=_("Name"), max_length=200)
     votes_amount = models.PositiveSmallIntegerField(default=0)
-
-    ACCEPTED = "A"
-    SUGGESTED = "S"
-    STATE_OF_BOARDGAME_CHOICES = [
-        (ACCEPTED, "accepted"), (SUGGESTED, "suggested")]
-    state = models.CharField(
-        max_length=1,
-        choices=STATE_OF_BOARDGAME_CHOICES,
-        default=SUGGESTED,
-    )
+    accepted = models.BooleanField(default=False)
     
     class Meta:
-        ordering = ["state", "-votes_amount"]
+        ordering = ["accepted", "-votes_amount"]
 
     def __str__(self):
         return self.name
 
     def votes_up(self):
         self.votes_amount += 1
-        # return self.votes_amount
 
     def votes_down(self):
         self.votes_amount -= 1
-        # return self.votes_amount
 
     def accept_boardgame(self):
-        self.state = "A"
-        return self.state
+        self.accepted = True
 
 
 class Vote(models.Model):
@@ -44,6 +32,3 @@ class Vote(models.Model):
         Boardgame,
         on_delete = models.CASCADE
     )
-
-    def change_votes():
-        pass

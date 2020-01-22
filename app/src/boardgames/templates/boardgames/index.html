@@ -2,33 +2,49 @@
 {% load i18n %}
 
 {% block content %}
-  <div class="container">
-    <h3>{% trans "Boardgames" %}</h3>
+<div class="container">
+  <div class="row">
+    <div class="col l12 m12 s12">
+      <h3>
+        {% trans "Boardgames" %}
+      </h3>
+    </div>
+  </div>
 
-    {% if paid %}
-      <div>
-        <a class="waves-effect waves-light btn" href="{% url 'boardgames_create' %}">
-          {% trans "Add boardgame" %} </a>
-        <a class="waves-effect waves-light btn" href="{% url 'boardgames_vote' %}">
-          {% trans "Vote" %} </a>
+  <div class="row">
+    <div class="col l12 m12 s12">
+      {% if paid %}
+          <a class="waves-effect waves-light btn" href="{% url 'boardgames_create' %}">
+            {% trans "Add boardgame" %} </a>
+          <a class="waves-effect waves-light btn" href="{% url 'boardgames_vote' %}">
+            {% trans "Vote" %} </a>
+      {% else %} 
+        <p>To add boardgames your payment must be accepted first</p>
+      {% endif %}
       </div>
-    {% else %} 
-      <p>To add boardgames your payment must be accepted first</p>
-    {% endif %}
+  </div>
 
-      <table>
-        <tr>
-          <th>Name</th>
-          <th>Votes</th>
-          <th>State</th>
-        </tr>
-        {% for boardgame in boardgames %}
-        <tr>
-          <td>{{boardgame.name}}</td>
-          <td>{{boardgame.votes}}</td>
-          <td>{{boardgame.state}}</td>
-        </tr>
-        {% endfor %}
-      </table>
+    <div class="row">
+      <div class="col l12 m12 s12">
+        <div class="card">
+          <div class="card-content">
+            <table>
+              <tr>
+                <th>Name</th>
+                <th>Votes</th>
+                <th>State</th>
+              </tr>
+              {% for boardgame in boardgames %}
+              <tr>
+                <td>{{boardgame.name}}</td>
+                <td>{{boardgame.votes_amount}}</td>
+                <td>{% if boardgame.accepted %} Accepted {% else %} Suggested {% endif %}</td>
+              </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock content %}

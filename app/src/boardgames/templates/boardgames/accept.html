@@ -1,0 +1,33 @@
+{% extends "checkboxes.html" %}
+{% load i18n %}
+
+
+{% block description %}
+<p>
+    {% trans "Accept suggested boardgames." %}
+</p>
+{% endblock %}
+
+{% block elems %}
+<div class="switch">
+    <label>
+        <input data-id="{{boardgame.pk}}" data-name="{{boardgame.name}}" type="checkbox" {% if boardgame.accepted %}checked{% endif %}/>
+        <span class="lever"></span>
+        {{boardgame.name}}
+    </label>
+</div>
+{% endblock %}
+
+
+{% block action %}
+{% with 'admin' as url_name %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}
+
+
+{% block message %}
+let msg = 'State of the boardgames was successfully changed.';
+if(new_ids.length == 0)
+    msg = 'State of the boardgames was successfully reset.'
+{% endblock %}

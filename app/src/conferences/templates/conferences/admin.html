@@ -8,8 +8,8 @@
         <div class="row">
             <div class="col s12">
                 <ul class="tabs">
-                    <li class="tab col l1 m6 s12"><a href="#blog_tab">{% trans 'Blog' %}</a></li>
                     <li class="tab col l1 m6 s12"><a href="#users_tab" class="active">{% trans 'Users' %}</a></li>
+                    <li class="tab col l1 m6 s12"><a href="#blog_tab">{% trans 'Blog' %}</a></li>
                     <li class="tab col l1 m6 s12"><a href="#qa_tab">{% trans 'Q&A' %}</a></li>
                     <li class="tab col l1 m6 s12"><a href="#rooms_tab">{% trans 'Rooms' %}</a></li>
                     <li class="tab col l2 m6 s12"><a href="#sponsors_tab">{% trans 'Sponsors' %}</a></li>
@@ -34,7 +34,7 @@
 
             <div id="boardgames_tab" class="col s12">
                 <ul class="collection">
-                    <a href="{% url 'boardgames_create' %}" class="collection-item">{% trans 'Add boardgame' %}</a>
+                    <a href="{% url 'boardgames_accept' %}" class="collection-item">{% trans 'Manage boardgames' %}</a>
                 </ul>
             </div>
 
