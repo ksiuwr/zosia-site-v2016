@@ -20,8 +20,8 @@ class Boardgame(models.Model):
     def votes_down(self):
         self.votes_amount -= 1
 
-    def accept_boardgame(self):
-        self.accepted = True
+    def toggle_accepted(self):
+        self.accepted = not self.accepted
 
 
 class Vote(models.Model):

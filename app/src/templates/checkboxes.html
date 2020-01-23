@@ -41,7 +41,6 @@
 {% endblock content %}
 
 
-
  {% block custom_scripts %}
   <script type="text/javascript">
 
@@ -61,15 +60,10 @@
         return [new_info, names];
     }
 
-    const getOldIds = () => {
-        var old_ids = [];
-        {% for id in user_voted %}
-            old_ids.push({{id}});
-        {% endfor %}
-        return old_ids;
-    }
 
-    let oldIds = getOldIds();
+    {% block oldIds %}
+    {% endblock %}
+    
 
     $('.boardgame-checkbox').on('change', function() {
         if($('.boardgame-checkbox:checked').length > 3) {

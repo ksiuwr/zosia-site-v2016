@@ -22,7 +22,7 @@
 {% block action %}
 {% with 'admin' as url_name %}
 {{ block.super }}
-{% endwith %}
+{% endwith %}   
 {% endblock %}
 
 
@@ -30,4 +30,9 @@
 let msg = 'State of the boardgames was successfully changed.';
 if(new_ids.length == 0)
     msg = 'State of the boardgames was successfully reset.'
+{% endblock %}
+
+
+{% block oldIds %}
+let oldIds = {{ accepted }};
 {% endblock %}

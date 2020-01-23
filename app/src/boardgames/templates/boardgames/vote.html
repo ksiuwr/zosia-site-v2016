@@ -24,9 +24,12 @@
 {% endwith %}
 {% endblock %}
 
-
 {% block message %}
 let msg = 'Voted for the boardgames: '+ new_names;
 if(new_ids.length == 0)
     msg = 'Votes were successfully reset'
+{% endblock %}
+
+{% block oldIds %}
+let oldIds = {{ user_voted }};
 {% endblock %}

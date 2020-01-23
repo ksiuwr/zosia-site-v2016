@@ -43,8 +43,10 @@ def create(request):
 @login_required
 @require_http_methods(['GET','POST'])
 def vote(request):
+    votes = Vote.objects.filter(user=request.user).values_list('boardgame', flat=True)
+    print(list(votes))
     ctx = {'boardgames': Boardgame.objects.filter(accepted=True),
-    'user_voted': Vote.objects.filter(user=request.user).values_list('boardgame', flat=True) }
+    'user_voted': list(votes) }
     if request.method == 'POST':
         old_ids = json.loads(request.POST.get('old_ids'))
         new_ids = json.loads(request.POST.get('new_ids'))
@@ -71,8 +73,9 @@ def vote(request):
 def accept(request):
     boardgames = Boardgame.objects.all()
     boardgames = sorted(boardgames, key=lambda x: x.accepted, reverse=True)    
-    accepted = Boardgame.objects.filter(accepted=True)
-    ctx = {'boardgames': boardgames, 'accepted': accepted}
+    accepted = Boardgame.objects.filter(accepted=True).values_list('id', flat=True)
+    print(list(accepted))
+    ctx = {'boardgames': boardgames, 'accepted': list(accepted)}
 
     if request.method == 'POST':
         old_ids = json.loads(request.POST.get('old_ids'))
@@ -80,6 +83,14 @@ def accept(request):
         common_ids = [x for x in old_ids if x in new_ids]
         old_ids = [x for x in old_ids if not x in common_ids]
         new_ids = [x for x in new_ids if not x in common_ids]
+        for x in old_ids:
+            boardgame = get_object_or_404(Boardgame, pk=x)
+            boardgame.toggle_accepted()
+            boardgame.save()
+        for x in new_ids:
+            boardgame = get_object_or_404(Boardgame, pk=x)
+            boardgame.toggle_accepted()
+            boardgame.save()
         return JsonResponse({'old_ids': old_ids, 'new_ids': new_ids})
     return render(request, 'boardgames/accept.html', ctx)
 
