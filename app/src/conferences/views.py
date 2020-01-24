@@ -14,7 +14,7 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
-from users.models import UserPreferences
+from users.models import User, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.views import csv_response
 
@@ -226,3 +226,14 @@ def list_by_bus(request):
     data_list = [(str(b), b.passengers_to_string) for b in buses]
 
     return csv_response(("Bus", "Users"), data_list, filename='buses_by_bus')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def statistics(request):
+    zosia = get_object_or_404(Zosia, active=True)
+    prefs = UserPreferences.objects.filter(zosia=zosia).count()
+    users = User.objects.count()
+
+    ctx = {'users': users, 'prefs': prefs}
+    return render(request, 'conferences/statistics.html', ctx)
