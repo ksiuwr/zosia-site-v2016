@@ -1,4 +1,5 @@
 import csv
+from collections import Counter
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -232,8 +233,24 @@ def list_by_bus(request):
 @require_http_methods(['GET'])
 def statistics(request):
     zosia = get_object_or_404(Zosia, active=True)
-    prefs = UserPreferences.objects.filter(zosia=zosia).count()
-    users = User.objects.count()
 
-    ctx = {'users': users, 'prefs': prefs}
+    # data for first chart
+    users = User.objects.count()
+    prefs = UserPreferences.objects.filter(zosia=zosia).count()
+    paid = UserPreferences.objects.filter(zosia=zosia).filter(payment_accepted=True).count()
+
+    user_with_payment = paid
+    user_with_prefs_only = prefs - paid
+    user_without_prefs = users - prefs
+
+    # data for second chart
+    user_prefs = UserPreferences.objects.filter(zosia=zosia)
+    items = Counter([t.price for t in user_prefs]).items()
+    values, count = zip(*sorted(items))
+
+    ctx = {
+        'userPrefsData': [user_with_payment, user_with_prefs_only, user_without_prefs],
+        'userCostsLabels': list(values),
+        'userCostsNumbers': list(count)
+        }
     return render(request, 'conferences/statistics.html', ctx)

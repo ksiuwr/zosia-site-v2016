@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-{% load i18n %}
 {% load static %}
+{% load i18n %}
 
 {% block custom_head %}
 <link rel="stylesheet" type="text/css" href={% static 'css/Chart.min.css' %}>
@@ -16,6 +16,7 @@
         <div class="card-content">
             <span class="card-title">{% trans "ZOSIA statistics" %}</span>
             <canvas id="pieChart" class="chartjs"></canvas>
+            <canvas id="barChart" class="chartjs"></canvas>
         </div>
       </div>
     </div>
@@ -26,16 +27,58 @@
 
 {% block custom_scripts %}
 <script type="text/javascript">
+    var userPrefsData = {{ userPrefsData }}
     var canv = document.getElementById('pieChart');
-    var myPieChart = new Chart(canv, {
+    var pieChart = new Chart(canv, {
         type: 'pie',
         data: {
-            labels: ['Users without preferences', 'Users with preferences'],
+            labels: ['Users with payment accepted', 'Users with preferences only', 'Users without preferences'],
             datasets: [{
-                data: [42, 108],
-                backgroundColor: ["rgb(255, 99, 132)", "rgb(54, 162, 235)"]
+                data: userPrefsData,
+                backgroundColor: ["rgb(54, 235, 162)", "rgb(54, 162, 235)", "rgb(255, 99, 132)"]
             }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Users'
+            }
         }
     });
+
+    var userCostsLabels = {{ userCostsLabels }}
+    var userCostsNumbers = {{ userCostsNumbers }}
+
+    var barColor = function(context) {
+        return 'rgba(50, 70, 190, 0.7)';
+    }
+
+    var canv2 = document.getElementById('barChart');
+    var barChart = new Chart(canv2, {
+        type: 'bar',
+        data: {
+            labels: userCostsLabels,
+            datasets: [{
+                label: '# of User that have selected cost',
+                data: userCostsNumbers,
+                backgroundColor: barColor
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: 'Costs'
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                }]
+            }
+        },
+    });
+
 </script>
 {% endblock custom_scripts %}
