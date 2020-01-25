@@ -14,23 +14,18 @@ from utils.time_manager import timedelta_since
 
 
 def validate_hash(value):
-    if value is None:
-        return
-
-    sha256_reg = r"[0-9a-f]{64}"
-    m = re.match(sha256_reg, value)
-
-    if not m:
+    if value is not None and not re.match(r"[0-9a-fA-F]{64}", value):
         raise ValidationError(_('This is not a valid SHA256 hex string'))
 
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password=None, is_staff=False, is_active=True, **extra_fields):
-        'Creates a User with the given username, email and password'
         email = UserManager.normalize_email(email)
         user = self.model(email=email, is_active=is_active, is_staff=is_staff, **extra_fields)
+
         if password is not None:
             user.set_password(password)
+
         user.save()
         return user
 
@@ -54,6 +49,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def short_hash(self):
+        '''Returns first 8 characters (i.e. 32 bits) of user hash'''
         if self.hash is None:
             self.save()
 
