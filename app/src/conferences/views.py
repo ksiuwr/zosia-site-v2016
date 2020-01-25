@@ -1,5 +1,5 @@
-import csv
 from collections import Counter
+import csv
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -232,25 +232,25 @@ def list_by_bus(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def statistics(request):
-    zosia = get_object_or_404(Zosia, active=True)
+    zosia = Zosia.objects.find_active_or_404()
+    user_prefs = UserPreferences.objects.filter(zosia=zosia)
 
     # data for first chart
-    users = User.objects.count()
-    prefs = UserPreferences.objects.filter(zosia=zosia).count()
-    paid = UserPreferences.objects.filter(zosia=zosia).filter(payment_accepted=True).count()
+    users_count = User.objects.count()
+    prefs_count = user_prefs.count()
+    paid_count = user_prefs.filter(payment_accepted=True).count()
 
-    user_with_payment = paid
-    user_with_prefs_only = prefs - paid
-    user_without_prefs = users - prefs
+    users_with_payment = paid_count
+    users_with_prefs_only = prefs_count - paid_count
+    users_without_prefs = users_count - prefs_count
 
     # data for second chart
-    user_prefs = UserPreferences.objects.filter(zosia=zosia)
-    items = Counter([t.price for t in user_prefs]).items()
-    values, count = zip(*sorted(items))
+    price_items = Counter([t.price for t in user_prefs]).items()
+    price_values, price_counts = zip(*sorted(price_items))
 
     ctx = {
-        'userPrefsData': [user_with_payment, user_with_prefs_only, user_without_prefs],
-        'userCostsLabels': list(values),
-        'userCostsNumbers': list(count)
-        }
+        'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
+        'userCostsValues': list(price_values),
+        'userCostsCounts': list(price_counts)
+    }
     return render(request, 'conferences/statistics.html', ctx)

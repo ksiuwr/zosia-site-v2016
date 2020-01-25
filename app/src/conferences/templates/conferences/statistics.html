@@ -16,6 +16,7 @@
         <div class="card-content">
             <span class="card-title">{% trans "ZOSIA statistics" %}</span>
             <canvas id="pieChart" class="chartjs"></canvas>
+            <hr />
             <canvas id="barChart" class="chartjs"></canvas>
         </div>
       </div>
@@ -41,13 +42,14 @@
         options: {
             title: {
                 display: true,
-                text: 'Users'
+                text: 'Users',
+                fontSize: 18
             }
         }
     });
 
-    var userCostsLabels = {{ userCostsLabels }}
-    var userCostsNumbers = {{ userCostsNumbers }}
+    var userCostsValues = {{ userCostsValues }}
+    var userCostsCounts = {{ userCostsCounts }}
 
     var barColor = function(context) {
         return 'rgba(50, 70, 190, 0.7)';
@@ -57,23 +59,36 @@
     var barChart = new Chart(canv2, {
         type: 'bar',
         data: {
-            labels: userCostsLabels,
+            labels: userCostsValues,
             datasets: [{
-                label: '# of User that have selected cost',
-                data: userCostsNumbers,
+                data: userCostsCounts,
                 backgroundColor: barColor
             }]
         },
         options: {
+            legend: {
+                display: false
+            },
             title: {
                 display: true,
-                text: 'Costs'
+                text: 'Costs',
+                fontSize: 18
             },
             scales: {
+                xAxes:[{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'cost [PLN]'
+                    }
+                }],
                 yAxes: [{
                     ticks: {
                         beginAtZero: true,
                         precision: 0
+                    },
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'users'
                     }
                 }]
             }
