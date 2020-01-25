@@ -15,9 +15,9 @@
       <div class="card">
         <div class="card-content">
             <span class="card-title">{% trans "ZOSIA statistics" %}</span>
-            <canvas id="pieChart" class="chartjs"></canvas>
+            <canvas id="users_pie_chart" class="chartjs"></canvas>
             <hr />
-            <canvas id="barChart" class="chartjs"></canvas>
+            <canvas id="users_cost_bar_chart" class="chartjs"></canvas>
         </div>
       </div>
     </div>
@@ -29,8 +29,8 @@
 {% block custom_scripts %}
 <script type="text/javascript">
     var userPrefsData = {{ userPrefsData }}
-    var canv = document.getElementById('pieChart');
-    var pieChart = new Chart(canv, {
+    var users_canv = document.getElementById('users_pie_chart');
+    var pieChart = new Chart(users_canv, {
         type: 'pie',
         data: {
             labels: ['Users with payment accepted', 'Users with preferences only', 'Users without preferences'],
@@ -55,8 +55,8 @@
         return 'rgba(50, 70, 190, 0.7)';
     }
 
-    var canv2 = document.getElementById('barChart');
-    var barChart = new Chart(canv2, {
+    var cost_canv = document.getElementById('users_cost_bar_chart');
+    var barChart = new Chart(cost_canv, {
         type: 'bar',
         data: {
             labels: userCostsValues,
@@ -71,7 +71,7 @@
             },
             title: {
                 display: true,
-                text: 'Costs',
+                text: 'Costs preferences',
                 fontSize: 18
             },
             scales: {
