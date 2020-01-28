@@ -9,33 +9,32 @@
         <div class="col xl6 offset-xl3 l9 offset-l3 offset-m3 m9 s12">
           <div class="row" style="margin-bottom: 0">
             <div class="col s12 m9">
-              <div class="card">
-                <div class="card-content">
-                  <div class="row">
-                    <div class="col s2" style="text-align:center">
-                      <i class="material-icons">warning</i>
-                    </div>
-                    <div class="col s10">
-                  {% if user.is_authenticated %}
-                    <p>
-                      {% blocktrans %}
-                        Your account doesn't have access to this page. To proceed,
-                        please login with an account that has access.
-                      {% endblocktrans %}
-                    </p>
-                  {% else %}
-                    <p>
-                      {% blocktrans %}
-                        Please login to see this page.<br/>If you don't have an account yet 
-                      {% endblocktrans %}
-                      <a href="{% url 'accounts_signup' %}">{% trans 'sign up first' %}</a>
-                      .
-                    </p>
-                  {% endif %}
-                    </div>
+              <ul class="collapsible">
+                <li class="active">
+                  <div class="collapsible-header">
+                    <i class="material-icons">warning</i>
+                    {% trans 'Warning' %}
                   </div>
-                </div>
-              </div>
+                  <div class="collapsible-body">
+                    {% if user.is_authenticated %}
+                      <p>
+                        {% blocktrans %}
+                          Your account doesn't have access to this page. To proceed,
+                          please login with an account that has access.
+                        {% endblocktrans %}
+                      </p>
+                    {% else %}
+                      <p>
+                        {% blocktrans %}
+                          Please login to see this page.<br/>If you don't have an account yet 
+                        {% endblocktrans %}
+                        <a href="{% url 'accounts_signup' %}">{% trans 'sign up first' %}</a>
+                        .
+                      </p>
+                    {% endif %}
+                  </div>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
