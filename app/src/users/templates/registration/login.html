@@ -17,8 +17,10 @@
           {% else %}
             <p>
               {% blocktrans %}
-                Please login to see this page.
+                Please login to see this page. If you don't have account yet 
               {% endblocktrans %}
+              <a href="{% url 'accounts_signup' %}">{% trans 'sign up first' %}</a>
+              .
             </p>
           {% endif %}
         </div>
