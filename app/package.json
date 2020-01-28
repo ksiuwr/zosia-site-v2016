@@ -4,7 +4,7 @@
   "description": "Django 2.2 version of ZOSIA registration page",
   "scripts": {
     "build": "webpack --mode production",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch --mode development"
   },
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
+    "chart.js": "^2.9.3",
     "copy-webpack-plugin": "^5.0.1",
     "jquery": "^3.4.1",
     "materialize-css": "^1.0.0",

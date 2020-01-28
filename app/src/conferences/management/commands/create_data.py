@@ -8,10 +8,13 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
-from utils.constants import DURATION_CHOICES, LECTURE_TYPE, LectureInternals
+from users.models import UserPreferences
+from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
 User = get_user_model()
+
+IMIONA = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
 
 def create_question():
@@ -29,7 +32,7 @@ def create_lecture(zosia, author):
         'events': lorem_ipsum.words(60)[:750],
         'title': lorem_ipsum.sentence()[:255],
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
-        'duration': random.choice(DURATION_CHOICES)[0],
+        'duration': random.choice(FULL_DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
         'person_type': LectureInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(20)[:255],
@@ -108,13 +111,15 @@ def create_past_zosia(place, **kwargs):
 def create_zosia(**kwargs):
     data = {
         'description': 'Once upon a time there were apes',
-        'price_accomodation': 50,
-        'price_accomodation_breakfast': 10,
-        'price_accomodation_dinner': 15,
+        'price_accommodation': 50,
+        'price_accommodation_breakfast': 60,
+        'price_accommodation_dinner': 65,
         'price_whole_day': 70,
         'price_transport': 50,
         'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
-        'account_details': 'Joan Doe, Bag End 666, Shire'
+        'account_owner': 'Joan Doe',
+        'account_bank': 'SuperBank',
+        'account_address': 'ul. Fajna 42, 51-109, Wrocław'
     }
     data.update(kwargs)
     zosia = Zosia.objects.create(**data)
@@ -125,8 +130,8 @@ def create_zosia(**kwargs):
 def create_sample_user():
     data = {
         'email': 'zosia@example.com',
-        'first_name': 'ZOSIA',
-        'last_name': 'KSIOWA',
+        'first_name': 'Zosia',
+        'last_name': 'Ksiowa',
     }
     u = User.objects.get_or_create(**data)[0]
     u.set_password('pass')
@@ -134,20 +139,75 @@ def create_sample_user():
     return u
 
 
+def random_bool():
+    return random.random() < 0.5
+
+
+def create_random_user_with_preferences(zosia, id):
+    data = {
+        'email': f'zosia{id}@example.com',
+        'first_name': random.choice(IMIONA),
+        'last_name': f'Testowa{id}',
+    }
+    u = User.objects.get_or_create(**data)[0]
+    u.set_password('pass')
+    u.save()
+
+    accommodation_day_1 = random_bool()
+    dinner_day_1 = random_bool() if accommodation_day_1 else False
+    breakfast_day_2 = random_bool() if accommodation_day_1 else False
+
+    accommodation_day_2 = random_bool()
+    dinner_day_2 = random_bool() if accommodation_day_2 else False
+    breakfast_day_3 = random_bool() if accommodation_day_2 else False
+
+    accommodation_day_3 = random_bool()
+    dinner_day_3 = random_bool() if accommodation_day_3 else False
+    breakfast_day_4 = random_bool() if accommodation_day_3 else False
+
+    phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} {random.randint(100, 999)}'
+    bus = random.choice(Bus.objects.find_with_free_places(zosia)) if random_bool() else None
+
+    payment_acc = random_bool()
+    bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
+
+    UserPreferences.objects.create(
+        user=u,
+        zosia=zosia,
+
+        accommodation_day_1=accommodation_day_1,
+        dinner_day_1=dinner_day_1,
+        accommodation_day_2=accommodation_day_2,
+        breakfast_day_2=breakfast_day_2,
+        dinner_day_2=dinner_day_2,
+        accommodation_day_3=accommodation_day_3,
+        breakfast_day_3=breakfast_day_3,
+        dinner_day_3=dinner_day_3,
+        breakfast_day_4=breakfast_day_4,
+
+        bus=bus,
+        contact=phone_number,
+        payment_accepted=payment_acc,
+        bonus_minutes=bonus,
+        terms_accepted=True,
+    )
+
+
 def create_room(number):
     if random.random() < 0.1:
         data = {
-            'name': f"Room nr. {number}",
+            'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
             'beds_double': 1,
             'available_beds_double': 1,
         }
     else:
+        bed_single = random.randint(2, 6)
         data = {
-            'name': f"Room nr. {number}",
+            'name': f"Nr. {number}",
             'description': lorem_ipsum.words(random.randint(3, 6)),
-            'beds_single': random.randint(1, 6),
-            'available_beds_single': random.randint(1, 6),
+            'beds_single': bed_single,
+            'available_beds_single': random.randint(2, bed_single),
         }
     return Room.objects.create(**data)
 
@@ -156,6 +216,13 @@ class Command(BaseCommand):
     help = 'Create custom data in database'
 
     def handle(self, *args, **kwargs):
+        if Zosia.objects.filter(active=True).count() > 0:
+            self.stdout.write('\033[1;91mThere is already active Zosia in database.'
+                              '\033[0m Do you want to create data anyway? [y/n]')
+            choice = input().lower()
+            if choice not in {'yes', 'y'}:
+                return
+
         place = create_place()
         self.stdout.write('Place for zosia has been created!')
 
@@ -166,22 +233,26 @@ class Command(BaseCommand):
         #     create_past_zosia(place)
         #     self.stdout.write('Past zosia #%d has been created' % i)
 
-        admin = create_sample_user()
+        sample_user = create_sample_user()
         self.stdout.write('Sample user has been created')
 
+        for i in range(5):
+            create_random_user_with_preferences(zosia, i + 1)
+            self.stdout.write(f"Created random user #{i}")
+
         for i in range(4):
-            create_lecture(zosia, admin)
-            self.stdout.write('Created lecture #%d' % i)
+            create_lecture(zosia, sample_user)
+            self.stdout.write(f"Created lecture #{i}")
 
         question_num = random.randint(3, 13)
         for i in range(question_num):
             create_question()
-            self.stdout.write('Created question #%d' % i)
+            self.stdout.write(f"Created question #{i}")
 
         room_num = random.randint(7, 20)
         for i in range(1, room_num + 1):
             create_room(i)
-            self.stdout.write('Created room #%d' % i)
+            self.stdout.write(f"Created room #{i}")
 
         self.stdout.write(
             self.style.SUCCESS('Database has been filled with some data!'))

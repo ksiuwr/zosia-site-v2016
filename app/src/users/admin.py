@@ -1,7 +1,9 @@
 from django.contrib import admin
-from .models import Organization, User
+
+from users.models import Organization, User, UserPreferences
 
 admin.site.register(User)
+admin.site.register(UserPreferences)
 
 
 def accept_organization(modeladmin, request, queryset):
@@ -10,15 +12,13 @@ def accept_organization(modeladmin, request, queryset):
         organ.save()
 
 
-accept_organization.short_description = 'Accept selected organizations'
-
-
 def reject_organization(modeladmin, request, queryset):
     for organ in queryset:
         organ.accepted = False
         organ.save()
 
 
+accept_organization.short_description = 'Accept selected organizations'
 reject_organization.short_description = 'Reject selected organizations'
 
 

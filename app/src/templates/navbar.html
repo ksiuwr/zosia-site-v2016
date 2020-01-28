@@ -18,7 +18,7 @@
 <nav>
     <div class="nav-wrapper container">
         <a href="{% url 'index' %}" class="brand-logo">
-            <img src="{% static 'imgs/zosia.png' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
+            <img src="{% static 'imgs/zosia_20_black.svg' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
         </a>
         <ul class="right hide-on-med-and-down">
             <li><a href="{% url 'blog_index' %}">Blog</a></li>
@@ -42,7 +42,7 @@
               <li><a href="{% url 'accounts_signup' %}">{% trans 'Sign up' %}</a></li>
             {% endif %}
         </ul>
-        <a href="#" data-target="navie" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <a href="#" data-target="navie" class="sidenav-trigger"><i id="sidenav-menu" class="material-icons">menu</i></a>
     </div>
 </nav>
 

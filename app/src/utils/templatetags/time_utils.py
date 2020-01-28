@@ -15,3 +15,8 @@ def server_time():
 @register.filter
 def zoneformat(time, zonename):
     return format_in_zone(time, zonename, DEFAULT_TIME_FORMAT)
+
+
+@register.filter
+def isoformat(time):
+    return format_in_zone(time, 'UTC', "%Y-%m-%dT%H:%M:%SZ")

@@ -1,3 +1,7 @@
+import os
+import requests
+import socket
+
 from .common import *
 
 DEBUG = False
@@ -50,3 +54,27 @@ DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD')
 # This, in conjunction with DEBUG=True enables 'debug' directives in templates
 # Especially room.js makes heavy use of it
 INTERNAL_IPS = ['127.0.0.1']
+
+# Find IP addres of EC2 instance
+EC2_PRIVATE_IP = None
+
+try:
+    EC2_PRIVATE_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4', timeout=0.01).text
+    # If above line did not fail we are in ECS.
+    hostname, aliaslist, LB_IPs = socket.gethostbyname_ex('zosia-elb-839568892.eu-central-1.elb.amazonaws.com')
+except requests.exceptions.RequestException:
+    # silently fail as we may not be in an ECS environment
+    pass
+
+if EC2_PRIVATE_IP:
+    ALLOWED_HOSTS.append(EC2_PRIVATE_IP)
+    # We need LB IPS too
+    ALLOWED_HOSTS.extend(LB_IPs)
+
+# Django REST framework (https://www.django-rest-framework.org)
+# Disable BrowsableAPIRenderer for production
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+    )
+}

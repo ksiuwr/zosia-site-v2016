@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from conferences.test_helpers import create_user, create_zosia
+from utils.test_helpers import create_organization, create_user, create_zosia
 
 
 class UsersAPITestCase(APITestCase):
@@ -16,6 +16,18 @@ class UsersAPITestCase(APITestCase):
         self.normal_2 = create_user(1)
         self.staff_1 = create_user(2, is_staff=True)
         self.staff_2 = create_user(3, is_staff=True)
+
+    def tearDown(self):
+        self.client.force_authenticate(user=None)
+        super().tearDown()
+
+
+class OrganizationsAPITestCase(APITestCase):
+    def setUp(self):
+        super().setUp()
+
+        self.normal_1 = create_user(0)
+        self.normal_2 = create_user(1)
 
     def tearDown(self):
         self.client.force_authenticate(user=None)
@@ -112,3 +124,46 @@ class UserMeAPITestCase(UsersAPITestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class OrganizationsListAPITestCase(OrganizationsAPITestCase):
+    def setUp(self):
+        super().setUp()
+        self.url = reverse("organizations_api_list", kwargs={"version": "v1"})
+
+    def test_user_can_view_all_organizations(self):
+        self.client.force_authenticate(user=self.normal_1)
+        create_organization("org1", self.normal_1)
+        create_organization("org2", self.normal_2)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(2, len(response.data))
+
+    def test_user_can_add_organization(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        data = {"name": "test_org"}
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(self.normal_1.last_name, response.data["user"]["last_name"])
+        self.assertFalse(response.data["accepted"])
+
+    def test_user_cannot_add_organization_with_empty_name(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        data = {"name": ""}
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_user_cannot_add_organization_with_duplicated_name(self):
+        self.client.force_authenticate(user=self.normal_2)
+        create_organization("org", self.normal_1)
+
+        data = {"name": "org"}
+        response = self.client.post(self.url, data)
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

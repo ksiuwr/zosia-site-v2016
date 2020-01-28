@@ -24,7 +24,7 @@
     <div class="col s12">
       <div class="card">
         <div class="card-content">
-          <div class="card-title">{{ user.display_name }} - {% trans "profile" %}</div>
+          <div class="card-title">{{ user.full_name }} - {% trans "profile" %}</div>
           <div class="row">
             <div class="col s12">
               {{ user.email }}
@@ -58,20 +58,31 @@
           </div>
           {% if current_prefs %}
             {% if current_prefs.payment_accepted %}
-              <blockquote>
+              <blockquote style="border-left-color: #0cb30c">
                 {% trans "Your payment has been accepted :)" %}
               </blockquote>
               <div class="row">
                 <div class="col s12">
+                  {% if current_prefs.room is not None %}
+                    <span style="font-size: 1.1rem">{% trans "You have been assigned to" %} <b>{{ current_prefs.room }}</b></span>
+                    {% if current_prefs.roommate is not None %}
+                    <br/>
+                    <span>{% trans "Room will be occupied by: " %}{{ current_prefs.roommate }}</span>
+                    {% endif %}
+                  {% else %}
                     <p>{% trans "Your rooms assignment will start at" %}: {{current_prefs.rooming_start_time | zoneformat:"Europe/Warsaw"}}</p>
+                  {% endif %}
                 </div>
               </div>
             {% else %}
               <blockquote>
-                <strong>{% trans "Payment information" %}</strong> <br />
-                <span>{% trans "Total" %}: {{ current_prefs.price }} PLN</span><br />
-                {{ current_prefs.zosia.account_number }}<br />
-                {{ current_prefs.zosia.account_details }}
+                  <i>{% trans "Payment information for money transfer" %}</i><br />
+                  {% trans "Total price" %}: <strong>{{ current_prefs.price }} PLN</strong><br />
+                  {% trans "Transfer title" %}: <strong>{{ current_prefs.transfer_title }}</strong><br />
+                  {% trans "Account number" %}: <strong>{{ current_prefs.zosia.account_number }}</strong><br />
+                  ({% trans "Check if bank name is correct" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)<br />
+                  {% trans "Receiver name" %}: <strong>{{ current_prefs.zosia.account_owner }}</strong><br />
+                  {% trans "Receiver address" %}: <strong>{{ current_prefs.zosia.account_address }}</strong>
               </blockquote>
             {% endif %}
 
@@ -94,7 +105,7 @@
                 {% if current_prefs.bus %}
                   {{ current_prefs.bus }}
                 {% else %}
-                  {% trans "You didn't select bus" %}
+                  {% trans "You haven't selected any bus" %}
                 {% endif %}
               </div>
             </div>
@@ -102,50 +113,50 @@
             <div class="row">
               <div class="col l3 m6 s12">
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-1-0" {% if current_prefs.accomodation_day_1 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 1" %}</span>
+                    <input type="checkbox" class="filled-in" id="filled-in-box-1-2" {% if current_prefs.dinner_day_1 %}checked="checked" {% endif %} disabled />
+                    <span>{% trans "Day 1 - dinner" %}</span>
                 </label>
                 <br/>
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-1-2" {% if current_prefs.dinner_1 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 1 - dinner" %}</span>
+                    <input type="checkbox" class="filled-in" id="filled-in-box-1-0" {% if current_prefs.accommodation_day_1 %}checked="checked" {% endif %} disabled />
+                    <span>{% trans "Day 1 - accommodation" %}</span>
                 </label>
               </div>
               <div class="col l3 m6 s12">
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-0" {% if current_prefs.accomodation_day_2 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 2" %}</span>
-                </label>
-                <br/>
-                <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-1" {% if current_prefs.breakfast_2 %}checked="checked"{% endif %} disabled />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-2-1" {% if current_prefs.breakfast_day_2 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 2 - breakfast" %}</span>
                 </label>
                 <br/>
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-2-2" {% if current_prefs.dinner_2 %}checked="checked"{% endif %} disabled />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-2-2" {% if current_prefs.dinner_day_2 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 2 - dinner" %}</span>
                 </label>
-              </div>
-              <div class="col l3 m6 s12">
+                  <br />
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-0" {% if current_prefs.accomodation_day_3 %}checked="checked"{% endif %} disabled />
-                  <span>{% trans "Day 3" %}</span>
+                    <input type="checkbox" class="filled-in" id="filled-in-box-2-0" {% if current_prefs.accommodation_day_2 %}checked="checked" {% endif %} disabled />
+                    <span>{% trans "Day 2 - accommodation" %}</span>
                 </label>
-                <br/>
+              </div>
+                <div class="col l3 m6 s12">
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-1" {% if current_prefs.breakfast_3 %}checked="checked"{% endif %} disabled />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-3-1" {% if current_prefs.breakfast_day_3 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 3 - breakfast" %}</span>
                 </label>
                 <br/>
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-3-2" {% if current_prefs.dinner_3 %}checked="checked"{% endif %} disabled />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-3-2" {% if current_prefs.dinner_day_3 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 3 - dinner" %}</span>
                 </label>
+                    <br />
+                    <label>
+                        <input type="checkbox" class="filled-in" id="filled-in-box-3-0" {% if current_prefs.accommodation_day_3 %}checked="checked" {% endif %} disabled />
+                        <span>{% trans "Day 3 - accommodation" %}</span>
+                    </label>
               </div>
               <div class="col l3 m6 s12">
                 <label>
-                  <input type="checkbox" class="filled-in" id="filled-in-box-4-1" {% if current_prefs.breakfast_4 %}checked="checked"{% endif %} disabled />
+                  <input type="checkbox" class="filled-in" id="filled-in-box-4-1" {% if current_prefs.breakfast_day_4 %}checked="checked"{% endif %} disabled />
                   <span>{% trans "Day 4 - breakfast" %}</span>
                 </label>
               </div>
@@ -158,21 +169,26 @@
             </h5>
           {% else %}
             <div class="card-content">
-              <p> No preferences set. </p>
+              {% if not zosia.is_registration_open %}
+              <p>{% trans "Registration will open at" %} {{zosia.registration_start | zoneformat:"Europe/Warsaw"}}</p>
+              {% elif zosia.is_registration_over %}
+              <p>{% trans "Registration has ended - we hope to see you next year :)" %}</p>
+              {% else %}
+              <p>{% trans "You are not registered - no preferences set." %}</p>
+              {% endif %}
             </div>
-          {% endif %}
-
-          {% if all_prefs %}
-            <h6>{% trans "Your previous conferences" %}</h6>
-            <p>
-              {% for zosia in all_prefs %}
-                <div class="chip">{{ zosia }}</div>
-              {% endfor %}
-            </p>
           {% endif %}
         </div>
         <div class="card-action">
-          <a href="{% url 'user_zosia_register' zosia.id %}">{% trans "Update preferences" %}</a>
+          {% if zosia.is_registration_open and not zosia.is_registration_over or zosia.is_registration_over and current_prefs %}
+          <a href="{% url 'user_zosia_register' %}">
+              {% if current_prefs %}
+              {% trans "Update preferences" %}
+              {% else %}
+              {% trans "Register" %}
+              {% endif %}
+          </a>
+          {% endif %}
         </div>
       </div>
     </div>

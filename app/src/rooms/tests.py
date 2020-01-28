@@ -1,13 +1,8 @@
-from datetime import timedelta
-import json
-from unittest import skip
-
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django.urls import reverse
 
-from conferences.test_helpers import create_user, create_user_preferences, create_zosia, user_login
 from rooms.test_helpers import RoomAssertions, create_room
+from utils.test_helpers import create_user
 from utils.time_manager import timedelta_since_now
 
 room_assertions = RoomAssertions()
@@ -36,13 +31,21 @@ class RoomTestCase(TestCase):
         room_assertions.assertJoined(self.normal_1, self.room_1)
         room_assertions.assertUnlocked(self.room_1)
 
-    def test_locked_room_cannot_be_joined_without_password(self):
+    def test_user_cannot_join_locked_room_without_password(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
         with self.assertRaises(ValidationError):
             self.room_1.join(self.normal_2)
+
+    def test_staff_cannot_join_locked_room_without_password(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        with self.assertRaises(ValidationError):
+            self.room_1.join(self.staff_2)
 
     def test_locked_room_can_be_joined_with_password(self):
         self.room_1.join(self.normal_1)
@@ -79,6 +82,25 @@ class RoomTestCase(TestCase):
         self.room_1.join(self.normal_1)
         self.room_1.leave(self.normal_1)
         self.assertEqual(self.room_1.members_count, 0)
+
+    def test_user_can_leave_locked_room(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        self.room_1.leave(self.normal_1)
+        self.assertEqual(self.room_1.members_count, 0)
+        room_assertions.assertUnlocked(self.room_1)
+
+    def test_staff_can_leave_locked_room(self):
+        self.room_1.join(self.staff_2)
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        self.room_1.leave(self.staff_2)
+        self.assertEqual(self.room_1.members_count, 1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_staff_can_remove_user_from_room(self):
         self.room_1.join(self.normal_1)
@@ -207,13 +229,21 @@ class RoomTestCase(TestCase):
         self.refresh()
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
-    def test_staff_can_unlock_room(self):
+    def test_staff_can_unlock_room_by_API(self):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
-        self.room_1.unlock(self.staff_1)
+        self.room_1.unlock(self.staff_1, False)
         room_assertions.assertUnlocked(self.room_1)
+
+    def test_staff_cannot_unlock_room_by_leaving(self):
+        self.room_1.join(self.normal_1)
+        self.room_1.set_lock(self.normal_1)
+        room_assertions.assertLocked(self.room_1, self.normal_1)
+
+        with self.assertRaises(ValidationError):
+            self.room_1.unlock(self.staff_1, True)
 
     def test_staff_can_lock_hidden_room(self):
         self.room_3.join(self.normal_1, self.staff_1)
@@ -221,149 +251,3 @@ class RoomTestCase(TestCase):
         room_assertions.assertLocked(self.room_3, self.normal_1)
 
     # endregion
-
-
-class RoomsViewTestCase(TestCase):
-    def setUp(self):
-        super().setUp()
-        self.zosia = create_zosia(active=True)
-
-        self.normal_1 = create_user(0)
-        self.normal_2 = create_user(1)
-
-        self.room_1 = create_room(111, capacity=2)
-        self.room_2 = create_room(222, capacity=1, hidden=True)
-
-    def get(self, follow=True):
-        return self.client.get(self.url, follow=follow)
-
-    def post(self, follow=False, **kwargs):
-        return self.client.post(self.url, follow=follow, **kwargs)
-
-    def login(self):
-        self.client.login(**user_login(self.normal_1))
-
-    def register(self, **kwargs):
-        return create_user_preferences(user=self.normal_1, zosia=self.zosia, **kwargs)
-
-
-class IndexViewTestCase(RoomsViewTestCase):
-    def setUp(self):
-        super().setUp()
-        self.url = reverse('rooms_index')
-
-    @skip("API changed. Needs rewrite")
-    def test_can_room(self):
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.get()
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'rooms/index.html')
-
-    @skip("API changed. Needs rewrite")
-    def test_cannot_room_without_login(self):
-        response = self.get()
-        self.assertRedirects(response, reverse('login') + '?next={}'.format(self.url))
-        self.assertEqual(response.status_code, 200)
-
-    @skip("API changed. Needs rewrite")
-    def test_cannot_room_without_active_zosia(self):
-        self.login()
-        self.zosia.active = False
-        self.zosia.save()
-        response = self.get()
-        self.assertRedirects(response, reverse('index'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEquals(len(response.context['messages']._get()[0]), 1)
-
-    @skip("API changed. Needs rewrite")
-    def test_cannot_room_without_registration(self):
-        self.login()
-        response = self.get()
-        self.assertRedirects(response,
-                             reverse('user_zosia_register', kwargs={'zosia_id': self.zosia.pk}))
-        self.assertEqual(response.status_code, 200)
-        self.assertEquals(len(response.context['messages']._get()[0]), 1)
-
-    @skip("API changed. Needs rewrite")
-    def test_cannot_room_without_payment(self):
-        self.login()
-        self.register()
-        response = self.get()
-        self.assertRedirects(response, reverse('accounts_profile'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEquals(len(response.context['messages']._get()[0]), 1)
-
-    @skip("API changed. Needs rewrite")
-    def test_cannot_room_before_rooming_open(self):
-        self.zosia.rooming_start = self.zosia.rooming_start + timedelta(days=3)
-        self.zosia.save()
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.get()
-        self.assertRedirects(response, reverse('accounts_profile'))
-        self.assertEqual(response.status_code, 200)
-        self.assertEquals(len(response.context['messages']._get()[0]), 1)
-
-    @skip("API changed. Needs rewrite")
-    def test_returns_no_hidden_rooms(self):
-        self.login()
-        self.register(payment_accepted=True)
-        response = self.get()
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(self.room_1, response.context['rooms'])
-        self.assertNotIn(self.room_2, response.context['rooms'])
-
-
-class StatusViewTestCase(RoomsViewTestCase):
-    def setUp(self):
-        super().setUp()
-        self.url = reverse('rooms_status')
-
-    def load_response(self, **kwargs):
-        self.login()
-        self.register(payment_accepted=True, **kwargs)
-        response = self.get()
-        self.assertEqual(response.status_code, 200)
-        return json.loads(response.content.decode('utf-8'))
-
-    def test_cannot_get_status_without_active_zosia(self):
-        self.login()
-        self.zosia.active = False
-        self.zosia.save()
-        response = self.get()
-        self.assertEqual(response.status_code, 404)
-
-    def test_cannot_get_status_without_registration(self):
-        self.login()
-        response = self.get()
-        self.assertEqual(response.status_code, 404)
-
-    def test_cannot_get_status_without_login(self):
-        response = self.get(follow=False)
-        self.assertEqual(response.status_code, 302)
-
-    def test_status_returns_all_rooms(self):
-        rooms = self.load_response()['rooms']
-        room_pks = list(map(lambda x: x['id'], rooms))
-        self.assertIn(self.room_1.pk, room_pks)
-
-    def test_status_returns_no_hidden_rooms(self):
-        rooms = self.load_response()['rooms']
-        room_pks = list(map(lambda x: x['id'], rooms))
-        self.assertNotIn(self.room_2, room_pks)
-
-    def test_status_returns_own_room(self):
-        self.room_1.join(self.normal_1)
-        self.room_1.set_lock(self.normal_1)
-        rooms = self.load_response()['rooms']
-        room = list(filter(lambda x: x['is_owned_by'], rooms))[0]['id']
-        self.assertEqual(self.room_1.pk, room)
-
-    def test_status_returns_can_room(self):
-        can = self.load_response()['can_start_rooming']
-        self.assertEqual(can, True)
-
-    def test_status_returns_can_room_false_before_room_of_usering(self):
-        can = self.load_response(bonus_minutes=-60 * 24 * 2)['can_start_rooming']
-        self.assertEqual(can, False)

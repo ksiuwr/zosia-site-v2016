@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 from django.core import exceptions
 from django.shortcuts import get_object_or_404
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import status
 from rest_framework.decorators import action, api_view
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from conferences.models import UserPreferences, Zosia
+from conferences.models import Zosia
 from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
-    LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer
+    LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer, \
+    RoomWithLockPasswordSerializer
 from rooms.models import Room, UserRoom
-from users.models import User
+from users.models import User, UserPreferences
 from utils.api import ReadAuthenticatedWriteAdmin
 from utils.constants import RoomingStatus
 
@@ -23,13 +25,14 @@ def _check_rooming(user, sender):
         rooming_status = zosia.get_rooming_status(user_prefs)
 
         if rooming_status == RoomingStatus.BEFORE_ROOMING:
-            raise exceptions.ValidationError("Rooming for user has not started yet.")
+            raise exceptions.ValidationError(_("Rooming for user has not started yet."),
+                                             code='invalid')
 
         if rooming_status == RoomingStatus.AFTER_ROOMING:
-            raise exceptions.ValidationError("Rooming has already ended.")
+            raise exceptions.ValidationError(_("Rooming has already ended."), code='invalid')
 
         if rooming_status == RoomingStatus.ROOMING_UNAVAILABLE:
-            raise exceptions.ValidationError("Rooming is unavailable for user.")
+            raise exceptions.ValidationError(_("Rooming is unavailable for user."), code='invalid')
 
 
 class RoomViewSet(ModelViewSet):
@@ -70,7 +73,7 @@ def join(request, version, pk):  # only room joining
         user = User.objects.filter(pk=user_id).first()
 
         if not user:
-            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
+            return Response(_("Specified user does not exist."), status=status.HTTP_400_BAD_REQUEST)
 
         try:
             _check_rooming(user, sender)
@@ -94,7 +97,7 @@ def leave(request, version, pk):
         user = User.objects.filter(pk=user_id).first()
 
         if not user:
-            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
+            return Response(_("Specified user does not exist."), status=status.HTTP_400_BAD_REQUEST)
 
         try:
             _check_rooming(user, sender)
@@ -120,7 +123,7 @@ def lock(request, version, pk):  # only locks the room
         user = User.objects.filter(pk=user_id).first()
 
         if not user:
-            return Response("No such user", status=status.HTTP_400_BAD_REQUEST)
+            return Response(_("Specified user does not exist."), status=status.HTTP_400_BAD_REQUEST)
 
         try:
             _check_rooming(user, sender)
@@ -128,7 +131,7 @@ def lock(request, version, pk):  # only locks the room
         except exceptions.ValidationError as e:
             return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
-        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
+        return Response(RoomWithLockPasswordSerializer(room).data, status=status.HTTP_200_OK)
 
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 

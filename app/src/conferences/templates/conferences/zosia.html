@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col l12 m12 s12 center-align">
                 <h3>
-                    ZOSIA {{ zosia.start_date }} - {{ zosia.end_date }}
+                    ZOSIA {{ zosia.start_date | date:"j.m." }} - {{ zosia.end_date | date:"j.m.Y" }}
                 </h3>
             </div>
         </div>
@@ -45,7 +45,7 @@
                     <br />
                     <span>{% trans "Start" %}: {{ zosia.rooming_start | zoneformat:"Europe/Warsaw" }}</span>
                     <br />
-                    <span>{% trans "End" %}:{{ zosia.rooming_end | zoneformat:"Europe/Warsaw" }}</span>
+                    <span>{% trans "End" %}: {{ zosia.rooming_end | zoneformat:"Europe/Warsaw" }}</span>
                 </div>
             </div>
         </div>

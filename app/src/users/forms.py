@@ -1,23 +1,26 @@
 from django import forms
-from django.contrib.sites.shortcuts import get_current_site
-from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse, reverse_lazy
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.sites.shortcuts import get_current_site
+from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 
-from .actions import SendActivationEmail, SendEmailToAll
-from .models import User, Organization
+from conferences.models import Bus, Zosia
+from users.actions import SendActivationEmail, SendEmailToAll
+from users.models import Organization, User, UserPreferences
+from utils.constants import PAYMENT_GROUPS
 
 GROUPS = (
-        ('pick', 'Pick users'),
-        ('all_Users', 'All users'),
-        ('staff', 'Staff'),
-        ('active', 'Active'),
-        ('inactive', 'Don\'t activate their account yet'),
-        ('registered', 'Registered to zosia'),
-        ('payed', 'Payed for zosia'),
-        ('not_Payed', 'Didn`t pay for zosia'),
-    )
+    ('pick', 'Pick users'),
+    ('all_Users', 'All users'),
+    ('staff', 'Staff'),
+    ('active', 'Active'),
+    ('inactive', 'Don\'t activate their account yet'),
+    ('registered', 'Registered to zosia'),
+    ('payed', 'Payed for zosia'),
+    ('not_Payed', 'Didn`t pay for zosia'),
+)
 
 
 class MailForm(forms.Form):
@@ -63,15 +66,15 @@ class MailForm(forms.Form):
         )
         self.fields["registered"].initial = (
             User.objects.filter(userpreferences__isnull=False).distinct()
-            .values_list('email', flat=True)
+                .values_list('email', flat=True)
         )
         self.fields["payed"].initial = (
             User.objects.filter(userpreferences__payment_accepted=True).distinct()
-            .values_list('email', flat=True)
+                .values_list('email', flat=True)
         )
         self.fields["not_Payed"].initial = (
             User.objects.filter(userpreferences__payment_accepted=False).distinct()
-            .values_list('email', flat=True)
+                .values_list('email', flat=True)
         )
 
     def receivers(self):
@@ -87,22 +90,16 @@ class MailForm(forms.Form):
 
 
 class UserForm(UserCreationForm):
-    privacy_consent = forms.BooleanField(
-        required=True
-    )
+    privacy_consent = forms.BooleanField(required=True)
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'email']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        label = (
-            f'I agree to <a href="{reverse("terms_and_conditions")}">'
-            f'Terms & Conditions</a> and the '
-            f'<a href="{reverse("privacy_policy")}">Privacy Policy</a>'
-        )
-        privacy_consent = self.fields['privacy_consent'].label = mark_safe(label)
+        label = f'I agree to the <a href="{reverse("privacy_policy")}">Privacy Policy</a>'
+        self.fields['privacy_consent'].label = mark_safe(label)
 
     def save(self, request):
         user = super().save(commit=False)
@@ -130,3 +127,116 @@ class OrganizationForm(forms.ModelForm):
     class Meta:
         model = Organization
         fields = ['name', 'accepted']
+
+
+class UserPreferencesWithBusForm(forms.ModelForm):
+    def bus_queryset(self, instance=None):
+        bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
+
+        if instance is not None:
+            bus_queryset = bus_queryset | Bus.objects.filter(passengers=instance)
+
+        return bus_queryset.distinct()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
+
+
+class UserPreferencesForm(UserPreferencesWithBusForm):
+    use_required_attribute = False
+
+    # NOTE: In hindsight, this sucks.
+    # Forget about this whitelist after adding fields
+    # and weird stuff happens when someone tries to update preferences.
+    CAN_CHANGE_AFTER_PAYMENT_ACCEPTED = ['contact', 'shirt_size', 'shirt_type']
+
+    class Meta:
+        model = UserPreferences
+        fields = [
+            'organization',
+            'bus',
+            'dinner_day_1',
+            'accommodation_day_1',
+            'breakfast_day_2',
+            'dinner_day_2',
+            'accommodation_day_2',
+            'breakfast_day_3',
+            'dinner_day_3',
+            'accommodation_day_3',
+            'breakfast_day_4',
+            'contact',
+            'information',
+            'vegetarian',
+            'shirt_size',
+            'shirt_type',
+            'terms_accepted'
+        ]
+
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
+        self.fields["terms_accepted"].required = True
+        self.fields["terms_accepted"].label = mark_safe(terms_label)
+        self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
+
+    def call(self, zosia):
+        user_preferences = self.save(commit=False)
+        user_preferences.user = self.user
+        user_preferences.zosia = zosia
+        user_preferences.save()
+
+        return user_preferences
+
+    def clean(self):
+        cleaned_data = super().clean()
+        errors = []
+
+        def _pays_for(d):
+            return cleaned_data.get(d, False)
+
+        for accommodation, meals in PAYMENT_GROUPS.items():
+            for m in meals:
+                if _pays_for(m) and not _pays_for(accommodation):
+                    errors.append(
+                        forms.ValidationError(
+                            _("You need to check %(accomm)s before you can check %(meal)s"),
+                            code='invalid',
+                            params={'accomm': accommodation, 'meal': m}
+                        )
+                    )
+
+        if len(errors) > 0:
+            raise forms.ValidationError(errors)
+
+    def disable(self):
+        for field in self.fields:
+            if field not in self.CAN_CHANGE_AFTER_PAYMENT_ACCEPTED:
+                self.fields[field].disabled = True
+
+
+class UserPreferencesAdminForm(UserPreferencesWithBusForm):
+    class Meta:
+        model = UserPreferences
+        exclude = [
+            'user',
+            'zosia',
+            'organization',
+            'accommodation_day_1',
+            'dinner_day_1',
+            'accommodation_day_2',
+            'dinner_day_2',
+            'breakfast_day_2',
+            'accommodation_day_3',
+            'dinner_day_3',
+            'breakfast_day_3',
+            'breakfast_day_4',
+            'vegetarian'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # NOTE: Seems like it's not working?
+        # Probably because JS overwrites HTML attr. Argh.
+        self.fields['contact'].disabled = True

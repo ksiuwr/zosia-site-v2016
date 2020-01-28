@@ -2,11 +2,15 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from sponsors.forms import SponsorForm
 from sponsors.models import Sponsor
+from utils.constants import BUCKET_NAME, BUCKET_URL
+from utils.forms import errors_format
+from utils.s3 import list_bucket_objects
 
 
 @staff_member_required()
@@ -26,16 +30,18 @@ def update(request, sponsor_id=None):
         ctx['object'] = sponsor
         kwargs['instance'] = sponsor
 
-    ctx['form'] = SponsorForm(request.POST or None, request.FILES or None,
-                              **kwargs)
+    form = SponsorForm(request.POST or None, request.FILES or None, **kwargs)
+    ctx['form'] = form
+    ctx['s3_objects'] = list_bucket_objects(BUCKET_NAME)
+    ctx['bucket_url'] = BUCKET_URL
 
     if request.method == 'POST':
-        if ctx['form'].is_valid():
-            ctx['form'].save()
+        if form.is_valid():
+            form.save()
             messages.success(request, _("Form saved!"))
             return redirect(reverse('sponsors_index'))
         else:
-            messages.error(request, _("There has been errors"))
+            messages.error(request, errors_format(form))
 
     return render(request, 'sponsors/update.html', ctx)
 
@@ -47,4 +53,5 @@ def toggle_active(request):
     sponsor = get_object_or_404(Sponsor, pk=sponsor_id)
     sponsor.toggle_active()
     sponsor.save()
-    return JsonResponse({'msg': "{} changed status!".format(sponsor.name)})
+    return JsonResponse({'msg': "{} changed status!".format(
+        escape(sponsor.name))})

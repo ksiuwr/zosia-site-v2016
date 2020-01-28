@@ -4,8 +4,8 @@ from rest_framework import status
 from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 
-from conferences.test_helpers import create_user, create_user_preferences, create_zosia
 from rooms.test_helpers import RoomAssertions, create_room
+from utils.test_helpers import create_user, create_user_preferences, create_zosia
 from utils.time_manager import timedelta_since_now
 
 room_assertions = RoomAssertions()
@@ -157,6 +157,32 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.url_3 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_3.pk})
 
     def test_user_can_view_visible_room(self):
+        self.room_1.join(self.staff_2)
+        self.client.force_authenticate(user=self.normal_1)
+
+        response = self.client.get(self.url_1)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "111")
+        self.assertEqual(response.data["available_beds_single"], 1)
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], "harrison")
+        self.assertIsNone(response.data["lock"])
+
+    def test_user_can_view_visible_self_locked_room(self):
+        self.room_1.join(self.normal_2)
+        self.room_1.set_lock(self.normal_2)
+        self.client.force_authenticate(user=self.normal_2)
+
+        response = self.client.get(self.url_1)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "111")
+        self.assertEqual(response.data["available_beds_single"], 1)
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
+        self.assertIsNotNone(response.data["lock"]["password"])
+
+    def test_user_can_view_visible_room_locked_by_other(self):
         self.room_1.join(self.normal_2)
         self.room_1.set_lock(self.normal_2)
         self.client.force_authenticate(user=self.normal_1)
@@ -166,8 +192,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["email"], "starr@thebeatles.com")
-        self.assertEqual(response.data["lock"]["user"]["email"], "starr@thebeatles.com")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
+        self.assertIsNone(response.data["lock"]["password"])
 
     def test_user_cannot_view_hidden_room(self):
         self.client.force_authenticate(user=self.normal_2)
@@ -320,7 +347,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_can_join_free_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_2, data)
@@ -331,8 +358,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_can_join_room_when_available_place(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
-
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
         self.room_2.join(self.normal_2)
 
         data = {"user": self.normal_1.pk}
@@ -345,8 +371,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_can_join_other_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
-
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
         self.room_1.join(self.normal_1)
 
         data = {"user": self.normal_1.pk}
@@ -360,7 +385,6 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_without_active_zosia(self):
         self.client.force_authenticate(user=self.normal_1)
-
         self.zosia.active = False
         self.zosia.save()
 
@@ -381,7 +405,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_without_payment(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=False)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=False)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_1, data)
@@ -391,8 +415,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_after_rooming_ends(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
-
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
         self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
@@ -404,8 +427,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_before_rooming_starts(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
-
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
         self.zosia.rooming_start = timedelta_since_now(days=7)
         self.zosia.save()
 
@@ -418,9 +440,8 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
     def test_user_cannot_join_locked_room(self):
         self.room_1.join(self.normal_2)
         self.room_1.set_lock(self.normal_2)
-
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_1, data)
@@ -431,9 +452,8 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
     def test_user_can_join_locked_room_with_password(self):
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
-
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk, "password": self.room_2.lock.password}
         response = self.client.post(self.url_2, data)
@@ -445,9 +465,8 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_full_room(self):
         self.room_1.join(self.normal_2)
-
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_1, data)
@@ -457,7 +476,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_hidden_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_3, data)
@@ -467,7 +486,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_add_user_to_free_room(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_2, data)
@@ -478,7 +497,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_add_user_to_hidden_room(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_3, data)
@@ -490,9 +509,8 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
     def test_staff_can_add_user_to_locked_room(self):
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
-
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_2, data)
@@ -504,9 +522,8 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_staff_cannot_add_user_to_full_room(self):
         self.room_1.join(self.normal_2)
-
         self.client.force_authenticate(user=self.staff_2)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_1, data)
@@ -516,8 +533,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_add_user_to_room_after_rooming_ends(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
-
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
         self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
@@ -530,7 +546,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_add_user_to_room_before_rooming_starts(self):
         self.client.force_authenticate(user=self.staff_2)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.zosia.rooming_start = timedelta_since_now(days=7)
         self.zosia.save()
@@ -544,7 +560,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_add_other_user_to_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_2, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_2.pk}
         response = self.client.post(self.url_1, data)
@@ -554,7 +570,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_join_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         url = reverse("rooms_api_join", kwargs={"version": "v1", "pk": 0})
         data = {"user": self.normal_1.pk}
@@ -579,7 +595,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 
     def test_user_can_leave_joined_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
 
@@ -592,7 +608,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 
     def test_owner_can_leave_locked_room_then_unlocks(self):
         self.client.force_authenticate(user=self.normal_2)
-        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_2, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
@@ -607,7 +623,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 
     def test_not_owner_can_leave_locked_room_then_lock_remains(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.join(self.normal_2)
@@ -623,7 +639,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_remove_user_from_room(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
 
@@ -636,7 +652,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_remove_other_user_from_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_2, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_1)
         self.room_2.join(self.normal_2)
@@ -649,7 +665,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_leave_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         url = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": 0})
         data = {"user": self.normal_1.pk}
@@ -675,7 +691,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
     def test_user_can_lock_room_after_joining(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
 
@@ -685,10 +701,12 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_1, self.normal_1)
+        self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
+        self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_user_cannot_lock_room_without_joining(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         data = {"user": self.normal_1.pk}
         response = self.client.post(self.url_1, data)
@@ -698,7 +716,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
     def test_following_user_can_join_and_lock(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.join(self.normal_1)
@@ -709,10 +727,12 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_2, self.normal_1)
+        self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
+        self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_staff_can_lock_room_with_expiration_date(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
 
@@ -727,7 +747,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_lock_locked_room(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
@@ -743,7 +763,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_lock_hidden_room(self):
         self.client.force_authenticate(user=self.staff_2)
-        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_2, self.zosia, payment_accepted=True)
 
         self.room_3.join(self.normal_2, self.staff_2)
 
@@ -756,7 +776,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_lock_before_rooming_starts(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
 
@@ -798,7 +818,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
 
     def test_owner_can_unlock_owned_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
@@ -811,7 +831,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
 
     def test_user_cannot_unlock_not_owned_room(self):
         self.client.force_authenticate(user=self.normal_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
@@ -825,7 +845,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
 
     def test_user_can_unlock_after_rooming_ends(self):
         self.client.force_authenticate(user=self.normal_2)
-        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_2, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)
@@ -841,7 +861,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_unlock_room(self):
         self.client.force_authenticate(user=self.staff_1)
-        create_user_preferences(user=self.normal_1, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
@@ -854,7 +874,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
 
     def test_staff_can_unlock_after_rooming_ends(self):
         self.client.force_authenticate(user=self.staff_2)
-        create_user_preferences(user=self.normal_2, zosia=self.zosia, payment_accepted=True)
+        create_user_preferences(self.normal_2, self.zosia, payment_accepted=True)
 
         self.room_2.join(self.normal_2)
         self.room_2.set_lock(self.normal_2)

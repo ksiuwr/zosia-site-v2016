@@ -14,6 +14,7 @@ ${bold}Commands:${normal}
   one_click       - Runs zosia website (on localhost on port 8000)
   setup           - Spins up the containers and prepares development enviromanet
   shell           - Runs Bash shell inside the container
+  psql            - Run psql inside the container with database (Postgres)
   runserver       - Runs django development server inside the container
   test            - Runs django tests inside the container
   py_install      - Installs python dependencies specified in requirements.txt
@@ -42,11 +43,17 @@ function configure_env () {
   DOCKER_COMPOSE="${ROOT_PATH}/docker-compose.dev.yml"
   PROJECT_NAME="zosia"
   WEB_CONTAINER_NAME="${PROJECT_NAME}_web_1"
+  DB_CONTAINER_NAME="${PROJECT_NAME}_db_1"
   CREATE_ADMIN=false
   CREATE_DATA=false
 }
 
 configure_env
+
+function psql() {
+  # POSTGRES_USER=zosia - this user is defined in docker-compose.dev.sh
+  docker exec -it ${DB_CONTAINER_NAME} psql -U zosia
+}
 
 function build() {
   docker-compose -f ${DOCKER_COMPOSE} build ${NO_CACHE}
@@ -184,6 +191,9 @@ case ${command} in
   ;;
   shell)
   shell
+  ;;
+  psql)
+  psql
   ;;
   js_watch)
   js_watch

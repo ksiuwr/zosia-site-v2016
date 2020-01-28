@@ -1,23 +1,57 @@
 {% extends 'base.html' %}
 {% load i18n %}
 {% load static %}
+{% load time_utils %}
+
+{% block custom_head %}
+<link href="{% static 'css/countdown_timer.css' %}" media="screen,projection" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="{% static 'script/countdown_timer.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 <div id="index-banner">
     <div class="section flexbox center-items-horizontal full-height">
         <div class="container">
-            <h1 class="header center grey-text text-lighten-4 stroke_main_title">
+            <h1 class="header center grey-text text-lighten-4 main_title">
                 Zimowy Obóz Studentów Informatyki A
             </h1>
-            {% if zosia %}
             <div class="row center">
-              <a class="waves-effect waves-light btn" href="{% url 'user_zosia_register' zosia.pk %}">
-                {% trans "Register" %}
-              </a>
-              <h5 class="header col s12 green-text text-lighten-4 light">
-              </h5>
+              {% if zosia.is_registration_over %}
+              <h3 class="header center red-text text-lighten-2 main_title ">
+                {% trans "Registration is over" %}
+              </h3>
+              {% elif zosia.is_registration_open  %}
+                <a class="waves-effect waves-light btn-large" href="{% url 'user_zosia_register' %}">
+                  {% trans "Register now" %}
+                </a>
+              {% elif zosia %}
+              <h3 class="header center grey-text text-lighten-4 main_title">
+                {% trans "Registration starts in" %}
+              </h3>
+              <div id="clockdiv">
+                <div>
+                  <span class="days"></span>
+                  <div class="smalltext">Days</div>
+                </div>
+                <div>
+                  <span class="hours"></span>
+                  <div class="smalltext">Hours</div>
+                </div>
+                <div>
+                  <span class="minutes"></span>
+                  <div class="smalltext">Minutes</div>
+                </div>
+                <div>
+                  <span class="seconds"></span>
+                  <div class="smalltext">Seconds</div>
+                </div>
+              </div>
+              <script>
+                var deadline = new Date("{{ zosia.registration_start | isoformat }}");
+                initializeClock('clockdiv', deadline);
+              </script>
+              {% endif %}
             </div>
-            {% endif %}
         </div>
     </div>
 </div>

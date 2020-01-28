@@ -6,8 +6,7 @@ from lectures.models import Lecture, Schedule
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['title', 'abstract', 'duration', 'lecture_type', 'person_type', 'requests',
-                  'events']
+        fields = ['title', 'abstract', 'lecture_type', 'duration', 'requests', 'events']
         widgets = {
             'abstract': forms.Textarea,
             'requests': forms.Textarea,
@@ -16,12 +15,10 @@ class LectureForm(forms.ModelForm):
 
 
 class LectureAdminForm(forms.ModelForm):
-    field_order = ['author', 'title', 'abstract', 'duration', 'lecture_type', 'person_type',
-                   'description', 'requests', 'events', 'accepted']
-
     class Meta:
         model = Lecture
-        exclude = ['zosia', 'create_date', 'priority']
+        fields = ['author', 'person_type', 'description', 'title', 'abstract', 'lecture_type',
+                  'duration', 'requests', 'events', 'accepted']
         widgets = {
             'abstract': forms.Textarea,
             'description': forms.Textarea,
@@ -37,4 +34,4 @@ class LectureAdminForm(forms.ModelForm):
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        exclude = ['zosia']
+        fields = ['content']

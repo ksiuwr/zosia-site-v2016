@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from . import views
+from sponsors import views
 
 urlpatterns = [
     re_path(r'^$', views.index, name='sponsors_index'),

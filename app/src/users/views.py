@@ -3,19 +3,24 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.tokens import default_token_generator
-from django.http import HttpResponseBadRequest, JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from conferences.models import UserPreferences, Zosia
-from . import forms
-from .actions import ActivateUser
-from .forms import OrganizationForm
-from .models import Organization
+from conferences.models import Zosia
+from users import forms
+from users.actions import ActivateUser
+from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferencesForm
+from users.models import Organization, UserPreferences
+from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS, BONUS_STEP
+from utils.forms import errors_format
 
 
-# Create your views here.
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
@@ -24,13 +29,10 @@ def profile(request):
         'bus', 'zosia').filter(user=request.user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
-    all_prefs = user_preferences.exclude(zosia=current_zosia).values_list(
-        'zosia', flat=True)
 
     ctx = {
         'zosia': current_zosia,
-        'current_prefs': current_prefs,
-        'all_prefs': all_prefs
+        'current_prefs': current_prefs
     }
     return render(request, 'users/profile.html', ctx)
 
@@ -101,23 +103,11 @@ def activate(request, uidb64, token):
     return render(request, 'users/activate.html', ctx)
 
 
-@login_required
-@require_http_methods(['POST'])
-def create_organization(request):
-    user = request.user
-    name = request.POST.get('name', None)
-    if name is None:
-        return HttpResponseBadRequest()
-    org, _ = Organization.objects.get_or_create(
-        user=user, name=name, accepted=False)
-    return JsonResponse({'status': 'OK', 'html': name, 'value': org.pk})
-
-
 @staff_member_required
 @require_http_methods(['GET'])
 def organizations(request):
-    organizations = Organization.objects.all()
-    ctx = {'organizations': organizations}
+    org = Organization.objects.all()
+    ctx = {'organizations': org}
     return render(request, 'users/organizations.html', ctx)
 
 
@@ -146,4 +136,123 @@ def toggle_organization(request):
     organization = get_object_or_404(Organization, pk=organization_id)
     organization.accepted = not organization.accepted
     organization.save(update_fields=['accepted'])
-    return JsonResponse({'msg': "{} changed status!".format(organization)})
+    return JsonResponse({'msg': "{} changed status!".format(
+        escape(organization))})
+
+
+@staff_member_required()
+@require_http_methods(['GET'])
+def user_preferences_index(request):
+    zosia = get_object_or_404(Zosia, active=True)
+    # TODO: paging?
+    user_preferences = UserPreferences.objects \
+        .filter(zosia=zosia).select_related('user') \
+        .order_by('pk') \
+        .all()
+    ctx = {
+        'objects': user_preferences,
+        'change_bonus': ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS,
+        'toggle_payment': ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT,
+        'min_bonus': MIN_BONUS_MINUTES,
+        'max_bonus': MAX_BONUS_MINUTES,
+        'bonus_step': BONUS_STEP,
+    }
+
+    return render(request, 'users/user_preferences_index.html', ctx)
+
+
+@staff_member_required()
+@require_http_methods(['GET', 'POST'])
+def user_preferences_edit(request, pk=None):
+    ctx = {}
+    kwargs = {}
+
+    if pk is not None:
+        user_preferences = get_object_or_404(UserPreferences, pk=pk)
+        ctx['object'] = user_preferences
+        kwargs['instance'] = user_preferences
+
+    form = UserPreferencesAdminForm(request.POST or None, **kwargs)
+    ctx['form'] = form
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, _("Form saved!"))
+
+            return redirect(reverse('user_preferences_index'))
+        else:
+            messages.error(request, errors_format(form))
+
+    return render(request, 'users/user_preferences_edit.html', ctx)
+
+
+@staff_member_required()
+@require_http_methods(['POST'])
+def user_preferences_admin_edit(request):
+    user_preferences_id = request.POST.get('key', None)
+    user_preferences = get_object_or_404(UserPreferences, pk=user_preferences_id)
+    command = request.POST.get('command', False)
+
+    if command == ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT:
+        status = user_preferences.toggle_payment_accepted()
+        user_preferences.save()
+
+        return JsonResponse({
+            'msg': _(
+                f"Changed payment status of {escape(user_preferences.user.full_name)} to {status}"),
+            'status': status
+        })
+
+    if command == ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS:
+        user_preferences.bonus_minutes = request.POST.get('bonus', user_preferences.bonus_minutes)
+        user_preferences.save()
+
+        return JsonResponse({
+            'msg': _(
+                f"Changed bonus of {escape(user_preferences.user.full_name)} to {user_preferences.bonus_minutes}"),
+            'bonus': user_preferences.bonus_minutes
+        })
+
+    return Http404()
+
+
+@login_required
+@require_http_methods(['GET', 'POST'])
+def register(request):
+    zosia = Zosia.objects.find_active_or_404()
+
+    if not zosia.is_registration_open:
+        messages.error(request, _('Registration for ZOSIA is not open yet'))
+        return redirect(reverse('index'))
+
+    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
+
+    if zosia.is_registration_over and user_prefs is None:
+        messages.error(request, _('You missed registration for ZOSIA'))
+        return redirect(reverse('index'))
+
+    ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
+    form_args = {}
+
+    if user_prefs is not None:
+        ctx['object'] = user_prefs
+        form_args['instance'] = user_prefs
+
+    form = UserPreferencesForm(request.user, request.POST or None, **form_args)
+    ctx['form'] = form
+
+    if user_prefs and user_prefs.payment_accepted:
+        ctx['payed'] = True
+        form.disable()
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.call(zosia)
+            messages.success(request, _("Preferences saved!"))
+
+            return redirect(reverse('accounts_profile') + '#zosia')
+        else:
+            messages.error(request, errors_format(form))
+
+    return render(request, 'users/register.html', ctx)

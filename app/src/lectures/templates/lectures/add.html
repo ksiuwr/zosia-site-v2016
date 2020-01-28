@@ -4,23 +4,91 @@
 
 {% block content %}
 
-<form method="post" action="">
-    {% csrf_token %}
-    <div class="container">
-    {% if object %}
-      {% include '_form.html' with form_name=object %}
-    {% else %}
-      {% include '_form.html' with form_name='Add lecture' %}
-    {% endif %}
-
-      </div>
+<div class="container">
+    <div class="row">
+        <div class="col s12 m8">
+            <div class="card">
+                <div class="card-content">
+                <blockquote>
+                    <strong>{% trans "Please remember that lectures/workshops should be accepted by organizers before publishing!" %}</strong>
+                </blockquote>
+                </div>
+            </div>
+        </div>
     </div>
-</form>
+    <form id="lecture-add-form" method="post" action="" duration-url="{% url 'ajax_load_durations' %}">
+        {% csrf_token %}
+        {% if object %}
+          {% include '_form.html' with form_name=object %}
+        {% else %}
+          {% include '_form.html' with form_name='Add lecture' %}
+        {% endif %}
+    </form>
+</div>
 
 {% endblock %}
 {% block custom_scripts %}
 <script type="text/javascript">
 $(document).ready(function() {
+    const ajaxDurationCall = (lectureTypeVal, personTypeVal) => {
+        const ajaxUrl = $("#lecture-add-form").attr("duration-url");
+
+        $.ajax({
+            url: ajaxUrl,
+            data: {
+                'lecture_type': lectureTypeVal,
+                'person_type': personTypeVal
+            },
+            success: data => {
+                const lastValue = $('select[name="duration"]').val();
+                const newSelected = data.durations.slice().reverse().find(d => d <= lastValue);
+
+                const createOpt = dur => {
+                    const opt = $("<option></option>").attr("value", dur).text(dur);
+
+                    if(dur === newSelected) {
+                        opt.attr("selected", true);
+                    }
+
+                    return opt;
+                }
+
+                $('select[name="duration"]').empty();
+                data.durations.forEach(dur => $('select[name="duration"]').append(createOpt(dur)));
+
+                if (data.durations.length == 0) {
+                    $('select[name="duration"]').append(
+                        $("<option></option>").attr("value", '').text('Please choose lecture type first!')
+                    );
+                }
+
+                $('select').formSelect();
+            }
+        });
+
+    }
+
+    $('select[name="person_type"]').change(event => {
+        const person_type_val = event.target.value;
+        const lecture_type_val = $('select[name="lecture_type"]').val();
+        ajaxDurationCall(lecture_type_val, person_type_val);
+        M.toast({
+            html: "Please choose duration",
+            displayLength: 2000
+        });
+    });
+
+    $('select[name="lecture_type"]').change(event => {
+        const lecture_type_val = event.target.value;
+        const person_type_val = $('select[name="person_type"]').val();
+        ajaxDurationCall(lecture_type_val, person_type_val);
+        M.toast({
+            html: "Please choose duration",
+            displayLength: 2000
+        });
+    });
+
+    ajaxDurationCall($('select[name="lecture_type"]').val(), $('select[name="person_type"]').val());
     $('select').formSelect();
 });
 </script>

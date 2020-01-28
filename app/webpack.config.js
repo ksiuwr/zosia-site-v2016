@@ -5,6 +5,9 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const config = {
   entry: {
     room: './js/room.js',
+    admin: './js/admin.js',
+    add_organization: './js/add_organization.js',
+    choose_from_s3: './js/choose_from_s3.js',
   },
   output: {
     filename: '[name].min.js',
@@ -13,6 +16,10 @@ const config = {
   plugins: [
     new webpack.ProgressPlugin(),
     new CopyWebpackPlugin([
+      {
+        from: path.resolve(__dirname, './js/countdown_timer.js'),
+        to: path.resolve(__dirname, './static/script/countdown_timer.js'),
+      },
       {
         from: path.resolve(__dirname, './node_modules/jquery/dist/jquery.min.js'),
         to: path.resolve(__dirname, './static/script/jquery.min.js'),
@@ -37,6 +44,14 @@ const config = {
         from: path.resolve(__dirname, './node_modules/materialize-css/dist/fonts'),
         to: path.resolve(__dirname, './static/fonts'),
       },
+      {
+        from: path.resolve(__dirname, './node_modules/chart.js/dist/Chart.bundle.min.js'),
+        to: path.resolve(__dirname, './static/script/Chart.bundle.min.js'),
+      },
+      {
+        from: path.resolve(__dirname, './node_modules/chart.js/dist/Chart.min.css'),
+        to: path.resolve(__dirname, './static/css/Chart.min.css'),
+      }
     ]),
   ],
   module: {
@@ -58,6 +73,6 @@ const config = {
     extensions: ['.js', '.jsx'],
   },
 };
- 
+
 module.exports = config;
 

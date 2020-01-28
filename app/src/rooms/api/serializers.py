@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
 
 from rooms.models import Room, RoomLock, UserRoom
@@ -25,6 +26,20 @@ class RoomMembersSerializer(serializers.ModelSerializer):
 
 
 class RoomLockSerializer(serializers.ModelSerializer):
+    user = UserDataSerializer()
+    password = serializers.SerializerMethodField("send_password")
+
+    class Meta:
+        model = RoomLock
+        fields = ("user", "password", "expiration_date")
+
+    def send_password(self, obj):
+        request = self.context.get("request")
+
+        return obj.password if request and obj.user == request.user else None
+
+
+class RoomLockWithPasswordSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
@@ -62,21 +77,32 @@ class RoomSerializer(serializers.ModelSerializer):
 
         if available_beds_single_data > beds_single_data + beds_double_data:
             raise serializers.ValidationError(
-                "Available single beds cannot exceed real single beds plus double beds")
+                _("Available single beds cannot exceed real single beds plus double beds"),
+                code='invalid'
+            )
 
         double_as_single = max(0, available_beds_single_data - beds_single_data)
 
         if available_beds_double_data > beds_double_data - double_as_single:
-            raise serializers.ValidationError(
-                "Available double beds cannot exceed real double beds minus double-as-single beds")
+            raise serializers.ValidationError(_(
+                "Available double beds cannot exceed real double beds minus double-as-single beds"),
+                code='invalid'
+            )
 
         available_members = available_beds_single_data + 2 * available_beds_double_data
         members_count = 0 if self.instance is None else len(self.instance.members.all())
 
         if available_members < members_count:
-            raise serializers.ValidationError("Available beds must exceed already joined members")
+            raise serializers.ValidationError(
+                _("Available beds must exceed already joined members"),
+                code='invalid'
+            )
 
         return data
+
+
+class RoomWithLockPasswordSerializer(RoomSerializer):
+    lock = RoomLockWithPasswordSerializer(read_only=True)
 
 
 class LeaveMethodSerializer(serializers.BaseSerializer):
@@ -92,7 +118,7 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
         user = data.get("user")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."})
+            raise serializers.ValidationError({"user": "This field is required."}, code='required')
 
         return {"user": user}
 
@@ -117,7 +143,7 @@ class JoinMethodSerializer(serializers.BaseSerializer):
         password = data.get("password")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."})
+            raise serializers.ValidationError({"user": "This field is required."}, code='required')
 
         return {"user": user, "password": password}
 
@@ -135,7 +161,7 @@ class LockMethodSerializer(serializers.BaseSerializer):
         user = data.get("user")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."})
+            raise serializers.ValidationError({"user": "This field is required."}, code='required')
 
         return {"user": user}
 
@@ -160,7 +186,7 @@ class LockMethodAdminSerializer(serializers.BaseSerializer):
         expiration_date = data.get("expiration_date")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."})
+            raise serializers.ValidationError({"user": "This field is required."}, code='required')
 
         return {"user": user} if expiration_date is None else \
             {"user": user, "expiration_date": parse_timezone(expiration_date)}

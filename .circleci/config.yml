@@ -46,7 +46,34 @@ jobs:
           command: TAG="latest" docker-compose -f docker-compose.prod.yml build
       - run:
           name: Push image to ECR
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} ./tools/upload_circle.sh
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/upload_2_ecr.sh
+
+  deploy_new_version:
+    environment:
+      AWS_ACCOUNT_ID: "463715963173"
+      AWS_DEFAULT_REGION: "eu-central-1"
+    docker:
+      - image: docker:git
+    steps:
+      - run:
+          name: Install awscli
+          command: |
+            apk add --no-cache py-pip jq bash
+            pip install awscli
+      - checkout
+      - run: 
+          name: Create new Task Definition
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/prepare_task_def.sh
+      - run: 
+          name: Update service and wait
+          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} .ecs/update_service_with_rollback.sh
+  #     - run:
+  #         name: Purge cache
+  #         command: |
+  #           curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+  #             -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
+  #             -H "Content-Type: application/json" \
+  #             --data '{"purge_everything":true}'
 
 workflows:
   version: 2
@@ -56,6 +83,13 @@ workflows:
       - build_and_push_to_ecr:
           requires:
             - run_tests
+          filters:
+            branches:
+              only: 
+                - master
+      - deploy_new_version:
+          requires:
+            - build_and_push_to_ecr
           filters:
             branches:
               only: 

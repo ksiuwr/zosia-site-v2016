@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from users.models import User
-from utils.constants import ROOM_LOCK_TIMEOUT
+from utils.constants import DELIMITER, ROOM_LOCK_TIMEOUT
 from utils.time_manager import now, timedelta_since_now
 
 
@@ -97,7 +97,7 @@ class Room(models.Model):
 
     @property
     def members_to_string(self):
-        return ", ".join(map(str, self.members.all()))
+        return DELIMITER.join(map(str, self.members.order_by("last_name", "first_name")))
 
     def __str__(self):
         return "Room " + self.name
@@ -115,9 +115,8 @@ class Room(models.Model):
                                   code="invalid",
                                   params={"room": self})
 
-        if self.is_locked and not self.lock.is_opened_by(password) \
-                and not sender.is_staff:
-            raise ValidationError(_("Cannot join %(room)s, room is locked."),
+        if self.is_locked and not self.lock.is_opened_by(password) and sender == user:
+            raise ValidationError(_("Cannot join %(room)s, incorrect password for locked room."),
                                   code="invalid",
                                   params={"room": self})
 
@@ -146,7 +145,7 @@ class Room(models.Model):
                                   code="invalid")
 
         try:
-            self.unlock(user)
+            self.unlock(user, True)
         except ValidationError:
             pass
 
@@ -181,10 +180,10 @@ class Room(models.Model):
         self.save()
 
     @transaction.atomic
-    def unlock(self, sender):
+    def unlock(self, sender, leaving=False):
         if self.is_locked:
-            if not self.lock.is_owned_by(sender) and not sender.is_staff:
-                raise ValidationError(_("Cannot unlock %(room)s, no permission to do this."),
+            if not self.lock.is_owned_by(sender) and (not sender.is_staff or leaving):
+                raise ValidationError(_("Cannot unlock %(room)s, lock belongs to other user."),
                                       code="invalid",
                                       params={"room": self})
 
