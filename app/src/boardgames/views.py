@@ -80,6 +80,7 @@ def create(request):
             name = get_name(url)
             boardgame = Boardgame(name=name, user=request.user, url=url)
             boardgame.save()
+            return redirect('my_boardgames')
 
     return render(request, 'boardgames/create.html', ctx)
 
