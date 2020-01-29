@@ -14,37 +14,39 @@
   <div class="row">
     <div class="col l12 m12 s12">
       {% if paid %}
-          <a class="waves-effect waves-light btn" href="{% url 'boardgames_create' %}">
-            {% trans "Add boardgame" %} </a>
-          <a class="waves-effect waves-light btn" href="{% url 'boardgames_vote' %}">
-            {% trans "Vote" %} </a>
-      {% else %} 
-        <p>To add boardgames your payment must be accepted first</p>
+      <a class="waves-effect waves-light btn" href="{% url 'my_boardgames' %}">
+        {% trans "My boardgames" %} </a>
+      <a class="waves-effect waves-light btn" href="{% url 'boardgames_vote' %}">
+        {% trans "Vote" %} </a>
+      {% else %}
+      <p>To add boardgames your payment must be accepted first</p>
       {% endif %}
-      </div>
+    </div>
   </div>
 
-    <div class="row">
-      <div class="col l12 m12 s12">
-        <div class="card">
-          <div class="card-content">
-            <table>
-              <tr>
-                <th>Name</th>
-                <th>Votes</th>
-                <th>State</th>
-              </tr>
-              {% for boardgame in boardgames %}
-              <tr>
-                <td>{{boardgame.name}}</td>
-                <td>{{boardgame.votes_amount}}</td>
-                <td>{% if boardgame.accepted %} Accepted {% else %} Suggested {% endif %}</td>
-              </tr>
-              {% endfor %}
-            </table>
-          </div>
+  <div class="row">
+    <div class="col l12 m12 s12">
+      <div class="card">
+        <div class="card-content">
+          <table>
+            <tr>
+              <th>Name</th>
+              <th>Votes</th>
+              <th>State</th>
+            </tr>
+            {% for boardgame in boardgames %}
+            <tr>
+              <td><a href={{boardgame.url}}>{{boardgame.name}}</a></td>
+              <td>{{boardgame.votes_amount}}</td>
+              <td>{% if boardgame.accepted %} Accepted {% else %} Suggested by {{user.first_name}}
+                {{user.last_name}}{% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </table>
         </div>
       </div>
     </div>
   </div>
+</div>
 {% endblock content %}
