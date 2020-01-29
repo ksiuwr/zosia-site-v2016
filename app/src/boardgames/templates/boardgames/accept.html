@@ -11,9 +11,10 @@
 {% block elems %}
 <div class="switch">
     <label>
-        <input data-id="{{boardgame.pk}}" data-name="{{boardgame.name}}" type="checkbox" {% if boardgame.accepted %}checked{% endif %}/>
+        <input data-id={{boardgame.pk}} data-name={{boardgame.name}} type="checkbox"
+            {% if boardgame.accepted %}checked{% endif %} />
         <span class="lever"></span>
-        {{boardgame.name}}
+        <a href={{boardgame.url}}>{{boardgame.name}}</a>
     </label>
 </div>
 {% endblock %}
@@ -22,17 +23,13 @@
 {% block action %}
 {% with 'admin' as url_name %}
 {{ block.super }}
-{% endwith %}   
+{% endwith %}
 {% endblock %}
 
 
-{% block message %}
-let msg = 'State of the boardgames was successfully changed.';
+{% block info %}
+let info_msg = 'State of the boardgames was successfully changed.';
 if(new_ids.length == 0)
-    msg = 'State of the boardgames was successfully reset.'
-{% endblock %}
-
-
-{% block oldIds %}
-let oldIds = {{ accepted }};
+info_msg = 'State of the boardgames was successfully reset.'
+let info_url = '{% url 'accept_edit' %}'
 {% endblock %}

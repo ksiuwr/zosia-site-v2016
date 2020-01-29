@@ -4,17 +4,27 @@
 
 {% block description %}
 <p>
-{% trans "Vote for your favourite boardgames. You can choose up to three of them." %}
+    {% trans "Vote for your favourite boardgames. You can choose up to three of them." %}
 </p>
 {% endblock %}
 
 {% block elems %}
 <div>
     <label>
-        <input data-id="{{boardgame.pk}}" data-name="{{boardgame.name}}" type="checkbox" {% if boardgame.pk in user_voted %}checked{% endif %}/>
-        <span>{{boardgame.name}}</span>
+        <input class="boardgame" data-id="{{boardgame.pk}}" data-name={{boardgame.name}} type="checkbox"
+            {% if boardgame.pk in user_voted %}checked{% endif %} />
+        <span><a href={{boardgame.url}}>{{boardgame.name}}</a></span>
     </label>
 </div>
+
+<script type="text/javascript">
+    $('.boardgame').on('change', function () {
+        if ($('.boardgame:checked').length > 3) {
+            this.checked = false;
+        }
+    });
+</script>
+
 {% endblock %}
 
 
@@ -24,12 +34,9 @@
 {% endwith %}
 {% endblock %}
 
-{% block message %}
-let msg = 'Voted for the boardgames: '+ new_names;
+{% block info %}
+let info_msg = 'Voted for the boardgames: '+ new_names;
 if(new_ids.length == 0)
-    msg = 'Votes were successfully reset'
-{% endblock %}
-
-{% block oldIds %}
-let oldIds = {{ user_voted }};
+info_msg = 'Votes were successfully reset'
+let info_url = '{% url 'vote_edit' %}'
 {% endblock %}
