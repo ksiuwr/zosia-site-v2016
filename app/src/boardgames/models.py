@@ -4,10 +4,15 @@ from users.models import User
 
 
 class Boardgame(models.Model):
-    name = models.CharField(verbose_name=_("Name"), max_length=200)
+    name = models.CharField(verbose_name=_(
+        "Name of the boardgame"), max_length=200)
+    # czy wywalić votes_amount???
     votes_amount = models.PositiveSmallIntegerField(default=0)
     accepted = models.BooleanField(default=False)
-    
+    user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)
+    url = models.CharField(verbose_name=_(
+        "Url to boardgamegeek.com"), max_length=200)
+
     class Meta:
         ordering = ["accepted", "-votes_amount"]
 
@@ -30,5 +35,5 @@ class Vote(models.Model):
         on_delete=models.CASCADE)
     boardgame = models.ForeignKey(
         Boardgame,
-        on_delete = models.CASCADE
+        on_delete=models.CASCADE
     )
