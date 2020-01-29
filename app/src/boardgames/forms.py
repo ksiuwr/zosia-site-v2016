@@ -1,8 +1,8 @@
 from django import forms
-from .models import Boardgame
+from django.utils.safestring import mark_safe
 
 
-class BoardgameForm(forms.ModelForm):
-    class Meta:
-        model = Boardgame
-        exclude = ['votes_amount', 'accepted']
+class BoardgameForm(forms.Form):
+    url = forms.CharField(
+        label=mark_safe('Find your boardgame on: <a href="https://boardgamegeek.com/">\
+            boardgamegeek.com</a> and paste here link'), max_length=200)
