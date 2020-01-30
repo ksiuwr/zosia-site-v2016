@@ -6,7 +6,6 @@ from users.models import User
 class Boardgame(models.Model):
     name = models.CharField(verbose_name=_(
         "Name of the boardgame"), max_length=200)
-    # czy wywalić votes_amount???
     votes_amount = models.PositiveSmallIntegerField(default=0)
     accepted = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.PROTECT, null=False)

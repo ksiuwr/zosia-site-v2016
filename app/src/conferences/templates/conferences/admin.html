@@ -4,24 +4,8 @@
 
 {% block content %}
 
-<<<<<<< HEAD
-        <div class="row">
-            <div class="col s12">
-                <ul class="tabs">
-                    <li class="tab col l1 m6 s12"><a href="#users_tab" class="active">{% trans 'Users' %}</a></li>
-                    <li class="tab col l1 m6 s12"><a href="#blog_tab">{% trans 'Blog' %}</a></li>
-                    <li class="tab col l1 m6 s12"><a href="#qa_tab">{% trans 'Q&A' %}</a></li>
-                    <li class="tab col l1 m6 s12"><a href="#rooms_tab">{% trans 'Rooms' %}</a></li>
-                    <li class="tab col l2 m6 s12"><a href="#sponsors_tab">{% trans 'Sponsors' %}</a></li>
-                    <li class="tab col l2 m6 s12"><a href="#lectures_tab">{% trans 'Lectures' %}</a></li>
-                    <li class="tab col l2 m6 s12"><a href="#boardgames_tab">{% trans 'Boardgames' %}</a></li>
-                    <li class="tab col l2 m6 s12"><a href="#zosia_tab">{% trans 'Zosia' %}</a></li>
-                </ul>
-            </div>
-=======
 <div class="container">
     <h3>{% trans 'Admin panel' %}</h3>
->>>>>>> upstream/master
 
     <div class="row">
         <div class="col s12">
@@ -44,26 +28,11 @@
             </ul>
         </div>
 
-<<<<<<< HEAD
-            <div id="boardgames_tab" class="col s12">
-                <ul class="collection">
-                    <a href="{% url 'boardgames_accept' %}" class="collection-item">{% trans 'Manage boardgames' %}</a>
-                </ul>
-            </div>
-
-            <div id="sponsors_tab" class="col s12">
-                <ul class="collection">
-                    <a href="{% url 'sponsors_index' %}" class="collection-item">{% trans 'Sponsors' %}</a>
-                    <a href="{% url 'sponsors_add' %}" class="collection-item">{% trans 'Add sponsor' %}</a>
-                </ul>
-            </div>
-=======
         <div id="blog_tab" class="col s12">
             <ul class="collection">
                 <a href="{% url 'blog_create' %}" class="collection-item">{% trans 'Add blog post' %}</a>
             </ul>
         </div>
->>>>>>> upstream/master
 
         <div id="sponsors_tab" class="col s12">
             <ul class="collection">
@@ -88,7 +57,7 @@
         </div>
 
         <div id="rooms_tab" class="col s12">
-        {% comment %} This is root for React app {% endcomment %}
+            {% comment %} This is root for React app {% endcomment %}
         </div>
 
         <div id="zosia_tab" class="col s12">
