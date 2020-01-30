@@ -51,7 +51,7 @@ class MailForm(forms.Form):
         to_field_name="email", required=False)
 
     def __init__(self, *args, **kwargs):
-        super(forms.Form, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["all_Users"].initial = (
             User.objects.all().values_list('email', flat=True)
         )
@@ -191,7 +191,6 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        errors = []
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
@@ -199,16 +198,15 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         for accommodation, meals in PAYMENT_GROUPS.items():
             for m in meals:
                 if _pays_for(m) and not _pays_for(accommodation):
-                    errors.append(
+                    self.add_error(
+                        m,
                         forms.ValidationError(
-                            _("You need to check %(accomm)s before you can check %(meal)s"),
+                            _("You need to check `%(accomm)s` before you can check `%(meal)s`"),
                             code='invalid',
-                            params={'accomm': accommodation, 'meal': m}
+                            params={'accomm': self.fields[accommodation].label,
+                                    'meal': self.fields[m].label}
                         )
                     )
-
-        if len(errors) > 0:
-            raise forms.ValidationError(errors)
 
     def disable(self):
         for field in self.fields:
