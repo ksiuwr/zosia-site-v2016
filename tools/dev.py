@@ -6,12 +6,11 @@ from os.path import dirname, normpath
 from shlex import quote
 import subprocess as subp
 
-C_blue = ""
-C_green = ""
-C_purple = ""
-C_yellow = ""
-C_bold = ""
-C_normal = ""
+C_blue = "\033[1;34m"
+C_purple = "\033[1;35m"
+C_yellow = "\033[1;33m"
+C_white = "\033[1;37m"
+C_normal = "\033[0m"
 
 PROJECT_NAME = "zosia"
 ROOT_DIR = normpath(dirname(__file__) + "/..")
@@ -22,7 +21,7 @@ DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
 
 def shell_run(command):
     if args.debug:
-        print(f"** {C_bold}{C_yellow}{command}{C_normal} **")
+        print(f"{C_white}** {C_yellow}{command}{C_white} **{C_normal}")
 
     subp.run(command, shell=True)
 
@@ -62,8 +61,8 @@ def js_build():
 def run_server():
     docker_python("runserver 0.0.0.0:8000")
     print(
-        f"{C_bold}{C_purple}-- Exiting --{C_normal}",
-        f"{C_bold}{C_blue}* Remember to run `./dev.py shutdown`, if you've just finished{C_normal}",
+        f"{C_purple}-- Exiting --{C_normal}",
+        f"{C_yellow} [!] Remember to run `./dev.py shutdown`, if you've just finished{C_normal}",
         sep="\n")
     shell_run("docker ps")
 
@@ -72,12 +71,12 @@ def migrate():
     docker_python("migrate")
 
     if args.create_admin:
-        print(f"{C_bold}{C_purple}-- Set password for super user account --{C_normal}")
+        print(f"{C_purple}-- Set password for super user account --{C_normal}")
         docker_python(
             "createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz")
 
     if args.create_data:
-        print(f"{C_bold}{C_purple}-- Prepare some random data --{C_normal}")
+        print(f"{C_purple}-- Prepare some random data --{C_normal}")
         docker_python("create_data")
 
 
@@ -117,11 +116,11 @@ py_parser.add_argument("action", type=str, choices=("install",))
 args = parser.parse_args()
 
 if args.command == "one_click":
-    print(f"{C_bold}{C_blue}-- Setup container --${C_normal}")
+    print(f"{C_blue}-- Setup container --{C_normal}")
     setup()
-    print(f"{C_bold}{C_blue}-- Run migrations --{C_normal}")
+    print(f"{C_blue}-- Run migrations --{C_normal}")
     migrate()
-    print(f"{C_bold}{C_blue}-- Run webserver --{C_normal}")
+    print(f"{C_blue}-- Run webserver --{C_normal}")
     run_server()
 elif args.command == "setup":
     setup()
