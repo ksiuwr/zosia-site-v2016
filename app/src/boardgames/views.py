@@ -38,10 +38,15 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def my_boardgames(request):
     user_boardgames = Boardgame.objects.filter(user=request.user)
-    ctx = {'user_boardgames': user_boardgames}
+    can_add = False
+    if user_boardgames.count() < 3:
+        can_add = True
+    ctx = {'user_boardgames': user_boardgames,
+           'can_add': can_add}
     return render(request, 'boardgames/my_boardgames.html', ctx)
 
 
+# TODO: check with regex and check if not already in the database
 def validate_url(url):
     pass
 
@@ -67,20 +72,18 @@ def get_name(url):
 @require_http_methods(['GET', 'POST'])
 def create(request):
     user_boardgames = Boardgame.objects.filter(user=request.user)
-    has_votes = True
-    if len(list(user_boardgames)) > 3:
-        has_votes = False
-    ctx = {'form': BoardgameForm(request.POST or None),
-           'has_votes': has_votes}
+    ctx = {'form': BoardgameForm(request.POST or None)}
 
     if request.method == 'POST':
-        if ctx['form'].is_valid():
+        if ctx['form'].is_valid() and user_boardgames.count() < 3:
             url = ctx['form'].cleaned_data['url']
             validate_url(url)
             name = get_name(url)
             boardgame = Boardgame(name=name, user=request.user, url=url)
             boardgame.save()
             return redirect('my_boardgames')
+        else:
+            pass
 
     return render(request, 'boardgames/create.html', ctx)
 

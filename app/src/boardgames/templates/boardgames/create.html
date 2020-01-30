@@ -3,18 +3,11 @@
 
 {% block content %}
 <div class="container">
-  {% if has_votes %}
 
   <form method="post">
     {% csrf_token %}
     {% include '_form.html' with form_name='Add boardgame' %}
   </form>
-
-  {% else %}
-  <p>
-    {% trans "You used all your votes. Remove some game to add a new one." %}
-  </p>
-  {% endif %}
 
 </div>
 {% endblock content %}
@@ -22,7 +15,7 @@
 {% block custom_scripts %}
 <script type="text/javascript">
   $(document).ready(function () {
-    $('select').formSelect();
+    $('select').material_select();
     $('textarea').addClass("materialize-textarea");
   });
 </script>

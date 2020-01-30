@@ -13,12 +13,16 @@
                     </span>
                     <div class="divider"></div>
                     <div class="section">
+                        {% if can_add %}
                         <div class="row">
                             <div class="col l12 m12 s12">
                                 <a href="{% url 'boardgames_create' %}"
                                     class="btn btn-default">{% trans 'Add boardgame' %}</a>
                             </div>
                         </div>
+                        {% else %}
+                        <p>{% trans "You've already added three boardgames. Remove some to add a new one." %}</p>
+                        {% endif %}
                     </div>
 
                     <div class="row">
@@ -43,6 +47,9 @@
                             </table>
                         </div>
                     </div>
+                </div>
+                <div class="card-action">
+                    <a href="{% url 'boardgames_index'%}" class=" btn btn-default">Go Back</a>
                 </div>
             </div>
         </div>
