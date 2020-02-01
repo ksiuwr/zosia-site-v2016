@@ -17,6 +17,7 @@ ROOT_DIR = normpath(dirname(__file__) + "/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
 DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
+FILE_SYSTEM_NOTE = f"({C_yellow}note:{C_normal} this may create files on host fs with root permissions)"
 
 
 def shell_run(command):
@@ -81,71 +82,99 @@ def migrate():
 
 
 parser = argp.ArgumentParser()
-parser.add_argument("-d", "--debug", action="store_true")
-subparsers = parser.add_subparsers(title="command", dest="command")
+parser.add_argument("-d", "--debug", action="store_true", help="print commands before execution")
+subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
-one_click_parser = subparsers.add_parser("one_click")
-one_click_parser.add_argument("--create-admin", action="store_true")
-one_click_parser.add_argument("--create-data", action="store_true")
-one_click_parser.add_argument("--no-cache", action="store_const", const="--no_cache", default="")
+one_click_parser = subparsers.add_parser("one_click", aliases=["x"],
+                                         help="run zosia website (localhost, port 8000)")
+one_click_parser.add_argument("--create-admin", action="store_true",
+                              help="create super user account (password specified manually)")
+one_click_parser.add_argument("--create-data", action="store_true",
+                              help="create some random data to work on like conference, buses, rooms, etc.")
+one_click_parser.add_argument("--no-cache", action="store_const", const="--no_cache", default="",
+                              help="do not use cache when building the container image")
 
-setup_parser = subparsers.add_parser("setup")
-setup_parser.add_argument("--no-cache", action="store_const", const="--no_cache", default="")
+setup_parser = subparsers.add_parser("setup", aliases=["s"],
+                                     help="spin up the containers and prepare development enviroment")
+setup_parser.add_argument("--no-cache", action="store_const", const="--no_cache", default="",
+                          help="Do not use cache when building the container image")
 
-shutdown_parser = subparsers.add_parser("shutdown")
+shutdown_parser = subparsers.add_parser("shutdown", aliases=["sd"],
+                                        help="kill and destroy containers")
 
-test_parser = subparsers.add_parser("test")
+test_parser = subparsers.add_parser("test", aliases=["t"],
+                                    help="run Django tests inside the container")
 
-shell_parser = subparsers.add_parser("shell")
-shell_parser.add_argument("type", type=str, choices=("bash", "postgres"))
+shell_parser = subparsers.add_parser("shell", aliases=["sh"], help="run shell inside a container")
+shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL")
+shell_subparsers.add_parser("bash", help="run Bash shell in website container", add_help=False, )
+shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
+                            help="run Postgres shell (psql) in database container")
 
-make_migrations_parser = subparsers.add_parser("make_migrations")
+make_migrations_parser = subparsers.add_parser("make_migrations", aliases=["mm"],
+                                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
-migrate_parser = subparsers.add_parser("migrate")
-migrate_parser.add_argument("--create-admin", action="store_true")
-migrate_parser.add_argument("--create-data", action="store_true")
+migrate_parser = subparsers.add_parser("migrate", aliases=["m"],
+                                       help="apply Django database migrations")
+migrate_parser.add_argument("--create-admin", action="store_true",
+                            help="create super user account (password specified manually)")
+migrate_parser.add_argument("--create-data", action="store_true",
+                            help="create some random data to work on like conference, buses, rooms, etc.")
 
-run_server_parser = subparsers.add_parser("run_server")
+run_server_parser = subparsers.add_parser("run_server", aliases=["rs"],
+                                          help="run Django development server inside the container")
 
-js_parser = subparsers.add_parser("js")
-js_parser.add_argument("action", type=str, choices=("install", "build", "watch"))
+js_parser = subparsers.add_parser("javascript", aliases=["js"],
+                                  help="perform action related to JavaScript language")
+js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION")
+js_subparsers.add_parser("install", aliases=["i"], add_help=False,
+                         help="install JavaScript depedencies from file package.json")
+js_subparsers.add_parser("build", aliases=["b"], add_help=False,
+                         help=f"build JavaScript {FILE_SYSTEM_NOTE}")
+js_subparsers.add_parser("watch", aliases=["w"], add_help=False,
+                         help=f"rebuild JavaScript on file change {FILE_SYSTEM_NOTE}")
 
-py_parser = subparsers.add_parser("python")
-py_parser.add_argument("action", type=str, choices=("install",))
+py_parser = subparsers.add_parser("python", aliases=["py"],
+                                  help="perform action related to Python language")
+py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION")
+py_subparsers.add_parser("install", aliases=["i"], add_help=False,
+                         help="install Python dependencies from file requirements.txt")
 
 args = parser.parse_args()
 
-if args.command == "one_click":
+if args.command in ["one_click", "x"]:
     print(f"{C_blue}-- Setup container --{C_normal}")
     setup()
     print(f"{C_blue}-- Run migrations --{C_normal}")
     migrate()
     print(f"{C_blue}-- Run webserver --{C_normal}")
     run_server()
-elif args.command == "setup":
+elif args.command in ["setup", "s"]:
     setup()
-elif args.command == "shutdown":
+elif args.command in ["shutdown", "sd"]:
     docker_compose("down")
-elif args.command == "test":
+elif args.command in ["test", "t"]:
     docker_python("test")
-elif args.command == "shell":
-    if args.type == "bash":
+elif args.command in ["shell", "sh"]:
+    if args.shell == "bash":
         docker_exec("/bin/bash", WEB_CONTAINER_NAME)
-    elif args.type == "postgres":
+    elif args.shell in ["postgres", "psql"]:
         docker_exec("psql -U zosia", DB_CONTAINER_NAME)
-elif args.command == "make_migrations":
+elif args.command in ["make_migrations", "mm"]:
     docker_python("makemigrations")
-elif args.command == "migrate":
+elif args.command in ["migrate", "m"]:
     migrate()
-elif args.command == "run_server":
+elif args.command in ["run_server", "rs"]:
     run_server()
-elif args.command == "js":
-    if args.action == "install":
+elif args.command in ["javascript", "js"]:
+    if args.action in ["install", "i"]:
         js_install()
-    elif args.action == "build":
+    elif args.action in ["build", "b"]:
         js_build()
-    elif args.action == "watch":
+    elif args.action in ["watch", "w"]:
         docker_shell("yarn watch")
-elif args.command == "python":
-    if args.action == "install":
+elif args.command in ["python", "py"]:
+    if args.action in ["install", "i"]:
         docker_shell("pip install -r requirements.txt")
+else:
+    print(f"Unrecognized command '{args.command}'")
