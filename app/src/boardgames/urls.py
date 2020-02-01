@@ -6,7 +6,7 @@ urlpatterns = [
     re_path(r'^$', views.index, name='boardgames_index'),
     re_path(r'^my_boardgames/$', views.my_boardgames, name='my_boardgames'),
     re_path(r'^my_boardgames/delete/$',
-            views.boardgame_delete, name='boardgame_delete'),
+            views.boardgame_delete, name='boardgames_delete'),
     re_path(r'^create/$', views.create, name='boardgames_create'),
     re_path(r'^vote/$', views.vote, name='boardgames_vote'),
     re_path(r'^vote/post/$', views.vote_edit, name='vote_edit'),

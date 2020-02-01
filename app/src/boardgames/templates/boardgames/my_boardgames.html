@@ -37,11 +37,29 @@
                                 </thead>
                                 <tbody>
                                     {% for boardgame in user_boardgames %}
-                                    <tr>
+                                    <tr id="tr{{boardgame.id}}">
                                         <td><a href={{boardgame.url}}>{{ boardgame.name }}</a></td>
                                         <td>{{ boardgame.votes_amount}}</td>
-                                        <td><a class="btn btn-default" data-id="{{boardgame.pk}}">delete</a></td>
+                                        <td><a class="waves-effect waves-light btn modal-trigger"
+                                                href="#{{boardgame.pk}}">{% trans 'Delete' %}</a>
+                                        </td>
                                     </tr>
+                                    <div id="{{boardgame.pk}}" class="modal">
+                                        <div class="modal-content">
+                                            <h4>Delete the boardgame</h4>
+                                            <p>{% blocktrans with name=boardgame.name %} Are you sure you want to
+                                                delete
+                                                the boardgame:
+                                                <b>{{ name }}</b>{% endblocktrans %}
+                                            </p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="submit" data-id={{boardgame.pk}} class="modal-close waves-effect waves-light btn
+                                                delete-button">{% trans 'Delete the boardgame' %}</button>
+                                            <button
+                                                class="modal-close waves-effect waves-light btn">{% trans 'Cancel' %}</button>
+                                        </div>
+                                    </div>
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -49,10 +67,58 @@
                     </div>
                 </div>
                 <div class="card-action">
-                    <a href="{% url 'boardgames_index'%}" class=" btn btn-default">Go Back</a>
+                    <a href="{% url 'boardgames_index'%}" class="btn btn-default">Go Back</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock content %}
+
+{% block custom_scripts %}
+<script type="text/javascript">
+
+    const delete_boardgame = (boardgame_id) => {
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: '{% url 'boardgames_delete' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'boardgame_id': boardgame_id,
+            },
+            success: function (data) {
+                M.toast({
+                    html: data.msg,
+                    displayLength: 2000,
+                    classes: "success"
+                });
+            },
+            error: function () {
+                M.toast({
+                    html: "Error deleting the boardgame",
+                    displayLength: 2000,
+                    classes: "error"
+                });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $('.modal').modal();
+
+        $('.delete-button').each(function () {
+            var $this = $(this);
+            $this.on('click', function (event) {
+                event.preventDefault();
+                var boardgame_id = $this.data('id');
+                delete_boardgame(boardgame_id);
+                table_row = document.getElementById('tr' + boardgame_id);
+                table_row.remove();
+            })
+        })
+
+    });
+
+</script>
+{% endblock %}

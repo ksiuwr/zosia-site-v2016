@@ -8,6 +8,7 @@ from conferences.models import Zosia
 from users.models import UserPreferences
 from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
+from django.utils.html import escape
 
 from django.http import Http404, HttpResponse, JsonResponse
 import json
@@ -158,9 +159,9 @@ def accept_edit(request):
 @staff_member_required
 @require_http_methods(['POST'])
 def boardgame_delete(request):
-    print("kupa")
     boardgame_id = request.POST.get('boardgame_id')
     print(boardgame_id)
     boardgame = get_object_or_404(Boardgame, pk=boardgame_id)
     boardgame.delete()
-    return JsonResponse({'foo': 'bar'})
+    return JsonResponse({'msg': "Deleted the boardgame: {}".format(
+        escape(boardgame))})
