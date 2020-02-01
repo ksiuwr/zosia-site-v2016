@@ -1,4 +1,4 @@
-{% extends "checkboxes.html" %}
+{% extends "boardgames/checkboxes.html" %}
 {% load i18n %}
 
 
@@ -11,7 +11,7 @@
 {% block elems %}
 <div>
     <label>
-        <input class="boardgame" data-id="{{boardgame.pk}}" data-name={{boardgame.name}} type="checkbox"
+        <input class="boardgame" data-id={{boardgame.pk}} data-name={{boardgame.name}} type="checkbox"
             {% if boardgame.pk in user_voted %}checked{% endif %} />
         <span><a href={{boardgame.url}}>{{boardgame.name}}</a></span>
     </label>
