@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Boardgame
-from .models import Vote
+from boardgames.models import Boardgame
+from boardgames.models import Vote
 
 for model in [Boardgame, Vote]:
     admin.site.register(model)

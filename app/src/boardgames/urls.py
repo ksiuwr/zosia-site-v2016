@@ -1,6 +1,6 @@
 from django.urls import re_path
 
-from . import views
+from boardgames import views
 
 urlpatterns = [
     re_path(r'^$', views.index, name='boardgames_index'),
