@@ -38,9 +38,7 @@ def index(request):
 @require_http_methods(['GET', 'POST'])
 def my_boardgames(request):
     user_boardgames = Boardgame.objects.filter(user=request.user)
-    can_add = False
-    if user_boardgames.count() < 3:
-        can_add = True
+    can_add = user_boardgames.count() < 3
     ctx = {'user_boardgames': user_boardgames,
            'can_add': can_add}
     return render(request, 'boardgames/my_boardgames.html', ctx)
@@ -160,7 +158,6 @@ def accept_edit(request):
 @require_http_methods(['POST'])
 def boardgame_delete(request):
     boardgame_id = request.POST.get('boardgame_id')
-    print(boardgame_id)
     boardgame = get_object_or_404(Boardgame, pk=boardgame_id)
     boardgame.delete()
     return JsonResponse({'msg': "Deleted the boardgame: {}".format(
