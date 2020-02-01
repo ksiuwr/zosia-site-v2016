@@ -29,8 +29,7 @@ def index(request):
     else:
         paid = preferences.payment_accepted
         ctx = {'boardgames': boardgames,
-               'paid': paid,
-               'user': request.user}
+               'paid': paid}
     return render(request, 'boardgames/index.html', ctx)
 
 
@@ -156,9 +155,12 @@ def accept_edit(request):
     return JsonResponse({'old_ids': old_ids, 'new_ids': new_ids})
 
 
-@login_required
+@staff_member_required
 @require_http_methods(['POST'])
 def boardgame_delete(request):
+    print("kupa")
     boardgame_id = request.POST.get('boardgame_id')
+    print(boardgame_id)
     boardgame = get_object_or_404(Boardgame, pk=boardgame_id)
     boardgame.delete()
+    return JsonResponse({'foo': 'bar'})

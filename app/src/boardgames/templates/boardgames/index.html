@@ -38,8 +38,8 @@
             <tr>
               <td><a href={{boardgame.url}}>{{boardgame.name}}</a></td>
               <td>{{boardgame.votes_amount}}</td>
-              <td>{% if boardgame.accepted %} Accepted {% else %} Suggested by {{user.first_name}}
-                {{user.last_name}}{% endif %}
+              <td>{% if boardgame.accepted %} Accepted {% else %} Suggested by {{boardgame.user.first_name}}
+                {{boardgame.user.last_name}}{% endif %}
               </td>
             </tr>
             {% endfor %}
