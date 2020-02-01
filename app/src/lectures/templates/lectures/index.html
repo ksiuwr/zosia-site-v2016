@@ -18,7 +18,9 @@
             </div>
             <div class="card-action">
               <strong>{{ lecture.author }}</strong>
-              <i>{{ lecture.description }}</i>
+              {% if lecture.description is not None %}
+                <i>{{ lecture.description }}</i>
+              {% endif %}
             </div>
           </div>
         </div>
