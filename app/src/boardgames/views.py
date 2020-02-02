@@ -73,19 +73,23 @@ def create(request):
     if request.method == 'POST':
         if ctx['form'].is_valid() and user_boardgames.count() < 3:
             new_url = ctx['form'].cleaned_data['url']
-            all_urls = Boardgame.objects.values_list('url', flat=True)
-            valid_url = validate_url(new_url)
-            name = get_name(request, new_url)
-            if name == "BoardGameGeek" or not valid_url:
-                messages.error(request, _("This is not a valid boardgame url"))
-            elif Boardgame.objects.filter(url=new_url).exists():
+            if Boardgame.objects.filter(url=new_url).exists():
                 messages.error(
                     request, _("This boardgame has been already added"))
+            elif not validate_url(new_url):
+                messages.error(request, _("This is not a valid boardgame url"))
             else:
-                boardgame = Boardgame(
-                    name=name, user=request.user, url=new_url)
-                boardgame.save()
-                return redirect('my_boardgames')
+                name = get_name(request, new_url)
+                if name == "BoardGameGeek":
+                    messages.error(request, _(
+                        "This is not a valid boardgame url"))
+                else:
+                    boardgame = Boardgame(
+                        name=name, user=request.user, url=new_url)
+                    boardgame.save()
+                    return redirect('my_boardgames')
+        else:
+            messages.error(request, _("Error adding boardgame"))
 
     return render(request, 'boardgames/create.html', ctx)
 
