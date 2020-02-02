@@ -13,7 +13,7 @@ class Boardgame(models.Model):
         "Url to boardgamegeek.com"), max_length=200)
 
     class Meta:
-        ordering = ["accepted", "-votes_amount"]
+        ordering = ["-votes_amount"]
 
     def __str__(self):
         return self.name
