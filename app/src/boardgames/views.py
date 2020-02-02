@@ -1,26 +1,27 @@
+import json
+import re
+
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import get_object_or_404, redirect, render, reverse
-from .models import Boardgame, Vote
-from .forms import BoardgameForm
+from django.contrib import messages
+from django.utils.translation import ugettext as _
+from django.utils.html import escape
+from django.core.exceptions import ValidationError
+from django.http import Http404, HttpResponse, JsonResponse
+from urllib.request import urlopen
+
+from boardgames.models import Boardgame, Vote
+from boardgames.forms import BoardgameForm
 from conferences.models import Zosia
 from users.models import UserPreferences
-from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
-from django.utils.html import escape
-
-from django.http import Http404, HttpResponse, JsonResponse
-import json
-
-from urllib.request import urlopen
 
 
 @login_required
 @require_http_methods(['GET'])
 def index(request):
     boardgames = Boardgame.objects.all()
-    boardgames = sorted(boardgames, key=lambda x: x.votes_amount, reverse=True)
     try:
         current_zosia = Zosia.objects.find_active()
         preferences = UserPreferences.objects.get(
@@ -44,12 +45,12 @@ def my_boardgames(request):
     return render(request, 'boardgames/my_boardgames.html', ctx)
 
 
-# TODO: check with regex and check if not already in the database
 def validate_url(url):
-    pass
+    url_pattern = r'(https://)?boardgamegeek.com/boardgame/\d{1,6}(/[0-9a-z-]+)?'
+    return re.match(url_pattern, url)
 
 
-def get_name(url):
+def get_name(request, url):
     boargamegeek_html = urlopen(url).read()
     title_str = '<title>'
     encoding = "utf-8"
@@ -60,9 +61,6 @@ def get_name(url):
         bytearray(' |', encoding), start_index)
     name_bytes = boargamegeek_html[start_index: end_index]
     name_str = name_bytes.decode(encoding)
-    if name_str == "BoardGameGeek":
-        pass
-        # TODO: jakiś error
     return name_str
 
 
@@ -74,14 +72,20 @@ def create(request):
 
     if request.method == 'POST':
         if ctx['form'].is_valid() and user_boardgames.count() < 3:
-            url = ctx['form'].cleaned_data['url']
-            validate_url(url)
-            name = get_name(url)
-            boardgame = Boardgame(name=name, user=request.user, url=url)
-            boardgame.save()
-            return redirect('my_boardgames')
-        else:
-            pass
+            new_url = ctx['form'].cleaned_data['url']
+            all_urls = Boardgame.objects.values_list('url', flat=True)
+            valid_url = validate_url(new_url)
+            name = get_name(request, new_url)
+            if name == "BoardGameGeek" or not valid_url:
+                messages.error(request, _("This is not a valid boardgame url"))
+            elif Boardgame.objects.filter(url=new_url).exists():
+                messages.error(
+                    request, _("This boardgame has been already added"))
+            else:
+                boardgame = Boardgame(
+                    name=name, user=request.user, url=new_url)
+                boardgame.save()
+                return redirect('my_boardgames')
 
     return render(request, 'boardgames/create.html', ctx)
 
