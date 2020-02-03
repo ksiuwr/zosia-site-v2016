@@ -44,8 +44,9 @@ def docker_compose(command, with_project=True):
     shell_run(f"docker-compose -f {quote(DOCKER_COMPOSE)} {project} {command}")
 
 
-def setup():
-    docker_compose(f"build {args.no_cache}", with_project=False)
+def setup(is_no_cache):
+    no_cache_opt = "--no-cache" if is_no_cache else ""
+    docker_compose(f"build {no_cache_opt}", with_project=False)
     docker_compose("up -d")
     js_install()
     js_build()
@@ -68,15 +69,15 @@ def run_server():
     shell_run("docker ps")
 
 
-def migrate():
+def migrate(is_create_admin, is_create_data):
     docker_python("migrate")
 
-    if args.create_admin:
+    if is_create_admin:
         print(f"{C_purple}-- Set password for super user account --{C_normal}")
         docker_python(
             "createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz")
 
-    if args.create_data:
+    if is_create_data:
         print(f"{C_purple}-- Prepare some random data --{C_normal}")
         docker_python("create_data")
 
@@ -96,18 +97,18 @@ one_click_parser.add_argument("--no-cache", action="store_const", const="--no_ca
 
 setup_parser = subparsers.add_parser("setup", aliases=["s"],
                                      help="spin up the containers and prepare development enviroment")
-setup_parser.add_argument("--no-cache", action="store_const", const="--no_cache", default="",
+setup_parser.add_argument("--no-cache", action="store_true",
                           help="Do not use cache when building the container image")
 
-shutdown_parser = subparsers.add_parser("shutdown", aliases=["sd"],
+shutdown_parser = subparsers.add_parser("shutdown", aliases=["q"],
                                         help="kill and destroy containers")
 
 test_parser = subparsers.add_parser("test", aliases=["t"],
                                     help="run Django tests inside the container")
 
 shell_parser = subparsers.add_parser("shell", aliases=["sh"], help="run shell inside a container")
-shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL")
-shell_subparsers.add_parser("bash", help="run Bash shell in website container", add_help=False, )
+shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL", required=True)
+shell_subparsers.add_parser("bash", add_help=False, help="run Bash shell in website container")
 shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
                             help="run Postgres shell (psql) in database container")
 
@@ -126,7 +127,7 @@ run_server_parser = subparsers.add_parser("run_server", aliases=["rs"],
 
 js_parser = subparsers.add_parser("javascript", aliases=["js"],
                                   help="perform action related to JavaScript language")
-js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION")
+js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 js_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install JavaScript depedencies from file package.json")
 js_subparsers.add_parser("build", aliases=["b"], add_help=False,
@@ -136,7 +137,7 @@ js_subparsers.add_parser("watch", aliases=["w"], add_help=False,
 
 py_parser = subparsers.add_parser("python", aliases=["py"],
                                   help="perform action related to Python language")
-py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION")
+py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 py_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install Python dependencies from file requirements.txt")
 
@@ -144,14 +145,14 @@ args = parser.parse_args()
 
 if args.command in ["one_click", "x"]:
     print(f"{C_blue}-- Setup container --{C_normal}")
-    setup()
+    setup(args.no_cache)
     print(f"{C_blue}-- Run migrations --{C_normal}")
-    migrate()
+    migrate(args.create_admin, args.create_data)
     print(f"{C_blue}-- Run webserver --{C_normal}")
     run_server()
 elif args.command in ["setup", "s"]:
-    setup()
-elif args.command in ["shutdown", "sd"]:
+    setup(args.no_cache)
+elif args.command in ["shutdown", "q"]:
     docker_compose("down")
 elif args.command in ["test", "t"]:
     docker_python("test")
@@ -163,7 +164,7 @@ elif args.command in ["shell", "sh"]:
 elif args.command in ["make_migrations", "mm"]:
     docker_python("makemigrations")
 elif args.command in ["migrate", "m"]:
-    migrate()
+    migrate(args.create_admin, args.create_data)
 elif args.command in ["run_server", "rs"]:
     run_server()
 elif args.command in ["javascript", "js"]:
@@ -177,4 +178,4 @@ elif args.command in ["python", "py"]:
     if args.action in ["install", "i"]:
         docker_shell("pip install -r requirements.txt")
 else:
-    print(f"Unrecognized command '{args.command}'")
+    parser.print_help()
