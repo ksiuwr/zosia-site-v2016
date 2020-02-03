@@ -3,7 +3,6 @@
 
 import argparse as argp
 from os.path import dirname, normpath
-from shlex import quote
 import subprocess as subp
 
 
@@ -25,34 +24,35 @@ FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files 
 
 def command_run(command):
     if args.debug:
-        print(f"{Colour.WHITE}** {Colour.YELLOW}{command}{Colour.WHITE} **{Colour.NORMAL}")
+        print(
+            f"{Colour.WHITE}** {Colour.YELLOW}{subp.list2cmdline(command)}{Colour.WHITE} **{Colour.NORMAL}")
 
-    subp.run(command, shell=True)
+    subp.run(command)
 
 
 def docker_exec(command, container):
-    command_run(f"docker exec -it {container} {command}")
+    command_run(["docker", "exec", "-it", container] + command)
 
 
 def docker_shell(command):
-    docker_exec(f"/bin/bash -c {quote(command)}", WEB_CONTAINER_NAME)
+    docker_exec(["/bin/bash", "-c", subp.list2cmdline(command)], WEB_CONTAINER_NAME)
 
 
 def docker_python(command):
-    docker_shell(f"python src/manage.py {command}")
+    docker_shell(["python", "src/manage.py"] + command)
 
 
 def docker_compose_run(command, with_project=True):
-    project = f"-p {PROJECT_NAME}" if with_project else ""
-    command_run(f"docker-compose -f {quote(DOCKER_COMPOSE)} {project} {command}")
+    project = ["-p", PROJECT_NAME] if with_project else []
+    command_run(["docker-compose", "-f", DOCKER_COMPOSE] + project + command)
 
 
 def js_install():
-    docker_shell("yarn install")
+    docker_shell(["yarn", "install"])
 
 
 def js_build():
-    docker_shell("yarn build")
+    docker_shell(["yarn", "build"])
 
 
 def run_server():
@@ -61,28 +61,28 @@ def run_server():
         f"{Colour.PURPLE}-- Exiting --{Colour.NORMAL}",
         f"{Colour.YELLOW} [!] Remember to run `./dev.py shutdown`, if you've just finished{Colour.NORMAL}",
         sep="\n")
-    command_run("docker ps")
+    command_run(["docker", "ps"])
 
 
 def setup(is_no_cache):
-    no_cache_opt = "--no-cache" if is_no_cache else ""
-    docker_compose_run(f"build {no_cache_opt}", with_project=False)
-    docker_compose_run("up -d")
+    no_cache_opt = ["--no-cache"] if is_no_cache else []
+    docker_compose_run(["build"] + no_cache_opt, with_project=False)
+    docker_compose_run(["up", "-d"])
     js_install()
     js_build()
 
 
 def migrate(is_create_admin, is_create_data):
-    docker_python("migrate")
+    docker_python(["migrate"])
 
     if is_create_admin:
         print(f"{Colour.PURPLE}-- Set password for super user account --{Colour.NORMAL}")
-        docker_python(
-            "createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz")
+        docker_python(["createsuperuser", "--email", "admin@zosia.org", "--first_name", "Admin",
+                       "--last_name", "Zosiowicz"])
 
     if is_create_data:
         print(f"{Colour.PURPLE}-- Prepare some random data --{Colour.NORMAL}")
-        docker_python("create_data")
+        docker_python(["create_data"])
 
 
 parser = argp.ArgumentParser()
@@ -156,16 +156,16 @@ if args.command in ["one_click", "x"]:
 elif args.command in ["setup", "s"]:
     setup(args.no_cache)
 elif args.command in ["shutdown", "q"]:
-    docker_compose_run("down")
+    docker_compose_run(["down"])
 elif args.command in ["test", "t"]:
-    docker_python("test")
+    docker_python(["test"])
 elif args.command in ["shell", "sh"]:
     if args.shell == "bash":
-        docker_exec("/bin/bash", WEB_CONTAINER_NAME)
+        docker_exec(["/bin/bash"], WEB_CONTAINER_NAME)
     elif args.shell in ["postgres", "psql"]:
-        docker_exec("psql -U zosia", DB_CONTAINER_NAME)
+        docker_exec(["psql", "-U", "zosia"], DB_CONTAINER_NAME)
 elif args.command in ["make_migrations", "mm"]:
-    docker_python("makemigrations")
+    docker_python(["makemigrations"])
 elif args.command in ["migrate", "m"]:
     migrate(args.create_admin, args.create_data)
 elif args.command in ["run_server", "rs"]:
@@ -176,9 +176,9 @@ elif args.command in ["javascript", "js"]:
     elif args.action in ["build", "b"]:
         js_build()
     elif args.action in ["watch", "w"]:
-        docker_shell("yarn watch")
+        docker_shell(["yarn", "watch"])
 elif args.command in ["python", "py"]:
     if args.action in ["install", "i"]:
-        docker_shell("pip install -r requirements.txt")
+        docker_shell(["pip", "install", "-r", "requirements.txt"])
 else:
     parser.print_help()
