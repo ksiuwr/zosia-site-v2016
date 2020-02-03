@@ -56,10 +56,10 @@ def js_build():
 
 
 def run_server():
-    docker_python("runserver 0.0.0.0:8000")
+    docker_python(["runserver", "0.0.0.0:8000"])
     print(
         f"{Colour.PURPLE}-- Exiting --{Colour.NORMAL}",
-        f"{Colour.YELLOW} [!] Remember to run `./dev.py shutdown`, if you've just finished{Colour.NORMAL}",
+        f"{Colour.YELLOW} [!] Remember to run `dev.py q` or `dev.py shutdown`, if you've just finished{Colour.NORMAL}",
         sep="\n")
     command_run(["docker", "ps"])
 
@@ -127,7 +127,7 @@ migr_apply_parser.add_argument("--create-data", action="store_true",
 migrate_subparsers.add_parser("make", aliases=["m"], add_help=False,
                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
-run_server_parser = subparsers.add_parser("run_server", aliases=["rs"],
+run_server_parser = subparsers.add_parser("server", aliases=["sv"],
                                           help="run Django development server inside the container (localhost, port 8000)")
 
 js_parser = subparsers.add_parser("javascript", aliases=["js"],
@@ -171,7 +171,7 @@ elif args.command in ["migrations", "m"]:
         migrate(args.create_admin, args.create_data)
     elif args.action in ["make", "m"]:
         docker_python(["makemigrations"])
-elif args.command in ["run_server", "rs"]:
+elif args.command in ["server", "sv"]:
     run_server()
 elif args.command in ["javascript", "js"]:
     if args.action in ["install", "i"]:
