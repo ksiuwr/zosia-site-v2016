@@ -115,15 +115,17 @@ shell_subparsers.add_parser("bash", add_help=False, help="run Bash shell in webs
 shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
                             help="run Postgres shell (psql) in database container")
 
-make_migrations_parser = subparsers.add_parser("make_migrations", aliases=["mm"],
-                                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
-
-migrate_parser = subparsers.add_parser("migrate", aliases=["m"],
-                                       help="apply Django database migrations")
-migrate_parser.add_argument("--create-admin", action="store_true",
-                            help="create super user account (password specified manually)")
-migrate_parser.add_argument("--create-data", action="store_true",
-                            help="create some random data to work on like conference, buses, rooms, etc.")
+migrate_parser = subparsers.add_parser("migrations", aliases=["m"],
+                                       help="operate on Django migrations")
+migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
+migr_apply_parser = migrate_subparsers.add_parser("apply", aliases=["a"],
+                                                  help="apply Django database migrations")
+migr_apply_parser.add_argument("--create-admin", action="store_true",
+                               help="create super user account (password specified manually)")
+migr_apply_parser.add_argument("--create-data", action="store_true",
+                               help="create some random data to work on like conference, buses, rooms, etc.")
+migrate_subparsers.add_parser("make", aliases=["m"], add_help=False,
+                              help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
 run_server_parser = subparsers.add_parser("run_server", aliases=["rs"],
                                           help="run Django development server inside the container (localhost, port 8000)")
@@ -164,10 +166,11 @@ elif args.command in ["shell", "sh"]:
         docker_exec(["/bin/bash"], WEB_CONTAINER_NAME)
     elif args.shell in ["postgres", "psql"]:
         docker_exec(["psql", "-U", "zosia"], DB_CONTAINER_NAME)
-elif args.command in ["make_migrations", "mm"]:
-    docker_python(["makemigrations"])
-elif args.command in ["migrate", "m"]:
-    migrate(args.create_admin, args.create_data)
+elif args.command in ["migrations", "m"]:
+    if args.action in ["apply", "a"]:
+        migrate(args.create_admin, args.create_data)
+    elif args.action in ["make", "m"]:
+        docker_python(["makemigrations"])
 elif args.command in ["run_server", "rs"]:
     run_server()
 elif args.command in ["javascript", "js"]:
