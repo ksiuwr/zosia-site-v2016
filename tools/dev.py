@@ -89,7 +89,7 @@ parser = argp.ArgumentParser()
 parser.add_argument("-d", "--debug", action="store_true", help="print commands before execution")
 subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
-one_click_parser = subparsers.add_parser("one_click", aliases=["x"],
+one_click_parser = subparsers.add_parser("run", aliases=["r"],
                                          help="build containers and run zosia website (localhost, port 8000)")
 one_click_parser.add_argument("--create-admin", action="store_true",
                               help="create super user account (password specified manually)")
@@ -148,7 +148,7 @@ py_subparsers.add_parser("install", aliases=["i"], add_help=False,
 
 args = parser.parse_args()
 
-if args.command in ["one_click", "x"]:
+if args.command in ["run", "r"]:
     print(f"{Colour.BLUE}-- Setup container --{Colour.NORMAL}")
     setup(args.no_cache)
     print(f"{Colour.BLUE}-- Run migrations --{Colour.NORMAL}")
