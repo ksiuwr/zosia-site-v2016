@@ -6,23 +6,26 @@ from os.path import dirname, normpath
 from shlex import quote
 import subprocess as subp
 
-C_blue = "\033[1;34m"
-C_purple = "\033[1;35m"
-C_yellow = "\033[1;33m"
-C_white = "\033[1;37m"
-C_normal = "\033[0m"
+
+class Colour:
+    BLUE = "\033[1;34m"
+    PURPLE = "\033[1;35m"
+    YELLOW = "\033[1;33m"
+    WHITE = "\033[1;37m"
+    NORMAL = "\033[0m"
+
 
 PROJECT_NAME = "zosia"
 ROOT_DIR = normpath(dirname(__file__) + "/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
 DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
-FILE_SYSTEM_NOTE = f"({C_yellow}note:{C_normal} this may create files on host fs with root permissions)"
+FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with root permissions)"
 
 
 def command_run(command):
     if args.debug:
-        print(f"{C_white}** {C_yellow}{command}{C_white} **{C_normal}")
+        print(f"{Colour.WHITE}** {Colour.YELLOW}{command}{Colour.WHITE} **{Colour.NORMAL}")
 
     subp.run(command, shell=True)
 
@@ -55,8 +58,8 @@ def js_build():
 def run_server():
     docker_python("runserver 0.0.0.0:8000")
     print(
-        f"{C_purple}-- Exiting --{C_normal}",
-        f"{C_yellow} [!] Remember to run `./dev.py shutdown`, if you've just finished{C_normal}",
+        f"{Colour.PURPLE}-- Exiting --{Colour.NORMAL}",
+        f"{Colour.YELLOW} [!] Remember to run `./dev.py shutdown`, if you've just finished{Colour.NORMAL}",
         sep="\n")
     command_run("docker ps")
 
@@ -73,12 +76,12 @@ def migrate(is_create_admin, is_create_data):
     docker_python("migrate")
 
     if is_create_admin:
-        print(f"{C_purple}-- Set password for super user account --{C_normal}")
+        print(f"{Colour.PURPLE}-- Set password for super user account --{Colour.NORMAL}")
         docker_python(
             "createsuperuser --email admin@zosia.org --first_name Admin --last_name Zosiowicz")
 
     if is_create_data:
-        print(f"{C_purple}-- Prepare some random data --{C_normal}")
+        print(f"{Colour.PURPLE}-- Prepare some random data --{Colour.NORMAL}")
         docker_python("create_data")
 
 
@@ -144,11 +147,11 @@ py_subparsers.add_parser("install", aliases=["i"], add_help=False,
 args = parser.parse_args()
 
 if args.command in ["one_click", "x"]:
-    print(f"{C_blue}-- Setup container --{C_normal}")
+    print(f"{Colour.BLUE}-- Setup container --{Colour.NORMAL}")
     setup(args.no_cache)
-    print(f"{C_blue}-- Run migrations --{C_normal}")
+    print(f"{Colour.BLUE}-- Run migrations --{Colour.NORMAL}")
     migrate(args.create_admin, args.create_data)
-    print(f"{C_blue}-- Run webserver --{C_normal}")
+    print(f"{Colour.BLUE}-- Run webserver --{Colour.NORMAL}")
     run_server()
 elif args.command in ["setup", "s"]:
     setup(args.no_cache)
