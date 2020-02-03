@@ -20,7 +20,7 @@ DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
 FILE_SYSTEM_NOTE = f"({C_yellow}note:{C_normal} this may create files on host fs with root permissions)"
 
 
-def shell_run(command):
+def command_run(command):
     if args.debug:
         print(f"{C_white}** {C_yellow}{command}{C_white} **{C_normal}")
 
@@ -28,7 +28,7 @@ def shell_run(command):
 
 
 def docker_exec(command, container):
-    shell_run(f"docker exec -it {container} {command}")
+    command_run(f"docker exec -it {container} {command}")
 
 
 def docker_shell(command):
@@ -39,17 +39,9 @@ def docker_python(command):
     docker_shell(f"python src/manage.py {command}")
 
 
-def docker_compose(command, with_project=True):
+def docker_compose_run(command, with_project=True):
     project = f"-p {PROJECT_NAME}" if with_project else ""
-    shell_run(f"docker-compose -f {quote(DOCKER_COMPOSE)} {project} {command}")
-
-
-def setup(is_no_cache):
-    no_cache_opt = "--no-cache" if is_no_cache else ""
-    docker_compose(f"build {no_cache_opt}", with_project=False)
-    docker_compose("up -d")
-    js_install()
-    js_build()
+    command_run(f"docker-compose -f {quote(DOCKER_COMPOSE)} {project} {command}")
 
 
 def js_install():
@@ -66,7 +58,15 @@ def run_server():
         f"{C_purple}-- Exiting --{C_normal}",
         f"{C_yellow} [!] Remember to run `./dev.py shutdown`, if you've just finished{C_normal}",
         sep="\n")
-    shell_run("docker ps")
+    command_run("docker ps")
+
+
+def setup(is_no_cache):
+    no_cache_opt = "--no-cache" if is_no_cache else ""
+    docker_compose_run(f"build {no_cache_opt}", with_project=False)
+    docker_compose_run("up -d")
+    js_install()
+    js_build()
 
 
 def migrate(is_create_admin, is_create_data):
@@ -87,16 +87,16 @@ parser.add_argument("-d", "--debug", action="store_true", help="print commands b
 subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
 one_click_parser = subparsers.add_parser("one_click", aliases=["x"],
-                                         help="run zosia website (localhost, port 8000)")
+                                         help="build containers and run zosia website (localhost, port 8000)")
 one_click_parser.add_argument("--create-admin", action="store_true",
                               help="create super user account (password specified manually)")
 one_click_parser.add_argument("--create-data", action="store_true",
-                              help="create some random data to work on like conference, buses, rooms, etc.")
-one_click_parser.add_argument("--no-cache", action="store_const", const="--no_cache", default="",
-                              help="do not use cache when building the container image")
+                              help="create some random data to work on, like conference, buses, rooms, etc.")
+one_click_parser.add_argument("--no-cache", action="store_true",
+                              help="do not use cache when building container images")
 
 setup_parser = subparsers.add_parser("setup", aliases=["s"],
-                                     help="spin up the containers and prepare development enviroment")
+                                     help="spin up containers and prepare development environment")
 setup_parser.add_argument("--no-cache", action="store_true",
                           help="Do not use cache when building the container image")
 
@@ -123,13 +123,13 @@ migrate_parser.add_argument("--create-data", action="store_true",
                             help="create some random data to work on like conference, buses, rooms, etc.")
 
 run_server_parser = subparsers.add_parser("run_server", aliases=["rs"],
-                                          help="run Django development server inside the container")
+                                          help="run Django development server inside the container (localhost, port 8000)")
 
 js_parser = subparsers.add_parser("javascript", aliases=["js"],
                                   help="perform action related to JavaScript language")
 js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 js_subparsers.add_parser("install", aliases=["i"], add_help=False,
-                         help="install JavaScript depedencies from file package.json")
+                         help="install JavaScript dependencies from file package.json")
 js_subparsers.add_parser("build", aliases=["b"], add_help=False,
                          help=f"build JavaScript {FILE_SYSTEM_NOTE}")
 js_subparsers.add_parser("watch", aliases=["w"], add_help=False,
@@ -153,7 +153,7 @@ if args.command in ["one_click", "x"]:
 elif args.command in ["setup", "s"]:
     setup(args.no_cache)
 elif args.command in ["shutdown", "q"]:
-    docker_compose("down")
+    docker_compose_run("down")
 elif args.command in ["test", "t"]:
     docker_python("test")
 elif args.command in ["shell", "sh"]:
