@@ -145,6 +145,9 @@ py_parser = subparsers.add_parser("python", aliases=["py"],
 py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 py_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install Python dependencies from file requirements.txt")
+py_subparsers.add_parser("upgrade", aliases=["u"], add_help=False,
+                         help="upgrade Python dependencies from file requirements.txt")
+py_subparsers.add_parser("pip", add_help=False, help="upgrade pip")
 
 args = parser.parse_args()
 
@@ -183,5 +186,9 @@ elif args.command in ["javascript", "js"]:
 elif args.command in ["python", "py"]:
     if args.action in ["install", "i"]:
         docker_shell(["pip", "install", "-r", "requirements.txt"])
+    elif args.action in ["upgrade", "u"]:
+        docker_shell(["pip", "install", "-U", "-r", "requirements.txt"])
+    elif args.action in ["pip"]:
+        docker_shell(["pip", "install", "-U", "pip"])
 else:
     parser.print_help()
