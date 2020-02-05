@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext as _
 from django.utils.html import escape
 from django.core.exceptions import ValidationError
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from urllib.request import urlopen
 
 from boardgames.models import Boardgame, Vote
@@ -112,7 +112,10 @@ def vote_edit(request):
     old_ids = list(votes)
     new_ids = json.loads(request.POST.get('new_ids'))
     if len(new_ids) > 3:
-        return Http404
+        return HttpResponseBadRequest(
+            '<h1>Bad request(400). Can only vote for up to three boardgames</h1>',
+            content_type='text/html'
+        )
     common_ids = [x for x in old_ids if x in new_ids]
     old_ids = [x for x in old_ids if not x in common_ids]
     new_ids = [x for x in new_ids if not x in common_ids]
