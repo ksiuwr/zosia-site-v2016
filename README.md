@@ -31,9 +31,10 @@ pip install docker-compose
 
 #### How can I run it?
 
-To keep things simple we've written `dev.sh` script that will run everything for you.
- You simply have to type `./dev.sh one_click`. No root permissions are needed. All commands used 
- with the script are listed under `./dev.sh help`.
+To keep things simple we've written `dev.py` script that will run everything for you.
+ You simply have to type `python3 dev.py run`. No root permissions are needed. All commands used 
+ with the script are listed under `python3 dev.py --help` and help for command CMD under
+ `python3 dev.py CMD --help` (e.g. `python3 dev.py run --help`)
 
 #### I have run it - what is happening?
 
@@ -53,7 +54,7 @@ Thanks to this, all changes you make in the code will be visible immediately ins
  will affect your local files (from the listed folders), because these are the same files, of 
  course :P
 
-We tried to avoid side effects in our `dev.sh` script, but sometimes it can't be achieved easily.
+We tried to avoid side effects in our `dev.py` script, but sometimes it can't be achieved easily.
  Some commands may create files inside listed folders. This files will be owned by `root`,
  because they were created inside docker. You don't have to worry about them, we listed them in
  `.gitignore` file, so they should not appear in `git status`.
@@ -62,15 +63,15 @@ Files created in directory `/code/static` are output from the webpack build syst
  and CSS files). They will be created in your local filesystem and fortunately will be ignored by
  version control. Moreover, NodeJS module required by our application are installed. They will
  exist inside docker container only, so they won't be copied into your local filesystem. If you'd
- like your JS file to be rebuilt after editing them, run command `./dev.sh js_watch` in new
- terminal.
+ like your JS file to be rebuilt after editing them, run command `python3 dev.py javascript watch`
+ in new terminal.
 
 Next, we run migrations on database and, finally, start the web server. In terminal you will 
  see output/logs from django (e.g. queries to the database).
 
 You can shut this server down anytime by clicking `CTRL+C`, but containers will be still alive.
- If you want to shut them down as well, you need to run `./dev.sh shutdown` command. And if you want
- to start the web server again, just run `./dev.sh runserver`.
+ If you want to shut them down as well, you need to run `python3 dev.py quit` command. And if you
+ want to start the web server again, just run `python3 dev.py server`.
 
 ### Troubleshooting
 
@@ -94,4 +95,5 @@ In case of that error just restart docker daemon service with this command: `sys
 
 ---
 
-In case of any other problems it is recommended to rebuild the container with `--no-cache` option (i.e. `./tools/dev.sh one_click --no-cache`).
+In case of any other problems it is recommended to rebuild the container with `--no-cache` option
+ (i.e. `python3 dev.py run --no-cache` or `python3 dev.py start --no-cache`).

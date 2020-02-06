@@ -59,7 +59,7 @@ def run_server():
     docker_python(["runserver", "0.0.0.0:8000"])
     print(
         f"{Colour.PURPLE}-- Exiting --{Colour.NORMAL}",
-        f"{Colour.YELLOW} [!] Remember to run `dev.py q` or `dev.py shutdown`, if you've just finished{Colour.NORMAL}",
+        f"{Colour.YELLOW} [!] Remember to run `dev.py quit`, if you've just finished{Colour.NORMAL}",
         sep="\n")
     command_run(["docker", "ps"])
 
@@ -98,12 +98,12 @@ one_click_parser.add_argument("--create-data", action="store_true",
 one_click_parser.add_argument("--no-cache", action="store_true",
                               help="do not use cache when building container images")
 
-setup_parser = subparsers.add_parser("setup", aliases=["s"],
+setup_parser = subparsers.add_parser("start", aliases=["setup", "s"],
                                      help="spin up containers and prepare development environment")
 setup_parser.add_argument("--no-cache", action="store_true",
                           help="Do not use cache when building the container image")
 
-shutdown_parser = subparsers.add_parser("shutdown", aliases=["q"],
+shutdown_parser = subparsers.add_parser("quit", aliases=["shutdown", "q"],
                                         help="kill and destroy containers")
 
 test_parser = subparsers.add_parser("test", aliases=["t"],
@@ -158,9 +158,9 @@ if args.command in ["run", "r"]:
     migrate(args.create_admin, args.create_data)
     print(f"{Colour.BLUE}-- Run webserver --{Colour.NORMAL}")
     run_server()
-elif args.command in ["setup", "s"]:
+elif args.command in ["start", "setup", "s"]:
     setup(args.no_cache)
-elif args.command in ["shutdown", "q"]:
+elif args.command in ["quit", "shutdown", "q"]:
     docker_compose_run(["down"])
 elif args.command in ["test", "t"]:
     docker_python(["test"])
