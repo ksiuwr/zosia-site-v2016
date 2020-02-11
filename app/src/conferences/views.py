@@ -248,7 +248,12 @@ def statistics(request):
     price_items = Counter([t.price for t in user_prefs]).items()
     price_values, price_counts = zip(*sorted(price_items))
 
+    # other data
+    vegetarians = user_prefs.filter(vegetarian=True).count()
+
     ctx = {
+        'registeredUsers': prefs_count,
+        'vegetarians': vegetarians,
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
         'userCostsCounts': list(price_counts)
