@@ -31,10 +31,10 @@ pip install docker-compose
 
 #### How can I run it?
 
-To keep things simple we've written `dev.py` script that will run everything for you.
- You simply have to type `python3 dev.py run`. No root permissions are needed. All commands used 
- with the script are listed under `python3 dev.py --help` and help for command CMD under
- `python3 dev.py CMD --help` (e.g. `python3 dev.py run --help`)
+To keep things simple we've written `dev.py` script inside `tools` directory. It can run everything
+ for you, simply type `python3 dev.py run` or `./dev.py run`. No root permissions are needed.
+ All commands used with the script are listed under `./dev.py --help` and help for command `CMD`
+ under `./dev.py CMD --help` (e.g. `./dev.py run --help`)
 
 #### I have run it - what is happening?
 
@@ -63,15 +63,15 @@ Files created in directory `/code/static` are output from the webpack build syst
  and CSS files). They will be created in your local filesystem and fortunately will be ignored by
  version control. Moreover, NodeJS module required by our application are installed. They will
  exist inside docker container only, so they won't be copied into your local filesystem. If you'd
- like your JS file to be rebuilt after editing them, run command `python3 dev.py javascript watch`
+ like your JS file to be rebuilt after editing them, run command `./dev.py javascript watch`
  in new terminal.
 
 Next, we run migrations on database and, finally, start the web server. In terminal you will 
  see output/logs from django (e.g. queries to the database).
 
 You can shut this server down anytime by clicking `CTRL+C`, but containers will be still alive.
- If you want to shut them down as well, you need to run `python3 dev.py quit` command. And if you
- want to start the web server again, just run `python3 dev.py server`.
+ If you want to shut them down as well, you need to run `./dev.py quit` command. And if you
+ want to start the web server again, just run `./dev.py server`.
 
 ### Troubleshooting
 
@@ -96,4 +96,4 @@ In case of that error just restart docker daemon service with this command: `sys
 ---
 
 In case of any other problems it is recommended to rebuild the container with `--no-cache` option
- (i.e. `python3 dev.py run --no-cache` or `python3 dev.py start --no-cache`).
+ (i.e. `./dev.py run --no-cache` or `./dev.py start --no-cache`).
