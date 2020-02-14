@@ -60,7 +60,7 @@ class Room(models.Model):
     objects = RoomManager()
 
     name = models.CharField(max_length=300)
-    description = models.TextField(default="")
+    description = models.TextField(default="", blank=True, null=False)
     hidden = models.BooleanField(default=False)
     beds_single = models.PositiveSmallIntegerField(default=0)
     beds_double = models.PositiveSmallIntegerField(default=0)
@@ -68,7 +68,6 @@ class Room(models.Model):
     available_beds_double = models.PositiveSmallIntegerField(default=0)
 
     lock = models.OneToOneField(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
-
     members = models.ManyToManyField(User, through="UserRoom", related_name="room_of_user")
 
     @property
