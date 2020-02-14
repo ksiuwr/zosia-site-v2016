@@ -6,6 +6,7 @@ import re
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
@@ -18,7 +19,7 @@ from rooms.forms import UploadFileForm
 from rooms.models import Room
 from rooms.serializers import room_to_dict
 from users.models import UserPreferences
-from utils.views import csv_response
+from utils.views import csv_response, validation_format
 
 
 @cache_page(60 * 15)  # Cache hard (15mins)
@@ -88,12 +89,27 @@ def list_by_room(request):
 
 def handle_uploaded_file(csvfile):
     rooms = []
-    for row in csv.reader(csvfile, delimiter=','):
-        name, desc, cap, hidden = row
+
+    for line, row in enumerate(csv.reader(csvfile, delimiter=','), start=1):
+        try:
+            name, desc, hidden, av_single, av_double, b_single, b_double = row
+        except ValueError as e:
+            raise ValidationError("Line %(line)s - %(error)s", code="invalid",
+                                  params={"line": line, "error": e})
+
         if name != "Name":
             rooms.append(
-                Room(name=name, description=desc, capacity=cap, hidden=hidden))
-    Room.objects.bulk_create(rooms)
+                Room(name=name, description=desc, hidden=hidden,
+                     available_beds_single=av_single,
+                     available_beds_double=av_double, beds_single=b_single,
+                     beds_double=b_double))
+
+    try:
+        Room.objects.bulk_create(rooms)
+    except ValueError:
+        raise ValidationError(
+            "Could not add rooms, check whether the file is properly formed and all values are correct.",
+            code="invalid")
 
 
 @staff_member_required
@@ -101,10 +117,20 @@ def handle_uploaded_file(csvfile):
 def import_room(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
+
         if form.is_valid():
-            handle_uploaded_file(TextIOWrapper(request.FILES['file'].file,
-                                               encoding=request.encoding))
-            return HttpResponseRedirect(reverse('rooms_report'))
+            try:
+                handle_uploaded_file(TextIOWrapper(request.FILES['file'].file,
+                                                   encoding=request.encoding))
+            except ValidationError as e:
+                messages.error(request,
+                               validation_format(e, _("There were errors when adding rooms")))
+            except:
+                messages.error(request, _("There were errors when adding rooms"))
+            else:
+                messages.success(request, _("Rooms have been successfully added"))
+                return HttpResponseRedirect(reverse('admin'))
     else:
         form = UploadFileForm()
+
     return render(request, 'rooms/import.html', {'form': form})
