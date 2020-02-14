@@ -22,4 +22,5 @@ urlpatterns = [
     re_path(r'^place/$', views.place, name='place'),
     re_path(r'^place/add/$', views.place_add, name='place_add'),
     re_path(r'^place/(?P<pk>\d+)/update/$', views.place_add, name='place_update'),
+    re_path(r'^statistics/$', views.statistics, name='statistics'),
 ]

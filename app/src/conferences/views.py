@@ -1,3 +1,4 @@
+from collections import Counter
 import csv
 from urllib.parse import urlencode
 
@@ -14,7 +15,7 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from rooms.models import Room
 from sponsors.models import Sponsor
-from users.models import UserPreferences
+from users.models import User, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 from utils.views import csv_response
 
@@ -226,3 +227,35 @@ def list_by_bus(request):
     data_list = [(str(b), b.passengers_to_string) for b in buses]
 
     return csv_response(("Bus", "Users"), data_list, filename='buses_by_bus')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def statistics(request):
+    zosia = Zosia.objects.find_active_or_404()
+    user_prefs = UserPreferences.objects.filter(zosia=zosia)
+
+    # data for first chart
+    users_count = User.objects.count()
+    prefs_count = user_prefs.count()
+    paid_count = user_prefs.filter(payment_accepted=True).count()
+
+    users_with_payment = paid_count
+    users_with_prefs_only = prefs_count - paid_count
+    users_without_prefs = users_count - prefs_count
+
+    # data for second chart
+    price_items = Counter([t.price for t in user_prefs]).items()
+    price_values, price_counts = zip(*sorted(price_items))
+
+    # other data
+    vegetarians = user_prefs.filter(vegetarian=True).count()
+
+    ctx = {
+        'registeredUsers': prefs_count,
+        'vegetarians': vegetarians,
+        'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
+        'userCostsValues': list(price_values),
+        'userCostsCounts': list(price_counts)
+    }
+    return render(request, 'conferences/statistics.html', ctx)
