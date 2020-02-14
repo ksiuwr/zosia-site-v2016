@@ -16,10 +16,11 @@
           {% trans 'Please upload CSV file looking as below' %}:
         </div>
         <pre>
-        Name,Description,Capacity,Hidden
-        189,Ladny pokoj na koncu korytarza,3,False
-        213,Z balkonem,2,False
-        217,Z jacuzzi,4,True
+        Name,Description,Hidden,AvailableBedsSingle,AvailableBedsDouble,ActualBedsSingle,ActualBedsDouble
+        189,Ladny pokoj na koncu korytarza,False,3,0,3,0
+        213,Z balkonem,False,2,1,2,1
+        217,Z jacuzzi,True,1,0,0,1
+        304,Poddasze,False,4,1,5,1
         </pre>
         <div class="col s12">
           <table class="highlight responsive-table bg-table">
@@ -27,28 +28,49 @@
               <tr>
                 <th>{% trans 'Name' %}</th>
                 <th>{% trans 'Description' %}</th>
-                <th>{% trans 'Capacity' %}</th>
                 <th>{% trans 'Hidden' %}</th>
+                <th>{% trans 'AvailableBedsSingle' %}</th>
+                <th>{% trans 'AvailableBedsDouble' %}</th>
+                <th>{% trans 'ActualBedsSingle' %}</th>
+                <th>{% trans 'ActualBedsDouble' %}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td>189</td>
                 <td>Ladny pokoj na koncu korytarz</td>
-                <td>3</td>
                 <td>False</td>
+                <td>3</td>
+                <td>0</td>
+                <td>3</td>
+                <td>0</td>
               </tr>
               <tr>
                 <td>213</td>
                 <td>Z balkonem</td>
-                <td>2</td>
                 <td>False</td>
+                <td>2</td>
+                <td>1</td>
+                <td>2</td>
+                <td>1</td>
               </tr>
               <tr>
                 <td>217</td>
                 <td>Z jacuzzi</td>
-                <td>4</td>
                 <td>True</td>
+                <td>1</td>
+                <td>0</td>
+                <td>0</td>
+                <td>1</td>
+              </tr>
+              <tr>
+                <td>304</td>
+                <td>Poddasze</td>
+                <td>False</td>
+                <td>4</td>
+                <td>1</td>
+                <td>5</td>
+                <td>1</td>
               </tr>
             </tbody>
           </table>
