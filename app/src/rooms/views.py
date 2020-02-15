@@ -40,9 +40,7 @@ def index(request):
         messages.error(request, _('Please register first'))
         return redirect(reverse('user_zosia_register'))
 
-    in_hidden_room = preferences.room.hidden
-
-    if in_hidden_room:
+    if preferences.room is not None and preferences.room.hidden:
         messages.error(request, _('Your are already assigned to hidden room by organizators'))
         return redirect(reverse('accounts_profile'))
 
