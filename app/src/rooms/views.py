@@ -40,6 +40,12 @@ def index(request):
         messages.error(request, _('Please register first'))
         return redirect(reverse('user_zosia_register'))
 
+    in_hidden_room = preferences.room.hidden
+
+    if in_hidden_room:
+        messages.error(request, _('Your are already assigned to hidden room by organizators'))
+        return redirect(reverse('accounts_profile'))
+
     paid = preferences.payment_accepted
     if not paid:
         messages.error(request, _('Your payment must be accepted first'))
