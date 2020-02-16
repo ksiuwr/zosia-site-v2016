@@ -94,6 +94,11 @@ const RoomsView = (props) =>
       return -1;
     }
 
+    if (isMyRoom(rhs) && !isMyRoom(lhs))
+    {
+      return 1;
+    }
+
     if (sortingStrategy == "room_number")
     {
       const l_num = parseInt(lhs.name);
