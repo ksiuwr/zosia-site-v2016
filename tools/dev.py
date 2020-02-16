@@ -169,11 +169,15 @@ elif args.command in ["shell", "sh"]:
         docker_exec(["/bin/bash"], WEB_CONTAINER_NAME)
     elif args.shell in ["postgres", "psql"]:
         docker_exec(["psql", "-U", "zosia"], DB_CONTAINER_NAME)
+    else:
+        shell_parser.print_help()
 elif args.command in ["migrations", "m"]:
     if args.action in ["apply", "a"]:
         migrate(args.create_admin, args.create_data)
     elif args.action in ["make", "m"]:
         docker_python(["makemigrations"])
+    else:
+        migrate_parser.print_help()
 elif args.command in ["server", "sv"]:
     run_server()
 elif args.command in ["javascript", "js"]:
@@ -183,6 +187,8 @@ elif args.command in ["javascript", "js"]:
         js_build()
     elif args.action in ["watch", "w"]:
         docker_shell(["yarn", "watch"])
+    else:
+        js_parser.print_help()
 elif args.command in ["python", "py"]:
     if args.action in ["install", "i"]:
         docker_shell(["pip", "install", "-r", "requirements.txt"])
@@ -190,5 +196,7 @@ elif args.command in ["python", "py"]:
         docker_shell(["pip", "install", "-U", "-r", "requirements.txt"])
     elif args.action in ["pip"]:
         docker_shell(["pip", "install", "-U", "pip"])
+    else:
+        py_parser.print_help()
 else:
     parser.print_help()
