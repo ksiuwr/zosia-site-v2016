@@ -38,7 +38,7 @@ def export_json(request):
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
-        .values('author__first_name', 'author__last_name', 'title',
+        .values('author__first_name', 'author__last_name', 'title', 'author__organization__name',
                 'abstract', 'description')
 
     data = {
