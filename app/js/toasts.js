@@ -1,16 +1,30 @@
 
-import { escapeHtml } from "./helpers";
+import { escapeHtml } from './helpers';
 
 export const apiErrorToast = err => {
-    const message = typeof err.body === 'string' || err.body instanceof String
-        ? 'ERROR!<br/>' + escapeHtml(err.body)
-        : 'There was an internal error with your request.';
+    console.log(err.body);
 
-    console.log(err);
+    let message = 'There was an internal error with your request.';
+
+    if(typeof(err.body) === 'string' || err.body instanceof String) {
+        message = 'ERROR!<br/>' + escapeHtml(err.body)
+    }
+    else if(err.status == 400 && typeof(err.body) === 'object' && err.body !== null) {
+        const infos = Object.entries(err.body).map(e => {
+            const msg = Array.isArray(e[1])
+                ? e[1].map(escapeHtml).join('<br/>')
+                : escapeHtml(e[1]);
+
+            return '<span><strong>' + escapeHtml(e[0]) + '</strong><br/>' + msg + '</span>';
+        });
+
+        message = '<p>' + infos.join('<br/><br/>') + '</p>'
+    }
+
     return M.toast({
         html: message,
         displayLength: 3000,
-        classes: "error"
+        classes: 'error'
     });
 }
 
@@ -20,5 +34,5 @@ export const apiErrorToast = err => {
 export const roomingSuccessToast = messageGen => room => M.toast({
     html: messageGen(room),
     displayLength: 3000,
-    classes: "success"
+    classes: 'success'
 });
