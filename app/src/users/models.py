@@ -71,6 +71,7 @@ class Organization(models.Model):
     accepted = models.BooleanField(default=False)
     user = models.ForeignKey(
         User,
+        related_name="organizations",
         null=True,
         blank=True,
         on_delete=models.SET_NULL
@@ -102,11 +103,12 @@ class UserPreferences(models.Model):
 
     objects = UserPreferencesManager()
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="preferences", on_delete=models.CASCADE)
+    zosia = models.ForeignKey(Zosia, related_name="users_preferences", on_delete=models.CASCADE)
 
     organization = models.ForeignKey(
         Organization,
+        related_name="people",
         null=True,
         blank=True,
         on_delete=models.SET_NULL
@@ -116,10 +118,10 @@ class UserPreferences(models.Model):
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
     bus = models.ForeignKey(
         Bus,
+        related_name="passengers",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
-        related_name="passengers"
+        on_delete=models.SET_NULL
     )
 
     # Day 1 (Coming)

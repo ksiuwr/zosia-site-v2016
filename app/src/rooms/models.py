@@ -30,7 +30,7 @@ class RoomLock(models.Model):
     expiration_date = models.DateTimeField()
     password = models.CharField(max_length=4)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='locks', on_delete=models.CASCADE)
 
     @property
     def is_expired(self):
@@ -67,7 +67,8 @@ class Room(models.Model):
     available_beds_single = models.PositiveSmallIntegerField(default=0)
     available_beds_double = models.PositiveSmallIntegerField(default=0)
 
-    lock = models.OneToOneField(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
+    lock = models.OneToOneField(RoomLock, related_name="room", on_delete=models.SET_NULL,
+                                blank=True, null=True)
 
     members = models.ManyToManyField(User, through="UserRoom", related_name="room_of_user")
 

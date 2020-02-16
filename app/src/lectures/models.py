@@ -10,7 +10,8 @@ from utils.forms import get_durations
 
 class Lecture(models.Model):
     # organizational informations
-    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), on_delete=models.CASCADE)
+    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), related_name="lectures",
+                              on_delete=models.CASCADE)
     requests = models.CharField(
         verbose_name=_("Requests or comments"), max_length=800, blank=True, null=True,
         help_text=_("Your requests, suggestions or comments intended for organizers")
@@ -42,8 +43,8 @@ class Lecture(models.Model):
                                    default=LectureInternals.PERSON_NORMAL)
     description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,
                                    blank=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name=_("Author"),
-                               on_delete=models.CASCADE)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="lectures",
+                               verbose_name=_("Author"), on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.author} - {self.title}"
@@ -84,6 +85,7 @@ class Lecture(models.Model):
 
 
 class Schedule(models.Model):
-    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), on_delete=models.CASCADE)
+    zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), related_name="schedules",
+                              on_delete=models.CASCADE)
     content = models.TextField(verbose_name=_("content"),
                                help_text=_("You can use html tags and materializecss classes"))
