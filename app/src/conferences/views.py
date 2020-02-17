@@ -13,7 +13,6 @@ from django.views.decorators.http import require_http_methods
 from conferences.forms import BusForm, PlaceForm, ZosiaForm
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
-from rooms.models import Room
 from sponsors.models import Sponsor
 from users.models import User, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -27,24 +26,20 @@ def export_json(request):
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email',
-                'organization_id__name', 'bus_id', 'accommodation_day_1',
+                'organization__name', 'bus__name', 'bus__departure_time', 'accommodation_day_1',
                 'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
                 'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
                 'shirt_size', 'shirt_type')
 
-    rooms = Room.objects \
-        .values('members__first_name', 'members__last_name', 'name')
-
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
-        .values('author__first_name', 'author__last_name', 'title',
-                'abstract', 'description')
+        .values('author__first_name', 'author__last_name', 'title', 'abstract',
+                'author__userpreferences__organization__name', 'description')
 
     data = {
         "lectures": list(lectures),
         "preferences": list(prefs),
-        "rooms": list(rooms),
     }
 
     return JsonResponse(data)
