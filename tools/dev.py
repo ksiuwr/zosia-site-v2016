@@ -4,6 +4,7 @@
 import argparse as argp
 from os.path import dirname, normpath
 import subprocess as subp
+from sys import version_info
 
 
 class Colour:
@@ -20,6 +21,7 @@ DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
 DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
 FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with root permissions)"
+CAN_SUBPARSER_REQUIRED = version_info >= (3, 7)
 
 
 def command_run(command):
@@ -110,14 +112,25 @@ test_parser = subparsers.add_parser("test", aliases=["t"],
                                     help="run Django tests inside the container")
 
 shell_parser = subparsers.add_parser("shell", aliases=["sh"], help="run shell inside a container")
-shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL", required=True)
+
+if CAN_SUBPARSER_REQUIRED:
+    shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL", required=True)
+else:
+    shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL")
+
 shell_subparsers.add_parser("bash", add_help=False, help="run Bash shell in website container")
 shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
                             help="run Postgres shell (psql) in database container")
 
 migrate_parser = subparsers.add_parser("migrations", aliases=["m"],
                                        help="operate on Django migrations")
-migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
+
+if CAN_SUBPARSER_REQUIRED:
+    migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION",
+                                                       required=True)
+else:
+    migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION")
+
 migr_apply_parser = migrate_subparsers.add_parser("apply", aliases=["a"],
                                                   help="apply Django database migrations")
 migr_apply_parser.add_argument("--create-admin", action="store_true",
@@ -132,7 +145,12 @@ run_server_parser = subparsers.add_parser("server", aliases=["sv"],
 
 js_parser = subparsers.add_parser("javascript", aliases=["js"],
                                   help="perform action related to JavaScript language")
-js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
+
+if CAN_SUBPARSER_REQUIRED:
+    js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
+else:
+    js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION")
+
 js_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install JavaScript dependencies from file package.json")
 js_subparsers.add_parser("build", aliases=["b"], add_help=False,
@@ -142,7 +160,12 @@ js_subparsers.add_parser("watch", aliases=["w"], add_help=False,
 
 py_parser = subparsers.add_parser("python", aliases=["py"],
                                   help="perform action related to Python language")
-py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
+
+if CAN_SUBPARSER_REQUIRED:
+    py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
+else:
+    py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION")
+
 py_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install Python dependencies from file requirements.txt")
 py_subparsers.add_parser("upgrade", aliases=["u"], add_help=False,
