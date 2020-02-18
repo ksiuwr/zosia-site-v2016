@@ -207,21 +207,27 @@ def place_add(request, pk=None):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_user(request):
+def list_csv_bus_by_user(request):
     prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True) \
         .order_by("user__last_name", "user__first_name")
-    data_list = [(str(p.user), str(p.bus)) for p in prefs]
-
-    return csv_response(("User", "Bus"), data_list, filename='buses_by_users')
+    data_list = [(str(p.user), str(p.bus), str(p.payment_accepted)) for p in prefs]
+    return csv_response(("User", "Bus", "Paid"), data_list, filename='list_csv_bus_by_user')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_bus(request):
+def list_csv_all_users_by_bus(request):
     buses = Bus.objects.order_by("departure_time")
-    data_list = [(str(b), b.passengers_to_string) for b in buses]
+    data_list = [(str(b), b.passengers_to_string()) for b in buses]
+    return csv_response(("Bus", "All users"), data_list, filename='list_csv_all_users_by_bus')
 
-    return csv_response(("Bus", "Users"), data_list, filename='buses_by_bus')
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_paid_users_by_bus(request):
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string(paid=True)) for b in buses]
+    return csv_response(("Bus", "Paid users"), data_list, filename='list_csv_paid_users_by_bus')
 
 
 @staff_member_required
