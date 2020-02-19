@@ -267,13 +267,13 @@ def list_csv_preferences_all(request):
     header = ("User", "Organization", "Paid", "AccommodationDay1", "AccommodationDay2",
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
-    data_list = [
-        (str(p.user), str(p.organization.name), str(p.payment_accepted), str(p.accommodation_day_1),
-         str(p.accommodation_day_2), str(p.accommodation_day_3), str(p.dinner_day_1),
-         str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
-         str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
-         str(p.get_shirt_type_display()))
-        for p in prefs
+    data_list = [(
+        str(p.user), ("" if p.organization is None else str(p.organization.name)), str(p.payment_accepted),
+        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3), str(p.dinner_day_1),
+        str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
+        str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
+        str(p.get_shirt_type_display())
+         ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_all")
 
@@ -286,12 +286,12 @@ def list_csv_preferences_paid(request):
     header = ("User", "Organization", "AccommodationDay1", "AccommodationDay2",
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
-    data_list = [
-        (str(p.user), str(p.organization.name), str(p.accommodation_day_1),
-         str(p.accommodation_day_2), str(p.accommodation_day_3), str(p.dinner_day_1),
-         str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
-         str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
-         str(p.get_shirt_type_display()))
-        for p in prefs
+    data_list = [(
+        str(p.user), ("" if p.organization is None else str(p.organization.name)),
+        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
+        str(p.dinner_day_1), str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3),
+        str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
+        str(p.get_shirt_type_display())
+        ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_paid")
