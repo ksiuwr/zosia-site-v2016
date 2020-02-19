@@ -153,7 +153,8 @@ def create_random_user_with_preferences(zosia, id):
     u.set_password('pass')
     u.save()
 
-    org = Organization.objects.create(name=f"org_{id}", user=u, accepted=random_bool())
+    org = Organization.objects.create(name=f"org_{id}", user=u, accepted=random_bool()) \
+        if random_bool() else None
 
     accommodation_day_1 = random_bool()
     dinner_day_1 = random_bool() if accommodation_day_1 else False
