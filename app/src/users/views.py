@@ -16,9 +16,10 @@ from users.actions import ActivateUser
 from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferencesForm
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
-    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
-    PAYMENT_GROUPS, BONUS_STEP
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS
 from utils.forms import errors_format
+from utils.views import csv_response
 
 
 @login_required
@@ -256,3 +257,41 @@ def register(request):
             messages.error(request, errors_format(form))
 
     return render(request, 'users/register.html', ctx)
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_preferences_all(request):
+    prefs = UserPreferences.objects.select_related('user').order_by("user__last_name",
+                                                                    "user__first_name")
+    header = ("User", "Organization", "Paid", "AccommodationDay1", "AccommodationDay2",
+              "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
+              "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
+    data_list = [(
+        str(p.user), ("" if p.organization is None else str(p.organization.name)), str(p.payment_accepted),
+        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3), str(p.dinner_day_1),
+        str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
+        str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
+        str(p.get_shirt_type_display())
+         ) for p in prefs
+    ]
+    return csv_response(header, data_list, filename="list_csv_preferences_all")
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_preferences_paid(request):
+    prefs = UserPreferences.objects.select_related('user').filter(payment_accepted=True) \
+        .order_by("user__last_name", "user__first_name")
+    header = ("User", "Organization", "AccommodationDay1", "AccommodationDay2",
+              "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
+              "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
+    data_list = [(
+        str(p.user), ("" if p.organization is None else str(p.organization.name)),
+        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
+        str(p.dinner_day_1), str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3),
+        str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
+        str(p.get_shirt_type_display())
+        ) for p in prefs
+    ]
+    return csv_response(header, data_list, filename="list_csv_preferences_paid")
