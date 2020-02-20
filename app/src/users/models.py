@@ -28,6 +28,9 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, is_staff=True,
                                 is_superuser=True, **extra_fields)
 
+    def registered(self):
+        return self.filter(preferences__isnull=False)
+
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
@@ -57,6 +60,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         '''Returns the last_name plus the first_name, with a space in between.'''
         return f'{self.last_name} {self.first_name}'
 
+    @property
+    def is_registered(self):
+        return self.preferences is not None
+
     def __str__(self):
         return self.full_name
 
@@ -78,9 +85,9 @@ class Organization(models.Model):
     )
 
     def __str__(self):
-        owner = '' if self.accepted else f'({str(self.user)})'
+        owner = '' if self.accepted else f' ({str(self.user)})'
 
-        return f"{self.name} {owner}"
+        return f"{self.name}{owner}"
 
 
 class UserPreferencesManager(models.Manager):
@@ -104,11 +111,11 @@ class UserPreferences(models.Model):
     objects = UserPreferencesManager()
 
     user = models.ForeignKey(User, related_name="preferences", on_delete=models.CASCADE)
-    zosia = models.ForeignKey(Zosia, related_name="users_preferences", on_delete=models.CASCADE)
+    zosia = models.ForeignKey(Zosia, related_name="registrations", on_delete=models.CASCADE)
 
     organization = models.ForeignKey(
         Organization,
-        related_name="people",
+        related_name="members",
         null=True,
         blank=True,
         on_delete=models.SET_NULL
@@ -236,7 +243,7 @@ class UserPreferences(models.Model):
 
     @property
     def transfer_title(self):
-        return f"ZOSIA - {self.user.first_name} {self.user.last_name} - {self.user.hash}"
+        return f"ZOSIA - {self.user.full_name} - {self.user.hash}"
 
     @property
     def rooming_start_time(self):

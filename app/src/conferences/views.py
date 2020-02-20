@@ -208,7 +208,7 @@ def place_add(request, pk=None):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_csv_bus_by_user(request):
-    prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True) \
+    prefs = UserPreferences.objects.select_related('user').filter(bus__isnull=False) \
         .order_by("user__last_name", "user__first_name")
     data_list = [(str(p.user), str(p.bus), str(p.payment_accepted)) for p in prefs]
     return csv_response(("User", "Bus", "Paid"), data_list, filename='list_csv_bus_by_user')
