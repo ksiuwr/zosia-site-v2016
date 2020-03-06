@@ -40,6 +40,10 @@ def index(request):
         messages.error(request, _('Please register first'))
         return redirect(reverse('user_zosia_register'))
 
+    if preferences.room is not None and preferences.room.hidden:
+        messages.error(request, _('Your are already assigned to hidden room by organizators'))
+        return redirect(reverse('accounts_profile'))
+
     paid = preferences.payment_accepted
     if not paid:
         messages.error(request, _('Your payment must be accepted first'))
@@ -65,17 +69,26 @@ def index(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_user(request):
-    prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True) \
-        .order_by("user__last_name", "user__first_name")
-    data_list = [(str(p.user), str(p.room) if p.room else '') for p in prefs]
-
-    return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
+def list_csv_room_by_user(request):
+    prefs = UserPreferences.objects.prefetch_related("user").order_by("user__last_name",
+                                                                      "user__first_name")
+    data_list = [(str(p.user), str(p.room) if p.room else '', str(p.payment_accepted))
+                 for p in prefs]
+    return csv_response(("User", "Room", "Paid"), data_list, filename='list_csv_room_by_user')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_room(request):
+def list_csv_room_by_member(request):
+    prefs = UserPreferences.objects.prefetch_related("user").order_by("user__last_name",
+                                                                      "user__first_name")
+    data_list = [(str(p.user), str(p.room)) for p in prefs if p.room]
+    return csv_response(("User", "Room"), data_list, filename='list_csv_room_by_member')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_members_by_room(request):
     def to_key(room):
         room_name = room.name.lower()
         groups = re.split(r"(\d+)", room_name)
@@ -83,8 +96,7 @@ def list_by_room(request):
 
     rooms = Room.objects.prefetch_related('members').all()
     data_list = [(str(r), r.members_to_string) for r in sorted(rooms, key=to_key)]
-
-    return csv_response(("Room", "Users"), data_list, filename='rooms_by_room')
+    return csv_response(("Room", "Members"), data_list, filename='list_csv_members_by_room')
 
 
 def handle_uploaded_file(csvfile):
