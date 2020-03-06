@@ -139,10 +139,11 @@ export const RoomCard = (props) => {
   }
 
   return (
-    <div className="col s12 xl6">
+    <div className={isMyRoom() ? "col s12" : "col s12 xl6"}>
       <div className={ card_class() }>
         <div className="card-content">
-            <span className="card-title grey-text text-darken-4"> {props.name}
+            <span className="card-title grey-text text-darken-4">
+            <b> {isMyRoom() ? "Your room:" : "" } </b> {props.name}
             <Members
               beds={props.available_beds}
               members={props.members}

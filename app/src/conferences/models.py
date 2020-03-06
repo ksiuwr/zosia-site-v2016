@@ -214,7 +214,10 @@ class Bus(models.Model):
     def passengers_count(self):
         return self.passengers.count()
 
-    @property
-    def passengers_to_string(self):
-        return DELIMITER.join(map(lambda p: str(p.user),
-                                  self.passengers.order_by("user__last_name", "user__first_name")))
+    def passengers_to_string(self, paid=False):
+        bus_passengers = self.passengers.order_by("user__last_name", "user__first_name")
+
+        if paid:
+            bus_passengers = bus_passengers.filter(payment_accepted=True)
+
+        return DELIMITER.join(map(lambda p: str(p.user), bus_passengers))
