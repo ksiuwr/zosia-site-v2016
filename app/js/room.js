@@ -88,6 +88,17 @@ const RoomsView = (props) =>
   })
 
   const sortedResults = filteredResults.sort((lhs, rhs) => {
+    const isMyRoom = (room) => exists(room.members, ({user}) => state.me.id == user.id);
+    if (isMyRoom(lhs) && !isMyRoom(rhs))
+    {
+      return -1;
+    }
+
+    if (isMyRoom(rhs) && !isMyRoom(lhs))
+    {
+      return 1;
+    }
+
     if (sortingStrategy == "room_number")
     {
       const l_num = parseInt(lhs.name);

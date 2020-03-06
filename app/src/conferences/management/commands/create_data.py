@@ -8,7 +8,7 @@ from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
 from rooms.models import Room
-from users.models import UserPreferences
+from users.models import Organization, UserPreferences
 from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
@@ -153,6 +153,9 @@ def create_random_user_with_preferences(zosia, id):
     u.set_password('pass')
     u.save()
 
+    org = Organization.objects.create(name=f"org_{id}", user=u, accepted=random_bool()) \
+        if random_bool() else None
+
     accommodation_day_1 = random_bool()
     dinner_day_1 = random_bool() if accommodation_day_1 else False
     breakfast_day_2 = random_bool() if accommodation_day_1 else False
@@ -174,7 +177,8 @@ def create_random_user_with_preferences(zosia, id):
     UserPreferences.objects.create(
         user=u,
         zosia=zosia,
-
+        organization=org,
+        bus=bus,
         accommodation_day_1=accommodation_day_1,
         dinner_day_1=dinner_day_1,
         accommodation_day_2=accommodation_day_2,
@@ -184,13 +188,12 @@ def create_random_user_with_preferences(zosia, id):
         breakfast_day_3=breakfast_day_3,
         dinner_day_3=dinner_day_3,
         breakfast_day_4=breakfast_day_4,
-
-        bus=bus,
         contact=phone_number,
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
         terms_accepted=True,
     )
+    return u
 
 
 def create_room(number):
@@ -233,15 +236,20 @@ class Command(BaseCommand):
         #     create_past_zosia(place)
         #     self.stdout.write('Past zosia #%d has been created' % i)
 
+        all_users = []
+
         sample_user = create_sample_user()
         self.stdout.write('Sample user has been created')
+        all_users.append(sample_user)
 
         for i in range(5):
-            create_random_user_with_preferences(zosia, i + 1)
+            user_with_prefs = create_random_user_with_preferences(zosia, i + 1)
             self.stdout.write(f"Created random user #{i}")
+            all_users.append(user_with_prefs)
 
         for i in range(4):
-            create_lecture(zosia, sample_user)
+            author = random.choice(all_users)
+            create_lecture(zosia, author)
             self.stdout.write(f"Created lecture #{i}")
 
         question_num = random.randint(3, 13)

@@ -13,7 +13,6 @@ from django.views.decorators.http import require_http_methods
 from conferences.forms import BusForm, PlaceForm, ZosiaForm
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
-from rooms.models import Room
 from sponsors.models import Sponsor
 from users.models import User, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -27,24 +26,20 @@ def export_json(request):
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email',
-                'organization_id__name', 'bus_id', 'accommodation_day_1',
+                'organization__name', 'bus__name', 'bus__departure_time', 'accommodation_day_1',
                 'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
                 'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
                 'shirt_size', 'shirt_type')
 
-    rooms = Room.objects \
-        .values('members__first_name', 'members__last_name', 'name')
-
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
-        .values('author__first_name', 'author__last_name', 'title',
-                'abstract', 'description')
+        .values('author__first_name', 'author__last_name', 'title', 'abstract',
+                'author__userpreferences__organization__name', 'description')
 
     data = {
         "lectures": list(lectures),
         "preferences": list(prefs),
-        "rooms": list(rooms),
     }
 
     return JsonResponse(data)
@@ -212,21 +207,27 @@ def place_add(request, pk=None):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_user(request):
+def list_csv_bus_by_user(request):
     prefs = UserPreferences.objects.select_related('user').exclude(bus__isnull=True) \
         .order_by("user__last_name", "user__first_name")
-    data_list = [(str(p.user), str(p.bus)) for p in prefs]
-
-    return csv_response(("User", "Bus"), data_list, filename='buses_by_users')
+    data_list = [(str(p.user), str(p.bus), str(p.payment_accepted)) for p in prefs]
+    return csv_response(("User", "Bus", "Paid"), data_list, filename='list_csv_bus_by_user')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_bus(request):
+def list_csv_all_users_by_bus(request):
     buses = Bus.objects.order_by("departure_time")
-    data_list = [(str(b), b.passengers_to_string) for b in buses]
+    data_list = [(str(b), b.passengers_to_string()) for b in buses]
+    return csv_response(("Bus", "All users"), data_list, filename='list_csv_all_users_by_bus')
 
-    return csv_response(("Bus", "Users"), data_list, filename='buses_by_bus')
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_paid_users_by_bus(request):
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string(paid=True)) for b in buses]
+    return csv_response(("Bus", "Paid users"), data_list, filename='list_csv_paid_users_by_bus')
 
 
 @staff_member_required
