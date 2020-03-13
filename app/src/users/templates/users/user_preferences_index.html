@@ -30,7 +30,7 @@
       {% for object in objects %}
         <li class="collection-item row" style="padding-top: 20px">
           <div class="col l1 m2 s12">
-            {{ object.user.hash }}
+            {{ object.user.short_hash }}
           </div>
           <div class="col l4 m6 s12">
             <a href="{% url 'user_preferences_edit' object.id %}" style="font-size: 16px">
@@ -78,7 +78,6 @@
         </div>
       </div>
     </div>
-  </div>
 {% endblock %}
 
 {% block custom_scripts %}
@@ -94,7 +93,7 @@
           "id": {{ object.id }},
           "firstName": "{{ object.user.first_name }}",
           "lastName": "{{ object.user.last_name}}",
-          "hash": "{{ object.user.hash }}",
+          "hash": "{{ object.user.short_hash }}",
           "price": {{ object.price }},
           "isPayed": {% if object.payment_accepted %} true {% else %} false {% endif %},
           "bonus": {{ object.bonus_minutes }},
