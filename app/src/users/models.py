@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -12,21 +13,24 @@ from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS
 from utils.time_manager import timedelta_since
 
 
+def validate_hash(value):
+    if value is not None and not re.match(r"[0-9a-fA-F]{64}", value):
+        raise ValidationError(_('This is not a valid SHA256 hex string'))
+
+
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, is_staff=False,
-                    is_active=True, **extra_fields):
-        'Creates a User with the given username, email and password'
+    def create_user(self, email, password=None, is_staff=False, is_active=True, **extra_fields):
         email = UserManager.normalize_email(email)
-        user = self.model(email=email, is_active=is_active,
-                          is_staff=is_staff, **extra_fields)
+        user = self.model(email=email, is_active=is_active, is_staff=is_staff, **extra_fields)
+
         if password is not None:
             user.set_password(password)
+
         user.save()
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        return self.create_user(email, password, is_staff=True,
-                                is_superuser=True, **extra_fields)
+        return self.create_user(email, password, is_staff=True, is_superuser=True, **extra_fields)
 
     def registered(self):
         return self.filter(preferences__isnull=False)
@@ -36,6 +40,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    hash = models.CharField(_('hash'), max_length=64, default=None, blank=False, unique=True,
+                            validators=[validate_hash])
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
@@ -45,10 +51,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     @property
-    def hash(self):
-        return hashlib.sha256(
-            f"{self.email}{self.first_name}{self.last_name}{self.date_joined}".encode('utf-8')
-        ).hexdigest()[:8]
+    def short_hash(self):
+        '''Returns first 8 characters (i.e. 32 bits) of user hash'''
+        if self.hash is None:
+            self.save()
+
+        return self.hash[:8]
 
     @property
     def full_name(self):
@@ -66,6 +74,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.full_name
+
+    def save(self, *args, **kwargs):
+        if self.hash is None:
+            self.hash = hashlib.sha256(
+                f"{self.email}{self.date_joined}".encode('utf-8')).hexdigest().lower()
+
+        super().save(*args, **kwargs)
 
 
 class Organization(models.Model):
@@ -243,7 +258,7 @@ class UserPreferences(models.Model):
 
     @property
     def transfer_title(self):
-        return f"ZOSIA - {self.user.full_name} - {self.user.hash}"
+        return f"ZOSIA - {self.user.full_name} - {self.user.short_hash}"
 
     @property
     def rooming_start_time(self):

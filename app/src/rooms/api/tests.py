@@ -85,6 +85,24 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.data["available_beds_single"], 1)
         self.assertEqual(response.data["available_beds_double"], 0)
 
+    def test_staff_can_add_room_with_empty_description(self):
+        self.client.force_authenticate(user=self.staff_1)
+
+        data = {
+            "name": "357",
+            "description": "",
+            "beds_single": 2,
+            "beds_double": 0,
+            "available_beds_single": 2,
+            "available_beds_double": 0
+        }
+        response = self.client.post(self.url, data, format="json")
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], "357")
+        self.assertEqual(response.data["description"], "")
+        self.assertEqual(response.data["available_beds_single"], 2)
+
     def test_staff_can_add_room_with_double_bed_as_single(self):
         self.client.force_authenticate(user=self.staff_1)
 

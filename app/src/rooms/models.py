@@ -60,7 +60,7 @@ class Room(models.Model):
     objects = RoomManager()
 
     name = models.CharField(max_length=300)
-    description = models.TextField(default="")
+    description = models.TextField(default="", blank=True, null=False)
     hidden = models.BooleanField(default=False)
     beds_single = models.PositiveSmallIntegerField(default=0)
     beds_double = models.PositiveSmallIntegerField(default=0)
@@ -198,3 +198,6 @@ class UserRoom(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user} [{self.room}]"
