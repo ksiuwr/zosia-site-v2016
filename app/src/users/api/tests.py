@@ -37,7 +37,7 @@ class OrganizationsAPITestCase(APITestCase):
 class UserListAPITestCase(UsersAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("users_api_list", kwargs={"version": "v1"})
+        self.url = reverse("users_api_list")
 
     def test_user_cannot_get_all_users(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -59,10 +59,10 @@ class UserListAPITestCase(UsersAPITestCase):
 class UserDetailAPITestCase(UsersAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_n1 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.normal_1.pk})
-        self.url_n2 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.normal_2.pk})
-        self.url_s1 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.staff_1.pk})
-        self.url_s2 = reverse("users_api_detail", kwargs={"version": "v1", "pk": self.staff_2.pk})
+        self.url_n1 = reverse("users_api_detail", kwargs={"pk": self.normal_1.pk})
+        self.url_n2 = reverse("users_api_detail", kwargs={"pk": self.normal_2.pk})
+        self.url_s1 = reverse("users_api_detail", kwargs={"pk": self.staff_1.pk})
+        self.url_s2 = reverse("users_api_detail", kwargs={"pk": self.staff_2.pk})
 
     def test_user_cannot_get_normal_user(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -98,7 +98,7 @@ class UserDetailAPITestCase(UsersAPITestCase):
 class UserMeAPITestCase(UsersAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("users_api_me", kwargs={"version": "v1"})
+        self.url = reverse("users_api_me")
 
     def test_user_can_get_their_info(self):
         self.client.force_authenticate(user=self.normal_2)
@@ -129,7 +129,7 @@ class UserMeAPITestCase(UsersAPITestCase):
 class OrganizationsListAPITestCase(OrganizationsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("organizations_api_list", kwargs={"version": "v1"})
+        self.url = reverse("organizations_api_list")
 
     def test_user_can_view_all_organizations(self):
         self.client.force_authenticate(user=self.normal_1)

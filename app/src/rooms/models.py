@@ -13,7 +13,7 @@ from utils.time_manager import now, timedelta_since_now
 
 def random_string(length=10):
     return "".join(random.SystemRandom().choice(
-        string.ascii_uppercase + string.digits) for _ in range(length))
+            string.ascii_uppercase + string.digits) for _ in range(length))
 
 
 class RoomLockManager(models.Manager):
@@ -46,6 +46,9 @@ class RoomLock(models.Model):
 class RoomManager(models.Manager):
     def all_visible(self):
         return self.filter(hidden=False)
+
+    def all_visible_with_member(self, user):
+        return self.filter(hidden=False) | self.filter(members__pk=user.pk)
 
     def filter_visible(self, **params):
         if params.get("hidden"):
