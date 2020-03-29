@@ -22,27 +22,28 @@ from drf_yasg.views import get_schema_view
 from rest_framework import permissions
 
 schema_view = get_schema_view(
-    openapi.Info(title="ZOSIA API", default_version='v1', description="API for ZOSIA site"),
-    public=True, permission_classes=(permissions.AllowAny,)
+        openapi.Info(title="ZOSIA API", default_version='v1', description="API for ZOSIA site"),
+        public=True, permission_classes=(permissions.AllowAny,)
 )
 
 urlpatterns = \
     [
-        # site URLs
-        re_path(r'^admin/', admin.site.urls),
-        re_path(r'^accounts/', include('users.urls')),
-        re_path(r'', include('conferences.urls')),
-        re_path(r'^rooms/', include('rooms.urls')),
-        re_path(r'^blog/', include('blog.urls')),
-        re_path(r'^sponsors/', include('sponsors.urls')),
-        re_path(r'^lectures/', include('lectures.urls')),
-        re_path(r'^questions/', include('questions.urls')),
+            # site URLs
+            re_path(r'^admin/', admin.site.urls),
+            re_path(r'^accounts/', include('users.urls')),
+            re_path(r'', include('conferences.urls')),
+            re_path(r'^rooms/', include('rooms.urls')),
+            re_path(r'^blog/', include('blog.urls')),
+            re_path(r'^sponsors/', include('sponsors.urls')),
+            re_path(r'^lectures/', include('lectures.urls')),
+            re_path(r'^questions/', include('questions.urls')),
 
-        # API URLs
-        re_path(r'^api/(?P<version>(v1))/rooms/', include('rooms.api.urls')),
-        re_path(r'^api/(?P<version>(v1))/users/', include('users.api.urls')),
+            # API URLs
+            re_path(r'^api/v1/rooms/', include('rooms.api.v1.urls')),
+            re_path(r'^api/v2/rooms/', include('rooms.api.v2.urls')),
+            re_path(r'^api/v1/users/', include('users.api.urls')),
 
-        # Swagger URLs
-        re_path(r'^api/swagger/', schema_view.with_ui('swagger', cache_timeout=0),
-                name='schema-swagger-ui')
+            # Swagger URLs
+            re_path(r'^api/swagger/', schema_view.with_ui('swagger', cache_timeout=0),
+                    name='schema-swagger-ui')
     ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

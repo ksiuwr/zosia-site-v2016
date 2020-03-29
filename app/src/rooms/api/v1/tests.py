@@ -56,12 +56,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_2)
 
         data = {
-            "name": "789",
-            "description": "Room for JMa",
-            "beds_single": 1,
-            "beds_double": 0,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "789",
+                "description": "Room for JMa",
+                "beds_single": 1,
+                "beds_double": 0,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -71,12 +71,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "789",
-            "description": "Room for JMa",
-            "beds_single": 1,
-            "beds_double": 0,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "789",
+                "description": "Room for JMa",
+                "beds_single": 1,
+                "beds_double": 0,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -89,12 +89,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "357",
-            "description": "",
-            "beds_single": 2,
-            "beds_double": 0,
-            "available_beds_single": 2,
-            "available_beds_double": 0
+                "name": "357",
+                "description": "",
+                "beds_single": 2,
+                "beds_double": 0,
+                "available_beds_single": 2,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -107,12 +107,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "456",
-            "description": "Room for some random guys with Divide inside",
-            "beds_single": 2,
-            "beds_double": 3,
-            "available_beds_single": 3,
-            "available_beds_double": 1
+                "name": "456",
+                "description": "Room for some random guys with Divide inside",
+                "beds_single": 2,
+                "beds_double": 3,
+                "available_beds_single": 3,
+                "available_beds_double": 1
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -125,12 +125,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "456",
-            "description": "Room for some random guys with Divide inside",
-            "beds_single": 2,
-            "beds_double": 3,
-            "available_beds_single": 4,
-            "available_beds_double": 2
+                "name": "456",
+                "description": "Room for some random guys with Divide inside",
+                "beds_single": 2,
+                "beds_double": 3,
+                "available_beds_single": 4,
+                "available_beds_double": 2
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -140,12 +140,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "123",
-            "description": "Room for TWi, who is still not coming",
-            "beds_single": -2,
-            "beds_double": 0,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "123",
+                "description": "Room for TWi, who is still not coming",
+                "beds_single": -2,
+                "beds_double": 0,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -155,12 +155,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "123",
-            "description": "Room for TWi, who is still not coming",
-            "beds_single": 1,
-            "beds_double": -1,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "123",
+                "description": "Room for TWi, who is still not coming",
+                "beds_single": 1,
+                "beds_double": -1,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -256,12 +256,12 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_2)
 
         data = {
-            "name": "2222",
-            "description": "Continuum HQ",
-            "beds_single": 2,
-            "beds_double": 0,
-            "available_beds_single": 2,
-            "available_beds_double": 0
+                "name": "2222",
+                "description": "Continuum HQ",
+                "beds_single": 2,
+                "beds_double": 0,
+                "available_beds_single": 2,
+                "available_beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -271,13 +271,13 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {
-            "name": "1111",
-            "description": "KSI HQ",
-            "hidden": False,
-            "beds_single": 1,
-            "beds_double": 1,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "1111",
+                "description": "KSI HQ",
+                "hidden": False,
+                "beds_single": 1,
+                "beds_double": 1,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.put(self.url_1, data, format="json")
 
@@ -291,8 +291,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "3333",
-            "description": "CamelPhat's Panic Room"
+                "name": "3333",
+                "description": "CamelPhat's Panic Room"
         }
         response = self.client.put(self.url_3, data)
 
@@ -305,9 +305,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "1111",
-            "available_beds_single": 1,
-            "available_beds_double": 10
+                "name": "1111",
+                "available_beds_single": 1,
+                "available_beds_double": 10
         }
         response = self.client.put(self.url_1, data, format="json")
 
@@ -317,9 +317,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {
-            "name": "2222",
-            "beds_single": -1,
-            "beds_double": 0
+                "name": "2222",
+                "beds_single": -1,
+                "beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -332,9 +332,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.room_2.join(self.normal_2)
 
         data = {
-            "name": "99",
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "99",
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -347,9 +347,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.room_2.join(self.normal_2)
 
         data = {
-            "name": "99",
-            "beds_single": 1,
-            "beds_double": 0
+                "name": "99",
+                "beds_single": 1,
+                "beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 

@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from conferences.models import Zosia
-from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
+from rooms.api.v1.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
     LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer, \
     RoomWithLockPasswordSerializer
 from rooms.models import Room, UserRoom
