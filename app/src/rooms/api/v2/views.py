@@ -113,7 +113,7 @@ class RoomMemberViewSet(ViewSet):
             except exceptions.ValidationError as e:
                 return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
-            return Response(RoomSerializer(room).data, status=status.HTTP_204_NO_CONTENT)
+            return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -155,4 +155,4 @@ class RoomLockViewSet(ViewSet):
         except exceptions.ValidationError as e:
             return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
 
-        return Response(RoomSerializer(room).data, status=status.HTTP_204_NO_CONTENT)
+        return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)

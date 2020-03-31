@@ -614,7 +614,7 @@ class RoomMemberCreateAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_staff_cannot_add_nonexisting_user(self):
+    def test_staff_cannot_add_not_existing_user(self):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {"user": 0}
@@ -639,7 +639,7 @@ class RoomMemberDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertEmpty(self.room_1)
 
     def test_owner_can_leave_locked_room_then_unlocks(self):
@@ -653,7 +653,7 @@ class RoomMemberDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertEmpty(self.room_2)
         room_assertions.assertUnlocked(self.room_2)
 
@@ -669,7 +669,7 @@ class RoomMemberDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(self.room_2.members_count, 1)
         room_assertions.assertLocked(self.room_2, self.normal_2)
 
@@ -683,7 +683,7 @@ class RoomMemberDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertEmpty(self.room_1)
 
     def test_user_cannot_remove_other_user_from_room(self):
@@ -862,7 +862,7 @@ class RoomLockDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_1, {})
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertUnlocked(self.room_1)
 
     def test_user_cannot_unlock_not_owned_room(self):
@@ -905,7 +905,7 @@ class RoomLockDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_1, {})
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(self.room_1.is_locked)
 
     def test_staff_can_unlock_after_rooming_ends(self):
@@ -921,7 +921,7 @@ class RoomLockDestroyAPITestCase(RoomsAPITestCase):
         response = self.client.delete(self.url_2, {})
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertUnlocked(self.room_2)
 
 
