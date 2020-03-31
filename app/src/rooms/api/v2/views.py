@@ -68,6 +68,16 @@ class RoomViewSet(ModelViewSet):
 
         return Response(self.get_serializer(room).data, status=status.HTTP_200_OK)
 
+    @action(detail=True, methods=["GET"])
+    def user_member(self, request):
+        sender = request.user
+        room = sender.room_of_user.all().first()
+
+        if not room:
+            return Response("User is not assigned to any room", status=status.HTTP_404_NOT_FOUND)
+
+        return Response(self.get_serializer(room).data, status=status.HTTP_200_OK)
+
 
 class RoomMemberViewSet(ViewSet):
     def create(self, request, pk):  # only room joining

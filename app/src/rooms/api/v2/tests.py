@@ -979,3 +979,33 @@ class RoomHiddenAPITestCase(RoomsAPITestCase):
         response = self.client.delete(url, {})
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class RoomMineAPITestCase(RoomsAPITestCase):
+    def test_user_without_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        url = reverse("rooms_api2_mine")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_joined_visible_room(self):
+        self.room_1.join(self.normal_1)
+        self.client.force_authenticate(user=self.normal_1)
+
+        url = reverse("rooms_api2_mine")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "111")
+
+    def test_user_joined_hidden_room(self):
+        self.room_3.join(self.normal_2, self.staff_2)
+        self.client.force_authenticate(user=self.normal_2)
+
+        url = reverse("rooms_api2_mine")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "333")
