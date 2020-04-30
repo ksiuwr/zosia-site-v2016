@@ -80,9 +80,9 @@ def list_csv_room_by_user(request):
 @staff_member_required
 @require_http_methods(['GET'])
 def list_csv_room_by_member(request):
-    prefs = UserPreferences.objects.prefetch_related("user").order_by("user__last_name",
-                                                                      "user__first_name")
-    data_list = [(str(p.user), str(p.room)) for p in prefs if p.room]
+    prefs = UserPreferences.objects.prefetch_related("user") \
+        .filter(user__room_of_user__isnull=False).order_by("user__last_name", "user__first_name")
+    data_list = [(str(p.user), str(p.room)) for p in prefs]
     return csv_response(("User", "Room"), data_list, filename='list_csv_room_by_member')
 
 
