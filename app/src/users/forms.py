@@ -41,13 +41,13 @@ class MailForm(forms.Form):
         queryset=User.objects.filter(is_active=False),
         to_field_name="email", required=False)
     registered = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(userpreferences__isnull=False).distinct(),
+        queryset=User.objects.filter(preferences__isnull=False).distinct(),
         to_field_name="email", required=False)
     payed = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(userpreferences__payment_accepted=True).distinct(),
+        queryset=User.objects.filter(preferences__payment_accepted=True).distinct(),
         to_field_name="email", required=False)
     not_Payed = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(userpreferences__payment_accepted=False).distinct(),
+        queryset=User.objects.filter(preferences__payment_accepted=False).distinct(),
         to_field_name="email", required=False)
 
     def __init__(self, *args, **kwargs):
@@ -65,15 +65,15 @@ class MailForm(forms.Form):
             User.objects.filter(is_active=False).values_list('email', flat=True)
         )
         self.fields["registered"].initial = (
-            User.objects.filter(userpreferences__isnull=False).distinct()
+            User.objects.filter(preferences__isnull=False).distinct()
                 .values_list('email', flat=True)
         )
         self.fields["payed"].initial = (
-            User.objects.filter(userpreferences__payment_accepted=True).distinct()
+            User.objects.filter(preferences__payment_accepted=True).distinct()
                 .values_list('email', flat=True)
         )
         self.fields["not_Payed"].initial = (
-            User.objects.filter(userpreferences__payment_accepted=False).distinct()
+            User.objects.filter(preferences__payment_accepted=False).distinct()
                 .values_list('email', flat=True)
         )
 
