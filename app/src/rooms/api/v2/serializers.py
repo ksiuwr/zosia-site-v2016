@@ -77,16 +77,17 @@ class RoomSerializer(serializers.ModelSerializer):
 
         if available_beds_single_data > beds_single_data + beds_double_data:
             raise serializers.ValidationError(
-                    _("Available single beds cannot exceed real single beds plus double beds"),
-                    code='invalid'
+                _("Available single beds cannot exceed real single beds plus double beds"),
+                code='invalid'
             )
 
         double_as_single = max(0, available_beds_single_data - beds_single_data)
 
         if available_beds_double_data > beds_double_data - double_as_single:
-            raise serializers.ValidationError(_(
-                    "Available double beds cannot exceed real double beds minus double-as-single beds"),
-                    code='invalid'
+            raise serializers.ValidationError(
+                _("Available double beds cannot exceed real double beds"
+                  " minus double-as-single beds"),
+                code='invalid'
             )
 
         available_members = available_beds_single_data + 2 * available_beds_double_data
@@ -94,8 +95,8 @@ class RoomSerializer(serializers.ModelSerializer):
 
         if available_members < members_count:
             raise serializers.ValidationError(
-                    _("Available beds must exceed already joined members"),
-                    code='invalid'
+                _("Available beds must exceed already joined members"),
+                code='invalid'
             )
 
         return data
