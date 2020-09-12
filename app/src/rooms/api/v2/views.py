@@ -27,13 +27,13 @@ def _check_rooming(user, sender):
 
         if rooming_status == RoomingStatus.BEFORE_ROOMING:
             raise exceptions.ValidationError(_("Rooming for user has not started yet."),
-                                             code='invalid')
+                                             code="invalid")
 
         if rooming_status == RoomingStatus.AFTER_ROOMING:
-            raise exceptions.ValidationError(_("Rooming has already ended."), code='invalid')
+            raise exceptions.ValidationError(_("Rooming has already ended."), code="invalid")
 
         if rooming_status == RoomingStatus.ROOMING_UNAVAILABLE:
-            raise exceptions.ValidationError(_("Rooming is unavailable for user."), code='invalid')
+            raise exceptions.ValidationError(_("Rooming is unavailable for user."), code="invalid")
 
 
 class UserRoomViewSet(ReadOnlyModelViewSet):
@@ -97,8 +97,8 @@ class RoomMemberViewSet(ViewSet):
             try:
                 _check_rooming(user, sender)
                 room.join(user, sender, password)
-            except exceptions.ValidationError as e:
-                return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
+            except exceptions.ValidationError as ex:
+                return Response("; ".join(ex.messages), status=status.HTTP_403_FORBIDDEN)
 
             return Response(RoomSerializer(room).data, status=status.HTTP_201_CREATED)
 
@@ -120,8 +120,8 @@ class RoomMemberViewSet(ViewSet):
             try:
                 _check_rooming(user, sender)
                 room.leave(user, sender)
-            except exceptions.ValidationError as e:
-                return Response("; ".join(e.messages), status=status.HTTP_403_FORBIDDEN)
+            except exceptions.ValidationError as ex:
+                return Response("; ".join(ex.messages), status=status.HTTP_403_FORBIDDEN)
 
             return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)
 
@@ -147,8 +147,8 @@ class RoomLockViewSet(ViewSet):
             try:
                 _check_rooming(user, sender)
                 room.set_lock(user, sender, expiration_date)
-            except exceptions.ValidationError as e:
-                return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
+            except exceptions.ValidationError as ex:
+                return Response("; ".join(ex.messages), status=status.HTTP_403_FORBIDDEN)
 
             return Response(RoomWithLockPasswordSerializer(room).data,
                             status=status.HTTP_201_CREATED)
@@ -162,7 +162,7 @@ class RoomLockViewSet(ViewSet):
         try:
             _check_rooming(sender, sender)
             room.unlock(sender)
-        except exceptions.ValidationError as e:
-            return Response('; '.join(e.messages), status=status.HTTP_403_FORBIDDEN)
+        except exceptions.ValidationError as ex:
+            return Response("; ".join(ex.messages), status=status.HTTP_403_FORBIDDEN)
 
         return Response(RoomSerializer(room).data, status=status.HTTP_200_OK)

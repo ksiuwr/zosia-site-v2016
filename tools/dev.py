@@ -16,7 +16,7 @@ class Colour:
 
 
 PROJECT_NAME = "zosia"
-ROOT_DIR = normpath(dirname(__file__) + "/..")
+ROOT_DIR = normpath(f"{dirname(__file__)}/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
 DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
@@ -61,7 +61,7 @@ def run_server():
     docker_python(["runserver", "0.0.0.0:8000"])
     print(
         f"{Colour.PURPLE}-- Exiting --{Colour.NORMAL}",
-        f"{Colour.YELLOW} [!] Remember to run `dev.py quit`, if you've just finished{Colour.NORMAL}",
+        f"{Colour.YELLOW} [!] Remember to run `dev.py quit` if you've just finished{Colour.NORMAL}",
         sep="\n")
     command_run(["docker", "ps"])
 

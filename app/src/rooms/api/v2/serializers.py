@@ -78,7 +78,7 @@ class RoomSerializer(serializers.ModelSerializer):
         if available_beds_single_data > beds_single_data + beds_double_data:
             raise serializers.ValidationError(
                 _("Available single beds cannot exceed real single beds plus double beds"),
-                code='invalid'
+                code="invalid"
             )
 
         double_as_single = max(0, available_beds_single_data - beds_single_data)
@@ -87,7 +87,7 @@ class RoomSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 _("Available double beds cannot exceed real double beds"
                   " minus double-as-single beds"),
-                code='invalid'
+                code="invalid"
             )
 
         available_members = available_beds_single_data + 2 * available_beds_double_data
@@ -96,7 +96,7 @@ class RoomSerializer(serializers.ModelSerializer):
         if available_members < members_count:
             raise serializers.ValidationError(
                 _("Available beds must exceed already joined members"),
-                code='invalid'
+                code="invalid"
             )
 
         return data
@@ -126,7 +126,7 @@ class RoomMemberCreateMethodSerializer(serializers.BaseSerializer):
         password = data.get("password")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."}, code='required')
+            raise serializers.ValidationError({"user": "This field is required."}, code="required")
 
         return {"user": user, "password": password}
 
@@ -144,7 +144,7 @@ class RoomMemberDestroyMethodSerializer(serializers.BaseSerializer):
         user = data.get("user")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."}, code='required')
+            raise serializers.ValidationError({"user": "This field is required."}, code="required")
 
         return {"user": user}
 
@@ -162,14 +162,14 @@ class RoomLockCreateMethodSerializer(serializers.BaseSerializer):
         user = data.get("user")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."}, code='required')
+            raise serializers.ValidationError({"user": "This field is required."}, code="required")
 
         return {"user": user}
 
 
 class RoomLockCreateMethodAdminSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
-    expiration_date = serializers.DateTimeField(input_formats=['iso-8601'], required=False)
+    expiration_date = serializers.DateTimeField(input_formats=["iso-8601"], required=False)
 
     def __init__(self, *args, **kwargs):
         super(RoomLockCreateMethodAdminSerializer, self).__init__(*args, **kwargs)
@@ -187,7 +187,7 @@ class RoomLockCreateMethodAdminSerializer(serializers.BaseSerializer):
         expiration_date = data.get("expiration_date")
 
         if user is None:
-            raise serializers.ValidationError({"user": "This field is required."}, code='required')
+            raise serializers.ValidationError({"user": "This field is required."}, code="required")
 
         return {"user": user} if expiration_date is None else \
             {"user": user, "expiration_date": parse_timezone(expiration_date)}
