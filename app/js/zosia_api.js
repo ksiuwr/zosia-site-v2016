@@ -72,11 +72,13 @@ const post = (uri, json) => {
     });
 }
 
-const delete_ = (uri) => {
+const delete_ = (uri, json) => {
     return fetch(root + uri, {
         method: 'DELETE',
+        body: JSON.stringify(json), // string or object
         headers: {
-            'X-CSRFToken': getCSRFToken()
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCSRFToken()
         }
     }).then(response => {
         if (response.ok) {
@@ -157,7 +159,7 @@ const convert_room_to_api = (room_) => {
 }
 
 export const create_room = (json) => post('/api/v2/rooms/', convert_room_to_api(json))
-export const delete_room = (id) => delete_('/api/v2/rooms/' + id + '/')
+export const delete_room = (id) => delete_('/api/v2/rooms/' + id + '/', {})
 export const edit_room = (id, json) => put('/api/v2/rooms/' + id + '/', convert_room_to_api(json))
 export const get_room = (id) => get('/api/v2/rooms/' + id)
 export const join_room = (id, user, password) => post('/api/v2/rooms/' + id + '/member/', { user, password })
@@ -167,6 +169,6 @@ export const hide_room = (id) => post('/api/v2/rooms/' + id + '/hidden/', {})
 export const unhide_room = (id) => delete_('/api/v2/rooms/' + id + '/hidden/', {})
 export const lock_room = (id, user) => post('/api/v2/rooms/' + id + '/lock/', { user })
 export const unlock_room = (id, user) => delete_('/api/v2/rooms/' + id + '/lock/', {})
-export const add_organization = name => post('/api/v1/users/organizations/', {name})
+export const add_organization = name => post('/api/v1/users/organizations/', { name })
 export const get_organizations = name => get('/api/v1/users/organizations/')
 
