@@ -988,7 +988,7 @@ class RoomMineAPITestCase(RoomsAPITestCase):
         url = reverse("rooms_api2_mine")
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_user_joined_visible_room(self):
         self.room_1.join(self.normal_1)

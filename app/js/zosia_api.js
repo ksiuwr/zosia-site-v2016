@@ -112,12 +112,13 @@ const put = (uri, json) => {
     });
 }
 
-
 const get_me = () => get('/api/v1/users/me');
 const me_id = () => get_me().then(({ id }) => id)
+
 export const me = {
     id: me_id,
     info: get_me,
+    room: get_my_room,
     join_room: (room, password) => me_id().then(id => join_room(room, id, password)),
     leave_room: (room) => me_id().then(id => leave_room(room, id)),
     lock_room: (room) => me_id().then(id => lock_room(room, id)),
@@ -158,6 +159,7 @@ const convert_room_to_api = (room_) => {
     }
 }
 
+export const get_my_room = (json) => get('/api/v2/rooms/mine')
 export const create_room = (json) => post('/api/v2/rooms/', convert_room_to_api(json))
 export const delete_room = (id) => delete_('/api/v2/rooms/' + id + '/', {})
 export const edit_room = (id, json) => put('/api/v2/rooms/' + id + '/', convert_room_to_api(json))

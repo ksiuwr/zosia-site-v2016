@@ -74,7 +74,7 @@ class RoomViewSet(ModelViewSet):
         room = sender.room_of_user.all().first()
 
         if not room:
-            return Response("User is not assigned to any room", status=status.HTTP_404_NOT_FOUND)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         return Response(self.get_serializer(room).data, status=status.HTTP_200_OK)
 
