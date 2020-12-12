@@ -2,11 +2,11 @@ FROM node:alpine AS node-builder
 
 WORKDIR /code
 
-ADD package.json /code/
-ADD webpack.config.js /code/
-ADD yarn.lock /code/
-ADD static /code/static
-ADD js /code/js
+COPY package.json /code/
+COPY webpack.config.js /code/
+COPY yarn.lock /code/
+COPY static /code/static
+COPY js /code/js
 
 RUN yarn install
 RUN yarn build
