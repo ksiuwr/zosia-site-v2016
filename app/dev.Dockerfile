@@ -10,19 +10,17 @@ ENV DJANGO_SETTINGS_MODULE="zosia16.settings.dev"
 RUN set -x \
     && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
 	&& apt-get update \
-    && apt upgrade -y \
-    && apt install -y nodejs \
+    && apt-get install -y nodejs --no-install-recommends \
     && npm install -g yarn \
     ;
 
-ADD requirements.txt /code/
+COPY requirements.txt /code/
 RUN pip install -r /code/requirements.txt
 
-ADD package.json /code/
-ADD webpack.config.js /code/
-ADD yarn.lock /code/
-ADD static /code/static
-ADD js /code/js
+COPY package.json /code/
+COPY webpack.config.js /code/
+COPY yarn.lock /code/
+COPY static /code/static
+COPY js /code/js
 
 WORKDIR /code
-
