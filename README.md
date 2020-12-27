@@ -3,6 +3,15 @@ Django 2.2 version of ZOSIA registration page.
 
 [![CircleCI](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master)
 
+* [Development](#development)
+  + [Local development (without docker)](#local-development--without-docker-)
+  + [Full in-docker local development](#full-in-docker-local-development)
+    - [Required software:](#required-software-)
+    - [How can I run it?](#how-can-i-run-it-)
+    - [I have run it - what is happening?](#i-have-run-it---what-is-happening-)
+  + [Troubleshooting](#troubleshooting)
+* [Hosting](#hosting)
+
 ## Development
 
 The preferred approach is to use *docker* for development. And don't worry, we try to keep it as
@@ -76,8 +85,8 @@ Next, we run migrations on database and, finally, start the web server. In termi
  see output/logs from django (e.g. queries to the database).
 
 You can shut this server down anytime by clicking `CTRL+C`, but containers will be still alive.
- If you want to shut them down as well, you need to run `./dev.py quit` command. And if you
- want to start the web server again, just run `./dev.py server`.
+ If you want to start the web server again, just run `./dev.py server`.
+ If you want to shut all containers down, you need to run `./dev.py quit` command.
 
 ### Troubleshooting
 
@@ -103,3 +112,11 @@ In case of that error just restart docker daemon service with this command: `sys
 
 In case of any other problems it is recommended to rebuild the container with `--no-cache` option
  (i.e. `./dev.py run --no-cache` or `./dev.py start --no-cache`).
+
+
+## Hosting
+In 2020, we hosted ZOSIA registration site on AWS. We used an ECS cluster based on EC2 instances
+ to run the containers and ECR as a docker registry. All secrets (like database credentials,
+ different APIs keys, etc) were stored in the Parameter Store and loaded to the environment variables
+ on container startup. Deployments were conducted by CircleCI after every commit to the master branch.
+ All deployment scripts used for that are placed in the `.ecs` directory.
