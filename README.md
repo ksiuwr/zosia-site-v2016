@@ -4,11 +4,11 @@ Django 2.2 version of ZOSIA registration page.
 [![CircleCI](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master)
 
 * [Development](#development)
-  + [Local development (without docker)](#local-development--without-docker-)
+  + [Local development (without docker)](#local-development-without-docker)
   + [Full in-docker local development](#full-in-docker-local-development)
-    - [Required software:](#required-software-)
-    - [How can I run it?](#how-can-i-run-it-)
-    - [I have run it - what is happening?](#i-have-run-it---what-is-happening-)
+    - [Required software:](#required-software)
+    - [How can I run it?](#how-can-i-run-it)
+    - [I have run it - what is happening?](#i-have-run-it---what-is-happening)
   + [Troubleshooting](#troubleshooting)
 * [Hosting](#hosting)
 
