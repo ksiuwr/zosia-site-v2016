@@ -145,7 +145,7 @@ class UserFiltersAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
             _have_preferences=Exists(UserPreferences.objects.filter(user=OuterRef('id')).only('user')),
-            _room_name=ArrayAgg('room_of_user__name'),
+            _room_name=ArrayAgg('room_of_user__name', distinct=True),
             _payment_accepted=ArrayAgg('preferences__payment_accepted'),
             _shirt_properties=ArrayAgg(Concat('preferences__shirt_size', Value('-'), 'preferences__shirt_type')),
             _have_lectures=Exists(Lecture.objects.filter(author=OuterRef('id')).only('author')),
@@ -157,7 +157,7 @@ class UserFiltersAdmin(admin.ModelAdmin):
 
     def room_name(self, obj):
         return obj._room_name
-        # Implementation have M2M Fields, only first record of room_of_user is taken in list_csv_room_by_member, what if many rooms defined?
+
     room_name.admin_order_field = '_room_name'
 
     def payment_accepted(self, obj):  # FK from Many site, User can have many UserPreferences. Maybe link with related id should be provided.
