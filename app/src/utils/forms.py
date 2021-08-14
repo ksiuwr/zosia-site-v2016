@@ -7,7 +7,7 @@ from utils.constants import LECTURE_NORMAL_DURATION_CHOICES, LECTURE_SPONSOR_DUR
 
 
 def errors_format(form):
-    infos = ["<span><strong>" + escape(form.fields[field].label) + "</strong><br/>" +
+    infos = [(f"<span><strong>{escape(form.fields[field].label) if field != 'terms_accepted' else 'Terms & Conditions'}</strong><br/>") +
              "<br/>".join(map(escape, errs)) + "</span>" for field, errs in form.errors.items()]
 
     return mark_safe("<p>" + "<br/><br/>".join(infos) + "</p>")
