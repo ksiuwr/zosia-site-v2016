@@ -23,7 +23,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.4",
-    "chart.js": "^2.9.4",
+    "chart.js": "^3.5.0",
     "copy-webpack-plugin": "^5.0.1",
     "jquery": "^3.5.0",
     "materialize-css": "^1.0.0",
