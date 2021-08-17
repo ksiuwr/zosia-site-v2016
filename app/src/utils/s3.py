@@ -1,5 +1,5 @@
 import boto3
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError, NoCredentialsError
 from django.conf import settings
 
 
@@ -9,17 +9,14 @@ def list_bucket_objects(bucket_name):
     [{'Key': 'cats/cute_cat.jpg', 'LastModified': datetime(..), 'ETag': 'abc...', 'Size': 123, 'StorageClass': '...'}]
     '''
 
-    if settings.ENV == "prod":
-        s3 = boto3.client('s3')
-    else:
-        # TODO: Try to load developers key from env variables
-        return None
+    s3 = boto3.client('s3')
 
     try:
         response = s3.list_objects_v2(Bucket=bucket_name)
-    except ClientError as e:
+        pass
+    except (ClientError, NoCredentialsError) as e:
         # AllAccessDisabled error == bucket not found
-        print(e)
+        print(f"Error: {e}")
         return None
 
     # Only return the contents if we found some keys
