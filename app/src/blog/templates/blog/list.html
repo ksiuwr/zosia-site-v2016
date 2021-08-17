@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load time_utils %}
+
+{% block content %}
+<div class="container">
+    <h3>{% trans "Blog" %}</h3>
+    <div id="orgs" class="col s12">
+        <ul class="collapsible" data-collapsible="accordion">
+            {% for post in posts %}
+            <li>
+                <div class="collapsible-header">
+                    <a href={% url 'blog_update' post.pk %}>{{ post }}</a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock content %}
