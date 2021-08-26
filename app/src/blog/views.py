@@ -36,7 +36,7 @@ def list(request):
 
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
-def update(request, pk=None):
+def edit(request, pk=None):
     if pk is not None:
         post = get_object_or_404(BlogPost, pk=pk)
         form = BlogPostForm(request.POST or None, instance=post)

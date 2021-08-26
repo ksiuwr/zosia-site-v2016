@@ -6,11 +6,16 @@
 <div class="container">
     <h3>{% trans "Blog" %}</h3>
     <div id="orgs" class="col s12">
-        <ul class="collapsible" data-collapsible="accordion">
+        <ul class="collection">
             {% for post in posts %}
             <li>
-                <div class="collapsible-header">
-                    <a href={% url 'blog_update' post.pk %}>{{ post }}</a>
+                <div class="collection-item">
+                    <a href="{% url 'blog_edit' post.pk %}">{{ post }}</a>
+                    <div class="right">
+                        <a href="{% url 'blog_edit' post.pk %}">
+                            <i class="material-icons">mode_edit</i>
+                        </a>
+                    </div>
                 </div>
             </li>
             {% endfor %}
