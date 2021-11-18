@@ -3,8 +3,7 @@
 {% load i18n %}
 
 {% block custom_head %}
-<link rel="stylesheet" type="text/css" href={% static 'css/Chart.min.css' %}>
-<script type="text/javascript" src="{% static 'script/Chart.bundle.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'script/chart.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -19,9 +18,9 @@
                 <div><b>Registered users:</b> {{ registeredUsers }} </div>
                 <div><b>Vegetarians:</b> {{ vegetarians }} </div>
             <hr/>
-            <canvas id="users_pie_chart" class="chartjs"></canvas>
+            <canvas id="users_pie_chart" aria-label="Pie chart with user data" role="img"></canvas>
             <hr/>
-            <canvas id="user_costs_bar_chart" class="chartjs"></canvas>
+            <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
         </div>
       </div>
     </div>
@@ -44,10 +43,18 @@
             }]
         },
         options: {
-            title: {
-                display: true,
-                text: 'Users',
-                fontSize: 18
+            radius: "90%",
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Users',
+                    font: {
+                        size: 20
+                    }
+                }
+            },
+            layout: {
+                padding: 20
             }
         }
     });
@@ -70,31 +77,49 @@
             }]
         },
         options: {
-            legend: {
-                display: false
-            },
-            title: {
-                display: true,
-                text: 'Costs preferences',
-                fontSize: 18
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Costs preferences',
+                    font: {
+                        size: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(context) { return context[0].label + " PLN" },
+                        label: function(context) { return " " + context.raw + " os." }
+                    }
+                }
             },
             scales: {
-                xAxes:[{
-                    scaleLabel: {
+                x:{
+                    title: {
                         display: true,
-                        labelString: 'cost [PLN]'
+                        text: 'cost [PLN]',
+                        font: {
+                            weight: "600",
+                            size: 14
+                        }
                     }
-                }],
-                yAxes: [{
+                },
+                y: {
+                    beginAtZero: true,
                     ticks: {
-                        beginAtZero: true,
                         precision: 0
                     },
-                    scaleLabel: {
+                    title: {
                         display: true,
-                        labelString: 'users'
+                        text: 'users',
+                        font: {
+                            weight: "600",
+                            size: 14
+                        }
                     }
-                }]
+                }
             }
         },
     });

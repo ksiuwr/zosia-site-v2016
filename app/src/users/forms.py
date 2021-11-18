@@ -179,6 +179,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
         self.fields["terms_accepted"].required = True
         self.fields["terms_accepted"].label = mark_safe(terms_label)
+        self.fields["terms_accepted"].error_messages = {'required': "You have to accept Terms & Conditions."}
         self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
 
     def call(self, zosia):

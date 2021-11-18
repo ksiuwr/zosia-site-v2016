@@ -88,7 +88,11 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# PyCharm
 .idea/
+
+# Visual Studio Code
+*.code-workspace
 
 #mypy
 .mypy_cache

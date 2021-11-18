@@ -1,4 +1,5 @@
 import random
+import re
 import string
 
 from django.core.exceptions import ValidationError
@@ -195,6 +196,12 @@ class Room(models.Model):
             self.lock = None
             self.save()
             lock.delete()
+
+    @staticmethod
+    def name_to_key_orderable(room):
+        room_name = room.name.lower()
+        groups = re.split(r"(\d+)", room_name)
+        return tuple(int(g) if re.match(r"\d+", g) else g for g in groups)
 
 
 class UserRoom(models.Model):

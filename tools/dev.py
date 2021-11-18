@@ -110,6 +110,8 @@ shutdown_parser = subparsers.add_parser("quit", aliases=["shutdown", "q"],
 
 test_parser = subparsers.add_parser("test", aliases=["t"],
                                     help="run Django tests inside the container")
+test_parser.add_argument("-v", "--verbose", action="store_true",
+                         help="Add verbose option to test command")
 
 shell_parser = subparsers.add_parser("shell", aliases=["sh"], help="run shell inside a container")
 
@@ -186,7 +188,7 @@ elif args.command in ["start", "setup", "s"]:
 elif args.command in ["quit", "shutdown", "q"]:
     docker_compose_run(["down"])
 elif args.command in ["test", "t"]:
-    docker_python(["test"])
+    docker_python(["test"] + (["-v", "2"] if args.verbose else []))
 elif args.command in ["shell", "sh"]:
     if args.shell == "bash":
         docker_exec(["/bin/bash"], WEB_CONTAINER_NAME)

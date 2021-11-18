@@ -83,6 +83,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         super().save(*args, **kwargs)
 
 
+class UserFilters(User):
+    class Meta:
+        proxy = True
+        verbose_name_plural = "User filters"
+
+
 class Organization(models.Model):
     name = models.CharField(
         unique=True,

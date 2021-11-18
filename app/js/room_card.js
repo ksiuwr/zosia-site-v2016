@@ -115,10 +115,13 @@ export const RoomCard = (props) => {
   }
 
   const deleteRoom = () => {
-    room_ops.delete(props.id).then(
-        roomingSuccessToast(room => "You've deleted room " + escapeHtml(props.name) + ".<br/>You should inform its inhabitants about this."),
-        apiErrorToast
-    );
+    // TODO: Replace confirm with pretty modal window
+    if (confirm("Are you sure you want to delete the room " + escapeHtml(props.name) + "?") == true) {
+      room_ops.delete(props.id).then(
+          roomingSuccessToast(room => "You've deleted room " + escapeHtml(props.name) + ".<br/>You should inform its inhabitants about this."),
+          apiErrorToast
+      );
+    }
   }
 
   const card_class = () => {

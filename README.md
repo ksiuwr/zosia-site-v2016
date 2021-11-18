@@ -3,12 +3,21 @@ Django 2.2 version of ZOSIA registration page.
 
 [![CircleCI](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master)
 
+* [Development](#development)
+  + [Local development (without docker)](#local-development-without-docker)
+  + [Full in-docker local development](#full-in-docker-local-development)
+    - [Required software:](#required-software)
+    - [How can I run it?](#how-can-i-run-it)
+    - [I have run it - what is happening?](#i-have-run-it---what-is-happening)
+  + [Troubleshooting](#troubleshooting)
+* [Hosting](#hosting)
+
 ## Development
 
 The preferred approach is to use *docker* for development. And don't worry, we try to keep it as
  easy as possible. Of course, if you're really not into containerisation, you can try running it
  without docker, but you may find it harder to debug OS related bugs. Besides, on production site
- we run this application in docker, so it's better to keep your development process similar to the 
+ we run this application in docker, so it's better to keep your development process similar to the
  production one.
 
 ### Local development (without docker)
@@ -34,16 +43,22 @@ pip install docker-compose
 To keep things simple we've written `dev.py` script inside `tools` directory. It can run everything
  for you, simply type `python3 dev.py run` or `./dev.py run`. No root permissions are needed.
  All commands used with the script are listed under `./dev.py --help` and help for command `CMD`
- under `./dev.py CMD --help` (e.g. `./dev.py run --help`)
+ under `./dev.py CMD --help` (e.g. `./dev.py run --help`).
+
+There are 3 flags that you might want to use with `dev.py run`:
+
+* `--create-admin` - create super user / admin account with the password of your choice
+* `--create-data` - generate some semi-random data - the implementaion can be found here: `src/conferences/management/commands/create_data.py`
+* `--no-cache` - build the fresh copy of the container image (ignore docker cache)
 
 #### I have run it - what is happening?
 
 First, script needs to build the docker image. This process uses local cache, so it takes time
  at the first run only, because docker has to pull `python` image and build every layer.
- Then two containers have started: `zosia_db_1` with Postgres database and `zosia_web_1` with our 
+ Then two containers have started: `zosia_db_1` with Postgres database and `zosia_web_1` with our
  web application.
 
-We mount some local folders so as to let you develop application without rebuilding docker every 
+We mount some local folders so as to let you develop application without rebuilding docker every
 time:
 - `./app/src` as `/code/src`
 - `./app/js` as `/code/js`
@@ -51,7 +66,7 @@ time:
 
 Thanks to this, all changes you make in the code will be visible immediately inside the container.
  **Remember that this works in both directions!** Every change you'll make in the container
- will affect your local files (from the listed folders), because these are the same files, of 
+ will affect your local files (from the listed folders), because these are the same files, of
  course :P
 
 We tried to avoid side effects in our `dev.py` script, but sometimes it can't be achieved easily.
@@ -66,12 +81,12 @@ Files created in directory `/code/static` are output from the webpack build syst
  like your JS file to be rebuilt after editing them, run command `./dev.py javascript watch`
  in new terminal.
 
-Next, we run migrations on database and, finally, start the web server. In terminal you will 
+Next, we run migrations on database and, finally, start the web server. In terminal you will
  see output/logs from django (e.g. queries to the database).
 
 You can shut this server down anytime by clicking `CTRL+C`, but containers will be still alive.
- If you want to shut them down as well, you need to run `./dev.py quit` command. And if you
- want to start the web server again, just run `./dev.py server`.
+ If you want to start the web server again, just run `./dev.py server`.
+ If you want to shut all containers down, you need to run `./dev.py quit` command.
 
 ### Troubleshooting
 
@@ -81,7 +96,7 @@ ERROR: could not find an available, non-overlapping IPv4 address pool among the 
 ```
 
 This error can appear during `docker-compose up` command if you have VPN activated on your system.
- There has been no solution found yet. You have to disconnect from VPN, run `docker-compose up` and 
+ There has been no solution found yet. You have to disconnect from VPN, run `docker-compose up` and
  when containers are finally up you may enable your VPN again.
 
 ---
@@ -97,3 +112,11 @@ In case of that error just restart docker daemon service with this command: `sys
 
 In case of any other problems it is recommended to rebuild the container with `--no-cache` option
  (i.e. `./dev.py run --no-cache` or `./dev.py start --no-cache`).
+
+
+## Hosting
+In 2020, we hosted ZOSIA registration site on AWS. We used an ECS cluster based on EC2 instances
+ to run the containers and ECR as a docker registry. All secrets (like database credentials,
+ different APIs keys, etc) were stored in the Parameter Store and loaded to the environment variables
+ on container startup. Deployments were conducted by CircleCI after every commit to the master branch.
+ All deployment scripts used for that are placed in the `.ecs` directory.
