@@ -57,10 +57,10 @@ jobs:
       - image: docker:git
     steps:
       - run:
-          name: Install awscli
+          name: Install awscli v1
           command: |
-            apk add --no-cache py3-pip jq bash
-            pip3 install awscli
+            apk add --no-cache py-pip jq bash
+            pip2 install awscli
       - checkout
       - run:
           name: Create new Task Definition
