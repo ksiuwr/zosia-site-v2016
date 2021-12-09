@@ -36,7 +36,7 @@ jobs:
       - run:
           name: Install awscli and docker-compose
           command: |
-            apk add --no-cache python3
+            apk add --no-cache python3 py3-pip
             pip3 install awscli
             pip3 install docker-compose~=1.23.0
       - checkout
@@ -58,8 +58,8 @@ jobs:
       - run:
           name: Install awscli
           command: |
-            apk add --no-cache py-pip jq bash
-            pip install awscli
+            apk add --no-cache py3-pip jq bash
+            pip3 install awscli
       - checkout
       - run:
           name: Create new Task Definition
