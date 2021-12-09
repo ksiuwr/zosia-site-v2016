@@ -8,8 +8,6 @@ COPY yarn.lock /code/
 COPY static /code/static
 COPY js /code/js
 
-RUN chown -R 1000 /code
-USER 1000
 RUN yarn install
 RUN yarn build
 
