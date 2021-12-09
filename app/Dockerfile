@@ -1,4 +1,4 @@
-FROM node:alpine AS node-builder
+FROM node:16-alpine AS node-builder
 
 WORKDIR /code
 
@@ -8,11 +8,13 @@ COPY yarn.lock /code/
 COPY static /code/static
 COPY js /code/js
 
+RUN chown -R 1000 /code
+USER 1000
 RUN yarn install
 RUN yarn build
 
 # Main image
-FROM python:3.6-buster
+FROM python:3.8-buster
 
 # Uncomment if you need to install any additional package
 # RUN set -x \
@@ -41,4 +43,3 @@ COPY --from=node-builder /code/static /static
 COPY src /code/
 
 EXPOSE 8000
-
