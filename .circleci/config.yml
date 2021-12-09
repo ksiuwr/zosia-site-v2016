@@ -31,14 +31,20 @@ jobs:
       AWS_ACCOUNT_ID: "605137242661"
       AWS_DEFAULT_REGION: "eu-central-1"
     docker:
-      - image: docker:git
+      - image: ubuntu:20.04
     steps:
       - run:
-          name: Install awscli and docker-compose
+          name: Install awscli v2
           command: |
-            apk add --no-cache python3 py3-pip
-            pip3 install awscli
-            pip3 install docker-compose~=1.23.0
+            apt-get update
+            apt-get install jq unzip groff
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
+      - run:
+          name: Install docker-compose
+          command: |
+            curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
       - checkout
       - setup_remote_docker:
           version: 19.03.13
@@ -57,7 +63,7 @@ jobs:
       - image: ubuntu:20.04
     steps:
       - run:
-          name: Install awscli v1
+          name: Install awscli v2
           command: |
             apt-get update
             apt-get install jq unzip groff
