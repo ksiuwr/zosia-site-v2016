@@ -54,13 +54,16 @@ jobs:
       AWS_ACCOUNT_ID: "605137242661"
       AWS_DEFAULT_REGION: "eu-central-1"
     docker:
-      - image: docker:git
+      - image: ubuntu:20.04
     steps:
       - run:
           name: Install awscli v1
           command: |
-            apk add --no-cache py-pip jq bash
-            pip2 install awscli
+            apt-get update
+            apt-get install jq unzip groff
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install
       - checkout
       - run:
           name: Create new Task Definition

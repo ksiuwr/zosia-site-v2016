@@ -1,11 +1,12 @@
 #!/bin/bash
+set -eu
 
 CLUSTER_NAME="zosia-cluster"
 SERVICE_NAME="zosia-site-v2"
 TASK_DEF="zosia-site"
 
 function update_service () {
-    local task_def=${1};
+    local task_def=${1}
 
     aws ecs update-service --region ${AWS_DEFAULT_REGION} --cluster ${CLUSTER_NAME} --service ${SERVICE_NAME} --task-definition ${task_def} > /dev/null;
     return $?
@@ -25,7 +26,7 @@ if ! update_service ${TASK_DEF} || ! wait_for_service ;
 then
     echo "ERROR: Fail to update service ${SERVICE_NAME}, ROLLBACK!"
     update_service ${current_task_definition}
-    exit -1
+    exit 1
 fi
 
 echo "Done"
