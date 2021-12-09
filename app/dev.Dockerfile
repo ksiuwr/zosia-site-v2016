@@ -1,4 +1,3 @@
-
 FROM python:3.8
 
 ENV PYTHONUNBUFFERED 1
@@ -8,7 +7,7 @@ ENV DJANGO_SETTINGS_MODULE="zosia16.settings.dev"
 
 # install nodejs and npm
 RUN set -x \
-    && curl -sL https://deb.nodesource.com/setup_14.x | bash - \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
 	&& apt-get update \
     && apt-get install -y nodejs --no-install-recommends \
     && npm install -g yarn \

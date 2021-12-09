@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: python:3.6
+      - image: python:3.8
       - image: postgres
         environment:
           POSTGRES_DB: "zosia"
