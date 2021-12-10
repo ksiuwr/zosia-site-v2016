@@ -44,6 +44,8 @@ jobs:
       - run:
           name: Install docker-compose
           command: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y curl
             curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
       - checkout
       - setup_remote_docker:
