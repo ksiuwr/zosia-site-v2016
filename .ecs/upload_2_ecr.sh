@@ -13,9 +13,9 @@ NGINX_IMG_NAME="zosia_prod_nginx"
 TAG="${VERSION_TAG}"
 
 # Login and upload images
-DOCKER_LOGIN_CMD=$(aws ecr get-login --region ${AWS_DEFAULT_REGION} --no-include-email)
 echo "Logging to remote registry with command"
-eval ${DOCKER_LOGIN_CMD}
+aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | \
+    docker login --username AWS --password-stdin $DOCKER_REPO_URI_BASE
 
 # upload zosia_web image
 ZOSIA_IMG_ID=$(docker images ${ZOSIA_IMG_NAME}:latest | tail -1 | awk '{ print $3 }')
