@@ -62,6 +62,10 @@
                 {
                     "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/SENTRY_DSN",
                     "name": "SENTRY_DSN"
+                },
+                {
+                    "valueFrom": "arn:aws:ssm:__AWS_DEFAULT_REGION__:__AWS_ACCOUNT_ID__:parameter/LB_HOSTNAME",
+                    "name": "LB_HOSTNAME"
                 }
             ],
             "logConfiguration": {

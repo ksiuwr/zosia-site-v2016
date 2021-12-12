@@ -61,7 +61,7 @@ EC2_PRIVATE_IP = None
 try:
     EC2_PRIVATE_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4', timeout=0.01).text
     # If above line did not fail we are in ECS.
-    hostname, aliaslist, LB_IPs = socket.gethostbyname_ex('zosia-elb-839568892.eu-central-1.elb.amazonaws.com')
+    hostname, aliaslist, LB_IPs = socket.gethostbyname_ex(os.environ.get('LB_HOSTNAME'))
 except requests.exceptions.RequestException:
     # silently fail as we may not be in an ECS environment
     pass
