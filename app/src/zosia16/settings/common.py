@@ -196,6 +196,6 @@ DATETIME_INPUT_FORMATS += ["%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M"]
 
 # Static files (CSS, JavaScript, Images)
 
-STATIC_URL = '/static'
+STATIC_URL = '/static/'
 STATIC_ROOT = '/static'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
