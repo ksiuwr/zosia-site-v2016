@@ -15,12 +15,7 @@
                 "./run.sh"
             ],
             "environment": [],
-            "mountPoints": [
-                {
-                    "containerPath": "/static",
-                    "sourceVolume": "static"
-                }
-            ],
+            "mountPoints": [],
             "workingDirectory": "/code",
             "secrets": [
                 {
@@ -75,56 +70,6 @@
                     "awslogs-region": "eu-central-1",
                     "awslogs-stream-prefix": "ecs"
                 }
-            }
-        },
-        {
-            "name": "zosia-nginx",
-            "hostname": "zosia",
-            "image": "__AWS_ACCOUNT_ID__.dkr.ecr.__AWS_DEFAULT_REGION__.amazonaws.com/zosia_nginx:__VERSION__",
-            "essential": true,
-            "memoryReservation": 50,
-            "cpu": 100,
-            "portMappings": [
-                {
-                    "hostPort": 0,
-                    "protocol": "tcp",
-                    "containerPort": 80
-                }
-            ],
-            "environment": [],
-            "links": [
-                "zosia-web"
-            ],
-            "volumesFrom": [
-                {
-                    "sourceContainer": "zosia-web",
-                    "readOnly": true
-                }
-            ],
-            "mountPoints": [
-                {
-                    "readOnly": true,
-                    "containerPath": "/static",
-                    "sourceVolume": "static"
-                }
-            ],
-            "workingDirectory": "/code",
-            "logConfiguration": {
-                "logDriver": "awslogs",
-                "options": {
-                    "awslogs-group": "/ecs/zosia-site",
-                    "awslogs-region": "eu-central-1",
-                    "awslogs-stream-prefix": "ecs"
-                }
-            }
-        }
-    ],
-    "volumes": [
-        {
-            "name": "static",
-            "dockerVolumeConfiguration": {
-                "scope": "task",
-                "driver": "local"
             }
         }
     ]

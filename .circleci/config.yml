@@ -54,17 +54,12 @@ jobs:
             $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
             apt-get update
             DEBIAN_FRONTEND=noninteractive apt-get install -y docker-ce-cli
-      - run:
-          name: Install docker-compose
-          command: |
-            curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-            chmod 755 /usr/local/bin/docker-compose
       - checkout
       - setup_remote_docker:
           version: 19.03.13
       - run:
-          name: Build docker images
-          command: TAG="latest" docker-compose -f docker-compose.prod.yml build
+          name: Build docker image
+          command: docker build ./app -t zosia_prod_web --build-arg DJANGO_ENV=prod
       - run:
           name: Push image to ECR
           command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/upload_2_ecr.sh
