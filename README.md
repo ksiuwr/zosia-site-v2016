@@ -20,9 +20,6 @@ The preferred approach is to use *docker* for development. And don't worry, we t
  we run this application in docker, so it's better to keep your development process similar to the
  production one.
 
-### Local development (without docker)
-[Moved here](local_development.md)
-
 ### Full in-docker local development
 
 #### Required software:
@@ -48,7 +45,7 @@ To keep things simple we've written `dev.py` script inside `tools` directory. It
 There are 3 flags that you might want to use with `dev.py run`:
 
 * `--create-admin` - create super user / admin account with the password of your choice
-* `--create-data` - generate some semi-random data - the implementaion can be found here: `src/conferences/management/commands/create_data.py`
+* `--create-data` - generate some semi-random data - the implementation can be found here: `src/conferences/management/commands/create_data.py`
 * `--no-cache` - build the fresh copy of the container image (ignore docker cache)
 
 #### I have run it - what is happening?
