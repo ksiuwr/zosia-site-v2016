@@ -13,4 +13,5 @@ handlers:
 env_variables:
   DJANGO_ENV: prod
   DJANGO_SETTINGS_MODULE: zosia16.settings.prod
+  HOSTS: zosia.org,www.zosia.org
   PYTHONUNBUFFERED: 1
