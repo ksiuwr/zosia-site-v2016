@@ -11,3 +11,5 @@ sentry-sdk==0.13.5
 gunicorn
 argon2-cffi
 boto3
+python-dotenv~=0.19.2
+google-cloud-secret-manager==2.8.0
