@@ -1,7 +1,10 @@
 from django import http
 
 # https://stackoverflow.com/questions/26359718/django-remove-www-from-urls
-class NoWWWRedirectMiddleware(object):
+class NoWWWRedirectMiddleware:
+    def __init__(self, *args, **kwargs):
+        pass
+
     def process_request(self, request):
         host = request.get_host()
         if host.startswith("www."):
