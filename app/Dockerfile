@@ -41,3 +41,4 @@ COPY --from=node-builder /code/static /static
 COPY src /code/
 
 EXPOSE 8000
+CMD ["./run.sh"]
