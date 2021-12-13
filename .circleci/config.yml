@@ -50,7 +50,9 @@ jobs:
       - checkout
       - run:
           name: Build frontend
-          command: (cd ./app && yarn install && yarn build)
+          command: |
+            npm install -g yarn
+            (cd ./app && yarn install && yarn build)
       - run:
           name: Push image to App Engine
           command: (cd ./app && gcloud app deploy app.yaml)
