@@ -23,20 +23,20 @@ production one.
 
 ### Full in-docker local development
 
-#### Required software:
+#### Required software
 
 To run docker container you obviously need to have _Docker (Community Edition)_ installed.
 
 Additionally, you should install `docker-compose` using APT on Debian-based systems:
 
-```
+```bash
 sudo apt install docker-ce docker-compose
 ```
 
 or using PIP:
 
-```
-pip install docker-compose
+```bash
+pip3 install docker-compose
 ```
 
 #### How can I run it?
@@ -92,7 +92,7 @@ If you want to shut all containers down, you need to run `./dev.py quit` command
 
 ### Troubleshooting
 
-```
+```text
 Creating network "zosia_default" with the default driver
 ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
 ```
@@ -103,7 +103,7 @@ when containers are finally up you may enable your VPN again.
 
 ---
 
-```
+```text
 Creating network "zosia_default" with the default driver
 ERROR: Failed to program FILTER chain: iptables failed: iptables --wait -I FORWARD -o br-123123123123 -j DOCKER: iptables v1.X.Y: Couldn't load target `DOCKER':No such file or directory
 ```
