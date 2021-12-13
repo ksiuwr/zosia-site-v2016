@@ -54,6 +54,13 @@ jobs:
       - run:
           name: Push image to App Engine
           command: (cd ./app && gcloud app deploy app.yaml)
+      - run:
+          name: Purge cache
+          command: |
+            curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+              -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}'
 
 workflows:
   version: 2
