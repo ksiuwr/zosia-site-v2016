@@ -1,6 +1,4 @@
 import os
-import requests
-import socket
 
 from .common import *
 
@@ -11,70 +9,52 @@ SESSION_COOKIE_SECURE = True
 
 # Logs SQL queries. Should be enough, since we can check docker logs
 LOGGING = {
-    'version': 1,
-    'filters': {
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
+    "version": 1,
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
         }
     },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
         },
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': '/var/log/django.log'
-        }
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": "/var/log/django.log",
+        },
     },
-    'loggers': {
-        'django.db.backends': {
-            'level': 'DEBUG',
-            'handlers': ['file', 'console'],
+    "loggers": {
+        "django.db.backends": {
+            "level": "DEBUG",
+            "handlers": ["file", "console"],
         },
-        'django': {
-            'level': 'INFO',
-            'handlers': ['file', 'console'],
+        "django": {
+            "level": "INFO",
+            "handlers": ["file", "console"],
         },
-    }
+    },
 }
 
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
     }
 }
 
-DATABASES['default']['CONN_MAX_AGE'] = 5
-DATABASES['default']['HOST'] = os.environ.get('DB_HOST')
-DATABASES['default']['USER'] = os.environ.get('DB_USERNAME')
-DATABASES['default']['PASSWORD'] = os.environ.get('DB_PASSWORD')
+DATABASES["default"]["CONN_MAX_AGE"] = 5
+DATABASES["default"]["HOST"] = os.environ.get("DB_HOST")
+DATABASES["default"]["USER"] = os.environ.get("DB_USERNAME")
+DATABASES["default"]["PASSWORD"] = os.environ.get("DB_PASSWORD")
 
 # This, in conjunction with DEBUG=True enables 'debug' directives in templates
 # Especially room.js makes heavy use of it
-INTERNAL_IPS = ['127.0.0.1']
-
-# Find IP addres of EC2 instance
-EC2_PRIVATE_IP = None
-
-try:
-    EC2_PRIVATE_IP = requests.get('http://169.254.169.254/latest/meta-data/local-ipv4', timeout=0.01).text
-    # If above line did not fail we are in ECS.
-    hostname, aliaslist, LB_IPs = socket.gethostbyname_ex(os.environ.get('LB_HOSTNAME'))
-except requests.exceptions.RequestException:
-    # silently fail as we may not be in an ECS environment
-    pass
-
-if EC2_PRIVATE_IP:
-    ALLOWED_HOSTS.append(EC2_PRIVATE_IP)
-    # We need LB IPS too
-    ALLOWED_HOSTS.extend(LB_IPs)
+INTERNAL_IPS = ["127.0.0.1"]
 
 # Django REST framework (https://www.django-rest-framework.org)
 # Disable BrowsableAPIRenderer for production
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (
-        'rest_framework.renderers.JSONRenderer',
-    )
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
 }
