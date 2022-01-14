@@ -238,7 +238,7 @@ class UserPreferences(models.Model):
             chosen = {
                 # [:-6] removes day index, so we know which option has been chosen
                 accommodation[:-6]: self._pays_for(accommodation),
-                **{m[:-6]: self._pays_for(m) for m in meals}
+                **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
             payment += self._price_for(chosen)
 

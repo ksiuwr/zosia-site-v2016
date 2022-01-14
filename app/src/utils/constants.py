@@ -26,9 +26,9 @@ ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS = "change_bonus"
 
 # Conferences
 PAYMENT_GROUPS = {
-    'accommodation_day_1': ['dinner_day_1', 'breakfast_day_2'],
-    'accommodation_day_2': ['dinner_day_2', 'breakfast_day_3'],
-    'accommodation_day_3': ['dinner_day_3', 'breakfast_day_4'],
+    'accommodation_day_1': {'dinner': 'dinner_day_1', 'breakfast': 'breakfast_day_2'},
+    'accommodation_day_2': {'dinner': 'dinner_day_2', 'breakfast': 'breakfast_day_3'},
+    'accommodation_day_3': {'dinner': 'dinner_day_3', 'breakfast': 'breakfast_day_4'},
 }
 
 
