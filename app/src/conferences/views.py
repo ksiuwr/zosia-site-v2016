@@ -246,8 +246,11 @@ def statistics(request):
     users_without_prefs = users_count - prefs_count
 
     # data for second chart
-    price_items = Counter([t.price for t in user_prefs]).items()
-    price_values, price_counts = zip(*sorted(price_items))
+    if len(user_prefs):
+        price_items = Counter([t.price for t in user_prefs]).items()
+        price_values, price_counts = zip(*sorted(price_items))
+    else:
+        price_values, price_counts = [], []
 
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
