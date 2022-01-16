@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+
+  <form method="post">
+    {% csrf_token %}
+    {% include '_form.html' with form_name='Add boardgame' %}
+  </form>
+
+</div>
+{% endblock content %}

@@ -28,6 +28,9 @@
             <li>
                 <a href="{% url 'lectures_schedule' %}">{% trans "Schedule" %}</a>
             </li>
+            <li>
+                <a href="{% url 'boardgames_index' %}">{% trans "Boardgames" %}</a>
+            </li>
             {% if user.is_authenticated %}
               <li>
                   <a class="dropdown-trigger" href="#!" data-target="logged">

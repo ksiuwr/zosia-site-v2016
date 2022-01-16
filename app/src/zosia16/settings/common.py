@@ -106,6 +106,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_yasg",
     "blog.apps.BlogConfig",
+    "boardgames.apps.BoardgameConfig",
     "conferences.apps.ConferencesConfig",
     "lectures.apps.LecturesConfig",
     "questions.apps.QuestionsConfig",
