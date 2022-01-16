@@ -18,8 +18,8 @@ class Colour:
 PROJECT_NAME = "zosia"
 ROOT_DIR = normpath(dirname(__file__) + "/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
-WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
-DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
+WEB_CONTAINER_NAME = f"{PROJECT_NAME}-web-1"
+DB_CONTAINER_NAME = f"{PROJECT_NAME}-db-1"
 FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with root permissions)"
 CAN_SUBPARSER_REQUIRED = version_info >= (3, 7)
 
