@@ -1,6 +1,5 @@
 import boto3
 from botocore.exceptions import ClientError, NoCredentialsError
-from django.conf import settings
 
 
 def list_bucket_objects(bucket_name):

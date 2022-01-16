@@ -1,7 +1,6 @@
 import csv
 from io import TextIOWrapper
 import json
-import re
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -132,7 +131,7 @@ def import_room(request):
             except ValidationError as e:
                 messages.error(request,
                                validation_format(e, _("There were errors when adding rooms")))
-            except:
+            except Exception:
                 messages.error(request, _("There were errors when adding rooms"))
             else:
                 messages.success(request, _("Rooms have been successfully added"))

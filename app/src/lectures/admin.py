@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.db.models import OuterRef, Subquery, Value, Prefetch
+from django.db.models import OuterRef, Subquery, Prefetch
 
 from lectures.models import Lecture
 from users.models import UserPreferences, User

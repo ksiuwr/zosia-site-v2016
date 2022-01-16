@@ -1,5 +1,6 @@
 from django.http import HttpResponsePermanentRedirect
 
+
 # https://stackoverflow.com/questions/26359718/django-remove-www-from-urls
 class NoWWWRedirectMiddleware:
     def __init__(self, get_response=None):
