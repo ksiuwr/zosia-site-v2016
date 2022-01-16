@@ -4,12 +4,11 @@ import re
 from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
-from django.shortcuts import get_object_or_404, redirect, render, reverse
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib import messages
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
-from django.core.exceptions import ValidationError
-from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest
 from urllib.request import urlopen
 
 from boardgames.models import Boardgame, Vote
@@ -113,12 +112,13 @@ def vote_edit(request):
     new_ids = json.loads(request.POST.get('new_ids'))
     if len(new_ids) > 3:
         return HttpResponseBadRequest(
-            '<h1>Bad request(400). Can only vote for up to three boardgames</h1>',
+            '<h1>Bad request(400)</h1>'
+            'Everyone can vote only for up to three boardgames',
             content_type='text/html'
         )
     common_ids = [x for x in old_ids if x in new_ids]
-    old_ids = [x for x in old_ids if not x in common_ids]
-    new_ids = [x for x in new_ids if not x in common_ids]
+    old_ids = [x for x in old_ids if x not in common_ids]
+    new_ids = [x for x in new_ids if x not in common_ids]
     for x in old_ids:
         boardgame = get_object_or_404(Boardgame, pk=x)
         boardgame.votes_down()
@@ -156,8 +156,8 @@ def accept_edit(request):
     old_ids = list(accepted)
     new_ids = json.loads(request.POST.get('new_ids'))
     common_ids = [x for x in old_ids if x in new_ids]
-    old_ids = [x for x in old_ids if not x in common_ids]
-    new_ids = [x for x in new_ids if not x in common_ids]
+    old_ids = [x for x in old_ids if x not in common_ids]
+    new_ids = [x for x in new_ids if x not in common_ids]
     for x in old_ids:
         toggle_accepted(x)
     for x in new_ids:
