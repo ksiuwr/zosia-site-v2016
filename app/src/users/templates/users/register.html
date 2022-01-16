@@ -69,7 +69,9 @@
 {% endblock content %}
 
 {% block custom_scripts %}
+{% if not payed %}
 <script type="text/javascript" src="{% static 'script/add_organization.min.js' %}"></script>
+{% endif %}
 <script type="text/javascript">
   $(document).ready(function() {
     $('select').formSelect();
