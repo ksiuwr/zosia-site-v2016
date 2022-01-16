@@ -1,11 +1,10 @@
-#! /usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import argparse as argp
-from os.path import dirname, normpath
-from sys import platform
 import subprocess as subp
-from sys import version_info
+from os.path import dirname, normpath
+from sys import version_info, platform
 
 
 class Colour:
@@ -149,11 +148,11 @@ migr_apply_parser.add_argument("--create-data", action="store_true",
 migrate_subparsers.add_parser("make", aliases=["m"], add_help=False,
                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
-run_server_parser = subparsers.add_parser("server", aliases=["sv"],
-                                          help="run Django development server inside the container (localhost, port 8000)")
+run_server_parser = subparsers.add_parser(
+    "server", aliases=["sv"], help="run Django development server inside the container (localhost, port 8000)")
 
-js_parser = subparsers.add_parser("javascript", aliases=["js"],
-                                  help="perform action related to JavaScript language")
+js_parser = subparsers.add_parser(
+    "javascript", aliases=["js"],help="perform action related to JavaScript language")
 
 if CAN_SUBPARSER_REQUIRED:
     js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
