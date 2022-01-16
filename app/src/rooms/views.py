@@ -6,6 +6,7 @@ import re
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
@@ -18,7 +19,7 @@ from rooms.forms import UploadFileForm
 from rooms.models import Room
 from rooms.serializers import room_to_dict
 from users.models import UserPreferences
-from utils.views import csv_response
+from utils.views import csv_response, validation_format
 
 
 @cache_page(60 * 15)  # Cache hard (15mins)
@@ -38,6 +39,10 @@ def index(request):
     except UserPreferences.DoesNotExist:
         messages.error(request, _('Please register first'))
         return redirect(reverse('user_zosia_register'))
+
+    if preferences.room is not None and preferences.room.hidden:
+        messages.error(request, _('Your are already assigned to hidden room by organizators'))
+        return redirect(reverse('accounts_profile'))
 
     paid = preferences.payment_accepted
     if not paid:
@@ -64,36 +69,54 @@ def index(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_user(request):
-    prefs = UserPreferences.objects.prefetch_related("user").filter(payment_accepted=True) \
-        .order_by("user__last_name", "user__first_name")
-    data_list = [(str(p.user), str(p.room) if p.room else '') for p in prefs]
-
-    return csv_response(("User", "Room"), data_list, filename='rooms_by_users')
+def list_csv_room_by_user(request):
+    prefs = UserPreferences.objects.prefetch_related("user").order_by("user__last_name",
+                                                                      "user__first_name")
+    data_list = [(str(p.user), str(p.room) if p.room else '', str(p.payment_accepted))
+                 for p in prefs]
+    return csv_response(("User", "Room", "Paid"), data_list, filename='list_csv_room_by_user')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_by_room(request):
-    def to_key(room):
-        room_name = room.name.lower()
-        groups = re.split(r"(\d+)", room_name)
-        return tuple(int(g) if re.match(r"\d+", g) else g for g in groups)
+def list_csv_room_by_member(request):
+    prefs = UserPreferences.objects.prefetch_related("user") \
+        .filter(user__room_of_user__isnull=False).order_by("user__last_name", "user__first_name")
+    data_list = [(str(p.user), str(p.room)) for p in prefs]
+    return csv_response(("User", "Room"), data_list, filename='list_csv_room_by_member')
 
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_members_by_room(request):
     rooms = Room.objects.prefetch_related('members').all()
-    data_list = [(str(r), r.members_to_string) for r in sorted(rooms, key=to_key)]
-
-    return csv_response(("Room", "Users"), data_list, filename='rooms_by_room')
+    data_list = [(str(r), r.members_to_string) for r in sorted(rooms, key=Room.name_to_key_orderable)]
+    return csv_response(("Room", "Members"), data_list, filename='list_csv_members_by_room')
 
 
 def handle_uploaded_file(csvfile):
     rooms = []
-    for row in csv.reader(csvfile, delimiter=','):
-        name, desc, cap, hidden = row
+
+    for line, row in enumerate(csv.reader(csvfile, delimiter=','), start=1):
+        try:
+            name, desc, hidden, av_single, av_double, b_single, b_double = row
+        except ValueError as e:
+            raise ValidationError("Line %(line)s - %(error)s", code="invalid",
+                                  params={"line": line, "error": e})
+
         if name != "Name":
             rooms.append(
-                Room(name=name, description=desc, capacity=cap, hidden=hidden))
-    Room.objects.bulk_create(rooms)
+                Room(name=name, description=desc, hidden=hidden,
+                     available_beds_single=av_single,
+                     available_beds_double=av_double, beds_single=b_single,
+                     beds_double=b_double))
+
+    try:
+        Room.objects.bulk_create(rooms)
+    except ValueError:
+        raise ValidationError(
+            "Could not add rooms, check whether the file is properly formed and all values are correct.",
+            code="invalid")
 
 
 @staff_member_required
@@ -101,10 +124,20 @@ def handle_uploaded_file(csvfile):
 def import_room(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
+
         if form.is_valid():
-            handle_uploaded_file(TextIOWrapper(request.FILES['file'].file,
-                                               encoding=request.encoding))
-            return HttpResponseRedirect(reverse('rooms_report'))
+            try:
+                handle_uploaded_file(TextIOWrapper(request.FILES['file'].file,
+                                                   encoding=request.encoding))
+            except ValidationError as e:
+                messages.error(request,
+                               validation_format(e, _("There were errors when adding rooms")))
+            except:
+                messages.error(request, _("There were errors when adding rooms"))
+            else:
+                messages.success(request, _("Rooms have been successfully added"))
+                return HttpResponseRedirect(reverse('admin'))
     else:
         form = UploadFileForm()
+
     return render(request, 'rooms/import.html', {'form': form})

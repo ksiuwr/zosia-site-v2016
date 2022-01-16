@@ -31,6 +31,7 @@
         <div id="blog_tab" class="col s12">
             <ul class="collection">
                 <a href="{% url 'blog_create' %}" class="collection-item">{% trans 'Add blog post' %}</a>
+                <a href="{% url 'blog_list' %}" class="collection-item">{% trans 'List and edit blog posts' %}</a>
             </ul>
         </div>
 
@@ -66,6 +67,7 @@
                 <a href="{% url 'place' %}" class="collection-item">{% trans 'Places' %}</a>
                 <a href="{% url 'bus_admin' %}" class="collection-item">{% trans 'Bus' %}</a>
                 <a href="{% url 'organizations' %}" class="collection-item">{% trans 'Organizations' %}</a>
+                <a href="{% url 'rooms_import' %}" class="collection-item"> {% trans 'Upload rooms' %}</a>
                 <a href="{% url 'export_data' %}" class="collection-item"> {% trans 'Export data' %}</a>
                 <a href="{% url 'statistics' %}" class="collection-item">{% trans 'Statistics' %}</a>
                 <a href="{% url 'boardgames_accept' %}" class="collection-item">{% trans 'Boardgames' %}</a>
@@ -74,10 +76,30 @@
 
         <div id="downloads_tab" class="col s12">
             <ul class="collection">
-                <a href="{% url 'rooms_list_by_user' %}" class="collection-item">{% trans 'User --> Room' %}</a>
-                <a href="{% url 'rooms_list_by_room' %}" class="collection-item">{% trans 'Room --> Users' %}</a>
-                <a href="{% url 'bus_list_by_user' %}" class="collection-item">{% trans 'User --> Bus' %}</a>
-                <a href="{% url 'bus_list_by_bus' %}" class="collection-item">{% trans 'Bus --> Users' %}</a>
+                <a href="{% url 'list_csv_preferences_all' %}" class="collection-item">
+                    {% trans 'Preferences of registered users' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_preferences_paid' %}" class="collection-item">
+                    {% trans 'Preferences of paid users' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_room_by_user' %}" class="collection-item">
+                    {% trans 'User --> Room' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_room_by_member' %}" class="collection-item">
+                    {% trans 'Room member --> Room' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_members_by_room' %}" class="collection-item">
+                    {% trans 'Room --> Members' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_bus_by_user' %}" class="collection-item">
+                    {% trans 'User --> Bus' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_all_users_by_bus' %}" class="collection-item">
+                    {% trans 'Bus --> Registered users' %} (CSV)
+                </a>
+                <a href="{% url 'list_csv_paid_users_by_bus' %}" class="collection-item">
+                    {% trans 'Bus --> Paid users' %} (CSV)
+                </a>
             </ul>
         </div>
     </div>

@@ -7,20 +7,20 @@ from django.utils import lorem_ipsum
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
+from blog.models import BlogPost
 from rooms.models import Room
-from users.models import UserPreferences
+from users.models import User, Organization, UserPreferences
 from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
-User = get_user_model()
 
 IMIONA = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
 
 def create_question():
     data = {
-        'question': lorem_ipsum.sentence()[:100],
-        'answer': ''.join(lorem_ipsum.paragraphs(2))[:400]
+        'question': lorem_ipsum.words(random.randint(5, 10)) + "?",
+        'answer': ''.join(lorem_ipsum.paragraphs(1))[:400],
     }
     return QA.objects.create(**data)
 
@@ -35,10 +35,21 @@ def create_lecture(zosia, author):
         'duration': random.choice(FULL_DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
         'person_type': LectureInternals.PERSON_NORMAL,
-        'description': lorem_ipsum.words(20)[:255],
-        'author': author
+        'description': lorem_ipsum.words(random.randint(10, 20))[:255],
+        'author': author,
+        'accepted': random_bool(),
     }
     return Lecture.objects.create(**data)
+
+
+def create_blogpost(author):
+    data = {
+        'title': lorem_ipsum.words(random.randint(5, 10)),
+        'content': ''.join(lorem_ipsum.words(random.randint(10, 30)))[:500],
+        'publication': now(),
+        'author': author,
+    }
+    return BlogPost.objects.create(**data)
 
 
 def random_date_before(date, range_days):
@@ -127,16 +138,16 @@ def create_zosia(**kwargs):
     return zosia
 
 
-def create_sample_user():
+def create_sample_staff_user():
     data = {
         'email': 'zosia@example.com',
         'first_name': 'Zosia',
         'last_name': 'Ksiowa',
+        'password': 'pass',
+        'is_staff': True
     }
-    u = User.objects.get_or_create(**data)[0]
-    u.set_password('pass')
-    u.save()
-    return u
+
+    return User.objects.create_user(**data)
 
 
 def random_bool():
@@ -152,6 +163,9 @@ def create_random_user_with_preferences(zosia, id):
     u = User.objects.get_or_create(**data)[0]
     u.set_password('pass')
     u.save()
+
+    org = Organization.objects.create(name=f"org_{id}", user=u, accepted=random_bool()) \
+        if random_bool() else None
 
     accommodation_day_1 = random_bool()
     dinner_day_1 = random_bool() if accommodation_day_1 else False
@@ -174,7 +188,8 @@ def create_random_user_with_preferences(zosia, id):
     UserPreferences.objects.create(
         user=u,
         zosia=zosia,
-
+        organization=org,
+        bus=bus,
         accommodation_day_1=accommodation_day_1,
         dinner_day_1=dinner_day_1,
         accommodation_day_2=accommodation_day_2,
@@ -184,13 +199,12 @@ def create_random_user_with_preferences(zosia, id):
         breakfast_day_3=breakfast_day_3,
         dinner_day_3=dinner_day_3,
         breakfast_day_4=breakfast_day_4,
-
-        bus=bus,
         contact=phone_number,
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
         terms_accepted=True,
     )
+    return u
 
 
 def create_room(number):
@@ -233,18 +247,25 @@ class Command(BaseCommand):
         #     create_past_zosia(place)
         #     self.stdout.write('Past zosia #%d has been created' % i)
 
-        sample_user = create_sample_user()
+        all_users = []
+
+        sample_staff_user = create_sample_staff_user()
         self.stdout.write('Sample user has been created')
+        all_users.append(sample_staff_user)
 
         for i in range(5):
-            create_random_user_with_preferences(zosia, i + 1)
+            user_with_prefs = create_random_user_with_preferences(zosia, i + 1)
             self.stdout.write(f"Created random user #{i}")
+            all_users.append(user_with_prefs)
 
         for i in range(4):
-            create_lecture(zosia, sample_user)
+            author = random.choice(all_users)
+            create_lecture(zosia, author)
             self.stdout.write(f"Created lecture #{i}")
 
-        question_num = random.randint(3, 13)
+        create_blogpost(sample_staff_user)
+
+        question_num = random.randint(3, 9)
         for i in range(question_num):
             create_question()
             self.stdout.write(f"Created question #{i}")

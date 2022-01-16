@@ -1,9 +1,11 @@
 
 import React from "react";
 
-import {useModal} from "./modals/modals";
+import { useModal } from "./modals/modals";
 import RoomPropertiesModal from './modals/room_properties_modal';
 import { create_room } from "./zosia_api";
+import { apiErrorToast, roomingSuccessToast } from "./toasts";
+import { escapeHtml } from "./helpers";
 
 
 const SearchBar = (props) =>
@@ -15,15 +17,22 @@ const SearchBar = (props) =>
 
   const [openModal, closeModal] = useModal()
 
+  const add_room = () =>
+    openModal(RoomPropertiesModal, {
+        closeModal,
+        submit: data => create_room(data).then(
+            roomingSuccessToast(room => "You've added room " + escapeHtml(room.name) + "."),
+            apiErrorToast
+        )
+    })
+
   return (
     <div>
     { props.isAdminView ?
     <div className="col s12">
       <ul style={{height: "50px", lineHeight: "45px", margin: 0}}>
         <li style={{float:"left", margin: "5px"}}>
-          <a href="#" className="waves-effect waves-light btn" onClick={
-            () => openModal(RoomPropertiesModal, {closeModal, submit: create_room})
-          }> Add room </a>
+          <a href="#" className="waves-effect waves-light btn" onClick={add_room}> Add room </a>
         </li>
       </ul>
     </div> : "" }

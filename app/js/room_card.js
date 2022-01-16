@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { exists, roomCapacity, formatDate, escapeHtml } from "./helpers";
+import { apiErrorToast, roomingSuccessToast } from "./toasts"
 import { useModal } from "./modals/modals";
 import RoomPropertiesModal from './modals/room_properties_modal';
 import EnterLockedRoomModal from "./modals/enter_locked_room_modal";
@@ -62,31 +63,6 @@ export const RoomCard = (props) => {
   const canDelete = () => isAdmin;
   const canEdit = () => isAdmin;
 
-  const errorToast = err => {
-      const message = typeof err.body === 'string' || err.body instanceof String
-          ? 'ERROR!<br/>' + escapeHtml(err.body)
-          : 'There was an internal error with your request.';
-
-      if (!message.startsWith('ERROR!')) {
-        console.log(err);
-      }
-
-      return M.toast({
-          html: message,
-          displayLength: 3000,
-          classes: "error"
-      });
-  }
-
-  /* messageGen: room => string
-   * messageGen is a function that generates toast message for specified room
-   */
-  const successToast = messageGen => room => M.toast({
-      html: messageGen(room),
-      displayLength: 3000,
-      classes: "success"
-  });
-
   const [openModal, closeModal] = useModal()
 
   const openEditModal = () =>
@@ -94,22 +70,22 @@ export const RoomCard = (props) => {
       data: props,
       closeModal,
       submit: data => room_ops.edit_room(props.id, data).then(
-            successToast(room => "You've edited room " + escapeHtml(room.name)),
-            errorToast
+            roomingSuccessToast(room => "You've edited room " + escapeHtml(room.name) + "."),
+            apiErrorToast
         )
     })
 
   const lockRoom = () => {
     room_ops.lock(props.id).then(
-        successToast(room => "You've locked room " + escapeHtml(room.name) + " until " + formatDate(room.lock.expiration_date) + ".<br/>Send the room password to your friends."),
-        errorToast
+        roomingSuccessToast(room => "You've locked room " + escapeHtml(room.name) + " until " + formatDate(room.lock.expiration_date) + ".<br/>Send the room password to your friends."),
+        apiErrorToast
     );
   }
 
   const unlockRoom = () => {
     room_ops.unlock(props.id).then(
-        successToast(room => "You've unlocked room " + escapeHtml(room.name) + ".<br/>Now everybody can join the room."),
-        errorToast
+        roomingSuccessToast(room => "You've unlocked room " + escapeHtml(room.name) + ".<br/>Now everybody can join the room."),
+        apiErrorToast
     );
   }
 
@@ -119,30 +95,33 @@ export const RoomCard = (props) => {
             data: props,
             closeModal,
             submit: password => room_ops.join(props.id, password).then(
-                successToast(room => "Password is correct!<br/>You've joined room " + escapeHtml(room.name)),
-                errorToast
+                roomingSuccessToast(room => "Password is correct!<br/>You've joined room " + escapeHtml(room.name) + "."),
+                apiErrorToast
             )
         })
     } else {
         room_ops.join(props.id).then(
-            successToast(room => "You've joined room " + escapeHtml(room.name)),
-            errorToast
+            roomingSuccessToast(room => "You've joined room " + escapeHtml(room.name)),
+            apiErrorToast
         )
     }
   }
 
   const leaveRoom = () => {
     room_ops.leave(props.id).then(
-        successToast(room => "You've left room " + escapeHtml(room.name) + ".<br/>The room would be unlocked if you locked it."),
-        errorToast
+        roomingSuccessToast(room => "You've left room " + escapeHtml(room.name) + ".<br/>The room would be unlocked if you locked it."),
+        apiErrorToast
     );
   }
 
   const deleteRoom = () => {
-    room_ops.delete(props.id).then(
-        successToast(room => "You've deleted room " + escapeHtml(props.name) + ".<br/>You should inform its inhabitants about this."),
-        errorToast
-    );
+    // TODO: Replace confirm with pretty modal window
+    if (confirm("Are you sure you want to delete the room " + escapeHtml(props.name) + "?") == true) {
+      room_ops.delete(props.id).then(
+          roomingSuccessToast(room => "You've deleted room " + escapeHtml(props.name) + ".<br/>You should inform its inhabitants about this."),
+          apiErrorToast
+      );
+    }
   }
 
   const card_class = () => {
@@ -163,10 +142,11 @@ export const RoomCard = (props) => {
   }
 
   return (
-    <div className="col s12 xl6">
+    <div className={isMyRoom() ? "col s12" : "col s12 xl6"}>
       <div className={ card_class() }>
         <div className="card-content">
-            <span className="card-title grey-text text-darken-4"> {props.name}
+            <span className="card-title grey-text text-darken-4">
+            <b> {isMyRoom() ? "Your room:" : "" } </b> {props.name}
             <Members
               beds={props.available_beds}
               members={props.members}

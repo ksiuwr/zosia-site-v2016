@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ValidationError
@@ -12,27 +13,35 @@ from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS
 from utils.time_manager import timedelta_since
 
 
+def validate_hash(value):
+    if value is not None and not re.match(r"[0-9a-fA-F]{64}", value):
+        raise ValidationError(_('This is not a valid SHA256 hex string'))
+
+
 class UserManager(BaseUserManager):
-    def create_user(self, email, password=None, is_staff=False,
-                    is_active=True, **extra_fields):
-        'Creates a User with the given username, email and password'
+    def create_user(self, email, password=None, is_staff=False, is_active=True, **extra_fields):
         email = UserManager.normalize_email(email)
-        user = self.model(email=email, is_active=is_active,
-                          is_staff=is_staff, **extra_fields)
+        user = self.model(email=email, is_active=is_active, is_staff=is_staff, **extra_fields)
+
         if password is not None:
             user.set_password(password)
+
         user.save()
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
-        return self.create_user(email, password, is_staff=True,
-                                is_superuser=True, **extra_fields)
+        return self.create_user(email, password, is_staff=True, is_superuser=True, **extra_fields)
+
+    def registered(self):
+        return self.filter(preferences__isnull=False)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(_('first name'), max_length=30, blank=True)
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
+    hash = models.CharField(_('hash'), max_length=64, default=None, blank=False, unique=True,
+                            validators=[validate_hash])
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
@@ -42,10 +51,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     @property
-    def hash(self):
-        return hashlib.sha256(
-            f"{self.email}{self.first_name}{self.last_name}{self.date_joined}".encode('utf-8')
-        ).hexdigest()[:8]
+    def short_hash(self):
+        '''Returns first 8 characters (i.e. 32 bits) of user hash'''
+        if self.hash is None:
+            self.save()
+
+        return self.hash[:8]
 
     @property
     def full_name(self):
@@ -57,8 +68,25 @@ class User(AbstractBaseUser, PermissionsMixin):
         '''Returns the last_name plus the first_name, with a space in between.'''
         return f'{self.last_name} {self.first_name}'
 
+    @property
+    def is_registered(self):
+        return self.preferences is not None
+
     def __str__(self):
         return self.full_name
+
+    def save(self, *args, **kwargs):
+        if self.hash is None:
+            self.hash = hashlib.sha256(
+                f"{self.email}{self.date_joined}".encode('utf-8')).hexdigest().lower()
+
+        super().save(*args, **kwargs)
+
+
+class UserFilters(User):
+    class Meta:
+        proxy = True
+        verbose_name_plural = "User filters"
 
 
 class Organization(models.Model):
@@ -71,15 +99,16 @@ class Organization(models.Model):
     accepted = models.BooleanField(default=False)
     user = models.ForeignKey(
         User,
+        related_name="organizations",
         null=True,
         blank=True,
         on_delete=models.SET_NULL
     )
 
     def __str__(self):
-        owner = '' if self.accepted else f'({str(self.user)})'
+        owner = '' if self.accepted else f' ({str(self.user)})'
 
-        return f"{self.name} {owner}"
+        return f"{self.name}{owner}"
 
 
 class UserPreferencesManager(models.Manager):
@@ -102,11 +131,12 @@ class UserPreferences(models.Model):
 
     objects = UserPreferencesManager()
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    zosia = models.ForeignKey(Zosia, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name="preferences", on_delete=models.CASCADE)
+    zosia = models.ForeignKey(Zosia, related_name="registrations", on_delete=models.CASCADE)
 
     organization = models.ForeignKey(
         Organization,
+        related_name="members",
         null=True,
         blank=True,
         on_delete=models.SET_NULL
@@ -116,10 +146,10 @@ class UserPreferences(models.Model):
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
     bus = models.ForeignKey(
         Bus,
+        related_name="passengers",
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
-        related_name="passengers"
+        on_delete=models.SET_NULL
     )
 
     # Day 1 (Coming)
@@ -208,7 +238,7 @@ class UserPreferences(models.Model):
             chosen = {
                 # [:-6] removes day index, so we know which option has been chosen
                 accommodation[:-6]: self._pays_for(accommodation),
-                **{m[:-6]: self._pays_for(m) for m in meals}
+                **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
             payment += self._price_for(chosen)
 
@@ -234,7 +264,7 @@ class UserPreferences(models.Model):
 
     @property
     def transfer_title(self):
-        return f"ZOSIA - {self.user.first_name} {self.user.last_name} - {self.user.hash}"
+        return f"ZOSIA - {self.user.full_name} - {self.user.short_hash}"
 
     @property
     def rooming_start_time(self):

@@ -45,13 +45,9 @@ const config = {
         to: path.resolve(__dirname, './static/fonts'),
       },
       {
-        from: path.resolve(__dirname, './node_modules/chart.js/dist/Chart.bundle.min.js'),
-        to: path.resolve(__dirname, './static/script/Chart.bundle.min.js'),
+        from: path.resolve(__dirname, './node_modules/chart.js/dist/chart.min.js'),
+        to: path.resolve(__dirname, './static/script/chart.min.js'),
       },
-      {
-        from: path.resolve(__dirname, './node_modules/chart.js/dist/Chart.min.css'),
-        to: path.resolve(__dirname, './static/css/Chart.min.css'),
-      }
     ]),
   ],
   module: {

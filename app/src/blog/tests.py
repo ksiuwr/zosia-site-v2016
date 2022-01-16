@@ -84,9 +84,25 @@ class ViewTestCase(BlogTests):
         context = response.context[-1]
         self.assertTrue(isinstance(context['form'], BlogPostForm))
 
-    def test_create_post(self):
+    def test_create_post_by_normal_user(self):
         count = BlogPost.objects.count()
-        response = self.client.post(reverse('blog_create'), {'author': self.normal.id, 'title': 'foo',
-                                    'content': 'bar'}, follow=True)
+        response = self.client.post(
+            reverse('blog_create'), {'author': self.normal.id, 'title': 'foo', 'content': 'bar'}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(count, BlogPost.objects.count())
+
+    def test_create_post_by_staff_user(self):
+        count = BlogPost.objects.count()
+        self.client.login(email="paul@thebeatles.com", password="paulpassword")
+        response = self.client.post(
+            reverse('blog_create'), {'author': self.staff.id, 'title': 'bar', 'content': 'baz'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(count+1, BlogPost.objects.count())
+
+    def test_edit_get_staff_user(self):
+        blog_post_id = BlogPost.objects.values('id')[0]['id']
+        self.client.login(email="paul@thebeatles.com", password="paulpassword")
+        response = self.client.post(
+            reverse('blog_edit', kwargs={'pk': blog_post_id}), {}, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'blog/create.html')

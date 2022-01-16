@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: python:3.6
+      - image: python:3.8
       - image: postgres
         environment:
           POSTGRES_DB: "zosia"
@@ -26,71 +26,53 @@ jobs:
           name: Show tests coverage report
           command: cd app/src && coverage report -m
 
-  build_and_push_to_ecr:
-    environment:
-      AWS_ACCOUNT_ID: "463715963173"
-      AWS_DEFAULT_REGION: "eu-central-1"
+  deploy:
     docker:
-      - image: docker:git
+      - image: ubuntu:20.04
     steps:
       - run:
-          name: Install awscli and docker-compose
+          name: Install node
           command: |
-            apk add --no-cache python3
-            pip3 install awscli
-            pip3 install docker-compose~=1.23.0
-      - checkout
-      - setup_remote_docker
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm
       - run:
-          name: Build docker images
-          command: TAG="latest" docker-compose -f docker-compose.prod.yml build
-      - run:
-          name: Push image to ECR
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/upload_2_ecr.sh
+          name: Install gcloud
+          command: |
+            DEBIAN_FRONTEND=noninteractive apt-get install -y curl apt-transport-https ca-certificates gnupg
+            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+            apt-get update
 
-  deploy_new_version:
-    environment:
-      AWS_ACCOUNT_ID: "463715963173"
-      AWS_DEFAULT_REGION: "eu-central-1"
-    docker:
-      - image: docker:git
-    steps:
-      - run:
-          name: Install awscli
-          command: |
-            apk add --no-cache py-pip jq bash
-            pip install awscli
+            DEBIAN_FRONTEND=noninteractive apt-get install -y google-cloud-sdk
+            echo ${GCLOUD_KEY} | base64 --decode | gcloud auth activate-service-account --key-file=-
+            gcloud --quiet config set project ${GCLOUD_PROJECT}
+            gcloud --quiet config set compute/zone europe_central2
       - checkout
-      - run: 
-          name: Create new Task Definition
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} VERSION_TAG=${CIRCLE_SHA1} .ecs/prepare_task_def.sh
-      - run: 
-          name: Update service and wait
-          command: AWS_ACCESS_KEY_ID=${AWS_ACCESS_ID} AWS_SECRET_ACCESS_KEY=${AWS_ACCESS_SECRET_KEY} .ecs/update_service_with_rollback.sh
-  #     - run:
-  #         name: Purge cache
-  #         command: |
-  #           curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
-  #             -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
-  #             -H "Content-Type: application/json" \
-  #             --data '{"purge_everything":true}'
+      - run:
+          name: Build frontend
+          command: |
+            npm install -g yarn
+            (cd ./app && yarn install && yarn build)
+      - run:
+          name: Push image to App Engine
+          command: (cd ./app && gcloud app deploy app.yaml)
+      - run:
+          name: Purge cache
+          command: |
+            curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+              -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
+              -H "Content-Type: application/json" \
+              --data '{"purge_everything":true}'
 
 workflows:
   version: 2
   build:
     jobs:
       - run_tests
-      - build_and_push_to_ecr:
+      - deploy:
           requires:
             - run_tests
           filters:
             branches:
-              only: 
-                - master
-      - deploy_new_version:
-          requires:
-            - build_and_push_to_ecr
-          filters:
-            branches:
-              only: 
+              only:
                 - master

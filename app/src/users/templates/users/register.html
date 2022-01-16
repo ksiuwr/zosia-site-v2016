@@ -40,11 +40,12 @@
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">{% trans "Cost" %}</span>
+                    <p>This year breakfast is required (its price is included in accommodation price).</p>
                     <blockquote style="border-left-color: #3333cc">
                         <i>{% trans "Prices (per night)" %}:</i><br />
-                        {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br />
+                        <!-- {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br /> -->
                         {% trans "Accommodation + breakfast" %}: <strong>{{ zosia.price_accommodation_breakfast }} PLN</strong><br />
-                        {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br />
+                        <!-- {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br /> -->
                         {% trans "Accommodation + both meals" %}: <strong>{{ zosia.price_whole_day }} PLN</strong><br />
                     </blockquote>
                     <blockquote style="border-left-color: #ee80ee">
@@ -82,7 +83,7 @@
 
     const dependencies = {
         {% for accommodation, meals in field_dependencies.items %}
-        "#id_{{ accommodation }}" : [ {% for m in meals %} "#id_{{ m }}", {% endfor %} ],
+        "#id_{{ accommodation }}" : [ {% for m in meals.values %} "#id_{{ m }}", {% endfor %} ],
         {% endfor %}
     }
 

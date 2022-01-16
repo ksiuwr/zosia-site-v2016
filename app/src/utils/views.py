@@ -4,6 +4,8 @@ from functools import wraps
 
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 
 
 def anonymous_required(view):
@@ -27,3 +29,9 @@ def csv_response(header, data, filename='file'):
         writer.writerow(row)
 
     return response
+
+
+def validation_format(validation_error, info):
+    messages = list(map(escape, validation_error.messages))
+
+    return mark_safe(f"<p>{escape(str(info))}:<br/>" + "<br/>".join(messages) + "</p>")

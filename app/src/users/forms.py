@@ -41,17 +41,17 @@ class MailForm(forms.Form):
         queryset=User.objects.filter(is_active=False),
         to_field_name="email", required=False)
     registered = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(userpreferences__isnull=False).distinct(),
+        queryset=User.objects.filter(preferences__isnull=False).distinct(),
         to_field_name="email", required=False)
     payed = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(userpreferences__payment_accepted=True).distinct(),
+        queryset=User.objects.filter(preferences__payment_accepted=True).distinct(),
         to_field_name="email", required=False)
     not_Payed = forms.ModelMultipleChoiceField(
-        queryset=User.objects.filter(userpreferences__payment_accepted=False).distinct(),
+        queryset=User.objects.filter(preferences__payment_accepted=False).distinct(),
         to_field_name="email", required=False)
 
     def __init__(self, *args, **kwargs):
-        super(forms.Form, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["all_Users"].initial = (
             User.objects.all().values_list('email', flat=True)
         )
@@ -65,15 +65,15 @@ class MailForm(forms.Form):
             User.objects.filter(is_active=False).values_list('email', flat=True)
         )
         self.fields["registered"].initial = (
-            User.objects.filter(userpreferences__isnull=False).distinct()
+            User.objects.filter(preferences__isnull=False).distinct()
                 .values_list('email', flat=True)
         )
         self.fields["payed"].initial = (
-            User.objects.filter(userpreferences__payment_accepted=True).distinct()
+            User.objects.filter(preferences__payment_accepted=True).distinct()
                 .values_list('email', flat=True)
         )
         self.fields["not_Payed"].initial = (
-            User.objects.filter(userpreferences__payment_accepted=False).distinct()
+            User.objects.filter(preferences__payment_accepted=False).distinct()
                 .values_list('email', flat=True)
         )
 
@@ -179,6 +179,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
         self.fields["terms_accepted"].required = True
         self.fields["terms_accepted"].label = mark_safe(terms_label)
+        self.fields["terms_accepted"].error_messages = {'required': "You have to accept Terms & Conditions."}
         self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
 
     def call(self, zosia):
@@ -191,24 +192,33 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        errors = []
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
 
         for accommodation, meals in PAYMENT_GROUPS.items():
-            for m in meals:
+            for m in meals.values():
                 if _pays_for(m) and not _pays_for(accommodation):
-                    errors.append(
+                    self.add_error(
+                        m,
                         forms.ValidationError(
-                            _("You need to check %(accomm)s before you can check %(meal)s"),
+                            _("You need to check `%(accomm)s` before you can check `%(meal)s`"),
                             code='invalid',
-                            params={'accomm': accommodation, 'meal': m}
+                            params={'accomm': self.fields[accommodation].label,
+                                    'meal': self.fields[m].label}
                         )
                     )
-
-        if len(errors) > 0:
-            raise forms.ValidationError(errors)
+            # TODO: this is hotfix for 2022 agreement
+            if _pays_for(accommodation) and not _pays_for(meals["breakfast"]):
+                self.add_error(
+                    m,
+                    forms.ValidationError(
+                        _("This year breakfast is required (its price is included in accommodation price). Please check `%(meal)s`"),
+                        code='invalid',
+                        params={'accomm': self.fields[accommodation].label,
+                                'meal': self.fields[m].label}
+                    )
+                )
 
     def disable(self):
         for field in self.fields:

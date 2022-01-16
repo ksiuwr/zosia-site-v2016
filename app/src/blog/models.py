@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+
 from users.models import User
 
 
@@ -11,6 +12,7 @@ class BlogPost(models.Model):
         auto_now_add=True)
     author = models.ForeignKey(
         User, verbose_name=_("author"),
+        related_name="blog_posts",
         limit_choices_to={'is_staff': True},
         null=True,
         on_delete=models.SET_NULL)

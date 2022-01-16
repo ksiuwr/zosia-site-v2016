@@ -88,7 +88,11 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# PyCharm
 .idea/
+
+# Visual Studio Code
+*.code-workspace
 
 #mypy
 .mypy_cache
@@ -105,8 +109,7 @@ node_modules
 # vim
 *.swp
 
-# Minified frontend files
+# Generated frontend files
 *.min.*
-
-# Fonts
+app/static/css/nouislider.css
 app/static/fonts

@@ -1,4 +1,5 @@
 import random
+import re
 import string
 
 from django.core.exceptions import ValidationError
@@ -30,7 +31,7 @@ class RoomLock(models.Model):
     expiration_date = models.DateTimeField()
     password = models.CharField(max_length=4)
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='locks', on_delete=models.CASCADE)
 
     @property
     def is_expired(self):
@@ -60,14 +61,15 @@ class Room(models.Model):
     objects = RoomManager()
 
     name = models.CharField(max_length=300)
-    description = models.TextField(default="")
+    description = models.TextField(default="", blank=True, null=False)
     hidden = models.BooleanField(default=False)
     beds_single = models.PositiveSmallIntegerField(default=0)
     beds_double = models.PositiveSmallIntegerField(default=0)
     available_beds_single = models.PositiveSmallIntegerField(default=0)
     available_beds_double = models.PositiveSmallIntegerField(default=0)
 
-    lock = models.OneToOneField(RoomLock, on_delete=models.SET_NULL, blank=True, null=True)
+    lock = models.OneToOneField(RoomLock, related_name="room", on_delete=models.SET_NULL,
+                                blank=True, null=True)
 
     members = models.ManyToManyField(User, through="UserRoom", related_name="room_of_user")
 
@@ -192,8 +194,17 @@ class Room(models.Model):
             self.save()
             lock.delete()
 
+    @staticmethod
+    def name_to_key_orderable(room):
+        room_name = room.name.lower()
+        groups = re.split(r"(\d+)", room_name)
+        return tuple(int(g) if re.match(r"\d+", g) else g for g in groups)
+
 
 class UserRoom(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     joined_at = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.user} [{self.room}]"
