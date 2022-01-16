@@ -247,6 +247,4 @@ class UserPreferencesAdminForm(UserPreferencesWithBusForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # NOTE: Seems like it's not working?
-        # Probably because JS overwrites HTML attr. Argh.
         self.fields['contact'].disabled = True
