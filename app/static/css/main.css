@@ -320,6 +320,7 @@ footer.page-footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
 }
 
 .sponsors-row > div {
