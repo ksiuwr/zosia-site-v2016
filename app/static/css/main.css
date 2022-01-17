@@ -315,3 +315,13 @@ footer.page-footer {
     line-height: 32px;
     padding-left: 8px;
 }
+
+.sponsors-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.sponsors-row > div {
+    margin-left: 0 !important;
+}
