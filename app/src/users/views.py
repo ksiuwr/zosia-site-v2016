@@ -23,7 +23,6 @@ from utils.views import csv_response
 
 import re
 
-
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
@@ -235,6 +234,7 @@ def register(request):
         messages.error(request, _('You missed registration for ZOSIA'))
         return redirect(reverse('index'))
 
+    #TODO: Suspend registration hotfix
     if user_prefs is None and not re.match('(.*)@cs.uni.wroc.pl', request.user.email) and not request.user.is_staff:
         messages.error(request, _('Registration is currently suspended'))
         return redirect(reverse('index'))
