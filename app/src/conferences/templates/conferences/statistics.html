@@ -127,8 +127,8 @@
     });
 
 
-    var busesLabels = {{ busesLabels }}
-    var busesValues = {{ busesValues }}
+    var busesLabels = {{ busesLabels|safe }}
+    var busesValues = {{ busesValues|safe }}
 
     var busInfoCanvas = document.getElementById('bus_info_bar_chart');
     var busInfoBarChart = new Chart(busInfoCanvas, {

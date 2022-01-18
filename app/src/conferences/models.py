@@ -214,6 +214,10 @@ class Bus(models.Model):
     def passengers_count(self):
         return self.passengers.count()
 
+    @property
+    def paid_passengers_count(self):
+        return self.passengers.filter(payment_accepted=True).count()
+
     def passengers_to_string(self, paid=False):
         bus_passengers = self.passengers.order_by("user__last_name", "user__first_name")
 
