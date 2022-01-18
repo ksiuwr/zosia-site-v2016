@@ -21,7 +21,7 @@ from users.models import UserPreferences
 @login_required
 @require_http_methods(['GET'])
 def index(request):
-    boardgames = Boardgame.objects.all().annotate(votes=Count('boardgame_votes')).order_by('-votes')
+    boardgames = Boardgame.objects.all().annotate(votes=Count('boardgame_votes')).order_by('-votes', 'name')
 
     try:
         current_zosia = Zosia.objects.find_active()
@@ -39,7 +39,7 @@ def index(request):
 @login_required
 @require_http_methods(['GET', 'POST'])
 def my_boardgames(request):
-    user_boardgames = Boardgame.objects.filter(user=request.user).annotate(votes=Count('boardgame_votes')).order_by('-votes')
+    user_boardgames = Boardgame.objects.filter(user=request.user).annotate(votes=Count('boardgame_votes')).order_by('-votes', 'name')
     can_add = user_boardgames.count() < 3
     ctx = {'user_boardgames': user_boardgames,
            'can_add': can_add}
@@ -64,6 +64,9 @@ def get_name(request, url):
     name_str = name_bytes.decode(encoding)
     return name_str
 
+def get_id(url):
+    match = re.search("(boardgame\/)([0-9]+)", url)
+    return match.group(2)
 
 @login_required
 @require_http_methods(['GET', 'POST'])
@@ -74,7 +77,9 @@ def create(request):
     if request.method == 'POST':
         if ctx['form'].is_valid() and user_boardgames.count() < 3:
             new_url = ctx['form'].cleaned_data['url']
-            if Boardgame.objects.filter(url=new_url).exists():
+            id = get_id(new_url)
+            url_part = 'boardgame/' + id #TODO: We should save id in the model instead
+            if Boardgame.objects.filter(url__contains=url_part).exists():
                 messages.error(
                     request, _("This boardgame has been already added"))
             elif not validate_url(new_url):
@@ -171,11 +176,19 @@ def accept_edit(request):
     return JsonResponse({'old_ids': old_ids, 'new_ids': new_ids})
 
 
-@staff_member_required
+@login_required
 @require_http_methods(['POST'])
 def boardgame_delete(request):
     boardgame_id = request.POST.get('boardgame_id')
     boardgame = get_object_or_404(Boardgame, pk=boardgame_id)
+
+    if boardgame.user != request.user: 
+        return HttpResponseBadRequest(
+            '<h1>Bad request(400)</h1>'
+            "You cannot remove someone else's board game",
+            content_type='text/html'
+        )
+
     boardgame.delete()
     return JsonResponse({'msg': "Deleted the boardgame: {}".format(
         escape(boardgame))})
