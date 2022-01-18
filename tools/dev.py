@@ -19,12 +19,8 @@ PROJECT_NAME = "zosia"
 ROOT_DIR = normpath(dirname(__file__) + "/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 
-if platform == 'win32':
-    WEB_CONTAINER_NAME = f"{PROJECT_NAME}-web-1"
-    DB_CONTAINER_NAME = f"{PROJECT_NAME}-db-1"
-else:
-    WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
-    DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
+WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
+DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
 
 FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with root permissions)"
 CAN_SUBPARSER_REQUIRED = version_info >= (3, 7)
@@ -52,7 +48,7 @@ def docker_python(command):
 
 def docker_compose_run(command, with_project=True):
     project = ["-p", PROJECT_NAME] if with_project else []
-    command_run(["docker-compose", "-f", DOCKER_COMPOSE] + project + command)
+    command_run(["docker-compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
 
 
 def js_install():
