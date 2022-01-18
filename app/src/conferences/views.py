@@ -1,5 +1,6 @@
-from collections import Counter
 import csv
+import json
+from collections import Counter
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -252,6 +253,16 @@ def statistics(request):
     else:
         price_values, price_counts = [], []
 
+    # data for bus info chart
+    buses = Bus.objects.all()
+    busesLabels = []
+    busesValues = {'paid': [], 'notPaid': [], 'empty': []}
+    for bus in buses:
+        busesLabels.append(bus.name)
+        busesValues['paid'].append(bus.paid_passengers_count)
+        busesValues['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
+        busesValues['empty'].append(bus.free_seats)
+
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
 
@@ -260,6 +271,8 @@ def statistics(request):
         'vegetarians': vegetarians,
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
-        'userCostsCounts': list(price_counts)
+        'userCostsCounts': list(price_counts),
+        'busesLabels': json.dumps(busesLabels),
+        'busesValues': json.dumps(busesValues),
     }
     return render(request, 'conferences/statistics.html', ctx)
