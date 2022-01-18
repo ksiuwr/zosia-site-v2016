@@ -19,7 +19,7 @@
       <a class="waves-effect waves-light btn" href="{% url 'boardgames_vote' %}">
         {% trans "Vote" %} </a>
       {% else %}
-      <p>To add boardgames your payment must be accepted first</p>
+      <p>To add and vote for boardgames your payment must be accepted first</p>
       {% endif %}
     </div>
   </div>
@@ -37,7 +37,7 @@
             {% for boardgame in boardgames %}
             <tr>
               <td><a href={{boardgame.url}}>{{boardgame.name}}</a></td>
-              <td>{{boardgame.votes_amount}}</td>
+              <td>{{boardgame.votes}}</td>
               <td>{% if boardgame.accepted %} Accepted {% else %} Suggested by {{boardgame.user.first_name}}
                 {{boardgame.user.last_name}}{% endif %}
               </td>
