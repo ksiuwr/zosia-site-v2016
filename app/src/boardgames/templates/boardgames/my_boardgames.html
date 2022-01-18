@@ -39,7 +39,7 @@
                                     {% for boardgame in user_boardgames %}
                                     <tr id="tr{{boardgame.id}}">
                                         <td><a href={{boardgame.url}}>{{ boardgame.name }}</a></td>
-                                        <td>{{ boardgame.votes_amount}}</td>
+                                        <td>{{boardgame.votes}}</td>
                                         <td><a class="waves-effect waves-light btn modal-trigger"
                                                 href="#{{boardgame.pk}}">{% trans 'Delete' %}</a>
                                         </td>
