@@ -105,9 +105,19 @@ def vote(request):
     return render(request, 'boardgames/vote.html', ctx)
 
 
-@staff_member_required
+@login_required
 @require_http_methods(['POST'])
 def vote_edit(request):
+    current_zosia = Zosia.objects.find_active()
+    preferences = UserPreferences.objects.get(zosia=current_zosia, user=request.user)
+
+    if not preferences.payment_accepted:
+        return HttpResponseBadRequest(
+            '<h1>Bad request(400)</h1>'
+            'To vote for boardgames your payment must be accepted first',
+            content_type='text/html'
+        )
+
     new_ids = json.loads(request.POST.get('new_ids'))
 
     if len(new_ids) > 3:
