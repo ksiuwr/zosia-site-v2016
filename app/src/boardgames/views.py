@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.db.models import Count
 from urllib.request import urlopen
 
 from boardgames.models import Boardgame, Vote
@@ -20,7 +21,8 @@ from users.models import UserPreferences
 @login_required
 @require_http_methods(['GET'])
 def index(request):
-    boardgames = Boardgame.objects.all()
+    boardgames = Boardgame.objects.all().annotate(votes=Count('boardgame_votes')).order_by('-votes')
+
     try:
         current_zosia = Zosia.objects.find_active()
         preferences = UserPreferences.objects.get(
@@ -37,7 +39,7 @@ def index(request):
 @login_required
 @require_http_methods(['GET', 'POST'])
 def my_boardgames(request):
-    user_boardgames = Boardgame.objects.filter(user=request.user)
+    user_boardgames = Boardgame.objects.filter(user=request.user).annotate(votes=Count('boardgame_votes')).order_by('-votes')
     can_add = user_boardgames.count() < 3
     ctx = {'user_boardgames': user_boardgames,
            'can_add': can_add}
@@ -103,34 +105,38 @@ def vote(request):
     return render(request, 'boardgames/vote.html', ctx)
 
 
-@staff_member_required
+@login_required
 @require_http_methods(['POST'])
 def vote_edit(request):
-    votes = Vote.objects.filter(
-        user=request.user).values_list('boardgame', flat=True)
-    old_ids = list(votes)
+    current_zosia = Zosia.objects.find_active()
+    preferences = UserPreferences.objects.get(zosia=current_zosia, user=request.user)
+
+    if not preferences.payment_accepted:
+        return HttpResponseBadRequest(
+            '<h1>Bad request(400)</h1>'
+            'To vote for boardgames your payment must be accepted first',
+            content_type='text/html'
+        )
+
     new_ids = json.loads(request.POST.get('new_ids'))
+
     if len(new_ids) > 3:
         return HttpResponseBadRequest(
             '<h1>Bad request(400)</h1>'
             'Everyone can vote only for up to three boardgames',
             content_type='text/html'
         )
-    common_ids = [x for x in old_ids if x in new_ids]
-    old_ids = [x for x in old_ids if x not in common_ids]
-    new_ids = [x for x in new_ids if x not in common_ids]
-    for x in old_ids:
-        boardgame = get_object_or_404(Boardgame, pk=x)
-        boardgame.votes_down()
-        boardgame.save()
-        Vote.objects.get(boardgame=x).delete()
-    for x in new_ids:
-        boardgame = get_object_or_404(Boardgame, pk=x)
-        boardgame.votes_up()
-        boardgame.save()
-        vote = Vote(user=request.user, boardgame=boardgame)
-        vote.save()
-    return JsonResponse({'old_ids': old_ids, 'new_ids': new_ids})
+
+    boardgames = Boardgame.objects.filter(pk__in=new_ids)
+
+    newVotes = list()
+    for boardgame in boardgames:
+        newVotes.append(Vote(user=request.user, boardgame=boardgame))
+
+    Vote.objects.filter(user=request.user).delete()
+    Vote.objects.bulk_create(newVotes)
+
+    return JsonResponse({'new_ids': new_ids})
 
 
 @staff_member_required
