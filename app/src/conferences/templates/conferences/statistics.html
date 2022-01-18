@@ -9,22 +9,24 @@
 {% block content %}
 
 <div class="container">
-  <div class="row">
-    <div class="col s12 m8">
-      <div class="card">
-        <div class="card-content">
-            <span class="card-title">{% trans "ZOSIA statistics" %}</span>
-            <br/>
-                <div><b>Registered users:</b> {{ registeredUsers }} </div>
-                <div><b>Vegetarians:</b> {{ vegetarians }} </div>
-            <hr/>
-            <canvas id="users_pie_chart" aria-label="Pie chart with user data" role="img"></canvas>
-            <hr/>
-            <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
+    <div class="row">
+        <div class="col s12 m8">
+            <div class="card">
+                <div class="card-content">
+                    <span class="card-title">{% trans "ZOSIA statistics" %}</span>
+                    <br />
+                    <div><b>Registered users:</b> {{ registeredUsers }} </div>
+                    <div><b>Vegetarians:</b> {{ vegetarians }} </div>
+                    <hr />
+                    <canvas id="users_pie_chart" aria-label="Pie chart with user data" role="img"></canvas>
+                    <hr />
+                    <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
+                    <hr />
+                    <canvas id="bus_info_bar_chart" aria-label="Bar chart with bus info" role="img"></canvas>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </div>
 
 {% endblock %}
@@ -62,7 +64,7 @@
     var userCostsValues = {{ userCostsValues }}
     var userCostsCounts = {{ userCostsCounts }}
 
-    var barColor = function(context) {
+    var barColor = function (context) {
         return 'rgba(50, 70, 190, 0.7)';
     }
 
@@ -90,13 +92,13 @@
                 },
                 tooltip: {
                     callbacks: {
-                        title: function(context) { return context[0].label + " PLN" },
-                        label: function(context) { return " " + context.raw + " os." }
+                        title: function (context) { return context[0].label + " PLN" },
+                        label: function (context) { return " " + context.raw + " os." }
                     }
                 }
             },
             scales: {
-                x:{
+                x: {
                     title: {
                         display: true,
                         text: 'cost [PLN]',
@@ -123,6 +125,78 @@
             }
         },
     });
+
+
+    var busesLabels = {{ busesLabels }}
+    var busesValues = {{ busesValues }}
+
+    var busInfoCanvas = document.getElementById('bus_info_bar_chart');
+    var busInfoBarChart = new Chart(busInfoCanvas, {
+        type: 'bar',
+        data: {
+            labels: busesLabels,
+            datasets: [
+                {
+                    label: "Paid",
+                    data: busesValues["paid"],
+                    backgroundColor: 'rgba(70, 195, 40, 0.5)'
+                },
+                {
+                    label: "Not Paid",
+                    data: busesValues["notPaid"],
+                    backgroundColor: 'rgba(50, 70, 190, 0.5)'
+                },
+                {
+                    label: "Empty",
+                    data: busesValues["empty"],
+                    backgroundColor: 'rgba(50, 50, 50, 0.5)'
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            elements: {
+                bar: {
+                    borderWidth: 2,
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Bus info',
+                    font: {
+                        size: 20
+                    }
+                }
+            },
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'places',
+                        font: {
+                            weight: "600",
+                            size: 14
+                        }
+                    }
+                },
+                y: {
+                    stacked: true,
+                    title: {
+                        display: true,
+                        text: 'buses',
+                        font: {
+                            weight: "600",
+                            size: 14
+                        }
+                    }
+                }
+            }
+        }
+    });
+
 
 </script>
 {% endblock custom_scripts %}

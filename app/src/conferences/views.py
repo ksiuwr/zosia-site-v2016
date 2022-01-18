@@ -252,6 +252,10 @@ def statistics(request):
     else:
         price_values, price_counts = [], []
 
+    # data for bus info chart
+    busesLabels = ['alfa', 'beta']
+    busesValues = {'paid': [10, 42], 'notPaid': [10, 2], 'empty': [2, 3]}
+
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
 
@@ -260,6 +264,8 @@ def statistics(request):
         'vegetarians': vegetarians,
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
-        'userCostsCounts': list(price_counts)
+        'userCostsCounts': list(price_counts),
+        'busesLabels': busesLabels,
+        'busesValues': busesValues,
     }
     return render(request, 'conferences/statistics.html', ctx)
