@@ -235,7 +235,7 @@ def register(request):
         return redirect(reverse('index'))
 
     #TODO: Suspend registration hotfix
-    if user_prefs is None and not re.match('(.*)@cs.uni.wroc.pl', request.user.email) and not request.user.is_staff:
+    if user_prefs is None and not re.match(r'(.+)@cs\.uni\.wroc\.pl', request.user.email) and not request.user.is_staff:
         messages.error(request, _('Registration is currently suspended'))
         return redirect(reverse('index'))
 
