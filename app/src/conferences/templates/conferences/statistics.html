@@ -7,6 +7,33 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    .users-pie-chart-container {
+        height: 700px;
+    }
+
+    .users-cost-bar-chart-container {
+        height: 500px;
+    }
+
+    .bus-info-bar-chart-container {
+        height: calc({{numberOfBuses}} * 90px + 120px );
+    }
+
+    @media (max-width: 767px) {
+        .users-pie-chart-container {
+            height: 300px;
+        }
+
+        .users-cost-bar-chart-container {
+            height: 300px;
+        }
+
+        .bus-info-bar-chart-container {
+            height: calc({{numberOfBuses}} * 60px + 120px );
+        }
+    }
+</style>
 
 <div class="container">
     <div class="row">
@@ -18,11 +45,17 @@
                     <div><b>Registered users:</b> {{ registeredUsers }} </div>
                     <div><b>Vegetarians:</b> {{ vegetarians }} </div>
                     <hr />
-                    <canvas id="users_pie_chart" aria-label="Pie chart with user data" role="img"></canvas>
+                    <div class="users-pie-chart-container">
+                        <canvas id="users_pie_chart" aria-label="Pie chart with user data" role="img"></canvas>
+                    </div>
                     <hr />
-                    <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
+                    <div class="users-cost-bar-chart-container">
+                        <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
+                    </div>
                     <hr />
-                    <canvas id="bus_info_bar_chart" aria-label="Bar chart with bus info" role="img"></canvas>
+                    <div class="bus-info-bar-chart-container">
+                        <canvas id="bus_info_bar_chart" aria-label="Bar chart with bus info" role="img"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -45,6 +78,7 @@
             }]
         },
         options: {
+            maintainAspectRatio: false,
             radius: "90%",
             plugins: {
                 title: {
@@ -79,6 +113,7 @@
             }]
         },
         options: {
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     display: false
@@ -170,6 +205,7 @@
                 }
             },
             responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 x: {
                     stacked: true,

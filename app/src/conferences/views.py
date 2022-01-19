@@ -274,5 +274,6 @@ def statistics(request):
         'userCostsCounts': list(price_counts),
         'busesLabels': json.dumps(busesLabels),
         'busesValues': json.dumps(busesValues),
+        'numberOfBuses': len(busesLabels)
     }
     return render(request, 'conferences/statistics.html', ctx)
