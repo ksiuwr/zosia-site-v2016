@@ -105,7 +105,7 @@ def create(request):
 def vote(request):
     votes = Vote.objects.filter(
         user=request.user).values_list('boardgame', flat=True)
-    ctx = {'boardgames': Boardgame.objects.all(),
+    ctx = {'boardgames': Boardgame.objects.all().order_by('name'),
            'user_voted': list(votes)}
     return render(request, 'boardgames/vote.html', ctx)
 
@@ -182,7 +182,7 @@ def boardgame_delete(request):
     boardgame_id = request.POST.get('boardgame_id')
     boardgame = get_object_or_404(Boardgame, pk=boardgame_id)
 
-    if boardgame.user != request.user: 
+    if boardgame.user != request.user:
         return HttpResponseBadRequest(
             '<h1>Bad request(400)</h1>'
             "You cannot remove someone else's board game",

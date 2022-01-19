@@ -258,7 +258,7 @@ def statistics(request):
     busesLabels = []
     busesValues = {'paid': [], 'notPaid': [], 'empty': []}
     for bus in buses:
-        busesLabels.append(bus.name)
+        busesLabels.append(f'{bus.name} - {bus.departure_time:%H:%M}')
         busesValues['paid'].append(bus.paid_passengers_count)
         busesValues['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
         busesValues['empty'].append(bus.free_seats)
@@ -274,5 +274,6 @@ def statistics(request):
         'userCostsCounts': list(price_counts),
         'busesLabels': json.dumps(busesLabels),
         'busesValues': json.dumps(busesValues),
+        'numberOfBuses': len(busesLabels)
     }
     return render(request, 'conferences/statistics.html', ctx)

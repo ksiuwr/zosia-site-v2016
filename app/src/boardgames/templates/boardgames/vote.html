@@ -6,6 +6,9 @@
 <p>
     {% trans "Vote for your favourite boardgames. You can choose up to three of them." %}
 </p>
+<div class="chip" id="votes">
+    {{ user_voted|length }}/3
+</div>
 {% endblock %}
 
 {% block elems %}
@@ -19,8 +22,11 @@
 
 <script type="text/javascript">
     $('.boardgame').on('change', function () {
-        if ($('.boardgame:checked').length > 3) {
+        var votes = $('.boardgame:checked').length;
+        $('#votes').text(votes + "/3");
+        if (votes > 3) {
             this.checked = false;
+            this.enabled = false;
         }
     });
 </script>
