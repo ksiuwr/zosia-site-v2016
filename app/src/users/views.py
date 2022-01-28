@@ -232,11 +232,6 @@ def register(request):
         messages.error(request, _('You missed registration for ZOSIA'))
         return redirect(reverse('index'))
 
-    #TODO: Suspend registration hotfix
-    if user_prefs is None and not request.user.is_staff:
-        messages.error(request, _('Registration is currently suspended'))
-        return redirect(reverse('index'))
-
     ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
     form_args = {}
 
