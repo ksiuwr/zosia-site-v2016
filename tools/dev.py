@@ -113,16 +113,11 @@ test_parser = subparsers.add_parser("test", aliases=["t"],
 test_parser.add_argument("-v", "--verbose", action="store_true",
                          help="Add verbose option to test command")
 
-shell_parser = subparsers.add_parser("shell", aliases=["sh"], help="run shell inside a container")
+bash_parser = subparsers.add_parser("bash", aliases=["sh"],
+                                    help="run Bash shell inside a container")
 
-if CAN_SUBPARSER_REQUIRED:
-    shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL", required=True)
-else:
-    shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL")
-
-shell_subparsers.add_parser("bash", add_help=False, help="run Bash shell in website container")
-shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
-                            help="run Postgres shell (psql) in database container")
+postgres_parse = subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
+                                       help="run Postgres shell (psql) in database container")
 
 migrate_parser = subparsers.add_parser("migrations", aliases=["m"],
                                        help="operate on Django migrations")
@@ -139,6 +134,7 @@ migr_apply_parser.add_argument("--create-admin", action="store_true",
                                help="create super user account (password specified manually)")
 migr_apply_parser.add_argument("--create-data", action="store_true",
                                help="create some random data to work on like conference, buses, rooms, etc.")
+
 migrate_subparsers.add_parser("make", aliases=["m"], add_help=False,
                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
@@ -189,13 +185,10 @@ elif args.command in ["quit", "shutdown", "q"]:
     docker_compose_run(["down"])
 elif args.command in ["test", "t"]:
     docker_python(["test"] + (["-v", "2"] if args.verbose else []))
-elif args.command in ["shell", "sh"]:
-    if args.shell == "bash":
-        docker_exec(["/bin/bash"], WEB_CONTAINER_NAME)
-    elif args.shell in ["postgres", "psql"]:
-        docker_exec(["psql", "-U", "zosia"], DB_CONTAINER_NAME)
-    else:
-        shell_parser.print_help()
+elif args.command in ["bash", "sh"]:
+    docker_exec(["/bin/bash"], WEB_CONTAINER_NAME)
+elif args.command in ["postgres", "psql"]:
+    docker_exec(["psql", "-U", "zosia"], DB_CONTAINER_NAME)
 elif args.command in ["migrations", "m"]:
     if args.action in ["apply", "a"]:
         migrate(args.create_admin, args.create_data)
