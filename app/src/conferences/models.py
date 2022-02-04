@@ -4,7 +4,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
@@ -190,6 +190,18 @@ class BusManager(models.Manager):
             .filter(zosia=zosia) \
             .annotate(passengers_num=Count('passengers')) \
             .filter(capacity__gt=F('passengers_num'))
+
+    def find_available(self, zosia, passenger=None):
+        query = Q(capacity__gt=F('passengers_num'))
+
+        if passenger is not None:
+            query = query | Q(passengers=passenger)
+
+        return self \
+            .filter(zosia=zosia) \
+            .annotate(passengers_num=Count('passengers')) \
+            .filter(query) \
+            .distinct()
 
 
 class Bus(models.Model):

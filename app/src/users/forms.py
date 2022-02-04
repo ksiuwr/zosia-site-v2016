@@ -2,7 +2,6 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import Count
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
@@ -131,20 +130,13 @@ class OrganizationForm(forms.ModelForm):
 
 
 class UserPreferencesWithBusForm(forms.ModelForm):
-    def bus_queryset(self, instance=None):
-        bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
-
-        if instance is not None:
-            my_bus = Bus.objects.filter(passengers=instance)
-            bus_queryset = bus_queryset | my_bus \
-                if instance.payment_accepted else \
-                bus_queryset.union(my_bus.annotate(passengers_num=Count('passengers')))
-
-        return bus_queryset.distinct()
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
+
+    def bus_queryset(self, instance=None):
+        queryset = Bus.objects.find_available(Zosia.objects.find_active(), passenger=instance)
+        return queryset
 
 
 class UserPreferencesForm(UserPreferencesWithBusForm):
