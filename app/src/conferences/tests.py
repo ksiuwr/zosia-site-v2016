@@ -68,10 +68,40 @@ class BusTestCase(TestCase):
         self.bus2 = create_bus(zosia=self.zosia, capacity=1)
         self.bus3 = create_bus(zosia=self.zosia, capacity=2)
 
-    def test_find_buses_with_free_places(self):
+    def test_find_buses_with_free_places_when_all_empty(self):
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 2)
 
+    def test_find_buses_with_free_places_when_bus_chosen_and_full(self):
         create_user_preferences(self.normal, self.zosia, bus=self.bus2)
         buses = Bus.objects.find_with_free_places(self.zosia)
         self.assertEqual(buses.count(), 1)
+
+    def test_find_buses_with_free_places_when_bus_chosen_and_not_full(self):
+        create_user_preferences(self.normal, self.zosia, bus=self.bus3)
+        buses = Bus.objects.find_with_free_places(self.zosia)
+        self.assertEqual(buses.count(), 2)
+
+    def test_find_available_when_all_empty(self):
+        buses = Bus.objects.find_available(self.zosia)
+        self.assertEqual(buses.count(), 2)
+
+    def test_find_available_when_bus_chosen_and_full(self):
+        create_user_preferences(self.normal, self.zosia, bus=self.bus2)
+        buses = Bus.objects.find_available(self.zosia)
+        self.assertEqual(buses.count(), 1)
+
+    def test_find_available_when_bus_chosen_and_not_full(self):
+        create_user_preferences(self.normal, self.zosia, bus=self.bus3)
+        buses = Bus.objects.find_available(self.zosia)
+        self.assertEqual(buses.count(), 2)
+
+    def test_find_available_when_passenger_and_bus_chosen_and_full(self):
+        user_prefs = create_user_preferences(self.normal, self.zosia, bus=self.bus2)
+        buses = Bus.objects.find_available(self.zosia, passenger=user_prefs)
+        self.assertEqual(buses.count(), 2)
+
+    def test_find_available_when_passenger_and_bus_chosen_and_not_full(self):
+        user_prefs = create_user_preferences(self.normal, self.zosia, bus=self.bus3)
+        buses = Bus.objects.find_available(self.zosia, passenger=user_prefs)
+        self.assertEqual(buses.count(), 2)
