@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.utils.translation import ugettext as _, ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, Zosia
 from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, \
@@ -238,7 +238,7 @@ class UserPreferences(models.Model):
             chosen = {
                 # [:-6] removes day index, so we know which option has been chosen
                 accommodation[:-6]: self._pays_for(accommodation),
-                **{m[:-6]: self._pays_for(m) for m in meals}
+                **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
             payment += self._price_for(chosen)
 

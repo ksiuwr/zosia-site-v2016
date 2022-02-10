@@ -137,4 +137,4 @@ def ajax_load_durations(request):
     person_type = request.GET.get("person_type")
     durations = {'durations': [d[0] for d in get_durations(lecture_type, person_type)]}
 
-    return JsonResponse(durations);
+    return JsonResponse(durations)

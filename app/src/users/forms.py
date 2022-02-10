@@ -130,17 +130,13 @@ class OrganizationForm(forms.ModelForm):
 
 
 class UserPreferencesWithBusForm(forms.ModelForm):
-    def bus_queryset(self, instance=None):
-        bus_queryset = Bus.objects.find_with_free_places(Zosia.objects.find_active())
-
-        if instance is not None:
-            bus_queryset = bus_queryset | Bus.objects.filter(passengers=instance)
-
-        return bus_queryset.distinct()
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
+
+    def bus_queryset(self, instance=None):
+        queryset = Bus.objects.find_available(Zosia.objects.find_active(), passenger=instance)
+        return queryset
 
 
 class UserPreferencesForm(UserPreferencesWithBusForm):
@@ -198,7 +194,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
             return cleaned_data.get(d, False)
 
         for accommodation, meals in PAYMENT_GROUPS.items():
-            for m in meals:
+            for m in meals.values():
                 if _pays_for(m) and not _pays_for(accommodation):
                     self.add_error(
                         m,
@@ -209,6 +205,17 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                                     'meal': self.fields[m].label}
                         )
                     )
+            # TODO: this is hotfix for 2022 agreement
+            if _pays_for(accommodation) and not _pays_for(meals["breakfast"]):
+                self.add_error(
+                    m,
+                    forms.ValidationError(
+                        _("This year breakfast is required (its price is included in accommodation price). Please check `%(meal)s`"),
+                        code='invalid',
+                        params={'accomm': self.fields[accommodation].label,
+                                'meal': self.fields[m].label}
+                    )
+                )
 
     def disable(self):
         for field in self.fields:
@@ -237,6 +244,4 @@ class UserPreferencesAdminForm(UserPreferencesWithBusForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # NOTE: Seems like it's not working?
-        # Probably because JS overwrites HTML attr. Argh.
         self.fields['contact'].disabled = True

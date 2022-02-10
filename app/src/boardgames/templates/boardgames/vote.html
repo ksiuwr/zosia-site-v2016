@@ -1,0 +1,48 @@
+{% extends "boardgames/checkboxes.html" %}
+{% load i18n %}
+
+
+{% block description %}
+<p>
+    {% trans "Vote for your favourite boardgames. You can choose up to three of them." %}
+</p>
+<div class="chip" id="votes">
+    {{ user_voted|length }}/3
+</div>
+{% endblock %}
+
+{% block elems %}
+<div>
+    <label>
+        <input class="boardgame" data-id="{{boardgame.pk}}" data-name="{{boardgame.name}}" type="checkbox"
+            {% if boardgame.pk in user_voted %}checked{% endif %} />
+        <span><a href="{{boardgame.url}}">{{boardgame.name}}</a></span>
+    </label>
+</div>
+
+<script type="text/javascript">
+    $('.boardgame').on('change', function () {
+        var votes = $('.boardgame:checked').length;
+        $('#votes').text(votes + "/3");
+        if (votes > 3) {
+            this.checked = false;
+            this.enabled = false;
+        }
+    });
+</script>
+
+{% endblock %}
+
+
+{% block action %}
+{% with 'boardgames_index' as url_name %}
+{{ block.super }}
+{% endwith %}
+{% endblock %}
+
+{% block info %}
+let info_msg = 'Voted for the boardgames: '+ new_names;
+if(new_ids.length == 0)
+info_msg = 'Votes were successfully reset'
+let info_url = '{% url 'vote_edit' %}'
+{% endblock %}

@@ -5,6 +5,7 @@
 {% if user.is_authenticated %}
 <ul id="logged" class="dropdown-content">
     <li><a href="{% url 'accounts_profile' %}">{% trans "Profile" %}</a></li>
+    <li><a href="{% url 'boardgames_index' %}">{% trans "Boardgames" %}</a></li>
     <li><a href="{% url 'rooms_index' %}">{% trans 'Rooms' %}</a></li>
     {% if user.is_staff %}
     <li class="divider"></li>
@@ -18,10 +19,15 @@
 <nav>
     <div class="nav-wrapper container">
         <a href="{% url 'index' %}" class="brand-logo">
-            <img src="{% static 'imgs/zosia_20_black.svg' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
+            <img src="{% static 'imgs/zosia.svg' %}" alt="ZOSIA" height="50" style="margin: 5%"/>
         </a>
         <ul class="right hide-on-med-and-down">
-            <li><a href="{% url 'blog_index' %}">Blog</a></li>
+            <li>
+                <a href="{% url 'blog_index' %}">Blog</a>
+            </li>
+            <li>
+                <a href="{% url 'questions_index' %}">{% trans "Q&A" %}</a>
+            </li>
             <li>
                 <a href="{% url 'lectures_index' %}">{% trans "Lectures" %}</a>
             </li>
@@ -79,7 +85,9 @@
             {% trans 'Admin' %}
         </a>
     </li>
+    <li><div class="divider"></div></li>
     {% endif %}
+    {% if user.is_authenticated %}
     <li>
         <a href="{% url 'rooms_index' %}">
             <i class="material-icons">airline_seat_flat</i>
@@ -87,9 +95,23 @@
         </a>
     </li>
     <li>
+        <a href="{% url 'boardgames_index' %}">
+            <i class="material-icons">casino</i>
+            {% trans 'Boardgames' %}
+        </a>
+    </li>
+    <li><div class="divider"></div></li>
+    {% endif %}
+    <li>
         <a href="{% url 'blog_index' %}">
             <i class="material-icons">info</i>
             {% trans "Blog" %}
+        </a>
+    </li>
+    <li>
+        <a href="{% url 'questions_index' %}">
+            <i class="material-icons">contact_support</i>
+            {% trans 'Q&A' %}
         </a>
     </li>
     <li>

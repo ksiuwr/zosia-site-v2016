@@ -4,9 +4,9 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django.db.models import Count, F
+from django.db.models import Count, F, Q
 from django.http import Http404
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy as _
 
 from utils.constants import DELIMITER, MAX_BONUS_MINUTES, RoomingStatus
 from utils.time_manager import format_in_zone, now
@@ -191,6 +191,18 @@ class BusManager(models.Manager):
             .annotate(passengers_num=Count('passengers')) \
             .filter(capacity__gt=F('passengers_num'))
 
+    def find_available(self, zosia, passenger=None):
+        query = Q(capacity__gt=F('passengers_num'))
+
+        if passenger is not None:
+            query = query | Q(passengers=passenger)
+
+        return self \
+            .filter(zosia=zosia) \
+            .annotate(passengers_num=Count('passengers')) \
+            .filter(query) \
+            .distinct()
+
 
 class Bus(models.Model):
     class Meta:
@@ -213,6 +225,10 @@ class Bus(models.Model):
     @property
     def passengers_count(self):
         return self.passengers.count()
+
+    @property
+    def paid_passengers_count(self):
+        return self.passengers.filter(payment_accepted=True).count()
 
     def passengers_to_string(self, paid=False):
         bus_passengers = self.passengers.order_by("user__last_name", "user__first_name")

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Exists, OuterRef, Q, Value, Subquery
-from django.db.models.functions import Concat, Substr, Cast
+from django.db.models import Exists, OuterRef, Q, Value
+from django.db.models.functions import Concat
 
 from lectures.models import Lecture
 from rooms.models import Room, UserRoom

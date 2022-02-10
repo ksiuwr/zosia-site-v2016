@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col s12 m6">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">{% trans "Boardgames" %}</span>
+
+
+                        <div class="divider"></div>
+                        <div class="section">
+                            <div class="row">
+                                <div class="col l12 m12 s12">
+                                    {% block description %}
+                                    {% endblock %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col l12 m12 s12">
+                                {% for boardgame in boardgames %}
+                                {% block elems %}
+                                {% endblock %}
+                                {% empty %}
+                                <div class="row">
+                                    <div class="col l12 m12 s12">
+                                        {% trans "Nothing to display" %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    {% block action %}
+                    <div class="card-action">
+                        <button type="submit" class="waves-effect waves-light btn">{% trans 'Submit' %}</button>
+                        <a href="{% url url_name %}" class="btn btn-default">Go Back</a>
+                    </div>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock content %}
+
+
+{% block custom_scripts %}
+<script type="text/javascript">
+
+    const getNewInfo = () => {
+        var new_info = [];
+        var names = '';
+        $('input:checkbox').each(function () {
+            var $this = $(this);
+            if ($this.is(':checked')) {
+                var vote = $this.data('id');
+                new_info.push(vote);
+                var name = $this.data('name');
+                names += name + ", ";
+            }
+        })
+        names = names.slice(0, -2);
+        return [new_info, names];
+    }
+
+    const changeVote = (new_ids, new_names) => {
+        {% block info %}
+        {% endblock %}
+        $.ajax({
+            type: "POST",
+            dataType: 'json',
+            url: info_url,
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'new_ids': JSON.stringify(new_ids),
+            },
+            success: function () {
+                {% block message %}
+                {% endblock %}
+                M.toast({
+                    html: info_msg,
+                    displayLength: 2000,
+                    classes: "success"
+                });
+            },
+            error: function () {
+                M.toast({
+                    html: "Error setting boardgames votes.",
+                    displayLength: 2000,
+                    classes: "error"
+                });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        $("button").on('click', function (event) {
+            event.preventDefault();
+            var new_info = getNewInfo();
+            var new_ids = new_info[0];
+            var new_names = new_info[1];
+            changeVote(new_ids, new_names);
+        });
+    });
+
+</script>
+{% endblock custom_scripts %}

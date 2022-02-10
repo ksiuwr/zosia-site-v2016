@@ -1,10 +1,10 @@
-#! /usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import argparse as argp
-from os.path import dirname, normpath
 import subprocess as subp
-from sys import version_info
+from os.path import dirname, normpath
+from sys import version_info, platform
 
 
 class Colour:
@@ -18,8 +18,10 @@ class Colour:
 PROJECT_NAME = "zosia"
 ROOT_DIR = normpath(f"{dirname(__file__)}/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
+
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
 DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
+
 FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with root permissions)"
 CAN_SUBPARSER_REQUIRED = version_info >= (3, 7)
 
@@ -46,7 +48,7 @@ def docker_python(command):
 
 def docker_compose_run(command, with_project=True):
     project = ["-p", PROJECT_NAME] if with_project else []
-    command_run(["docker-compose", "-f", DOCKER_COMPOSE] + project + command)
+    command_run(["docker-compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
 
 
 def js_install():
@@ -138,11 +140,11 @@ migr_apply_parser.add_argument("--create-data", action="store_true",
 migrate_subparsers.add_parser("make", aliases=["m"], add_help=False,
                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
-run_server_parser = subparsers.add_parser("server", aliases=["sv"],
-                                          help="run Django development server inside the container (localhost, port 8000)")
+run_server_parser = subparsers.add_parser(
+    "server", aliases=["sv"], help="run Django development server inside the container (localhost, port 8000)")
 
-js_parser = subparsers.add_parser("javascript", aliases=["js"],
-                                  help="perform action related to JavaScript language")
+js_parser = subparsers.add_parser(
+    "javascript", aliases=["js"],help="perform action related to JavaScript language")
 
 if CAN_SUBPARSER_REQUIRED:
     js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)

@@ -1,5 +1,6 @@
-from collections import Counter
 import csv
+import json
+from collections import Counter
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -246,8 +247,21 @@ def statistics(request):
     users_without_prefs = users_count - prefs_count
 
     # data for second chart
-    price_items = Counter([t.price for t in user_prefs]).items()
-    price_values, price_counts = zip(*sorted(price_items))
+    if len(user_prefs):
+        price_items = Counter([t.price for t in user_prefs]).items()
+        price_values, price_counts = zip(*sorted(price_items))
+    else:
+        price_values, price_counts = [], []
+
+    # data for bus info chart
+    buses = Bus.objects.all()
+    busesLabels = []
+    busesValues = {'paid': [], 'notPaid': [], 'empty': []}
+    for bus in buses:
+        busesLabels.append(f'{bus}')
+        busesValues['paid'].append(bus.paid_passengers_count)
+        busesValues['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
+        busesValues['empty'].append(bus.free_seats)
 
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
@@ -257,6 +271,9 @@ def statistics(request):
         'vegetarians': vegetarians,
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
-        'userCostsCounts': list(price_counts)
+        'userCostsCounts': list(price_counts),
+        'busesLabels': json.dumps(busesLabels),
+        'busesValues': json.dumps(busesValues),
+        'numberOfBuses': len(busesLabels)
     }
     return render(request, 'conferences/statistics.html', ctx)

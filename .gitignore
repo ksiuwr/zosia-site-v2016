@@ -109,8 +109,7 @@ node_modules
 # vim
 *.swp
 
-# Minified frontend files
+# Generated frontend files
 *.min.*
-
-# Fonts
+app/static/css/nouislider.css
 app/static/fonts

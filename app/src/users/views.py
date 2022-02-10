@@ -21,6 +21,7 @@ from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
 from utils.forms import errors_format
 from utils.views import csv_response
 
+import re
 
 @login_required
 @require_http_methods(['GET'])
@@ -231,6 +232,11 @@ def register(request):
 
     if zosia.is_registration_over and user_prefs is None:
         messages.error(request, _('You missed registration for ZOSIA'))
+        return redirect(reverse('index'))
+
+    #TODO: Suspend registration hotfix
+    if user_prefs is None and not re.match(r'(.+)@cs\.uni\.wroc\.pl', request.user.email) and not request.user.is_staff:
+        messages.error(request, _('Registration is currently suspended'))
         return redirect(reverse('index'))
 
     ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
