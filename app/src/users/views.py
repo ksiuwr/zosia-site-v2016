@@ -233,7 +233,7 @@ def register(request):
         return redirect(reverse('index'))
 
     #TODO: Suspend registration hotfix
-    if not request.user.is_staff:
+    if user_prefs is None and not request.user.is_staff:
         messages.error(request, _('Registration is currently suspended'))
         return redirect(reverse('index'))
 
