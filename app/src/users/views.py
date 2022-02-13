@@ -21,8 +21,6 @@ from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
 from utils.forms import errors_format
 from utils.views import csv_response
 
-import re
-
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
@@ -235,7 +233,7 @@ def register(request):
         return redirect(reverse('index'))
 
     #TODO: Suspend registration hotfix
-    if user_prefs is None and not re.match(r'(.+)@cs\.uni\.wroc\.pl', request.user.email) and not request.user.is_staff:
+    if user_prefs is None and not request.user.is_staff:
         messages.error(request, _('Registration is currently suspended'))
         return redirect(reverse('index'))
 
