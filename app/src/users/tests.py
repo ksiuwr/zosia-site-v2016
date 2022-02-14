@@ -302,7 +302,6 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/accounts/login/?next={}'.format(self.url))
  
-    """ TODO: forgive me father for I have sinned, hotfix 2022
     def test_get_regular_user_not_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(self.url, follow=True)
@@ -310,7 +309,7 @@ class RegisterViewTestCase(TestCase):
 
         context = response.context[-1]
         self.assertEqual(context['form'].__class__, UserPreferencesForm)
-        self.assertFalse('object' in context) """
+        self.assertFalse('object' in context)
 
     def test_get_regular_user_before_registration(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
@@ -361,7 +360,6 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
 
-    """  TODO: forgive me father for I have sinned, hotfix 2022
     def test_post_user_not_registered_with_data(self):
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
@@ -374,7 +372,7 @@ class RegisterViewTestCase(TestCase):
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1) """
+        self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 1)
 
     def test_post_user_already_registered(self):
         create_user_preferences(self.normal, self.zosia)
