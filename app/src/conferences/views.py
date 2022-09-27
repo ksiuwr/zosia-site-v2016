@@ -39,6 +39,10 @@ def export_json(request):
                 'author__preferences__organization__name', 'description')
 
     data = {
+        "zosia": {
+            "start_date": zosia.start_date,
+            "end_date": zosia.end_date
+        },
         "lectures": list(lectures),
         "preferences": list(prefs),
     }
