@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import argparse as argp
-import subprocess as subp
 from os.path import dirname, normpath
-from sys import version_info, platform
+import subprocess as subp
 
 
 class Colour:
@@ -22,14 +21,15 @@ DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"
 DB_CONTAINER_NAME = f"{PROJECT_NAME}_db_1"
 
-FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with root permissions)"
-CAN_SUBPARSER_REQUIRED = version_info >= (3, 7)
+FILE_SYSTEM_NOTE = f"({Colour.YELLOW}note:{Colour.NORMAL} this may create files on host fs with " \
+                   f"root permissions)"
 
 
 def command_run(command):
     if args.debug:
         print(
-            f"{Colour.WHITE}** {Colour.YELLOW}{subp.list2cmdline(command)}{Colour.WHITE} **{Colour.NORMAL}")
+            f"{Colour.WHITE}** {Colour.YELLOW}{subp.list2cmdline(command)}{Colour.WHITE} **"
+            f"{Colour.NORMAL}")
 
     subp.run(command)
 
@@ -63,7 +63,8 @@ def run_server():
     docker_python(["runserver", "0.0.0.0:8000"])
     print(
         f"{Colour.PURPLE}-- Exiting --{Colour.NORMAL}",
-        f"{Colour.YELLOW} [!] Remember to run `dev.py quit`, if you've just finished{Colour.NORMAL}",
+        f"{Colour.YELLOW} [!] Remember to run `dev.py quit`, if you've just finished"
+        f"{Colour.NORMAL}",
         sep="\n")
     command_run(["docker", "ps"])
 
@@ -94,11 +95,13 @@ parser.add_argument("-d", "--debug", action="store_true", help="print commands b
 subparsers = parser.add_subparsers(dest="command", metavar="COMMAND")
 
 one_click_parser = subparsers.add_parser("run", aliases=["r"],
-                                         help="build containers and run zosia website (localhost, port 8000)")
+                                         help="build containers and run zosia website (localhost, "
+                                              "port 8000)")
 one_click_parser.add_argument("--create-admin", action="store_true",
                               help="create super user account (password specified manually)")
 one_click_parser.add_argument("--create-data", action="store_true",
-                              help="create some random data to work on, like conference, buses, rooms, etc.")
+                              help="create some random data to work on, like conference, buses, "
+                                   "rooms, etc.")
 one_click_parser.add_argument("--no-cache", action="store_true",
                               help="do not use cache when building container images")
 
@@ -117,10 +120,7 @@ test_parser.add_argument("-v", "--verbose", action="store_true",
 
 shell_parser = subparsers.add_parser("shell", aliases=["sh"], help="run shell inside a container")
 
-if CAN_SUBPARSER_REQUIRED:
-    shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL", required=True)
-else:
-    shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL")
+shell_subparsers = shell_parser.add_subparsers(dest="shell", metavar="SHELL", required=True)
 
 shell_subparsers.add_parser("bash", add_help=False, help="run Bash shell in website container")
 shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
@@ -129,31 +129,26 @@ shell_subparsers.add_parser("postgres", aliases=["psql"], add_help=False,
 migrate_parser = subparsers.add_parser("migrations", aliases=["m"],
                                        help="operate on Django migrations")
 
-if CAN_SUBPARSER_REQUIRED:
-    migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION",
-                                                       required=True)
-else:
-    migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION")
+migrate_subparsers = migrate_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 
 migr_apply_parser = migrate_subparsers.add_parser("apply", aliases=["a"],
                                                   help="apply Django database migrations")
 migr_apply_parser.add_argument("--create-admin", action="store_true",
                                help="create super user account (password specified manually)")
 migr_apply_parser.add_argument("--create-data", action="store_true",
-                               help="create some random data to work on like conference, buses, rooms, etc.")
+                               help="create some random data to work on like conference, buses, "
+                                    "rooms, etc.")
 migrate_subparsers.add_parser("make", aliases=["m"], add_help=False,
                               help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")
 
 run_server_parser = subparsers.add_parser(
-    "server", aliases=["sv"], help="run Django development server inside the container (localhost, port 8000)")
+    "server", aliases=["sv"],
+    help="run Django development server inside the container (localhost, port 8000)")
 
 js_parser = subparsers.add_parser(
-    "javascript", aliases=["js"],help="perform action related to JavaScript language")
+    "javascript", aliases=["js"], help="perform action related to JavaScript language")
 
-if CAN_SUBPARSER_REQUIRED:
-    js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
-else:
-    js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION")
+js_subparsers = js_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 
 js_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install JavaScript dependencies from file package.json")
@@ -165,10 +160,7 @@ js_subparsers.add_parser("watch", aliases=["w"], add_help=False,
 py_parser = subparsers.add_parser("python", aliases=["py"],
                                   help="perform action related to Python language")
 
-if CAN_SUBPARSER_REQUIRED:
-    py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
-else:
-    py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION")
+py_subparsers = py_parser.add_subparsers(dest="action", metavar="ACTION", required=True)
 
 py_subparsers.add_parser("install", aliases=["i"], add_help=False,
                          help="install Python dependencies from file requirements.txt")
