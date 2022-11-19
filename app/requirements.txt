@@ -1,5 +1,5 @@
 # python >= 3.8
-Django~=3.2.9
+Django~=3.2.9 # 4.2.0 since ca. 2023-04
 Pillow
 django-anymail~=8.6
 django-materializecss-form>=1.1.15, <2.0
