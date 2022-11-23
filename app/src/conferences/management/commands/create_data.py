@@ -3,15 +3,14 @@ import random
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
+from blog.models import BlogPost
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
 from questions.models import QA
-from blog.models import BlogPost
 from rooms.models import Room
-from users.models import User, Organization, UserPreferences
-from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
+from users.models import Organization, User, UserPreferences
+from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, MAX_BONUS_MINUTES, UserInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
-
 
 IMIONA = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
@@ -33,7 +32,7 @@ def create_lecture(zosia, author):
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
         'duration': random.choice(FULL_DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
-        'person_type': LectureInternals.PERSON_NORMAL,
+        'person_type': UserInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(random.randint(10, 20))[:255],
         'author': author,
         'accepted': random_bool(),
@@ -178,7 +177,8 @@ def create_random_user_with_preferences(zosia, id):
     dinner_day_3 = random_bool() if accommodation_day_3 else False
     breakfast_day_4 = random_bool() if accommodation_day_3 else False
 
-    phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} {random.randint(100, 999)}'
+    phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} ' \
+                   f'{random.randint(100, 999)}'
     bus = random.choice(Bus.objects.find_with_free_places(zosia)) if random_bool() else None
 
     payment_acc = random_bool()

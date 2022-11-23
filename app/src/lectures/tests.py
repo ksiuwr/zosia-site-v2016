@@ -8,7 +8,7 @@ from django.test import TestCase
 from conferences.models import Place, Zosia
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
-from utils.constants import LectureInternals
+from utils.constants import LectureInternals, UserInternals
 from utils.test_helpers import create_user
 from utils.time_manager import now, timedelta_since_now
 
@@ -118,7 +118,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_NORMAL,
+            person_type=UserInternals.PERSON_NORMAL,
             author=self.user
         )
 
@@ -132,7 +132,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_SPONSOR,
+            person_type=UserInternals.PERSON_SPONSOR,
             author=self.user
         )
 
@@ -153,7 +153,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_GUEST,
+            person_type=UserInternals.PERSON_GUEST,
             author=self.user
         )
 
@@ -167,7 +167,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=60,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_NORMAL,
+            person_type=UserInternals.PERSON_NORMAL,
             author=self.user
         )
 
@@ -188,7 +188,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=20,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_GUEST,
+            person_type=UserInternals.PERSON_GUEST,
             author=self.user
         )
 
@@ -209,7 +209,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=15,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            person_type=LectureInternals.PERSON_NORMAL,
+            person_type=UserInternals.PERSON_NORMAL,
             author=self.user
         )
 
@@ -223,7 +223,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=75,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            person_type=LectureInternals.PERSON_SPONSOR,
+            person_type=UserInternals.PERSON_SPONSOR,
             author=self.user
         )
 
@@ -244,7 +244,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=120,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            person_type=LectureInternals.PERSON_GUEST,
+            person_type=UserInternals.PERSON_GUEST,
             author=self.user
         )
 
@@ -277,7 +277,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=45,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_GUEST,
+            person_type=UserInternals.PERSON_GUEST,
             author=self.user
         )
 
@@ -296,7 +296,7 @@ class FormTestCase(LectureTestCase):
     def test_user_create_object(self):
         form = LectureForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
                             'lecture_type': LectureInternals.TYPE_LECTURE,
-                            'person_type': LectureInternals.PERSON_NORMAL})
+                            'person_type': UserInternals.PERSON_NORMAL})
 
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
@@ -316,7 +316,7 @@ class FormTestCase(LectureTestCase):
     def test_admin_create_object(self):
         form = LectureAdminForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
                                  'lecture_type': LectureInternals.TYPE_LECTURE,
-                                 'person_type': LectureInternals.PERSON_NORMAL,
+                                 'person_type': UserInternals.PERSON_NORMAL,
                                  'author': self.user.id})
 
         with transaction.atomic():

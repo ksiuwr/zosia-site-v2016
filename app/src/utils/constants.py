@@ -51,9 +51,6 @@ ROOM_LOCK_TIMEOUT = timedelta(hours=3)
 class LectureInternals:
     TYPE_LECTURE = "0"
     TYPE_WORKSHOP = "1"
-    PERSON_SPONSOR = "0"
-    PERSON_GUEST = "1"
-    PERSON_NORMAL = "2"
 
 
 LECTURE_NORMAL_MAX_DURATION = 60
@@ -87,10 +84,18 @@ LECTURE_TYPE = [
     (LectureInternals.TYPE_WORKSHOP, _("Workshop"))
 ]
 
+
+# Users
+class UserInternals:
+    PERSON_SPONSOR = "0"
+    PERSON_GUEST = "1"
+    PERSON_NORMAL = "2"
+
+
 PERSON_TYPE = [
-    (LectureInternals.PERSON_SPONSOR, _("Sponsor")),
-    (LectureInternals.PERSON_GUEST, _("Guest")),
-    (LectureInternals.PERSON_NORMAL, _("Normal"))
+    (UserInternals.PERSON_SPONSOR, _("Sponsor")),
+    (UserInternals.PERSON_GUEST, _("Guest")),
+    (UserInternals.PERSON_NORMAL, _("Normal"))
 ]
 
 # Time

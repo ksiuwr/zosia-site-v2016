@@ -4,12 +4,18 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Zosia
-from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, PERSON_TYPE
+from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, PERSON_TYPE, \
+    UserInternals
 from utils.forms import get_durations
 
 
 class Lecture(models.Model):
-    # organizational informations
+    class Meta:
+        verbose_name = _("Lecture")
+        verbose_name_plural = _("Lectures")
+        ordering = ['priority', 'id']
+
+    # organizational information
     zosia = models.ForeignKey(Zosia, verbose_name=_("Conference"), related_name="lectures",
                               on_delete=models.CASCADE)
     requests = models.CharField(
@@ -34,13 +40,13 @@ class Lecture(models.Model):
         verbose_name=_("Additional events"), max_length=800, blank=True, null=True,
         help_text=_(
             "Are you planning any event after your lecture or workshop (e.g. pizza, drinks, "
-            "games, recruitment)? <b>TELL US ABOUT IT!</b> Beware that organizers <u>WON'T ALLOW</u> "
-            "you to arrange your event if you don't announce it here!")
+            "games, recruitment)? <b>TELL US ABOUT IT!</b> Beware that organizers <u>WON'T "
+            "ALLOW</u> you to arrange your event if you don't announce it here!")
     )
 
     # about author
     person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE,
-                                   default=LectureInternals.PERSON_NORMAL)
+                                   default=UserInternals.PERSON_NORMAL)
     description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,
                                    blank=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="lectures",
@@ -48,11 +54,6 @@ class Lecture(models.Model):
 
     def __str__(self):
         return f"{self.author} - {self.title}"
-
-    class Meta:
-        verbose_name = _("Lecture")
-        verbose_name_plural = _("Lectures")
-        ordering = ['priority', 'id']
 
     def toggle_accepted(self):
         self.accepted = not self.accepted
