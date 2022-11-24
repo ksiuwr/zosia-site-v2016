@@ -324,7 +324,7 @@ class FormTestCase(LectureTestCase):
 class ViewsTestCase(LectureTestCase):
     def setUp(self):
         super().setUp()
-        self.superuser = create_user(1, is_staff=True)
+        self.superuser = create_user(3, is_staff=True)
 
     def test_index_get(self):
         response = self.client.get(reverse('lectures_index'), follow=True)

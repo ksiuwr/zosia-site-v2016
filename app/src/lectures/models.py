@@ -60,7 +60,10 @@ class Lecture(models.Model):
         if self.duration is None:
             return
 
-        durations = [d[0] for d in get_durations(self.lecture_type, self.author)]
+        try:
+            durations = [d[0] for d in get_durations(self.lecture_type, self.author)]
+        except User.DoesNotExist:
+            return
 
         if self.duration not in durations:
             if self.lecture_type == LectureInternals.TYPE_LECTURE:
