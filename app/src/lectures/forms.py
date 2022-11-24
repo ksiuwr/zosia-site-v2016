@@ -17,8 +17,8 @@ class LectureForm(forms.ModelForm):
 class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['author', 'person_type', 'description', 'title', 'abstract', 'lecture_type',
-                  'duration', 'requests', 'events', 'accepted']
+        fields = ['author', 'description', 'title', 'abstract', 'lecture_type', 'duration',
+                  'requests', 'events', 'accepted']
         widgets = {
             'abstract': forms.Textarea,
             'description': forms.Textarea,

@@ -1,11 +1,10 @@
-from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Zosia
-from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, PERSON_TYPE, \
-    UserInternals
+from users.models import User
+from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals
 from utils.forms import get_durations
 
 
@@ -45,12 +44,10 @@ class Lecture(models.Model):
     )
 
     # about author
-    person_type = models.CharField(verbose_name=_("Person type"), max_length=1, choices=PERSON_TYPE,
-                                   default=UserInternals.PERSON_NORMAL)
     description = models.CharField(verbose_name=_("Author description"), max_length=256, null=True,
                                    blank=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="lectures",
-                               verbose_name=_("Author"), on_delete=models.CASCADE)
+    author = models.ForeignKey(User, related_name="lectures", verbose_name=_("Author"),
+                               on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.author} - {self.title}"
@@ -63,7 +60,7 @@ class Lecture(models.Model):
         if self.duration is None:
             return
 
-        durations = [d[0] for d in get_durations(self.lecture_type, self.person_type)]
+        durations = [d[0] for d in get_durations(self.lecture_type, self.author)]
 
         if self.duration not in durations:
             if self.lecture_type == LectureInternals.TYPE_LECTURE:

@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, Zosia
 from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, \
-    SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+    PERSON_TYPE, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, UserInternals
 from utils.time_manager import timedelta_since
 
 
@@ -45,6 +45,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
+    person_type = models.CharField(verbose_name=_("Person type"), max_length=16,
+                                   choices=PERSON_TYPE, default=UserInternals.PERSON_NORMAL)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -178,7 +180,8 @@ class UserPreferences(models.Model):
         default='',
         blank=True,
         help_text=_(
-            "Here is where you can give us information about yourself that may be important during your trip."
+            "Here is where you can give us information about yourself that may be important "
+            "during your trip."
         )
     )
     vegetarian = models.BooleanField(default=False)

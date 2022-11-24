@@ -87,9 +87,9 @@ LECTURE_TYPE = [
 
 # Users
 class UserInternals:
-    PERSON_SPONSOR = "0"
-    PERSON_GUEST = "1"
-    PERSON_NORMAL = "2"
+    PERSON_SPONSOR = "Sponsor"
+    PERSON_GUEST = "Guest"
+    PERSON_NORMAL = "Normal"
 
 
 PERSON_TYPE = [

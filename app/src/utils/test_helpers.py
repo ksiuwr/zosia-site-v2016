@@ -3,6 +3,7 @@ import re
 
 from conferences.models import Bus, Place, Zosia
 from users.models import Organization, User, UserPreferences
+from utils.constants import UserInternals
 from utils.time_manager import now, timedelta_since_now
 
 # NOTE: Using powers of 2 makes it easier to test if sums are precise
@@ -56,12 +57,13 @@ USER_DATA = [
 ]
 
 
-def create_user(index, **kwargs):
+def create_user(index, person_type=UserInternals.PERSON_NORMAL, **kwargs):
     first_name = re.split(r"password", USER_DATA[index][1], 1)[0]
     last_name = USER_DATA[index][0].split("@", 1)[0]
 
     return User.objects.create_user(email=USER_DATA[index][0], password=USER_DATA[index][1],
-                                    first_name=first_name, last_name=last_name, **kwargs)
+                                    first_name=first_name, last_name=last_name,
+                                    person_type=person_type, **kwargs)
 
 
 def create_organization(name, user=None, **kwargs):

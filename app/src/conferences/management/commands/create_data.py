@@ -32,7 +32,6 @@ def create_lecture(zosia, author):
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
         'duration': random.choice(FULL_DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
-        'person_type': UserInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(random.randint(10, 20))[:255],
         'author': author,
         'accepted': random_bool(),
@@ -142,7 +141,8 @@ def create_sample_staff_user():
         'first_name': 'Zosia',
         'last_name': 'Ksiowa',
         'password': 'pass',
-        'is_staff': True
+        'is_staff': True,
+        'person_type': UserInternals.PERSON_NORMAL,
     }
 
     return User.objects.create_user(**data)
@@ -157,6 +157,7 @@ def create_random_user_with_preferences(zosia, id):
         'email': f'zosia{id}@example.com',
         'first_name': random.choice(IMIONA),
         'last_name': f'Testowa{id}',
+        'person_type': UserInternals.PERSON_NORMAL,
     }
     u = User.objects.get_or_create(**data)[0]
     u.set_password('pass')

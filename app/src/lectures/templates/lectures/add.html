@@ -16,7 +16,7 @@
             </div>
         </div>
     </div>
-    <form id="lecture-add-form" method="post" action="" duration-url="{% url 'ajax_load_durations' %}">
+    <form id="lecture-add-form" method="post" action="" duration-url="{% url 'load_durations' %}">
         {% csrf_token %}
         {% if object %}
           {% include '_form.html' with form_name=object %}
@@ -30,14 +30,14 @@
 {% block custom_scripts %}
 <script type="text/javascript">
 $(document).ready(function() {
-    const ajaxDurationCall = (lectureTypeVal, personTypeVal) => {
+    const ajaxDurationCall = (lectureTypeVal, authorVal) => {
         const ajaxUrl = $("#lecture-add-form").attr("duration-url");
 
         $.ajax({
             url: ajaxUrl,
             data: {
                 'lecture_type': lectureTypeVal,
-                'person_type': personTypeVal
+                'author': authorVal
             },
             success: data => {
                 const lastValue = $('select[name="duration"]').val();
@@ -65,13 +65,12 @@ $(document).ready(function() {
                 $('select').formSelect();
             }
         });
-
     }
 
-    $('select[name="person_type"]').change(event => {
-        const person_type_val = event.target.value;
+    $('select[name="author"]').change(event => {
+        const author_val = event.target.value;
         const lecture_type_val = $('select[name="lecture_type"]').val();
-        ajaxDurationCall(lecture_type_val, person_type_val);
+        ajaxDurationCall(lecture_type_val, author_val);
         M.toast({
             html: "Please choose duration",
             displayLength: 2000
@@ -80,15 +79,15 @@ $(document).ready(function() {
 
     $('select[name="lecture_type"]').change(event => {
         const lecture_type_val = event.target.value;
-        const person_type_val = $('select[name="person_type"]').val();
-        ajaxDurationCall(lecture_type_val, person_type_val);
+        const author_val = $('select[name="author"]').val();
+        ajaxDurationCall(lecture_type_val, author_val);
         M.toast({
             html: "Please choose duration",
             displayLength: 2000
         });
     });
 
-    ajaxDurationCall($('select[name="lecture_type"]').val(), $('select[name="person_type"]').val());
+    ajaxDurationCall($('select[name="lecture_type"]').val(), $('select[name="author"]').val());
     $('select').formSelect();
 });
 </script>
