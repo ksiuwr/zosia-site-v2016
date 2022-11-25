@@ -5,23 +5,20 @@ from django.db.models.functions import Concat
 
 from lectures.models import Lecture
 from rooms.models import Room, UserRoom
-from users.models import Organization, User, UserPreferences, UserFilters
+from users.models import Organization, User, UserFilters, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
-
-admin.site.register(User)
-admin.site.register(UserPreferences)
 
 
 def accept_organization(modeladmin, request, queryset):
-    for organ in queryset:
-        organ.accepted = True
-        organ.save()
+    for org in queryset:
+        org.accepted = True
+        org.save()
 
 
 def reject_organization(modeladmin, request, queryset):
-    for organ in queryset:
-        organ.accepted = False
-        organ.save()
+    for org in queryset:
+        org.accepted = False
+        org.save()
 
 
 accept_organization.short_description = 'Accept selected organizations'
@@ -29,12 +26,21 @@ reject_organization.short_description = 'Reject selected organizations'
 
 
 class OrganizationAdmin(admin.ModelAdmin):
-    actions = [accept_organization, reject_organization, ]
+    actions = [accept_organization, reject_organization]
+
+
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'email', 'hash', 'person_type', 'is_active',
+                    'is_staff', 'is_superuser', 'last_login')
+    list_display_links = ('first_name', 'last_name')
+    readonly_fields = ('email', 'hash', 'last_login', 'password')
+    search_fields = ('first_name', 'last_name', 'email', 'hash')
+    list_filter = ('person_type', 'is_active', 'is_staff', 'is_superuser')
 
 
 class HavePreferencesListFilter(admin.SimpleListFilter):
-    title = 'have preferences'
-    parameter_name = 'have_preferences'
+    title = 'has preferences'
+    parameter_name = 'has_preferences'
 
     def lookups(self, request, model_admin):
         return (
@@ -45,9 +51,9 @@ class HavePreferencesListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == 'true':
-            return queryset.filter(_have_preferences=True)
+            return queryset.filter(has_preferences=True)
         if value == 'false':
-            return queryset.filter(_have_preferences=False)
+            return queryset.filter(has_preferences=False)
         return queryset
 
 
@@ -64,15 +70,16 @@ class PaymentAcceptedListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == 'true':
-            return queryset.filter(_payment_accepted__contains=[True])
+            return queryset.filter(payment_accepted__contains=[True])
         if value == 'false':
-            return queryset.filter(Q(_payment_accepted__contains=[False]) | Q(_payment_accepted=[None]))
+            return queryset.filter(
+                Q(payment_accepted__contains=[False]) | Q(payment_accepted=[None]))
         return queryset
 
 
 class HaveLectureListFilter(admin.SimpleListFilter):
-    title = 'have lecture'
-    parameter_name = 'have_lecture'
+    title = 'has lecture'
+    parameter_name = 'has_lecture'
 
     def lookups(self, request, model_admin):
         return (
@@ -83,9 +90,9 @@ class HaveLectureListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == 'true':
-            return queryset.filter(_have_lectures=True)
+            return queryset.filter(has_lectures=True)
         if value == 'false':
-            return queryset.filter(_have_lectures=False)
+            return queryset.filter(has_lectures=False)
         return queryset
 
 
@@ -94,14 +101,16 @@ class RoomNameListFilter(admin.SimpleListFilter):
     parameter_name = 'room_name'
 
     def lookups(self, request, model_admin):
-        return (('No room', 'No room'),) + tuple((r.name, r.name) for r in sorted(Room.objects.only('name').distinct(), key=Room.name_to_key_orderable))
+        return (('No room', 'No room'),) + tuple((r.name, r.name) for r in
+                                                 sorted(Room.objects.only('name').distinct(),
+                                                        key=Room.name_to_key_orderable))
 
     def queryset(self, request, queryset):
         value = self.value()
         if value == 'No room':
-            return queryset.filter(_room_name=[None])
+            return queryset.filter(room_name=[None])
         elif value:
-            return queryset.filter(_room_name__contains=[value])
+            return queryset.filter(room_name__contains=[value])
 
 
 class ShirtPropertiesListFilter(admin.SimpleListFilter):
@@ -116,7 +125,8 @@ class ShirtPropertiesListFilter(admin.SimpleListFilter):
         value = self.value()
         if value:
             shirt_size, shirt_type = value.split('-')
-            return queryset.filter(preferences__shirt_size=shirt_size, preferences__shirt_type=shirt_type)
+            return queryset.filter(preferences__shirt_size=shirt_size,
+                                   preferences__shirt_type=shirt_type)
 
 
 class RoomInline(admin.TabularInline):
@@ -131,47 +141,55 @@ class UserPreferencesInline(admin.TabularInline):
 
 @admin.register(UserFilters)
 class UserFiltersAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'have_preferences', 'have_lecture',
-                    'shirt_properties')
+    list_display = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'has_preferences',
+                    'has_lecture', 'shirt_properties')
     list_display_links = ('first_name', 'last_name')
-    fields = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'have_preferences', 'have_lecture',
-              'shirt_properties')
-    readonly_fields = ('room_name', 'payment_accepted', 'have_preferences', 'have_lecture', 'shirt_properties')
-    search_fields = ('first_name', 'last_name', '_room_name')
-    list_filter = (PaymentAcceptedListFilter, HaveLectureListFilter, HavePreferencesListFilter,
-                   ShirtPropertiesListFilter, RoomNameListFilter)
+    fields = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'has_preferences',
+              'has_lecture', 'shirt_properties')
+    readonly_fields = ('room_name', 'payment_accepted', 'has_preferences', 'has_lecture',
+                       'shirt_properties')
+    search_fields = ('first_name', 'last_name', 'room_name')
+    list_filter = (PaymentAcceptedListFilter, HaveLectureListFilter,
+                   HavePreferencesListFilter, ShirtPropertiesListFilter, RoomNameListFilter)
     inlines = (UserPreferencesInline, RoomInline)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
-            _have_preferences=Exists(UserPreferences.objects.filter(user=OuterRef('id')).only('user')),
-            _room_name=ArrayAgg('room_of_user__name', distinct=True),
-            _payment_accepted=ArrayAgg('preferences__payment_accepted'),
-            _shirt_properties=ArrayAgg(Concat('preferences__shirt_size', Value('-'), 'preferences__shirt_type')),
-            _have_lectures=Exists(Lecture.objects.filter(author=OuterRef('id')).only('author')),
+            has_preferences=Exists(
+                UserPreferences.objects.filter(user=OuterRef('id')).only('user')),
+            room_name=ArrayAgg('room_of_user__name', distinct=True),
+            payment_accepted=ArrayAgg('preferences__payment_accepted'),
+            shirt_properties=ArrayAgg(
+                Concat('preferences__shirt_size', Value('-'), 'preferences__shirt_type')),
+            has_lectures=Exists(Lecture.objects.filter(author=OuterRef('id')).only('author')),
         )
 
     def shirt_properties(self, obj):
-        return obj._shirt_properties
-    shirt_properties.admin_order_field = '_shirt_properties'
+        return obj.shirt_properties
+
+    shirt_properties.admin_order_field = 'shirt_properties'
 
     def room_name(self, obj):
-        return obj._room_name
+        return obj.room_name
 
-    room_name.admin_order_field = '_room_name'
+    room_name.admin_order_field = 'room_name'
 
-    def payment_accepted(self, obj):  # FK from Many site, User can have many UserPreferences. Maybe link with related id should be provided.
-        return obj._payment_accepted
+    def payment_accepted(self, obj):
+        # FK from Many site, User can have many UserPreferences.
+        # Maybe link with related id should be provided.
+        return obj.payment_accepted
 
-    def have_preferences(self, obj):
-        return obj._have_preferences
+    def has_preferences(self, obj):
+        return obj.has_preferences
 
-    have_preferences.boolean = True
+    has_preferences.boolean = True
 
-    def have_lecture(self, obj):
-        return obj._have_lectures
+    def has_lecture(self, obj):
+        return obj.has_lectures
 
-    have_lecture.boolean = True
+    has_lecture.boolean = True
 
 
+admin.site.register(User, UserAdmin)
+admin.site.register(UserPreferences)
 admin.site.register(Organization, OrganizationAdmin)
