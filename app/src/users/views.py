@@ -22,6 +22,7 @@ from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
 from utils.forms import errors_format
 from utils.views import csv_response
 
+
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
