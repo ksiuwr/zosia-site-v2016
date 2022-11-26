@@ -29,6 +29,8 @@ urlpatterns = [
             name='list_csv_preferences_all'),
     re_path(r'^preferences/list/paid$', views.list_csv_preferences_paid,
             name='list_csv_preferences_paid'),
+    re_path(r'^lectures/list/all$', views.list_csv_lectures,
+            name='list_csv_lectures'),
     re_path(r'^register/$', views.register, name='user_zosia_register'),
     re_path(r'^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:
