@@ -1,16 +1,15 @@
 # zosia16-site
 
-Django 2.2 version of ZOSIA registration page.
+Django 3.2 version of ZOSIA registration page.
 
 [![CircleCI](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master)
 
 - [Development](#development)
-  - [Local development (without docker)](#local-development-without-docker)
-  - [Full in-docker local development](#full-in-docker-local-development)
-    - [Required software:](#required-software)
-    - [How can I run it?](#how-can-i-run-it)
-    - [I have run it - what is happening?](#i-have-run-it---what-is-happening)
-  - [Troubleshooting](#troubleshooting)
+    - [Full in-docker local development](#full-in-docker-local-development)
+        - [Required software](#required-software)
+        - [How can I run it?](#how-can-i-run-it)
+        - [I have run it - what is happening?](#i-have-run-it---what-is-happening)
+    - [Troubleshooting](#troubleshooting)
 - [Hosting](#hosting)
 
 ## Development
@@ -49,7 +48,8 @@ under `./dev.py CMD --help` (e.g. `./dev.py run --help`).
 There are 3 flags that you might want to use with `dev.py run`:
 
 - `--create-admin` - create super user / admin account with the password of your choice
-- `--create-data` - generate some semi-random data - the implementation can be found here: `src/conferences/management/commands/create_data.py`
+- `--create-data` - generate some semi-random data - the implementation can be found
+  here: `src/conferences/management/commands/create_data.py`
 - `--no-cache` - build the fresh copy of the container image (ignore docker cache)
 
 #### I have run it - what is happening?
@@ -108,7 +108,8 @@ Creating network "zosia_default" with the default driver
 ERROR: Failed to program FILTER chain: iptables failed: iptables --wait -I FORWARD -o br-123123123123 -j DOCKER: iptables v1.X.Y: Couldn't load target `DOCKER':No such file or directory
 ```
 
-In case of that error just restart docker daemon service with this command: `systemctl restart docker`
+In case of that error just restart docker daemon service with this command:
+`systemctl restart docker`
 
 ---
 
@@ -120,5 +121,6 @@ In case of any other problems it is recommended to rebuild the container with `-
 In 2020, we hosted ZOSIA registration site on AWS. We used an ECS cluster based on EC2 instances
 to run the containers and ECR as a docker registry. All secrets (like database credentials,
 different APIs keys, etc) were stored in the Parameter Store and loaded to the environment variables
-on container startup. Deployments were conducted by CircleCI after every commit to the master branch.
+on container startup. Deployments were conducted by CircleCI after every commit to the master
+branch.
 All deployment scripts used for that are placed in the `.ecs` directory.
