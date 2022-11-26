@@ -301,7 +301,7 @@ class RegisterViewTestCase(TestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/accounts/login/?next={}'.format(self.url))
- 
+
     def test_get_regular_user_not_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         response = self.client.get(self.url, follow=True)
