@@ -38,7 +38,7 @@ class UserAdmin(admin.ModelAdmin):
     list_filter = ('person_type', 'is_active', 'is_staff', 'is_superuser')
 
 
-class HavePreferencesListFilter(admin.SimpleListFilter):
+class HasPreferencesListFilter(admin.SimpleListFilter):
     title = 'has preferences'
     parameter_name = 'has_preferences'
 
@@ -77,7 +77,7 @@ class PaymentAcceptedListFilter(admin.SimpleListFilter):
         return queryset
 
 
-class HaveLectureListFilter(admin.SimpleListFilter):
+class HasLectureListFilter(admin.SimpleListFilter):
     title = 'has lecture'
     parameter_name = 'has_lecture'
 
@@ -149,8 +149,8 @@ class UserFiltersAdmin(admin.ModelAdmin):
     readonly_fields = ('room_name', 'payment_accepted', 'has_preferences', 'has_lecture',
                        'shirt_properties')
     search_fields = ('first_name', 'last_name', 'room_name')
-    list_filter = (PaymentAcceptedListFilter, HaveLectureListFilter,
-                   HavePreferencesListFilter, ShirtPropertiesListFilter, RoomNameListFilter)
+    list_filter = (PaymentAcceptedListFilter, HasLectureListFilter,
+                   HasPreferencesListFilter, ShirtPropertiesListFilter, RoomNameListFilter)
     inlines = (UserPreferencesInline, RoomInline)
 
     def get_queryset(self, request):
@@ -164,30 +164,26 @@ class UserFiltersAdmin(admin.ModelAdmin):
             has_lectures=Exists(Lecture.objects.filter(author=OuterRef('id')).only('author')),
         )
 
+    @admin.display(ordering='shirt_properties')
     def shirt_properties(self, obj):
         return obj.shirt_properties
 
-    shirt_properties.admin_order_field = 'shirt_properties'
-
+    @admin.display(ordering='room_name')
     def room_name(self, obj):
         return obj.room_name
-
-    room_name.admin_order_field = 'room_name'
 
     def payment_accepted(self, obj):
         # FK from Many site, User can have many UserPreferences.
         # Maybe link with related id should be provided.
         return obj.payment_accepted
 
+    @admin.display(boolean=True)
     def has_preferences(self, obj):
         return obj.has_preferences
 
-    has_preferences.boolean = True
-
+    @admin.display(boolean=True)
     def has_lecture(self, obj):
         return obj.has_lectures
-
-    has_lecture.boolean = True
 
 
 admin.site.register(User, UserAdmin)

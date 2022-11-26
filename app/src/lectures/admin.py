@@ -30,17 +30,13 @@ class UserLectureAdmin(admin.ModelAdmin):
     def author_organization(self, obj):
         return obj.author_organization
 
-    # @admin.display(ordering='author__first_name')
+    @admin.display(ordering='author__first_name')
     def author_first_name(self, obj):
         return obj.author.first_name
 
-    author_first_name.admin_order_field = 'author__first_name'
-
-    # @admin.display(ordering='author__last_name')
+    @admin.display(ordering='author__last_name')
     def author_last_name(self, obj):
         return obj.author.last_name
-
-    author_last_name.admin_order_field = 'author__last_name'
 
     def author_email(self, obj):
         return obj.author.email
