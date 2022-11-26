@@ -11,13 +11,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from conferences.models import Zosia
+from lectures.models import Lecture
 from users import forms
 from users.actions import ActivateUser
 from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferencesForm
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
     ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
-    PAYMENT_GROUPS
+    PAYMENT_GROUPS, LectureInternals, LECTURE_TYPE
 from utils.forms import errors_format
 from utils.views import csv_response
 
@@ -294,3 +295,22 @@ def list_csv_preferences_paid(request):
         ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_paid")
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_lectures(request):
+    lectures = Lecture.objects.all()
+    header = ("Name", "Printed name", "Lecturers", "Duration", "Type",
+              "Sponsor type", "Comment")
+    data = [(
+        str(lecture.title), "", str(lecture.author), str(lecture.duration),
+        str(dict(LECTURE_TYPE)[lecture.lecture_type]),
+        # Currently sponsors types are not supported
+        # TODO: return proper sponsor type instead of '?'
+        str("?" if lecture.person_type == LectureInternals.PERSON_SPONSOR
+            else "none"),
+        str(lecture.requests),
+        ) for lecture in lectures
+    ]
+    return csv_response(header, data, filename="lectures")

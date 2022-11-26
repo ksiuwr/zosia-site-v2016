@@ -76,6 +76,9 @@
 
         <div id="downloads_tab" class="col s12">
             <ul class="collection">
+                <a href="{% url 'list_csv_lectures' %}" class="collection-item">
+                    {% trans 'Lectures export (for spreadsheet-scheduler)' %} (CSV)
+                </a>
                 <a href="{% url 'list_csv_preferences_all' %}" class="collection-item">
                     {% trans 'Preferences of registered users' %} (CSV)
                 </a>
