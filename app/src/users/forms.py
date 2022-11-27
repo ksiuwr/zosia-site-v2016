@@ -204,17 +204,6 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                                     'meal': self.fields[m].label}
                         )
                     )
-            # TODO: this is hotfix for 2022 agreement
-            if _pays_for(accommodation) and not _pays_for(meals["breakfast"]):
-                self.add_error(
-                    m,
-                    forms.ValidationError(
-                        _("This year breakfast is required (its price is included in accommodation price). Please check `%(meal)s`"),
-                        code='invalid',
-                        params={'accomm': self.fields[accommodation].label,
-                                'meal': self.fields[m].label}
-                    )
-                )
 
     def disable(self):
         for field in self.fields:
