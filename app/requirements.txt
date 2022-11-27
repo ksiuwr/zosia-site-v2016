@@ -3,6 +3,7 @@ Django~=3.2.9 # 4.2.0 since ca. 2023-04
 Pillow
 django-anymail~=8.6
 django-materializecss-form>=1.1.15, <2.0
+# git+https://github.com/ksiuwr/django-materializecss-form@master#egg=django-materializecss-form
 djangorestframework~=3.14
 drf-yasg~=1.20
 packaging>=19.1
