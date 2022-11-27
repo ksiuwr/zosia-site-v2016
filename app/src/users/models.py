@@ -42,11 +42,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     hash = models.CharField(_('hash'), max_length=64, default=None, blank=False, unique=True,
                             validators=[validate_hash])
+    person_type = models.CharField(verbose_name=_("Person type"), max_length=16,
+                                   choices=PERSON_TYPE, default=UserInternals.PERSON_NORMAL)
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
-    person_type = models.CharField(verbose_name=_("Person type"), max_length=16,
-                                   choices=PERSON_TYPE, default=UserInternals.PERSON_NORMAL)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -129,7 +129,7 @@ def validate_terms(value):
 
 class UserPreferences(models.Model):
     class Meta:
-        verbose_name_plural = 'Users preferences'
+        verbose_name_plural = 'User preferences'
 
     objects = UserPreferencesManager()
 
@@ -248,7 +248,7 @@ class UserPreferences(models.Model):
         return payment
 
     def __str__(self):
-        return str(self.user) + " preferences"
+        return f"{str(self.user)} preferences"
 
     def toggle_payment_accepted(self):
         self.payment_accepted = not self.payment_accepted
