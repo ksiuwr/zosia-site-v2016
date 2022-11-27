@@ -42,7 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     hash = models.CharField(_('hash'), max_length=64, default=None, blank=False, unique=True,
                             validators=[validate_hash])
-    person_type = models.CharField(verbose_name=_("Person type"), max_length=16,
+    person_type = models.CharField(verbose_name=_("Person type"), max_length=16, blank=False,
                                    choices=PERSON_TYPE, default=UserInternals.PERSON_NORMAL)
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
