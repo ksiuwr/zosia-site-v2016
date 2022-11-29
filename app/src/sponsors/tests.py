@@ -7,6 +7,7 @@ from django.test import TestCase
 from sponsors.models import Sponsor
 from sponsors.forms import SponsorForm
 import os
+from utils.constants import SponsorInternals
 
 
 User = get_user_model()
@@ -26,7 +27,7 @@ class ModelTestCase(SponsorTestCase):
     def test_create_object(self):
         count = Sponsor.objects.count()
         sponsor = Sponsor(name="Foo", url="http://google.com",
-                          path_to_logo=self.image.name)
+                          path_to_logo=self.image.name, sponsor_type=SponsorInternals.TYPE_BRONZE)
         try:
             sponsor.full_clean()
         except ValidationError:
@@ -35,36 +36,41 @@ class ModelTestCase(SponsorTestCase):
         self.assertEqual(count + 1, Sponsor.objects.count())
 
     def test_object_must_have_name(self):
-        sponsor = Sponsor(url="http://google.com", path_to_logo=self.image.name)
+        sponsor = Sponsor(url="http://google.com", path_to_logo=self.image.name, sponsor_type=SponsorInternals.TYPE_BRONZE)
         with self.assertRaises(ValidationError):
             sponsor.full_clean()
 
     def test_must_have_image(self):
-        sponsor = Sponsor(url="http://google.com", name="foo")
+        sponsor = Sponsor(url="http://google.com", name="foo", sponsor_type=SponsorInternals.TYPE_BRONZE)
         with self.assertRaises(ValidationError):
             sponsor.full_clean()
 
     def test_do_not_need_url(self):
         count = Sponsor.objects.count()
-        sponsor = Sponsor(name='foo', path_to_logo=self.image.name)
+        sponsor = Sponsor(name='foo', path_to_logo=self.image.name, sponsor_type=SponsorInternals.TYPE_BRONZE)
         sponsor.full_clean()
         sponsor.save()
         self.assertEqual(count + 1, Sponsor.objects.count())
 
     def test_object_must_have_valid_url(self):
-        sponsor = Sponsor(name="foo", path_to_logo=self.image.name, url="goo.baz")
+        sponsor = Sponsor(name="foo", path_to_logo=self.image.name, url="goo.baz", sponsor_type=SponsorInternals.TYPE_BRONZE)
+        with self.assertRaises(ValidationError):
+            sponsor.full_clean()
+
+    def test_object_must_have_sponsor_type(self):
+        sponsor = Sponsor(name="Foo", url="http://google.com", path_to_logo=self.image.name)
         with self.assertRaises(ValidationError):
             sponsor.full_clean()
 
     def test_str(self):
         sponsor = Sponsor(url="http://google.com", path_to_logo=self.image.name,
-                          is_active=True, name="Bar")
+                          is_active=True, name="Bar", sponsor_type=SponsorInternals.TYPE_BRONZE)
         sponsor.save()
         self.assertEqual(str(sponsor), "Bar")
 
     def test_toggle_active(self):
         sponsor = Sponsor(url="http://google.com", path_to_logo=self.image.name,
-                          is_active=True, name="Bar")
+                          is_active=True, name="Bar", sponsor_type=SponsorInternals.TYPE_BRONZE)
         sponsor.save()
         self.assertTrue(sponsor.is_active)
         sponsor.toggle_active()
@@ -80,13 +86,13 @@ class FormTestCase(SponsorTestCase):
 
     def test_create_object(self):
         count = Sponsor.objects.count()
-        form = SponsorForm({'name': 'foo', 'url': 'http://google.com', 'path_to_logo': self.image.name})
+        form = SponsorForm({'name': 'foo', 'url': 'http://google.com', 'path_to_logo': self.image.name, 'sponsor_type': SponsorInternals.TYPE_BRONZE})
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(count + 1, Sponsor.objects.count())
 
     def test_url_must_be_valid(self):
-        form = SponsorForm({'name': 'foo', 'url': 'barbaz', 'path_to_logo': self.image})
+        form = SponsorForm({'name': 'foo', 'url': 'barbaz', 'path_to_logo': self.image, 'sponsor_type': SponsorInternals.TYPE_BRONZE})
         self.assertFalse(form.is_valid())
 
 

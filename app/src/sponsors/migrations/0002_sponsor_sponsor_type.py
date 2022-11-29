@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sponsor',
             name='sponsor_type',
-            field=models.CharField(choices=[('0', 'Bronze'), ('1', 'Silver'), ('2', 'Gold')], default='0', max_length=1, verbose_name='Type'),
+            field=models.CharField(choices=[('0', 'Bronze'), ('1', 'Silver'), ('2', 'Gold')], max_length=1, verbose_name='Type'),
             preserve_default=False,
         ),
     ]
