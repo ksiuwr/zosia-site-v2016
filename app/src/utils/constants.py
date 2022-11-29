@@ -55,6 +55,11 @@ class LectureInternals:
     PERSON_GUEST = "1"
     PERSON_NORMAL = "2"
 
+class SponsorInternals:
+    TYPE_BRONZE = "0"
+    TYPE_SILVER = "1"
+    TYPE_GOLD = "2"
+
 
 LECTURE_NORMAL_MAX_DURATION = 60
 
@@ -91,6 +96,12 @@ PERSON_TYPE = [
     (LectureInternals.PERSON_SPONSOR, _("Sponsor")),
     (LectureInternals.PERSON_GUEST, _("Guest")),
     (LectureInternals.PERSON_NORMAL, _("Normal"))
+]
+
+SPONSOR_TYPE = [
+    (SponsorInternals.TYPE_BRONZE, _("Bronze")),
+    (SponsorInternals.TYPE_SILVER, _("Silver")),
+    (SponsorInternals.TYPE_GOLD, _("Gold"))
 ]
 
 # Time
