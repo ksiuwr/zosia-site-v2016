@@ -90,12 +90,14 @@ class UserInternals:
     PERSON_SPONSOR = "Sponsor"
     PERSON_GUEST = "Guest"
     PERSON_NORMAL = "Normal"
+    PERSON_EARLY_REGISTERING = "Early_registering"
 
 
 PERSON_TYPE = [
     (UserInternals.PERSON_SPONSOR, _("Sponsor")),
     (UserInternals.PERSON_GUEST, _("Guest")),
-    (UserInternals.PERSON_NORMAL, _("Normal"))
+    (UserInternals.PERSON_NORMAL, _("Normal")),
+    (UserInternals.PERSON_EARLY_REGISTERING, _("Early registering"))
 ]
 
 # Time
