@@ -80,12 +80,13 @@ def create_buses(zosia):
 
 def create_active_zosia(place, **kwargs):
     today = now()
-    start_date = timedelta_since_now(days=350)
+    start_date = timedelta_since_now(days=200)
     start = today
-    end = start_date
+    end = timedelta_since(start_date, days=7)
     data = {
         'active': True,
         'place': place,
+        'early_registration_start': None,
         'registration_start': start,
         'registration_end': end,
         'start_date': start_date,
@@ -93,25 +94,6 @@ def create_active_zosia(place, **kwargs):
         'rooming_end': end,
         'lecture_registration_start': start,
         'lecture_registration_end': end,
-    }
-    return create_zosia(**data)
-
-
-def create_past_zosia(place, **kwargs):
-    start_date = random_date_before(now(), 400)
-    registration_end = random_date_before(start_date, 20)
-    registration_start = random_date_before(registration_end, 40)
-    rooming_end = registration_end
-    rooming_start = random_date_before(rooming_end, 12)
-    data = {
-        'place': place,
-        'registration_start': registration_start,
-        'registration_end': registration_end,
-        'start_date': start_date,
-        'rooming_start': rooming_start,
-        'rooming_end': rooming_end,
-        'lecture_registration_start': rooming_start,
-        'lecture_registration_end': rooming_end,
     }
     return create_zosia(**data)
 

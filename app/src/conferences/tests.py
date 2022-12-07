@@ -36,7 +36,6 @@ class ZosiaTestCase(TestCase):
                                              bonus_minutes=0)
 
         result = self.active.can_user_choose_room(user_prefs)
-
         self.assertTrue(result)
 
     def test_can_user_choose_room_when_before_user_start_time(self):

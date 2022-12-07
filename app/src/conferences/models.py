@@ -44,7 +44,8 @@ def validate_iban(value):
     m = re.match(iban_reg, value)
     if not m:
         raise ValidationError(_('This is not a valid Polish IBAN number'))
-    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego#Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
+    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego
+    # #Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
     iban = m.group(2).replace(" ", "")
     t = iban[2:] + "2521" + iban[:2]  # PL = 25 21
     res = 0
@@ -53,7 +54,8 @@ def validate_iban(value):
 
     if res != 1:
         raise ValidationError(_(
-            'This is not a valid Polish IBAN number: wrong checksum. Please check your bank number!'
+            'This is not a valid Polish IBAN number: wrong checksum. Please check your bank '
+            'account number!'
         ))
 
 
@@ -75,6 +77,9 @@ class Zosia(models.Model):
     place = models.ForeignKey(Place, related_name='conferences', on_delete=models.PROTECT)
     description = models.TextField(default='')
 
+    early_registration_start = models.DateTimeField(
+        verbose_name=_('Registration for early registering users starts'), null=True, blank=True
+    )
     registration_start = models.DateTimeField(
         verbose_name=_('Registration for users starts'),
     )
@@ -133,7 +138,11 @@ class Zosia(models.Model):
         return self.start_date + timedelta(days=3)
 
     def __str__(self):
-        return 'Zosia {}'.format(self.start_date.year)
+        return f'Zosia {self.start_date.year}'
+
+    @property
+    def is_early_registration_open(self):
+        return self.early_registration_start is not None and self.early_registration_start <= now()
 
     @property
     def is_registration_open(self):
@@ -150,6 +159,10 @@ class Zosia(models.Model):
     @property
     def is_rooming_over(self):
         return self.rooming_end < now()
+
+    @property
+    def is_lectures_open(self):
+        return self.lecture_registration_start <= now() <= self.lecture_registration_end
 
     def can_user_choose_room(self, user_prefs, time=None):
         return self.get_rooming_status(user_prefs, time) == RoomingStatus.ROOMING_PROGRESS
@@ -179,9 +192,15 @@ class Zosia(models.Model):
 
         super(Zosia, self).validate_unique(**kwargs)
 
-    @property
-    def is_lectures_open(self):
-        return self.lecture_registration_start <= now() <= self.lecture_registration_end
+    def clean(self):
+        if self.early_registration_start is not None:
+            if self.early_registration_start > self.registration_start:
+                raise ValidationError({
+                    "early_registration_start": ValidationError(
+                        _("Early registration opening time cannot be after general registration "
+                          "opening time")
+                    )
+                })
 
 
 class BusManager(models.Manager):

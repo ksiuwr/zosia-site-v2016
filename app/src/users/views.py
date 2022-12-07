@@ -17,8 +17,8 @@ from users.actions import ActivateUser
 from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferencesForm
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
-    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
-    PAYMENT_GROUPS, LectureInternals, LECTURE_TYPE
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, LECTURE_TYPE, LectureInternals, \
+    MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, UserInternals
 from utils.forms import errors_format
 from utils.views import csv_response
 
@@ -212,7 +212,8 @@ def user_preferences_admin_edit(request):
 
         return JsonResponse({
             'msg': _(
-                f"Changed bonus of {escape(user_preferences.user.full_name)} to {user_preferences.bonus_minutes}"),
+                f"Changed bonus of {escape(user_preferences.user.full_name)} to "
+                f"{user_preferences.bonus_minutes}"),
             'bonus': user_preferences.bonus_minutes
         })
 
@@ -223,12 +224,15 @@ def user_preferences_admin_edit(request):
 @require_http_methods(['GET', 'POST'])
 def register(request):
     zosia = Zosia.objects.find_active_or_404()
+    user = request.user
 
-    if not zosia.is_registration_open:
+    if not zosia.is_registration_open or \
+            (user.person_type == UserInternals.PERSON_EARLY_REGISTERING and
+             not zosia.is_early_registration_open):
         messages.error(request, _('Registration for ZOSIA is not open yet'))
         return redirect(reverse('index'))
 
-    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
+    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=user).first()
 
     if zosia.is_registration_over and user_prefs is None:
         messages.error(request, _('You missed registration for ZOSIA'))
@@ -269,12 +273,14 @@ def list_csv_preferences_all(request):
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
     data_list = [(
-        str(p.user), ("" if p.organization is None else str(p.organization.name)), str(p.payment_accepted),
-        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3), str(p.dinner_day_1),
+        str(p.user), ("" if p.organization is None else str(p.organization.name)),
+        str(p.payment_accepted),
+        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
+        str(p.dinner_day_1),
         str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
         str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
         str(p.get_shirt_type_display())
-         ) for p in prefs
+    ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_all")
 
@@ -291,9 +297,10 @@ def list_csv_preferences_paid(request):
         str(p.user), ("" if p.organization is None else str(p.organization.name)),
         str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
         str(p.dinner_day_1), str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3),
-        str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
+        str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian),
+        str(p.get_shirt_size_display()),
         str(p.get_shirt_type_display())
-        ) for p in prefs
+    ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_paid")
 
@@ -312,6 +319,6 @@ def list_csv_lectures(request):
         str("?" if lecture.person_type == LectureInternals.PERSON_SPONSOR
             else "none"),
         str(lecture.requests),
-        ) for lecture in lectures
+    ) for lecture in lectures
     ]
     return csv_response(header, data, filename="lectures")
