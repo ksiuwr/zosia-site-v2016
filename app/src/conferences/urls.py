@@ -27,4 +27,5 @@ urlpatterns = [
     re_path(r'^place/add/$', views.place_add, name='place_add'),
     re_path(r'^place/(?P<pk>\d+)/update/$', views.place_add, name='place_update'),
     re_path(r'^statistics/$', views.statistics, name='statistics'),
+    re_path(r'^zapisy/$', views.sign_up_rules_for_invited, name='invited'),
 ]
