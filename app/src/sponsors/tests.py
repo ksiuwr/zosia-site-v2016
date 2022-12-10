@@ -135,7 +135,7 @@ class ViewsTestCase(SponsorTestCase):
 
     def test_edit_get_staff_user(self):
         self.client.login(email='paul@thebeatles.com', password='paulpassword')
-        sponsor = Sponsor(name='foo', url='http://google.com', path_to_logo=self.image)
+        sponsor = Sponsor(name='foo', url='http://google.com', path_to_logo=self.image, sponsor_type=SponsorInternals.TYPE_BRONZE)
         sponsor.save()
         response = self.client.get(reverse('sponsors_edit',
                                            kwargs={'sponsor_id': sponsor.id}),
@@ -147,7 +147,7 @@ class ViewsTestCase(SponsorTestCase):
 
     def test_sposor_toggle_active(self):
         self.client.login(email='paul@thebeatles.com', password='paulpassword')
-        sponsor = Sponsor(name='foo', url='http://google.com', path_to_logo=self.image)
+        sponsor = Sponsor(name='foo', url='http://google.com', path_to_logo=self.image, sponsor_type=SponsorInternals.TYPE_BRONZE)
         sponsor.save()
         self.assertFalse(sponsor.is_active)
         response = self.client.post(reverse('sponsors_toggle_active'),
