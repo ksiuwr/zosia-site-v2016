@@ -334,17 +334,17 @@ footer.page-footer {
     text-align: center;
 }
 
-.sponsor_type_0 {
-    background-color: 	#CD7F32;
+.sponsor_type_bronze {
+    background-color: #CD7F32;
     color: white;
 }
 
-.sponsor_type_1 {
+.sponsor_type_silver {
     background-color: silver;
     color: black;
 }
 
-.sponsor_type_2 {
+.sponsor_type_gold {
     background-color: gold;
     color: black;
 }

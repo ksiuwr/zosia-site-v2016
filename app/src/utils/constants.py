@@ -56,9 +56,9 @@ class LectureInternals:
     PERSON_NORMAL = "2"
 
 class SponsorInternals:
-    TYPE_BRONZE = "0"
-    TYPE_SILVER = "1"
-    TYPE_GOLD = "2"
+    TYPE_BRONZE = "bronze"
+    TYPE_SILVER = "silver"
+    TYPE_GOLD = "gold"
 
 
 LECTURE_NORMAL_MAX_DURATION = 60
