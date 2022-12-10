@@ -25,6 +25,7 @@ def create_zosia(commit=True, **kwargs):
         'active': False,
         'start_date': time,
         'place': place,
+        'early_registration_start': None,
         'registration_start': time,
         'registration_end': timedelta_since_now(minutes=10),
         'rooming_start': timedelta_since_now(days=-1),

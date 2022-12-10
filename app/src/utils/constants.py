@@ -100,6 +100,8 @@ PERSON_TYPE = [
     (UserInternals.PERSON_EARLY_REGISTERING, _("Early registering"))
 ]
 
+II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
+
 # Time
 DEFAULT_TIME_FORMAT = "%d.%m.%Y %H:%M %Z"
 

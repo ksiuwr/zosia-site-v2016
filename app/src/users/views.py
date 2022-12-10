@@ -18,7 +18,7 @@ from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferen
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
     ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, LECTURE_TYPE, LectureInternals, \
-    MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, UserInternals
+    MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS
 from utils.forms import errors_format
 from utils.views import csv_response
 
@@ -226,9 +226,7 @@ def register(request):
     zosia = Zosia.objects.find_active_or_404()
     user = request.user
 
-    if not zosia.is_registration_open or \
-            (user.person_type == UserInternals.PERSON_EARLY_REGISTERING and
-             not zosia.is_early_registration_open):
+    if not zosia.is_registration_open(user):
         messages.error(request, _('Registration for ZOSIA is not open yet'))
         return redirect(reverse('index'))
 

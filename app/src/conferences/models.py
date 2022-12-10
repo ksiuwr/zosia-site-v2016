@@ -8,7 +8,7 @@ from django.db.models import Count, F, Q
 from django.http import Http404
 from django.utils.translation import ugettext_lazy as _
 
-from utils.constants import DELIMITER, MAX_BONUS_MINUTES, RoomingStatus
+from utils.constants import DELIMITER, MAX_BONUS_MINUTES, RoomingStatus, UserInternals
 from utils.time_manager import format_in_zone, now
 
 
@@ -140,13 +140,11 @@ class Zosia(models.Model):
     def __str__(self):
         return f'Zosia {self.start_date.year}'
 
-    @property
-    def is_early_registration_open(self):
-        return self.early_registration_start is not None and self.early_registration_start <= now()
-
-    @property
-    def is_registration_open(self):
-        return self.registration_start <= now()
+    def is_registration_open(self, user):
+        return self.early_registration_start <= now() \
+            if self.early_registration_start is not None \
+               and user.person_type == UserInternals.PERSON_EARLY_REGISTERING \
+            else self.registration_start <= now()
 
     @property
     def is_registration_over(self):
