@@ -44,8 +44,9 @@ def validate_iban(value):
     m = re.match(iban_reg, value)
     if not m:
         raise ValidationError(_('This is not a valid Polish IBAN number'))
-    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego
-    # #Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
+    # formatter:off
+    # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego#Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
+    # formatter:on
     iban = m.group(2).replace(" ", "")
     t = iban[2:] + "2521" + iban[:2]  # PL = 25 21
     res = 0
