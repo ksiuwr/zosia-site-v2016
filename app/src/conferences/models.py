@@ -44,9 +44,9 @@ def validate_iban(value):
     m = re.match(iban_reg, value)
     if not m:
         raise ValidationError(_('This is not a valid Polish IBAN number'))
-    # formatter:off
+    # @formatter:off
     # https://pl.wikipedia.org/wiki/Mi%C4%99dzynarodowy_numer_rachunku_bankowego#Sprawdzanie_i_wyliczanie_cyfr_kontrolnych
-    # formatter:on
+    # @formatter:on
     iban = m.group(2).replace(" ", "")
     t = iban[2:] + "2521" + iban[:2]  # PL = 25 21
     res = 0
@@ -141,11 +141,17 @@ class Zosia(models.Model):
     def __str__(self):
         return f'Zosia {self.start_date.year}'
 
-    def is_registration_open(self, user):
-        return self.early_registration_start <= now() \
-            if self.early_registration_start is not None \
-               and user.person_type == UserInternals.PERSON_EARLY_REGISTERING \
-            else self.registration_start <= now()
+    def user_registration_start(self, user):
+        if user.is_authenticated:
+            return self.early_registration_start \
+                if self.early_registration_start is not None \
+                   and user.person_type == UserInternals.PERSON_EARLY_REGISTERING \
+                else self.registration_start
+
+        return self.registration_start
+
+    def is_user_registration_open(self, user):
+        return self.user_registration_start(user) <= now()
 
     @property
     def is_registration_over(self):

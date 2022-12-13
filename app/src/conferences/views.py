@@ -82,12 +82,15 @@ def export_data(request):
 
 @require_http_methods(['GET'])
 def index(request):
+    user = request.user
     zosia = Zosia.objects.find_active()
     sponsors = Sponsor.objects.filter(is_active=True)
+
     context = {
         'zosia': zosia,
-        'sponsors': sponsors
+        'sponsors': sponsors,
     }
+
     if zosia is not None:
         query = {
             'key': settings.GAPI_KEY,
@@ -96,6 +99,8 @@ def index(request):
         context['gapi_place_src'] = settings.GAPI_PLACE_BASE_URL + '?' + urlencode(query)
         # FIXME: Make sure this url starts with http. Django WILL try to make it relative otherwise
         context['zosia_url'] = zosia.place.url
+        context['registration_open'] = zosia.is_user_registration_open(user)
+
     return render(request, 'conferences/index.html', context)
 
 

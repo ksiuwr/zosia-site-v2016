@@ -26,15 +26,17 @@ from utils.views import csv_response
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
+    user = request.user
     current_zosia = Zosia.objects.find_active()
-    user_preferences = UserPreferences.objects.select_related(
-        'bus', 'zosia').filter(user=request.user)
+    user_preferences = UserPreferences.objects.select_related('bus', 'zosia').filter(user=user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
 
     ctx = {
         'zosia': current_zosia,
-        'current_prefs': current_prefs
+        'current_prefs': current_prefs,
+        'registration_open': current_zosia.is_user_registration_open(user),
+        'registration_start': current_zosia.user_registration_start(user)
     }
     return render(request, 'users/profile.html', ctx)
 
@@ -226,7 +228,7 @@ def register(request):
     zosia = Zosia.objects.find_active_or_404()
     user = request.user
 
-    if not zosia.is_registration_open(user):
+    if not zosia.is_user_registration_open(user):
         messages.error(request, _('Registration for ZOSIA is not open yet'))
         return redirect(reverse('index'))
 
