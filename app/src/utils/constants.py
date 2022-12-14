@@ -102,6 +102,20 @@ PERSON_TYPE = [
 
 II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
 
+
+# Sponsors
+class SponsorInternals:
+    TYPE_BRONZE = "bronze"
+    TYPE_SILVER = "silver"
+    TYPE_GOLD = "gold"
+
+
+SPONSOR_TYPE = [
+    (SponsorInternals.TYPE_BRONZE, _("Bronze")),
+    (SponsorInternals.TYPE_SILVER, _("Silver")),
+    (SponsorInternals.TYPE_GOLD, _("Gold"))
+]
+
 # Time
 DEFAULT_TIME_FORMAT = "%d.%m.%Y %H:%M %Z"
 
