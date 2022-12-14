@@ -118,6 +118,11 @@ def privacy_policy(request):
     return render(request, 'conferences/privacy_policy.html')
 
 
+@require_http_methods(['GET'])
+def sign_up_rules_for_invited(request):
+    return render(request, 'conferences/sign_up_rules_for_invited.html')
+
+
 @staff_member_required
 @require_http_methods(['GET'])
 def admin_panel(request):
