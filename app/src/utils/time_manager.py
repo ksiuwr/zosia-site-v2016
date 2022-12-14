@@ -21,11 +21,11 @@ def now(utc=True):
     return to_timezone(timezone.now() if utc else timezone.localtime())
 
 
-def timedelta_since(time, *, delta=None, days=0, hours=0, minutes=0, seconds=0):
+def timedelta_since(datetime_, *, delta=None, days=0, hours=0, minutes=0, seconds=0):
     if delta is None:
         delta = timedelta(days=days, hours=hours, minutes=minutes, seconds=seconds)
 
-    return to_timezone(time + delta)
+    return to_timezone(datetime_ + delta)
 
 
 def timedelta_since_now(*, utc=True, delta=None, days=0, hours=0, minutes=0, seconds=0):

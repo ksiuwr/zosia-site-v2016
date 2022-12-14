@@ -1,6 +1,6 @@
+from collections import Counter
 import csv
 import json
-from collections import Counter
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -26,7 +26,7 @@ def export_json(request):
     zosia = get_object_or_404(Zosia, active=True)
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
-        .values('user__first_name', 'user__last_name', 'user__email',
+        .values('user__first_name', 'user__last_name', 'user__email', 'user__person_type',
                 'organization__name', 'bus__name', 'bus__departure_time', 'accommodation_day_1',
                 'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
                 'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
@@ -82,12 +82,15 @@ def export_data(request):
 
 @require_http_methods(['GET'])
 def index(request):
+    user = request.user
     zosia = Zosia.objects.find_active()
     sponsors = Sponsor.objects.filter(is_active=True)
+
     context = {
         'zosia': zosia,
-        'sponsors': sponsors
+        'sponsors': sponsors,
     }
+
     if zosia is not None:
         query = {
             'key': settings.GAPI_KEY,
@@ -96,6 +99,8 @@ def index(request):
         context['gapi_place_src'] = settings.GAPI_PLACE_BASE_URL + '?' + urlencode(query)
         # FIXME: Make sure this url starts with http. Django WILL try to make it relative otherwise
         context['zosia_url'] = zosia.place.url
+        context['registration_open'] = zosia.is_user_registration_open(user)
+
     return render(request, 'conferences/index.html', context)
 
 
@@ -160,8 +165,8 @@ def bus_add(request, pk=None):
 @staff_member_required
 @require_http_methods(['GET'])
 def conferences(request):
-    conferences = Zosia.objects.all()
-    ctx = {'conferences': conferences}
+    all_conferences = Zosia.objects.all()
+    ctx = {'conferences': all_conferences}
     return render(request, 'conferences/conferences.html', ctx)
 
 
@@ -259,13 +264,13 @@ def statistics(request):
 
     # data for bus info chart
     buses = Bus.objects.all()
-    busesLabels = []
-    busesValues = {'paid': [], 'notPaid': [], 'empty': []}
+    buses_labels = []
+    buses_values = {'paid': [], 'notPaid': [], 'empty': []}
     for bus in buses:
-        busesLabels.append(f'{bus}')
-        busesValues['paid'].append(bus.paid_passengers_count)
-        busesValues['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
-        busesValues['empty'].append(bus.free_seats)
+        buses_labels.append(f'{bus}')
+        buses_values['paid'].append(bus.paid_passengers_count)
+        buses_values['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
+        buses_values['empty'].append(bus.free_seats)
 
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
@@ -276,8 +281,8 @@ def statistics(request):
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
         'userCostsCounts': list(price_counts),
-        'busesLabels': json.dumps(busesLabels),
-        'busesValues': json.dumps(busesValues),
-        'numberOfBuses': len(busesLabels)
+        'busesLabels': json.dumps(buses_labels),
+        'busesValues': json.dumps(buses_values),
+        'numberOfBuses': len(buses_labels)
     }
     return render(request, 'conferences/statistics.html', ctx)

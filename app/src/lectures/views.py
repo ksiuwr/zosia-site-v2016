@@ -10,6 +10,7 @@ from django.views.decorators.http import require_http_methods
 from conferences.models import Zosia
 from lectures.forms import LectureAdminForm, LectureForm, ScheduleForm
 from lectures.models import Lecture, Schedule
+from users.models import User
 from utils.forms import errors_format, get_durations
 
 
@@ -132,9 +133,10 @@ def schedule_update(request):
     return render(request, 'lectures/schedule_add.html', ctx)
 
 
-def ajax_load_durations(request):
+def load_durations(request):
     lecture_type = request.GET.get("lecture_type")
-    person_type = request.GET.get("person_type")
-    durations = {'durations': [d[0] for d in get_durations(lecture_type, person_type)]}
-
+    author_id = request.GET.get("author")
+    author = User.objects.get(pk=author_id) if author_id is not None else request.user
+    print(f"load_durations {lecture_type}, {author}")
+    durations = {'durations': [d[0] for d in get_durations(lecture_type, author)]}
     return JsonResponse(durations)

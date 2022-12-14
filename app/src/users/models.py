@@ -8,8 +8,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, Zosia
-from utils.constants import MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, PAYMENT_GROUPS, \
-    SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
+from utils.constants import II_UWR_EMAIL_DOMAIN, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
+    PAYMENT_GROUPS, PERSON_TYPE, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, UserInternals
 from utils.time_manager import timedelta_since
 
 
@@ -42,6 +42,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(_('last name'), max_length=30, blank=True)
     hash = models.CharField(_('hash'), max_length=64, default=None, blank=False, unique=True,
                             validators=[validate_hash])
+    person_type = models.CharField(verbose_name=_('person type'), max_length=20, blank=False,
+                                   choices=PERSON_TYPE, default=UserInternals.PERSON_NORMAL)
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
@@ -76,6 +78,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.full_name
 
     def save(self, *args, **kwargs):
+        if self.email.endswith(II_UWR_EMAIL_DOMAIN) \
+                and (self.person_type is None or self.person_type == UserInternals.PERSON_NORMAL):
+            self.person_type = UserInternals.PERSON_EARLY_REGISTERING
+
         if self.hash is None:
             self.hash = hashlib.sha256(
                 f"{self.email}{self.date_joined}".encode('utf-8')).hexdigest().lower()
@@ -127,7 +133,7 @@ def validate_terms(value):
 
 class UserPreferences(models.Model):
     class Meta:
-        verbose_name_plural = 'Users preferences'
+        verbose_name_plural = 'User preferences'
 
     objects = UserPreferencesManager()
 
@@ -178,7 +184,8 @@ class UserPreferences(models.Model):
         default='',
         blank=True,
         help_text=_(
-            "Here is where you can give us information about yourself that may be important during your trip."
+            "Here is where you can give us information about yourself that may be important "
+            "during your trip."
         )
     )
     vegetarian = models.BooleanField(default=False)
@@ -245,7 +252,7 @@ class UserPreferences(models.Model):
         return payment
 
     def __str__(self):
-        return str(self.user) + " preferences"
+        return f"{str(self.user)} preferences"
 
     def toggle_payment_accepted(self):
         self.payment_accepted = not self.payment_accepted
