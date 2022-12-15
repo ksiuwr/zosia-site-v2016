@@ -105,6 +105,7 @@ def lecture_update(request, lecture_id=None):
             lecture = form.save(commit=False)
             lecture.zosia = zosia
             lecture.save()
+            form.save_m2m()
             messages.success(request, _("Lecture has been saved."))
             return redirect('lectures_all_staff')
         else:
@@ -140,6 +141,5 @@ def load_durations(request):
     lecture_type = request.GET.get("lecture_type")
     author_id = request.GET.get("author")
     author = User.objects.get(pk=author_id) if author_id is not None else request.user
-    print(f"load_durations {lecture_type}, {author}")
     durations = {'durations': [d[0] for d in get_durations(lecture_type, author)]}
     return JsonResponse(durations)
