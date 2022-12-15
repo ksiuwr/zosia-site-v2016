@@ -10,7 +10,7 @@ class UserLectureAdmin(admin.ModelAdmin):
     list_display = ('title', 'duration', 'lecture_type', 'accepted', 'author_first_name',
                     'author_last_name', 'author_email', 'author_person_type', 'author_organization')
     readonly_fields = ('author_first_name', 'author_last_name', 'author_email',
-                       'author_person_type', 'author_organization')
+                       'author_person_type', 'author_organization', 'supporters_names')
     search_fields = ('title', 'author__first_name', 'author__last_name', 'author_organization')
     list_filter = ('lecture_type', 'accepted', 'duration', 'author__person_type')
 

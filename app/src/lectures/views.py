@@ -20,7 +20,8 @@ def index(request):
     Display all accepted lectures
     """
     zosia = Zosia.objects.find_active()
-    lectures = Lecture.objects.select_related('author').filter(zosia=zosia).filter(accepted=True)
+    lectures = Lecture.objects.select_related('author').prefetch_related('supporting_authors') \
+        .filter(zosia=zosia).filter(accepted=True)
     ctx = {'objects': lectures}
     return render(request, 'lectures/index.html', ctx)
 
@@ -32,7 +33,9 @@ def display_all_staff(request):
     Display all for staff members, they can change acceptation status
     """
     zosia = Zosia.objects.find_active()
-    lectures = Lecture.objects.select_related('author').filter(zosia=zosia)
+    lectures = Lecture.objects.select_related('author').prefetch_related('supporting_authors') \
+        .filter(zosia=zosia)
+    print([lec.all_authors_names for lec in lectures])
     ctx = {'objects': lectures}
     return render(request, 'lectures/all.html', ctx)
 

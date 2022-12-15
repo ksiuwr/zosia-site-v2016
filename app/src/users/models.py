@@ -74,6 +74,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     def is_registered(self):
         return self.preferences is not None
 
+    @property
+    def all_lectures(self):
+        return self.lectures.union(self.lectures_supporting)
+
     def __str__(self):
         return self.full_name
 
