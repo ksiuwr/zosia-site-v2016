@@ -48,7 +48,7 @@ class Lecture(models.Model):
     author = models.ForeignKey(User, related_name="lectures", verbose_name=_("Author"),
                                on_delete=models.CASCADE)
     supporting_authors = models.ManyToManyField(User, related_name="lectures_supporting",
-                                                verbose_name=_("Supporting authors"))
+                                                blank=True, verbose_name=_("Supporting authors"))
     supporters_names = models.TextField(
         verbose_name=_("Supporting authors' names"), max_length=500, blank=True, default="",
         help_text=_(
