@@ -169,8 +169,8 @@
             </h5>
           {% else %}
             <div class="card-content">
-              {% if not zosia.is_registration_open %}
-              <p>{% trans "Registration will open at" %} {{zosia.registration_start | zoneformat:"Europe/Warsaw"}}</p>
+              {% if not registration_open %}
+              <p>{% trans "Registration will open at" %} {{ registration_start | zoneformat:"Europe/Warsaw" }}</p>
               {% elif zosia.is_registration_over %}
               <p>{% trans "Registration has ended - we hope to see you next year :)" %}</p>
               {% else %}
@@ -180,7 +180,7 @@
           {% endif %}
         </div>
         <div class="card-action">
-          {% if zosia.is_registration_open and not zosia.is_registration_over or zosia.is_registration_over and current_prefs %}
+          {% if registration_open and not zosia.is_registration_over or zosia.is_registration_over and current_prefs %}
           <a href="{% url 'user_zosia_register' %}">
               {% if current_prefs %}
               {% trans "Update preferences" %}

@@ -7,6 +7,7 @@ from django.test import TestCase
 from sponsors.models import Sponsor
 from sponsors.forms import SponsorForm
 import os
+from utils.constants import SponsorInternals
 
 
 User = get_user_model()
@@ -26,7 +27,7 @@ class ModelTestCase(SponsorTestCase):
     def test_create_object(self):
         count = Sponsor.objects.count()
         sponsor = Sponsor(name="Foo", url="http://google.com",
-                          path_to_logo=self.image.name)
+                          path_to_logo=self.image.name, sponsor_type=SponsorInternals.TYPE_BRONZE)
         try:
             sponsor.full_clean()
         except ValidationError:
@@ -80,13 +81,13 @@ class FormTestCase(SponsorTestCase):
 
     def test_create_object(self):
         count = Sponsor.objects.count()
-        form = SponsorForm({'name': 'foo', 'url': 'http://google.com', 'path_to_logo': self.image.name})
+        form = SponsorForm({'name': 'foo', 'url': 'http://google.com', 'path_to_logo': self.image.name, 'sponsor_type': SponsorInternals.TYPE_BRONZE})
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(count + 1, Sponsor.objects.count())
 
     def test_url_must_be_valid(self):
-        form = SponsorForm({'name': 'foo', 'url': 'barbaz', 'path_to_logo': self.image})
+        form = SponsorForm({'name': 'foo', 'url': 'barbaz', 'path_to_logo': self.image, 'sponsor_type': SponsorInternals.TYPE_BRONZE})
         self.assertFalse(form.is_valid())
 
 

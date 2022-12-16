@@ -51,9 +51,6 @@ ROOM_LOCK_TIMEOUT = timedelta(hours=3)
 class LectureInternals:
     TYPE_LECTURE = "0"
     TYPE_WORKSHOP = "1"
-    PERSON_SPONSOR = "0"
-    PERSON_GUEST = "1"
-    PERSON_NORMAL = "2"
 
 
 LECTURE_NORMAL_MAX_DURATION = 60
@@ -87,10 +84,36 @@ LECTURE_TYPE = [
     (LectureInternals.TYPE_WORKSHOP, _("Workshop"))
 ]
 
+
+# Users
+class UserInternals:
+    PERSON_SPONSOR = "Sponsor"
+    PERSON_GUEST = "Guest"
+    PERSON_NORMAL = "Normal"
+    PERSON_EARLY_REGISTERING = "Early_registering"
+
+
 PERSON_TYPE = [
-    (LectureInternals.PERSON_SPONSOR, _("Sponsor")),
-    (LectureInternals.PERSON_GUEST, _("Guest")),
-    (LectureInternals.PERSON_NORMAL, _("Normal"))
+    (UserInternals.PERSON_SPONSOR, _("Sponsor")),
+    (UserInternals.PERSON_GUEST, _("Guest")),
+    (UserInternals.PERSON_NORMAL, _("Normal")),
+    (UserInternals.PERSON_EARLY_REGISTERING, _("Early registering"))
+]
+
+II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
+
+
+# Sponsors
+class SponsorInternals:
+    TYPE_BRONZE = "bronze"
+    TYPE_SILVER = "silver"
+    TYPE_GOLD = "gold"
+
+
+SPONSOR_TYPE = [
+    (SponsorInternals.TYPE_BRONZE, _("Bronze")),
+    (SponsorInternals.TYPE_SILVER, _("Silver")),
+    (SponsorInternals.TYPE_GOLD, _("Gold"))
 ]
 
 # Time

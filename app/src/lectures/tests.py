@@ -8,7 +8,7 @@ from django.test import TestCase
 from conferences.models import Place, Zosia
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
-from utils.constants import LectureInternals
+from utils.constants import LectureInternals, UserInternals
 from utils.test_helpers import create_user
 from utils.time_manager import now, timedelta_since_now
 
@@ -35,7 +35,9 @@ class LectureTestCase(TestCase):
             price_accommodation_breakfast=0,
             price_whole_day=0
         )
-        self.user = create_user(0)
+        self.user = create_user(0, UserInternals.PERSON_NORMAL)
+        self.sponsor_user = create_user(1, UserInternals.PERSON_SPONSOR)
+        self.guest_user = create_user(2, UserInternals.PERSON_GUEST)
 
 
 class ModelTestCase(LectureTestCase):
@@ -118,7 +120,6 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_NORMAL,
             author=self.user
         )
 
@@ -132,8 +133,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_SPONSOR,
-            author=self.user
+            author=self.sponsor_user
         )
 
         count = Lecture.objects.count()
@@ -153,8 +153,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_GUEST,
-            author=self.user
+            author=self.guest_user
         )
 
         with self.assertRaises(ValidationError):
@@ -167,7 +166,6 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=60,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_NORMAL,
             author=self.user
         )
 
@@ -188,8 +186,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=20,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_GUEST,
-            author=self.user
+            author=self.guest_user
         )
 
         count = Lecture.objects.count()
@@ -209,7 +206,6 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=15,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            person_type=LectureInternals.PERSON_NORMAL,
             author=self.user
         )
 
@@ -223,8 +219,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=75,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            person_type=LectureInternals.PERSON_SPONSOR,
-            author=self.user
+            author=self.sponsor_user
         )
 
         count = Lecture.objects.count()
@@ -244,8 +239,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=120,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            person_type=LectureInternals.PERSON_GUEST,
-            author=self.user
+            author=self.guest_user
         )
 
         count = Lecture.objects.count()
@@ -277,8 +271,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=45,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            person_type=LectureInternals.PERSON_GUEST,
-            author=self.user
+            author=self.guest_user
         )
 
         self.assertFalse(lecture.accepted)
@@ -295,8 +288,7 @@ class FormTestCase(LectureTestCase):
 
     def test_user_create_object(self):
         form = LectureForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
-                            'lecture_type': LectureInternals.TYPE_LECTURE,
-                            'person_type': LectureInternals.PERSON_NORMAL})
+                            'lecture_type': LectureInternals.TYPE_LECTURE})
 
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
@@ -316,7 +308,6 @@ class FormTestCase(LectureTestCase):
     def test_admin_create_object(self):
         form = LectureAdminForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
                                  'lecture_type': LectureInternals.TYPE_LECTURE,
-                                 'person_type': LectureInternals.PERSON_NORMAL,
                                  'author': self.user.id})
 
         with transaction.atomic():
@@ -333,7 +324,7 @@ class FormTestCase(LectureTestCase):
 class ViewsTestCase(LectureTestCase):
     def setUp(self):
         super().setUp()
-        self.superuser = create_user(1, is_staff=True)
+        self.superuser = create_user(3, is_staff=True)
 
     def test_index_get(self):
         response = self.client.get(reverse('lectures_index'), follow=True)
