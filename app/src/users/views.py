@@ -31,12 +31,14 @@ def profile(request):
     user_preferences = UserPreferences.objects.select_related('bus', 'zosia').filter(user=user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
+    registration_open = current_zosia.is_user_registration_open(user) if current_zosia else False
+    registration_start = current_zosia.user_registration_start(user) if current_zosia else None
 
     ctx = {
         'zosia': current_zosia,
         'current_prefs': current_prefs,
-        'registration_open': current_zosia.is_user_registration_open(user),
-        'registration_start': current_zosia.user_registration_start(user)
+        'registration_open': registration_open,
+        'registration_start': registration_start
     }
     return render(request, 'users/profile.html', ctx)
 
