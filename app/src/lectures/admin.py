@@ -1,6 +1,5 @@
 from django.contrib import admin
 from django.db.models import BooleanField, Case, OuterRef, Prefetch, Subquery, Value, When
-from django.db.models.functions import Coalesce, Length
 
 from lectures.models import Lecture
 from users.models import User, UserPreferences
@@ -44,11 +43,10 @@ class UserLectureAdmin(admin.ModelAdmin):
                     'organization__name'
                 )[:1]
             ),
-            supporters_length=Coalesce(Length('supporters_names'), Value(0))
-        ).annotate(
             has_supporters_names=Case(
-                When(supporters_length__gt=0, then=Value(True)),
-                default=Value(False),
+                When(supporters_names__isnull=True, then=Value(False)),
+                When(supporters_names__exact="", then=Value(False)),
+                default=Value(True),
                 output_field=BooleanField()
             )
         ).prefetch_related(

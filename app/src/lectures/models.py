@@ -27,8 +27,8 @@ class Lecture(models.Model):
 
     # main data about lecture
     title = models.CharField(verbose_name=_("Title"), max_length=256)
-    abstract = models.CharField(verbose_name=_("Abstract"), max_length=2048)
-    lecture_type = models.CharField(verbose_name=_("Type"), max_length=1, choices=LECTURE_TYPE)
+    abstract = models.TextField(verbose_name=_("Abstract"), max_length=2048)
+    lecture_type = models.CharField(verbose_name=_("Type"), max_length=10, choices=LECTURE_TYPE)
     duration = models.PositiveSmallIntegerField(
         choices=FULL_DURATION_CHOICES, verbose_name=_("Duration (in minutes)"),
         help_text=_("Please remember that organizers <u>ARE ALLOWED</u> to cut you off during your "
@@ -72,32 +72,42 @@ class Lecture(models.Model):
         self.save()
 
     def clean(self):
-        if self.duration is None:
-            return
+        if self.requests:
+            self.requests = self.requests.strip()
 
-        try:
-            durations = [d[0] for d in get_durations(self.lecture_type, self.author)]
-        except User.DoesNotExist:
-            return
+        if self.events:
+            self.events = self.events.strip()
 
-        if self.duration not in durations:
-            if self.lecture_type == LectureInternals.TYPE_LECTURE:
-                raise ValidationError({
-                    "duration": ValidationError(
-                        _("Lecture is too long, maximal time for you is %(time)s minutes"),
-                        code="invalid",
-                        params={"time": durations[-1]}
-                    )
-                })
+        if self.description:
+            self.description = self.description.strip()
 
-            if self.lecture_type == LectureInternals.TYPE_WORKSHOP:
-                raise ValidationError({
-                    "duration": ValidationError(
-                        _("Workshop is too short, minimal time is %(time)s minutes"),
-                        code="invalid",
-                        params={"time": durations[0]}
-                    )
-                })
+        if self.supporters_names:
+            self.supporters_names = self.supporters_names.strip()
+
+        if self.duration is not None:
+            try:
+                durations = [d[0] for d in get_durations(self.lecture_type, self.author)]
+            except User.DoesNotExist:
+                return
+
+            if self.duration not in durations:
+                if self.lecture_type == LectureInternals.TYPE_LECTURE:
+                    raise ValidationError({
+                        "duration": ValidationError(
+                            _("Lecture is too long, maximal time for you is %(time)s minutes"),
+                            code="invalid",
+                            params={"time": durations[-1]}
+                        )
+                    })
+
+                if self.lecture_type == LectureInternals.TYPE_WORKSHOP:
+                    raise ValidationError({
+                        "duration": ValidationError(
+                            _("Workshop is too short, minimal time is %(time)s minutes"),
+                            code="invalid",
+                            params={"time": durations[0]}
+                        )
+                    })
 
 
 class Schedule(models.Model):
