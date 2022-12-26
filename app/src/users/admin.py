@@ -44,8 +44,8 @@ class OrganizationNameListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [('No organization', 'No organization')] + \
-               [(org.name, org.name) for org in
-                sorted(Organization.objects.only('name').distinct())]
+            [(org.name, org.name) for org in
+             sorted(Organization.objects.only('name').distinct())]
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -117,16 +117,19 @@ class HasLectureListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            ('true', 'Has lecture'),
-            ('false', "Doesn't have lecture"),
+            ('author', 'As author'),
+            ('supporter', 'As supporting author'),
+            ('none', "Doesn't have lecture"),
         ]
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value == 'true':
-            return queryset.filter(has_lectures=True)
-        if value == 'false':
-            return queryset.filter(has_lectures=False)
+        if value == 'author':
+            return queryset.filter(has_lecture=True)
+        if value == 'supporter':
+            return queryset.filter(has_supporting_lecture=True)
+        if value == 'none':
+            return queryset.filter(has_lecture=False, has_supporting_lecture=False)
         return queryset
 
 
@@ -136,8 +139,8 @@ class RoomNameListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [('No room', 'No room')] + \
-               [(r.name, r.name) for r in
-                sorted(Room.objects.only('name').distinct(), key=Room.name_to_key_orderable)]
+            [(r.name, r.name) for r in
+             sorted(Room.objects.only('name').distinct(), key=Room.name_to_key_orderable)]
 
     def queryset(self, request, queryset):
         value = self.value()
@@ -176,26 +179,33 @@ class UserPreferencesInline(admin.TabularInline):
 @admin.register(UserFilters)
 class UserFiltersAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'has_preferences',
-                    'has_lecture', 'shirt_properties')
+                    'has_lecture', 'has_supporting_lecture', 'shirt_properties')
     list_display_links = ('first_name', 'last_name')
     fields = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'has_preferences',
-              'has_lecture', 'shirt_properties')
+              'has_lecture', 'has_supporting_lecture', 'shirt_properties')
     readonly_fields = ('room_name', 'payment_accepted', 'has_preferences', 'has_lecture',
-                       'shirt_properties')
+                       'has_supporting_lecture', 'shirt_properties')
     search_fields = ('first_name', 'last_name', 'room_name')
     list_filter = (PaymentAcceptedListFilter, HasPreferencesListFilter, HasLectureListFilter,
-                   RoomNameListFilter, ShirtPropertiesListFilter,)
+                   RoomNameListFilter, ShirtPropertiesListFilter)
     inlines = (UserPreferencesInline, RoomInline)
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
             has_preferences=Exists(
-                UserPreferences.objects.filter(user=OuterRef('id')).only('user')),
+                UserPreferences.objects.filter(user=OuterRef('id')).only('user')
+            ),
             room_name=ArrayAgg('room_of_user__name', distinct=True),
             payment_accepted=ArrayAgg('preferences__payment_accepted'),
             shirt_properties=ArrayAgg(
-                Concat('preferences__shirt_size', Value('-'), 'preferences__shirt_type')),
-            has_lectures=Exists(Lecture.objects.filter(author=OuterRef('id')).only('author')),
+                Concat('preferences__shirt_size', Value('-'), 'preferences__shirt_type')
+            ),
+            has_lecture=Exists(
+                Lecture.objects.filter(author=OuterRef('id')).only('id')
+            ),
+            has_supporting_lecture=Exists(
+                Lecture.objects.filter(supporting_authors__id=OuterRef('id')).only('id')
+            )
         )
 
     @admin.display(ordering='shirt_properties')
@@ -207,7 +217,7 @@ class UserFiltersAdmin(admin.ModelAdmin):
         return obj.room_name
 
     def payment_accepted(self, obj):
-        # FK from Many site, User can has many UserPreferences.
+        # FK from Many site, User can have many UserPreferences.
         # Maybe link with related id should be provided.
         return obj.payment_accepted
 
@@ -217,7 +227,11 @@ class UserFiltersAdmin(admin.ModelAdmin):
 
     @admin.display(boolean=True)
     def has_lecture(self, obj):
-        return obj.has_lectures
+        return obj.has_lecture
+
+    @admin.display(boolean=True)
+    def has_supporting_lecture(self, obj):
+        return obj.has_supporting_lecture
 
 
 admin.site.register(User, UserAdmin)
