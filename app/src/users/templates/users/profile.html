@@ -170,7 +170,7 @@
           {% else %}
             <div class="card-content">
               {% if zosia.registration_suspended %}
-              <p>{% trans "Registration is suspended"%}</p>
+              <p>{% trans "Registration is suspended, please wait for further information"%}</p>
               {% elif not registration_open %}
               <p>{% trans "Registration will open at" %} {{ registration_start | zoneformat:"Europe/Warsaw" }}</p>
               {% elif zosia.is_registration_over %}
