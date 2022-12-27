@@ -21,7 +21,7 @@ def index(request):
     """
     zosia = Zosia.objects.find_active()
     lectures = Lecture.objects.select_related('author').prefetch_related('supporting_authors') \
-        .filter(zosia=zosia).filter(accepted=True)
+        .filter(zosia=zosia, accepted=True)
     ctx = {'objects': lectures}
     return render(request, 'lectures/index.html', ctx)
 
