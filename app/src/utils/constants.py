@@ -5,18 +5,20 @@ from django.utils.translation import ugettext_lazy as _
 DELIMITER = ", "
 
 # Shirts
+# NOTE: We should consider not to hardcode that but rather set in options
 SHIRT_SIZE_CHOICES = [
     ("S", "S"),
     ("M", "M"),
     ("L", "L"),
     ("XL", "XL"),
     ("XXL", "XXL"),
-    ("XXXL", "XXXL"),
+    # ("XXXL", "XXXL"),
 ]
 
 SHIRT_TYPES_CHOICES = [
-    ("m", _("classic")),
-    ("f", _("female")),
+    # ("m", _("classic")),
+    # ("f", _("female")),
+    ("u", _("unisex")),
 ]
 
 # Admin commands
