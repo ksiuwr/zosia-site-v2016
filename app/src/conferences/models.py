@@ -78,6 +78,10 @@ class Zosia(models.Model):
     place = models.ForeignKey(Place, related_name='conferences', on_delete=models.PROTECT)
     description = models.TextField(default='')
 
+    registration_suspended = models.BooleanField(
+        verbose_name=_('Is registration suspended'), default=False
+    )
+
     early_registration_start = models.DateTimeField(
         verbose_name=_('Registration for early registering users starts'), null=True, blank=True
     )
@@ -151,7 +155,7 @@ class Zosia(models.Model):
         return self.registration_start
 
     def is_user_registration_open(self, user):
-        return self.user_registration_start(user) <= now()
+        return not self.registration_suspended and self.user_registration_start(user) <= now()
 
     @property
     def is_registration_over(self):
