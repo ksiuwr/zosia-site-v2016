@@ -13,8 +13,8 @@ class LectureForm(forms.ModelForm):
 class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['accepted', 'author', 'supporting_authors', 'description', 'title', 'abstract',
-                  'lecture_type', 'duration', 'requests', 'events', 'supporters_names']
+        fields = ['accepted', 'author', 'supporting_authors', 'supporters_names', 'description',
+                  'title', 'abstract', 'lecture_type', 'duration', 'requests', 'events']
         widgets = {
             'supporters_names': forms.Textarea(attrs={'disabled': 'True'}),
         }
