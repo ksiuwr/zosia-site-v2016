@@ -1,6 +1,5 @@
 from django.contrib import admin
-from django.contrib.postgres.aggregates import ArrayAgg
-from django.db.models import Exists, OuterRef, Q, Value
+from django.db.models import Exists, F, OuterRef, Q, Value
 from django.db.models.functions import Concat
 
 from lectures.models import Lecture
@@ -43,16 +42,17 @@ class OrganizationNameListFilter(admin.SimpleListFilter):
     parameter_name = 'organization_name'
 
     def lookups(self, request, model_admin):
-        return [('No organization', 'No organization')] + \
+        return [('none', 'No organization')] + \
             [(org.name, org.name) for org in
-             sorted(Organization.objects.only('name').distinct())]
+             sorted(Organization.objects.only('name').distinct(), key=lambda org: org.name)]
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value == 'No organization':
-            return queryset.filter(organization_name=[None])
-        elif value:
-            return queryset.filter(organization_name__contains=[value])
+        if value == 'none':
+            return queryset.filter(organization_name__isnull=True)
+        if value:
+            return queryset.filter(organization_name=value)
+        return queryset
 
 
 class UserPreferencesAdmin(admin.ModelAdmin):
@@ -64,7 +64,7 @@ class UserPreferencesAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
-            organization_name=ArrayAgg('organization__name', distinct=True)
+            organization_name=F('organization__name')
         )
 
     @admin.display(ordering='organization_name')
@@ -104,10 +104,9 @@ class PaymentAcceptedListFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value == 'true':
-            return queryset.filter(payment_accepted__contains=[True])
+            return queryset.filter(payment_accepted=True)
         if value == 'false':
-            return queryset.filter(
-                Q(payment_accepted__contains=[False]) | Q(payment_accepted=[None]))
+            return queryset.filter(Q(payment_accepted=False) | Q(payment_accepted__isnull=True))
         return queryset
 
 
@@ -138,16 +137,17 @@ class RoomNameListFilter(admin.SimpleListFilter):
     parameter_name = 'room_name'
 
     def lookups(self, request, model_admin):
-        return [('No room', 'No room')] + \
+        return [('none', 'No room')] + \
             [(r.name, r.name) for r in
              sorted(Room.objects.only('name').distinct(), key=Room.name_to_key_orderable)]
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value == 'No room':
-            return queryset.filter(room_name=[None])
-        elif value:
-            return queryset.filter(room_name__contains=[value])
+        if value == 'none':
+            return queryset.filter(room_name__isnull=True)
+        if value:
+            return queryset.filter(room_name=value)
+        return queryset
 
 
 class ShirtPropertiesListFilter(admin.SimpleListFilter):
@@ -164,6 +164,7 @@ class ShirtPropertiesListFilter(admin.SimpleListFilter):
             shirt_size, shirt_type = value.split('-')
             return queryset.filter(preferences__shirt_size=shirt_size,
                                    preferences__shirt_type=shirt_type)
+        return queryset
 
 
 class RoomInline(admin.TabularInline):
@@ -195,11 +196,11 @@ class UserFiltersAdmin(admin.ModelAdmin):
             has_preferences=Exists(
                 UserPreferences.objects.filter(user=OuterRef('id')).only('user')
             ),
-            room_name=ArrayAgg('room_of_user__name', distinct=True),
-            payment_accepted=ArrayAgg('preferences__payment_accepted'),
-            shirt_properties=ArrayAgg(
-                Concat('preferences__shirt_size', Value('-'), 'preferences__shirt_type')
-            ),
+            room_name=F('room_of_user__name'),
+            payment_accepted=F('preferences__payment_accepted'),
+            shirt_properties=Concat('preferences__shirt_size', Value('-'),
+                                    'preferences__shirt_type')
+            ,
             has_lecture=Exists(
                 Lecture.objects.filter(author=OuterRef('id')).only('id')
             ),
