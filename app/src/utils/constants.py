@@ -49,8 +49,8 @@ ROOM_LOCK_TIMEOUT = timedelta(hours=3)
 
 # Lectures
 class LectureInternals:
-    TYPE_LECTURE = "0"
-    TYPE_WORKSHOP = "1"
+    TYPE_LECTURE = "Lecture"
+    TYPE_WORKSHOP = "Workshop"
 
 
 LECTURE_NORMAL_MAX_DURATION = 60
