@@ -1,4 +1,4 @@
-runtime: python39
+runtime: python310
 entrypoint: ./run.sh $PORT
 
 # 512 MB of RAM

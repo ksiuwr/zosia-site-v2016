@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: python:3.8
+      - image: python:3.10
       - image: postgres
         environment:
           POSTGRES_DB: "zosia"
@@ -28,7 +28,7 @@ jobs:
 
   deploy:
     docker:
-      - image: nikolaik/python-nodejs
+      - image: nikolaik/python-nodejs:python3.10-nodejs16
     steps:
       - run:
           name: Install gcloud
@@ -46,7 +46,6 @@ jobs:
       - run:
           name: Build frontend
           command: |
-            npm install -g yarn
             (cd ./app && yarn install && yarn build)
       - run:
           name: Collect static files
