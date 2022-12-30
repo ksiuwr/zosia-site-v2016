@@ -49,9 +49,11 @@ jobs:
             (cd ./app && yarn install && yarn build)
       - run:
           name: Collect static files
+          # we could prepare separate setting files for this without dependencies and with different STATIC_ROOT
           command: |
             python3 -m pip install -r ./app/requirements.txt
             cd ./app/src && python3 ./manage.py collectstatic --no-input
+            cp -r /static ./app/static
       - run:
           name: Push image to App Engine
           command: (cd ./app && gcloud app deploy app.yaml)
