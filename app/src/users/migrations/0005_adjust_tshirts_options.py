@@ -18,6 +18,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='userpreferences',
             name='shirt_type',
-            field=models.CharField(choices=[('u', 'unisex')], default='u', max_length=1),
+            field=models.CharField(choices=[('m', 'classic')], default='m', max_length=1),
         ),
     ]
