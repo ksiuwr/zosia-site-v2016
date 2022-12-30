@@ -50,6 +50,7 @@ jobs:
       - run:
           name: Collect static files
           command: |
+            python3 -m pip install -r requirements.txt
             cd ./app/src && python3 ./manage.py collectstatic --no-input
       - run:
           name: Push image to App Engine
