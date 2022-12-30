@@ -1,5 +1,8 @@
-runtime: python39
+runtime: python310
 entrypoint: ./run.sh $PORT
+
+# 512 MB of RAM
+instance_class: F2
 
 handlers:
 - url: /static

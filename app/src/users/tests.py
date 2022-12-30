@@ -24,7 +24,7 @@ class UserPreferencesModelTestCase(UserPreferencesTestCase):
             'zosia': self.zosia,
             'contact': 'fb: me',
             'shirt_size': 'S',
-            'shirt_type': 'f',
+            'shirt_type': 'm',
             'terms_accepted': True
         }
         defaults.update(**override)
@@ -158,7 +158,7 @@ class UserPreferencesFormTestCase(TestCase):
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
-            'shirt_type': 'f',
+            'shirt_type': 'm',
             'terms_accepted': True
         }
         defaults.update(**override)
@@ -279,7 +279,7 @@ class UserPreferencesEditTestCase(UserPreferencesTestCase):
         response = self.client.post(self.url,
                                     data={
                                         'shirt_size': 'XXL',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'contact': self.user_prefs.contact,
                                         'bonus_minutes': 0,
                                         'terms_accepted': True
@@ -288,7 +288,7 @@ class UserPreferencesEditTestCase(UserPreferencesTestCase):
         self.assertEqual(response.status_code, 200)
         prefs = UserPreferences.objects.filter(pk=self.user_prefs.pk).first()
         self.assertEqual(prefs.shirt_size, 'XXL')
-        self.assertEqual(prefs.shirt_type, 'f')
+        self.assertEqual(prefs.shirt_type, 'm')
 
 
 class RegisterViewTestCase(TestCase):
@@ -399,7 +399,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'terms_accepted': True
                                     },
                                     follow=True)
@@ -414,7 +414,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'terms_accepted': True
                                     },
                                     follow=True)
@@ -430,7 +430,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'accommodation_day_1': True,
                                         'shirt_size': 'M',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'contact': 'fb: me',
                                         'terms_accepted': True
                                     },
