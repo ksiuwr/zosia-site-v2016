@@ -201,7 +201,10 @@ class UserPreferences(models.Model):
     shirt_type = models.CharField(
         max_length=1,
         choices=SHIRT_TYPES_CHOICES,
-        default=SHIRT_TYPES_CHOICES[0][0]
+        default=SHIRT_TYPES_CHOICES[0][0],
+        help_text=(
+            _(f"<b>This year all shirts are in one type only ({SHIRT_TYPES_CHOICES[0][1]}).</b>")
+            if len(SHIRT_TYPES_CHOICES) == 1 else '')
     )
 
     # Terms and conditions are accepted
