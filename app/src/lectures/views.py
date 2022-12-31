@@ -20,7 +20,8 @@ def index(request):
     Display all accepted lectures
     """
     zosia = Zosia.objects.find_active()
-    lectures = Lecture.objects.select_related('author').filter(zosia=zosia).filter(accepted=True)
+    lectures = Lecture.objects.select_related('author').prefetch_related('supporting_authors') \
+        .filter(zosia=zosia, accepted=True)
     ctx = {'objects': lectures}
     return render(request, 'lectures/index.html', ctx)
 
@@ -32,7 +33,9 @@ def display_all_staff(request):
     Display all for staff members, they can change acceptation status
     """
     zosia = Zosia.objects.find_active()
-    lectures = Lecture.objects.select_related('author').filter(zosia=zosia)
+    lectures = Lecture.objects.select_related('author').prefetch_related('supporting_authors') \
+        .filter(zosia=zosia)
+    print([lec.all_authors_names for lec in lectures])
     ctx = {'objects': lectures}
     return render(request, 'lectures/all.html', ctx)
 
@@ -102,6 +105,7 @@ def lecture_update(request, lecture_id=None):
             lecture = form.save(commit=False)
             lecture.zosia = zosia
             lecture.save()
+            form.save_m2m()
             messages.success(request, _("Lecture has been saved."))
             return redirect('lectures_all_staff')
         else:
@@ -137,6 +141,5 @@ def load_durations(request):
     lecture_type = request.GET.get("lecture_type")
     author_id = request.GET.get("author")
     author = User.objects.get(pk=author_id) if author_id is not None else request.user
-    print(f"load_durations {lecture_type}, {author}")
     durations = {'durations': [d[0] for d in get_durations(lecture_type, author)]}
     return JsonResponse(durations)

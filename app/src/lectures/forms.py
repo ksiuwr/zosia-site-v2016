@@ -6,29 +6,23 @@ from lectures.models import Lecture, Schedule
 class LectureForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['title', 'abstract', 'lecture_type', 'duration', 'requests', 'events']
-        widgets = {
-            'abstract': forms.Textarea,
-            'requests': forms.Textarea,
-            'events': forms.Textarea
-        }
+        fields = ['title', 'abstract', 'lecture_type', 'duration', 'supporters_names', 'requests',
+                  'events']
 
 
 class LectureAdminForm(forms.ModelForm):
     class Meta:
         model = Lecture
-        fields = ['author', 'description', 'title', 'abstract', 'lecture_type', 'duration',
-                  'requests', 'events', 'accepted']
+        fields = ['accepted', 'author', 'supporting_authors', 'supporters_names', 'description',
+                  'title', 'abstract', 'lecture_type', 'duration', 'requests', 'events']
         widgets = {
-            'abstract': forms.Textarea,
-            'description': forms.Textarea,
-            'requests': forms.Textarea,
-            'events': forms.Textarea
+            'supporters_names': forms.Textarea(attrs={'disabled': 'True'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['accepted'].checkbox = True
+        self.fields['supporters_names'].disabled = True
 
 
 class ScheduleForm(forms.ModelForm):

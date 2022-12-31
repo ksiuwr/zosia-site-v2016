@@ -329,7 +329,7 @@ class ViewsTestCase(LectureTestCase):
     def test_index_get(self):
         response = self.client.get(reverse('lectures_index'), follow=True)
         self.assertEqual(response.status_code, 200)
-        lectures = Lecture.objects.filter(accepted=True).filter(zosia=self.zosia)
+        lectures = Lecture.objects.filter(zosia=self.zosia, accepted=True)
         self.assertEqual(set(response.context['objects']), set(lectures))
         self.assertTemplateUsed('lectures/index.html')
 

@@ -17,8 +17,8 @@
           <li>
             <div class="collapsible-header">
               <div class="chip">{{ object.get_lecture_type_display }} - {{ object.duration }}</div>
-              <span style="margin-right: 10px;">{{ object.author }}</span>
-              <strong>{{ object.title }}</strong>
+              <span style="margin-right: 10px;">{{ object.all_authors_names }}</span>
+              <strong style="max-width: 65%">{{ object.title }}</strong>
               <div class="switch right">
                 <a href="{% url 'lectures_edit' object.id %}">
                   <i class="material-icons">mode_edit</i>
@@ -33,17 +33,21 @@
               <strong>{% trans 'Abstract' %}:</strong><br />
               {{ object.abstract|linebreaksbr }}
               <br /><br />
-              <strong>{% trans 'Author description' %}:</strong><br />
-              {{ object.description }}
-              <br /><br />
-              <strong>{% trans 'Author type' %}:</strong><br />
+              <strong>{% trans 'Main author (with type)' %}:</strong><br />
+              {{ object.author }}<br />
               {{ object.author.person_type }}
               <br /><br />
+              <strong>{% trans 'Supporting authors provided' %}:</strong><br />
+              {{ object.supporters_names|linebreaksbr }}
+              <br /><br />
+              <strong>{% trans 'Authors description' %}:</strong><br />
+              {{ object.description }}
+              <br /><br />
               <strong>{% trans 'Requests or comments' %}:</strong><br />
-              {{ object.requests }}
+              {{ object.requests|linebreaksbr }}
               <br /><br />
               <strong>{% trans 'Events' %}:</strong><br />
-              {{ object.events }}
+              {{ object.events|linebreaksbr }}
             </div>
           </li>
         {% endfor %}
