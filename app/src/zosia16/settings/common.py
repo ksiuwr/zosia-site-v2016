@@ -66,14 +66,14 @@ ALLOWED_HOSTS = os.environ.get("HOSTS", "staging.zosia.org").split(",")
 
 AUTH_USER_MODEL = "users.User"
 
-# Mailgun (https://github.com/anymail/django-anymail)
+# Anymail docs (https://anymail.dev/en/stable/quickstart/ / https://github.com/anymail/django-anymail)
 ANYMAIL = {
-    "MAILGUN_API_KEY": os.environ.get("MAILGUN_API_KEY"),
-    # TODO: this shouldn't be hardcoded
-    "MAILGUN_SENDER_DOMAIN": "mail.zosia.org",
+    "MAILJET_API_KEY": os.environ.get("MAILJET_API_KEY"),
+    "MAILJET_SECRET_KEY": os.environ.get("MAILJET_SECRET_KEY")
 }
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-DEFAULT_FROM_EMAIL = "admin@" + ANYMAIL["MAILGUN_SENDER_DOMAIN"]
+
+EMAIL_BACKEND = "anymail.backends.mailjet.EmailBackend"
+DEFAULT_FROM_EMAIL = "admin@zosia.org"
 
 sentry_dsn = os.environ.get("SENTRY_DSN")
 if sentry_dsn is not None:
