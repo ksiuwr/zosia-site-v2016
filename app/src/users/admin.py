@@ -20,8 +20,15 @@ def reject_organization(modeladmin, request, queryset):
         org.save()
 
 
+def activate_user(modeladmin, request, queryset):
+    for user in queryset:
+        user.is_active = True
+        user.save()
+
+
 accept_organization.short_description = 'Accept selected organizations'
 reject_organization.short_description = 'Reject selected organizations'
+activate_user.short_description = 'Activate selected accounts'
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -29,6 +36,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 
 class UserAdmin(admin.ModelAdmin):
+    actions = [activate_user]
     list_display = ('first_name', 'last_name', 'email', 'hash', 'person_type', 'is_active',
                     'is_staff', 'is_superuser', 'last_login')
     list_display_links = ('first_name', 'last_name')
