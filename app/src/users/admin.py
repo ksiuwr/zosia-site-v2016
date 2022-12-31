@@ -8,27 +8,25 @@ from users.models import Organization, User, UserFilters, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
 
 
+@admin.action(description='Accept selected organizations')
 def accept_organization(modeladmin, request, queryset):
     for org in queryset:
         org.accepted = True
         org.save()
 
 
+@admin.action(description='Reject selected organizations')
 def reject_organization(modeladmin, request, queryset):
     for org in queryset:
         org.accepted = False
         org.save()
 
 
+@admin.action(description='Activate selected accounts')
 def activate_user(modeladmin, request, queryset):
     for user in queryset:
         user.is_active = True
         user.save()
-
-
-accept_organization.short_description = 'Accept selected organizations'
-reject_organization.short_description = 'Reject selected organizations'
-activate_user.short_description = 'Activate selected accounts'
 
 
 class OrganizationAdmin(admin.ModelAdmin):
