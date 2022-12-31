@@ -37,6 +37,8 @@ class SendActivationEmail:
         subject = ''.join(subject.splitlines())
         body = loader.render_to_string(EMAIL_TEMPLATE_NAME, context)
 
-        email_message = EmailMultiAlternatives(subject, body, from_email, [to_email])
+        email_message = EmailMultiAlternatives(
+            subject, body, from_email, to=[to_email],
+            headers={'From': settings.DEFAULT_FROM_EMAIL_NAME})
 
         email_message.send()
