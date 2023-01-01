@@ -80,9 +80,13 @@
                   {% trans "Total price" %}: <strong>{{ current_prefs.price }} PLN</strong><br />
                   {% trans "Transfer title" %}: <strong>{{ current_prefs.transfer_title }}</strong><br />
                   {% trans "Account number" %}: <strong>{{ current_prefs.zosia.account_number }}</strong><br />
-                  ({% trans "Check if bank name is correct" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)<br />
+                  <i>({% trans "Check if bank name is correct" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)</i><br />
                   {% trans "Receiver name" %}: <strong>{{ current_prefs.zosia.account_owner }}</strong><br />
-                  {% trans "Receiver address" %}: <strong>{{ current_prefs.zosia.account_address }}</strong>
+                  {% trans "Receiver address" %}: <strong>{{ current_prefs.zosia.account_address }}</strong><br />
+                  <br />
+                  <strong><i style="font-size: 1.125rem; color: #ff4000">
+                      {% trans "IMPORTANT NOTE: Please copy and use the provided transfer title! Otherwise, the organizers may not guarantee your time bonus for rooming." %}
+                  </i></strong>
               </blockquote>
             {% endif %}
 
