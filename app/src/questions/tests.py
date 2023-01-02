@@ -16,7 +16,7 @@ class FormTestCase(TestCase):
 
     def test_create_object(self):
         count = QA.objects.count()
-        form = QAForm({'question': 'foo', 'answer': 'bar'})
+        form = QAForm({'question': 'foo', 'answer': 'bar', 'priority': '0'})
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(count + 1, QA.objects.count())
@@ -53,7 +53,7 @@ class ViewsTestCase(TestCase):
                                    follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
-        self.assertEqual(list(context['questions']), list(QA.objects.all()))
+        self.assertEqual(list(context['questions']), list(QA.objects.all().order_by('-priority')))
 
     def test_add_get_staff_user(self):
         self.client.login(email='paul@thebeatles.com', password='paulpassword')
@@ -66,7 +66,7 @@ class ViewsTestCase(TestCase):
         questions = QA.objects.count()
         self.client.login(email='paul@thebeatles.com', password='paulpassword')
         response = self.client.post(reverse('questions_add'),
-                                    {'question': 'foo', 'answer': 'bar'},
+                                    {'question': 'foo', 'answer': 'bar', 'priority': '0'},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(questions + 1, QA.objects.count())
