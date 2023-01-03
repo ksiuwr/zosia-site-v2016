@@ -23,7 +23,7 @@ from utils.views import csv_response
 @staff_member_required()
 @require_http_methods(['GET'])
 def export_json(request):
-    zosia = get_object_or_404(Zosia, active=True)
+    zosia = Zosia.objects.find_active_or_404()
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email', 'user__person_type',
@@ -38,6 +38,9 @@ def export_json(request):
         .values('author__first_name', 'author__last_name', 'title', 'abstract',
                 'author__preferences__organization__name', 'description')
 
+    sponsors = Sponsor.objects \
+        .values('name', 'sponsor_type', 'path_to_logo')
+
     data = {
         "zosia": {
             "start_date": zosia.start_date,
@@ -45,6 +48,7 @@ def export_json(request):
         },
         "lectures": list(lectures),
         "preferences": list(prefs),
+        "sponsors": list(sponsors)
     }
 
     return JsonResponse(data)
