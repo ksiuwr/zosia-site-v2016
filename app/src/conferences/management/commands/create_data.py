@@ -12,14 +12,14 @@ from users.models import Organization, User, UserPreferences
 from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, MAX_BONUS_MINUTES, UserInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
-IMIONA = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
+FIRST_NAMES = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
 
 def create_question():
     data = {
         'question': lorem_ipsum.words(random.randint(5, 10)) + "?",
         'answer': ''.join(lorem_ipsum.paragraphs(1))[:400],
-		'priority': random.randint(0, 100),
+        'priority': random.randint(0, 100),
     }
     return QA.objects.create(**data)
 
@@ -138,7 +138,7 @@ def random_bool():
 def create_random_user_with_preferences(zosia, id):
     data = {
         'email': f'zosia{id}@example.com',
-        'first_name': random.choice(IMIONA),
+        'first_name': random.choice(FIRST_NAMES),
         'last_name': f'Testowa{id}',
         'person_type': UserInternals.PERSON_NORMAL,
     }

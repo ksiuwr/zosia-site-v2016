@@ -2,9 +2,8 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import reverse
 from django.test import TestCase
 
-from questions.models import QA
 from questions.forms import QAForm
-
+from questions.models import QA
 
 User = get_user_model()
 
@@ -16,7 +15,7 @@ class FormTestCase(TestCase):
 
     def test_create_object(self):
         count = QA.objects.count()
-        form = QAForm({'question': 'foo', 'answer': 'bar', 'priority': '0'})
+        form = QAForm({'question': 'foo', 'answer': 'bar', 'priority': 0})
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(count + 1, QA.objects.count())
@@ -66,7 +65,7 @@ class ViewsTestCase(TestCase):
         questions = QA.objects.count()
         self.client.login(email='paul@thebeatles.com', password='paulpassword')
         response = self.client.post(reverse('questions_add'),
-                                    {'question': 'foo', 'answer': 'bar', 'priority': '0'},
+                                    {'question': 'foo', 'answer': 'bar', 'priority': 0},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(questions + 1, QA.objects.count())
