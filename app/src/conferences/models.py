@@ -155,7 +155,14 @@ class Zosia(models.Model):
         return self.registration_start
 
     def is_user_registration_open(self, user):
-        return not self.registration_suspended and self.user_registration_start(user) <= now()
+        if self.user_registration_start(user) > now():
+            return False
+
+        if self.registration_suspended:
+            return user.is_authenticated \
+                and user.person_type == UserInternals.PERSON_EARLY_REGISTERING
+
+        return True
 
     @property
     def is_registration_over(self):

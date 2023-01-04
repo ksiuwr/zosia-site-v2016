@@ -100,10 +100,13 @@ def index(request):
             'key': settings.GAPI_KEY,
             'q': zosia.place.address,
         }
-        context['gapi_place_src'] = settings.GAPI_PLACE_BASE_URL + '?' + urlencode(query)
-        # FIXME: Make sure this url starts with http. Django WILL try to make it relative otherwise
-        context['zosia_url'] = zosia.place.url
-        context['registration_open'] = zosia.is_user_registration_open(user)
+        context.update({
+            'gapi_place_src': settings.GAPI_PLACE_BASE_URL + '?' + urlencode(query),
+            # FIXME: Make sure this url starts with http.
+            #  Django WILL try to make it relative otherwise
+            'zosia_url': zosia.place.url,
+            'registration_open': zosia.is_user_registration_open(user)
+        })
 
     return render(request, 'conferences/index.html', context)
 

@@ -16,18 +16,18 @@
                 Zimowy Obóz Studentów Informatyki A
             </h1>
             <div class="row center">
-                {% if zosia.is_registration_over %}
+              {% if zosia.is_registration_over %}
               <h3 class="header center red-text text-lighten-2 main_title ">
                 {% trans "Registration is over" %}
               </h3>
+              {% elif registration_open %}
+              <a class="waves-effect waves-light btn-large" href="{% url 'user_zosia_register' %}">
+                {% trans "Register now" %}
+              </a>
               {% elif zosia.registration_suspended %}
               <h3 class="header center red-text text-lighten-2 main_title">
-                {% trans "Registration is suspended, please wait for further information"%}
+                {% trans "Registration is suspended, please wait for further information" %}
               </h3>
-              {% elif registration_open %}
-                <a class="waves-effect waves-light btn-large" href="{% url 'user_zosia_register' %}">
-                  {% trans "Register now" %}
-                </a>
               {% elif zosia %}
               <h3 class="header center grey-text text-lighten-4 main_title">
                 {% trans "Registration starts in" %}
