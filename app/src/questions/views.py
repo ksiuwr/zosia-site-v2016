@@ -14,7 +14,7 @@ from utils.forms import errors_format
 @vary_on_cookie
 @require_http_methods(['GET'])
 def index(request):
-    qas = QA.objects.all()
+    qas = QA.objects.all().order_by('-priority')
     ctx = {'questions': qas}
     return render(request, 'questions/index.html', ctx)
 
@@ -22,7 +22,7 @@ def index(request):
 @require_http_methods(['GET'])
 @staff_member_required()
 def index_for_staff(request):
-    qas = QA.objects.all()
+    qas = QA.objects.all().order_by('-priority')
     ctx = {'questions': qas}
     return render(request, 'questions/index_staff.html', ctx)
 
