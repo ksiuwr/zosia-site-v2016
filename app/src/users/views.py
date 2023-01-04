@@ -31,14 +31,25 @@ def profile(request):
     user_preferences = UserPreferences.objects.select_related('bus', 'zosia').filter(user=user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
-    registration_open = current_zosia.is_user_registration_open(user) if current_zosia else False
-    registration_start = current_zosia.user_registration_start(user) if current_zosia else None
+
+    if current_zosia:
+        registration_open = current_zosia.is_user_registration_open(user)
+        registration_start = current_zosia.user_registration_start(user)
+        enable_preferences = \
+            registration_open and not current_zosia.is_registration_over or \
+            current_prefs and (current_zosia.is_registration_over or
+                               current_zosia.registration_suspended)
+    else:
+        registration_open = False
+        registration_start = None
+        enable_preferences = False
 
     ctx = {
         'zosia': current_zosia,
         'current_prefs': current_prefs,
         'registration_open': registration_open,
-        'registration_start': registration_start
+        'registration_start': registration_start,
+        'enable_preferences': enable_preferences
     }
     return render(request, 'users/profile.html', ctx)
 
@@ -227,18 +238,18 @@ def user_preferences_admin_edit(request):
 @login_required
 @require_http_methods(['GET', 'POST'])
 def register(request):
-    zosia = Zosia.objects.find_active_or_404()
     user = request.user
-
-    if not zosia.is_user_registration_open(user):
-        messages.error(request, _('Registration for ZOSIA is not open yet'))
-        return redirect(reverse('index'))
-
+    zosia = Zosia.objects.find_active_or_404()
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=user).first()
 
-    if zosia.is_registration_over and user_prefs is None:
-        messages.error(request, _('You missed registration for ZOSIA'))
-        return redirect(reverse('index'))
+    if user_prefs is None:
+        if not zosia.is_user_registration_open(user):
+            messages.error(request, _('Registration for ZOSIA is not open yet'))
+            return redirect(reverse('index'))
+
+        if zosia.is_registration_over:
+            messages.error(request, _('You missed registration for ZOSIA'))
+            return redirect(reverse('index'))
 
     ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
     form_args = {}

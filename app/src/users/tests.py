@@ -325,6 +325,17 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(context['form'].__class__, UserPreferencesForm)
         self.assertFalse('object' in context)
 
+    def test_get_early_registering_user_not_registered_during_suspended_registration(self):
+        self.client.login(email="starr@thebeatles.com", password="ringopassword")
+        self.zosia.registration_suspended = True
+        self.zosia.save()
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, UserPreferencesForm)
+        self.assertFalse('object' in context)
+
     def test_get_regular_user_before_registration(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         self.zosia.registration_start = timedelta_since_now(hours=1)
@@ -374,6 +385,19 @@ class RegisterViewTestCase(TestCase):
 
     def test_get_regular_user_already_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        org = create_organization(name='ksi', accepted=True)
+        user_prefs = create_user_preferences(self.normal, self.zosia, organization=org)
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, UserPreferencesForm)
+        self.assertEqual(context['object'], user_prefs)
+
+    def test_get_regular_user_already_registered_during_suspended_registration(self):
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.zosia.registration_suspended = True
+        self.zosia.save()
         org = create_organization(name='ksi', accepted=True)
         user_prefs = create_user_preferences(self.normal, self.zosia, organization=org)
         response = self.client.get(self.url, follow=True)
