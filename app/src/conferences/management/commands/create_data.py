@@ -19,6 +19,7 @@ def create_question():
     data = {
         'question': lorem_ipsum.words(random.randint(5, 10)) + "?",
         'answer': ''.join(lorem_ipsum.paragraphs(1))[:400],
+		'priority': random.randint(0, 100),
     }
     return QA.objects.create(**data)
 
