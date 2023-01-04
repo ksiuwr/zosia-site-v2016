@@ -312,12 +312,11 @@ def list_csv_preferences_paid(request):
 def list_csv_lectures(request):
     lectures = Lecture.objects.all()
     header = ("Name", "Printed name", "Lecturers", "Duration", "Type",
-              "Sponsor type", "Comment")
+              "Highlighted", "Comment")
     data = [(
         str(lecture.title), "", str(lecture.all_authors_names), str(lecture.duration),
         str(lecture.lecture_type),
-        # TODO: return proper sponsor type instead of '?'
-        str("?" if lecture.author.person_type == UserInternals.PERSON_SPONSOR else "none"),
+        str("Yes" if lecture.author.person_type == UserInternals.PERSON_SPONSOR else "No"),
         str(lecture.requests),
     ) for lecture in lectures
     ]
