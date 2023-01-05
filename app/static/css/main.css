@@ -268,7 +268,12 @@ footer.page-footer {
 }
 
 .main_title {
-    -webkit-text-stroke: 1px #1e1e1e;
+    text-shadow:
+        1px 1px 0 #000,
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
     font-weight: 700;
 }
 
