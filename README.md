@@ -24,18 +24,19 @@ production one.
 
 #### Required software
 
-To run docker container you obviously need to have _Docker (Community Edition)_ installed.
+To run container for development you need to have _Docker (Community Edition)_ installed, as well as
+a `docker-compose-plugin` installed on your system.
 
-Additionally, you should install `docker-compose` using APT on Debian-based systems:
+For Debain-based systems use APT:
 
 ```bash
-sudo apt install docker-ce docker-compose
+sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 ```
 
-or using PIP:
+For RPM-based systems:
 
 ```bash
-pip3 install docker-compose
+sudo yum install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 ```
 
 #### How can I run it?
@@ -49,7 +50,8 @@ There are 3 flags that you might want to use with `dev.py run`:
 
 - `--create-admin` - create super user / admin account with the password of your choice
 - `--create-data` - generate some semi-random data - the implementation can be found
-  here: `src/conferences/management/commands/create_data.py`
+  here: `src/conferences/management/commands/create_data.py`. This command also generates
+  several user accounts `zosia[0-9]?@example.com` that can be accessed with password: `pass`.
 - `--no-cache` - build the fresh copy of the container image (ignore docker cache)
 
 #### I have run it - what is happening?
@@ -97,8 +99,8 @@ Creating network "zosia_default" with the default driver
 ERROR: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
 ```
 
-This error can appear during `docker-compose up` command if you have VPN activated on your system.
-There has been no solution found yet. You have to disconnect from VPN, run `docker-compose up` and
+This error can appear during `docker compose up` command if you have VPN activated on your system.
+There has been no solution found yet. You have to disconnect from VPN, run `docker compose up` and
 when containers are finally up you may enable your VPN again.
 
 ---
@@ -118,9 +120,14 @@ In case of any other problems it is recommended to rebuild the container with `-
 
 ## Hosting
 
-In 2020, we hosted ZOSIA registration site on AWS. We used an ECS cluster based on EC2 instances
+### 2019-2020
+We hosted ZOSIA registration site on AWS. We used an ECS cluster based on EC2 instances
 to run the containers and ECR as a docker registry. All secrets (like database credentials,
 different APIs keys, etc) were stored in the Parameter Store and loaded to the environment variables
 on container startup. Deployments were conducted by CircleCI after every commit to the master
 branch.
 All deployment scripts used for that are placed in the `.ecs` directory.
+
+### 2022 - 2023
+We hosted the ZOSIA site on GCP App Engine with GCP SQL as Postgres managed database. Deployments
+were still done using CircleCI pipelines.
