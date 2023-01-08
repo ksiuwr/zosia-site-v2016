@@ -68,7 +68,6 @@
                 <a href="{% url 'bus_admin' %}" class="collection-item">{% trans 'Bus' %}</a>
                 <a href="{% url 'organizations' %}" class="collection-item">{% trans 'Organizations' %}</a>
                 <a href="{% url 'rooms_import' %}" class="collection-item"> {% trans 'Upload rooms' %}</a>
-                <a href="{% url 'export_data' %}" class="collection-item"> {% trans 'Export data' %}</a>
                 <a href="{% url 'statistics' %}" class="collection-item">{% trans 'Statistics' %}</a>
                 <a href="{% url 'boardgames_accept' %}" class="collection-item">{% trans 'Boardgames' %}</a>
             </ul>
@@ -78,6 +77,12 @@
             <ul class="collection">
                 <a href="{% url 'list_csv_lectures' %}" class="collection-item">
                     {% trans 'Lectures export (for spreadsheet-scheduler)' %} (CSV)
+                </a>
+                <a href="{% url 'export_shirts' %}" class="collection-item">
+                    {% trans 'Shirts export' %} (CSV)
+                </a>
+                <a href="{% url 'export_json' %}" class="collection-item">
+                    {% trans 'ZOSIA data export (for zosia-print script)' %} (JSON)
                 </a>
                 <a href="{% url 'list_csv_preferences_all' %}" class="collection-item">
                     {% trans 'Preferences of registered users' %} (CSV)
