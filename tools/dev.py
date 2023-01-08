@@ -6,6 +6,8 @@ import subprocess as subp
 
 from os.path import dirname, normpath
 
+from typing import List
+
 
 class Colour:
     BLUE = "\033[1;34m"
@@ -29,7 +31,7 @@ SUBCOMMANDS_NOTE = "[contains subcommands]"
 DEBUG_MODE = False
 
 
-def command_run(command) -> None:
+def command_run(command: List[str]) -> None:
     if DEBUG_MODE:
         print(
             f"{Colour.WHITE}** {Colour.YELLOW}{subp.list2cmdline(command)}"
@@ -38,20 +40,20 @@ def command_run(command) -> None:
     subp.run(command, check=False)
 
 
-def docker_exec(command, container) -> None:
+def docker_exec(command: List[str], container: str) -> None:
     command_run(["docker", "exec", "-it", container] + command)
 
 
-def docker_shell(command) -> None:
+def docker_shell(command: List[str]) -> None:
     docker_exec(["/bin/bash", "-c", subp.list2cmdline(command)],
                 WEB_CONTAINER_NAME)
 
 
-def docker_python(command) -> None:
+def docker_python(command: List[str]) -> None:
     docker_shell(["python", "src/manage.py"] + command)
 
 
-def docker_compose_run(command, with_project=True) -> None:
+def docker_compose_run(command: List[str], with_project: bool = True) -> None:
     project = ["-p", PROJECT_NAME] if with_project else []
     command_run(
         ["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE]
