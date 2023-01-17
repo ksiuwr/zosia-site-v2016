@@ -13,14 +13,11 @@ from utils.time_manager import format_in_zone, now
 
 
 class Place(models.Model):
-    name = models.CharField(
-        max_length=300
-    )
-    url = models.URLField(
-        max_length=300,
-        blank=True
-    )
+    name = models.CharField(max_length=300)
+    url = models.URLField(max_length=300, blank=True)
     address = models.TextField()
+    city = models.CharField(max_length=60, help_text=_("City used in terms and conditions"),
+                            default="")
 
     def __str__(self):
         return self.name
