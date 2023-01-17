@@ -59,7 +59,7 @@ def create_place():
         'name': 'Old Forest Inn',
         'url': 'http://google.com',
         'address': 'Bakery Street 23, Glasgow',
-        'city': 'Glasgow'
+        'town': 'Glasgow'
     }
     return Place.objects.create(**data)
 
