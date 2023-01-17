@@ -77,13 +77,6 @@ def export_shirts(request):
     return response
 
 
-@staff_member_required()
-@require_http_methods(['GET'])
-def export_data(request):
-    ctx = {}
-    return render(request, 'conferences/export_data.html', ctx)
-
-
 @require_http_methods(['GET'])
 def index(request):
     user = request.user
