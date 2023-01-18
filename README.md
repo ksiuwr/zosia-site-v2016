@@ -27,7 +27,7 @@ production one.
 To run container for development you need to have _Docker (Community Edition)_ installed, as well as
 a `docker-compose-plugin` installed on your system.
 
-For Debain-based systems use APT:
+For Debian-based systems use APT:
 
 ```bash
 sudo apt install docker-ce docker-ce-cli containerd.io docker-compose-plugin
