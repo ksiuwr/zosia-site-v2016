@@ -5,108 +5,101 @@
 {% block content %}
     <div class="container grey-text text-darken-2">
         <div class="row">
-            <div class="col l8 center-align">
+            <div class="col s12 l8 offset-l2 center-align">
                 <h3>{% trans 'Regulamin Zimowego Obozu Studentów Informatyki A' %}</h3>
             </div>
         </div>
         <div class="row">
-            <div class="col l8">
+            <div class="col s12 l8 offset-l2">
+                {% if not zosia %}
+                <h5>{% trans 'W przygotowaniu' %}...</h5>
+                {% else %}
                 <ol>
                     <li>
-                        Niniejszy regulamin reguluje zasady obowiązujące uczestników
-                        Ogólnopolskiej Konferencji „ZOSIA 2022”, zwanej dalej Konferencją,
-                        mającego miejsce w Przesiece, w dniach 3-6 marca 2022, a także
-                        definiuje konsekwencje wynikające z nieprzestrzegania tych zasad.
+                        Niniejszy regulamin reguluje zasady obowiązujące osoby uczestniczące w
+                        Ogólnopolskiej Konferencji „{{ zosia }}”, zwanej dalej Konferencją,
+                        odbywającej się w miejscowości {{ zosia.place.town }}, w dniach
+                        {{ zosia.start_date|date:"j.m." }} - {{ zosia.end_date|date:"j.m.Y" }},
+                        a także definiuje konsekwencje wynikające z nieprzestrzegania tych zasad.
                     </li>
                     <li>
-                        Organizatorem obozu jest Koło Studentów Informatyki działające przy Wydziale
-                        Matematyki i Informatyki Uniwersytetu Wrocławskiego z siedzibą w Instytucie Informatyki
-                        Uniwersytetu Wrocławskiego, przy ul. Joliot-Curie 15, 50-383 Wrocław.
+                        Organizatorem Konferencji jest Koło Studentów Informatyki działające przy Wydziale
+                        Matematyki i Informatyki Uniwersytetu Wrocławskiego, z siedzibą w Instytucie Informatyki
+                        Uniwersytetu Wrocławskiego przy ul. Joliot-Curie 15, 50-383 Wrocław.
                     </li>
                     <li>
-                        Uczestnikami konferencji, zwanymi dalej uczestnikami, mogą być jedynie te osoby
-                        zarejestrowane w serwisie internetowym konferencji, które uiściły odpowiednią opłatę
-                        wyliczoną indywidualnie dla każdego uczestnika.
+                        Osobami uczestniczącymi w Konferencji, zwanymi dalej Uczestnikami, mogą być jedynie osoby
+                        zarejestrowane w serwisie internetowym Konferencji, które uiściły odpowiednią opłatę
+                        wyliczoną indywidualnie dla każdego Uczestnika.
                     </li>
                     <li>
-                        Konferencja rozpoczyna się w dniu 3. marca 2022 i kończy w dniu 6. marca 2022, jednakże
-                        czas pobytu każdego z uczestników jest zależny od jego preferencji zadeklarowanych
-                        w systemie internetowym.
+                        Konferencja rozpoczyna się dnia {{ zosia.start_date|date:"j.m.Y" }} i kończy
+                        dnia {{ zosia.end_date|date:"j.m.Y" }}, jednakże czas pobytu każdego z Uczestników
+                        jest zależny od jego preferencji zadeklarowanych w systemie internetowym.
                     </li>
                     <li>
-                        W trakcie trwania konferencji, uczestnik zobowiązany jest do stosowania się do poleceń
+                        W trakcie trwania Konferencji, Uczestnik zobowiązany jest do stosowania się do poleceń
                         Organizatora i osób przez niego wyznaczonych.
                     </li>
                     <li>
-                        Nieodpowiednie zachowanie uczestnika w trakcie konferencji, w szczególności
-                        niestosowanie się do poleceń osób wymienionych w pkt. 5, nadużywanie alkoholu,
+                        Nieodpowiednie zachowanie Uczestnika w trakcie Konferencji, w szczególności
+                        niestosowanie się do poleceń osób wymienionych w punkcie 5, nadużywanie alkoholu,
                         stosowanie środków odurzających, bądź inne zachowania nieobyczajne, a także zachowania
-                        stwarzające zagrożenie zdrowia i bezpieczeństwa uczestnika bądź innych uczestników
+                        stwarzające zagrożenie zdrowia i bezpieczeństwa Uczestnika bądź innych Uczestników
                         stanowią podstawę do zastosowania następujących środków dyscyplinujących:
                         <ol>
                             <li>upomnienia;</li>
-                            <li>powiadomienia władz organizacji macierzystej (uczelni) o zachowaniu uczestnika;</li>
-                            <li>wydalenia z konferencji.</li>
+                            <li>powiadomienia władz organizacji macierzystej (uczelni) o zachowaniu Uczestnika;</li>
+                            <li>wydalenia z Konferencji.</li>
                         </ol>
                         O zastosowaniu środka dyscyplinującego, w tym także o rodzaju zastosowanego środka,
-                        decyduje jednoosobowo osoba wskazana przez Organizatora jako Kierownik konferencji.
-                        Kierownik konferencji może zdecydować o nałożeniu środka najbardziej dotkliwego bez
-                        uprzedniego stosowania pozostałych środków. Kierownik konferencji może zdecydować
+                        decyduje jednoosobowo osoba wskazana przez Organizatora jako Kierownik Konferencji.
+                        Kierownik Konferencji może zdecydować o nałożeniu środka najbardziej dotkliwego bez
+                        uprzedniego stosowania pozostałych środków. Kierownik Konferencji może zdecydować
                         o zastosowaniu wszystkich środków dyscyplinujących łącznie. Władze uczelni
-                        macierzystych względem osób będących uczestnikami mogą za to samo zachowanie
+                        macierzystych względem osób będących Uczestnikami mogą za to samo zachowanie
                         zastosować kary dyscyplinarne wynikające z Regulaminu Studiów.
                     </li>
                     <li>
-                        Na terenie całego ośrodka, w którym odbywać się będzie konferencja obowiązuje
+                        Na terenie całego ośrodka, w którym odbywać się będzie Konferencja obowiązuje
                         bezwzględny zakaz palenia papierosów oraz innych wyrobów nikotynowych (w tym
-                        papierosów elektronicznych itp.). W przypadku nieprzestrzegania tego zakazu organizator
-                        zastrzega sobie prawo do zastosowania środków dyscyplinujących opisanych w punkcie 6
-                        niniejszego regulaminu.
+                        papierosów elektronicznych, itp.). W przypadku nieprzestrzegania tego zakazu organizator
+                        zastrzega sobie prawo do zastosowania środków dyscyplinujących opisanych w punkcie 6.
                     </li>
                     <li>
                         Uczestnik ponosi odpowiedzialność za szkody wyrządzone osobom trzecim w czasie
-                        przebywania na konferencji. Organizator nie przejmuje odpowiedzialności względem osób
-                        trzecich za zachowania uczestnika w trakcie konferencji.
+                        przebywania na Konferencji. Organizator nie przejmuje odpowiedzialności względem osób
+                        trzecich za zachowania Uczestnika w trakcie Konferencji.
                     </li>
                     <li>
-                        Poprzez swój udział w konferencji uczestnik oświadcza względem Organizatora, iż jest
-                        w stanie zdrowia umożliwiającym bezpieczne uczestnictwo w programie konferencji,
-                        w szczególności jest w pełni zaszczepiony przeciwko SARS-COV-2 lub posiada aktualny
-                        negatywny wynik testu PCR na SARS-Cov-2 (tj. negatywny wynik testu wykonanego nie
-                        wcześniej niż na 7 dni przed datą rozpoczęcia konferencji).
-                    </li>
-                    <li>
-                        Organizator zastrzega sobie prawo do poproszenia uczestnika o przedstawienie
-                        organizatorowi dokumentu potwierdzającego iż uczestnik spełnia warunek określony
-                        w punkcie 9 niniejszego regulaminu tj. paszport covidowy lub negatywny wynik testu.
-                    </li>
-                    <li>
-                        Organizator nie sprawuje pieczy nad osobą uczestnika oraz jego mieniem w trakcie
-                        konferencji. W szczególności Organizator nie ponosi odpowiedzialności za mienie
-                        uczestnika pozostawione w obiekcie, w którym organizowana jest konferencja.
+                        Organizator nie sprawuje pieczy nad osobą Uczestnika oraz jego mieniem w trakcie
+                        Konferencji. W szczególności Organizator nie ponosi odpowiedzialności za mienie
+                        Uczestnika pozostawione w obiekcie, w którym organizowana jest Konferencja.
                     </li>
                     <li>
                         Uczestnikowi nie przysługuje zwrot jego świadczenia na rzecz Organizatora bądź części tego
-                        świadczenia w przypadku niepełnego udziału w konferencji z przyczyn, za które Organizator
+                        świadczenia w przypadku niepełnego udziału w Konferencji z przyczyn, za które Organizator
                         nie odpowiada. W szczególności zwrot świadczenia bądź części świadczenia nie przysługuje
-                        uczestnikowi, względem którego zastosowano karę przewidzianą w pkt 6.c.
+                        Uczestnikowi, względem którego zastosowano karę wydalenia z Konferencji.
                     </li>
                     <li>
                         Warunki rezygnacji:
                         <ol>
                             <li>
-                                Rezygnacja z Konferencji następuje w momencie złożenia przez uczestnika rezygnacji
+                                Rezygnacja z Konferencji następuje w momencie złożenia przez Uczestnika rezygnacji
                                 w formie pisemnej lub elektronicznej na adres pocztowy Organizatora.
                             </li>
                             <li>
                                 W przypadku rezygnacji potrąca się 100% wpłaconej kwoty.
                             </li>
                             <li>
-                                Istnieje możliwość zwrotu wpłaconej kwoty, gdy rezygnujący uczestnik znajdzie na to
-                                miejsce innego uczestnika.
+                                Istnieje możliwość zwrotu wpłaconej kwoty, gdy rezygnujący Uczestnik znajdzie na to
+                                miejsce innego Uczestnika.
                             </li>
                         </ol>
-                    </ol>
+                    </li>
+                </ol>
+                {% endif %}
             </div>
         </div>
     </div>
