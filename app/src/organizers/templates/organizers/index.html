@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col l12 m12 s12">
+        <h3>
+          {% trans "Organizers" %}
+        </h3>
+
+      </div>
+      <div class="fixed-action-btn">
+        <a href="{% url 'organizers_add' %}" class="waves-effect waves-light btn-floating secondary-content btn-large">
+          <i class="material-icons">add</i>
+        </a>
+      </div>
+    </div>
+    <ul class="collapsible" data-collapsible="accordion">
+      {% for object in objects %}
+        <li>
+          <div class="collapsible-header">
+            <i class="material-icons">contacts</i>
+            <strong>{{ object.user }} - 
+                <span>{{ object.phone_number }}</span>
+            </strong>
+            <div class="switch right">
+              <a href="{% url 'organizers_edit' object.user.id %}">
+                <i class="material-icons">mode_edit</i>
+              </a>
+              <a href="{% url 'organizers_delete' object.user.id %}">
+                <i class="material-icons">delete</i>
+              </a>
+            </div>
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endblock %}
