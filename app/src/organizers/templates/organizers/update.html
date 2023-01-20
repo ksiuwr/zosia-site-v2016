@@ -6,8 +6,8 @@
 <form method="post" action="">
     {% csrf_token %}
     <div class="container">
-    {% if question %}
-        {% include '_form.html' with form_name="Edit organiser's contact" %}
+    {% if organizer %}
+        {% include '_form.html' with form_name=organizer.user %}
     {% else %}
         {% include '_form.html' with form_name='Add contact to organiser' %}
     {% endif %}

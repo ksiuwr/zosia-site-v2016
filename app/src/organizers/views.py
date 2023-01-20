@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from organizers.forms import OgraniserForm
+from organizers.forms import OgranizerForm
 from organizers.models import OrganizerContact
 
 from utils.forms import errors_format
@@ -20,13 +20,17 @@ def index(request):
 def update(request, user_id=None):
     ctx = {}
     kwargs = {}
+    organizer = None
+    
     if user_id is not None:
         organizer = get_object_or_404(OrganizerContact, pk=user_id)
         ctx['object'] = organizer
         kwargs['instance'] = organizer
 
-    form = OgraniserForm(request.POST or None, request.FILES or None, **kwargs)
+    form = OgranizerForm(request.POST or None, **kwargs)
+
     ctx['form'] = form
+    ctx['organizer'] = organizer
 
     if request.method == 'POST':
         if form.is_valid():
