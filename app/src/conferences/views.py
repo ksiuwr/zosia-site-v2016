@@ -6,6 +6,8 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
+from django.db.models.functions import Concat
+from django.db.models import Value
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
@@ -14,6 +16,7 @@ from django.views.decorators.http import require_http_methods
 from conferences.forms import BusForm, PlaceForm, ZosiaForm
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
+from organizers.models import OrganizerContact
 from sponsors.models import Sponsor
 from users.models import User, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -41,11 +44,17 @@ def export_json(request):
     sponsors = Sponsor.objects \
         .values('name', 'sponsor_type', 'path_to_logo')
 
+
+    organizersContacts = OrganizerContact.objects \
+        .filter(zosia=zosia) \
+        .values('user__first_name', 'user__last_name', 'phone_number')
+
     data = {
         "zosia": {
             "start_date": zosia.start_date,
             "end_date": zosia.end_date
         },
+        "contacts": list(organizersContacts),
         "lectures": list(lectures),
         "preferences": list(prefs),
         "sponsors": list(sponsors)
