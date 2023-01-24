@@ -6,9 +6,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.db.models.functions import Concat
-from django.db.models import Value
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -116,8 +114,6 @@ def index(request):
 @require_http_methods(['GET'])
 def terms_and_conditions(request):
     zosia = Zosia.objects.find_active()
-    if zosia is None:
-        raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/terms_and_conditions.html', ctx)
 

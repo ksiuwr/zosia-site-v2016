@@ -40,7 +40,7 @@ def index(request):
         return redirect(reverse('user_zosia_register'))
 
     if preferences.room is not None and preferences.room.hidden:
-        messages.error(request, _('Your are already assigned to hidden room by organizators'))
+        messages.error(request, _('You have already been assigned to a hidden room by organizers'))
         return redirect(reverse('accounts_profile'))
 
     paid = preferences.payment_accepted
