@@ -2,7 +2,7 @@ from django import forms
 from organizers.models import OrganizerContact
 
 
-class OgranizerForm(forms.ModelForm):
+class OrganizerForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

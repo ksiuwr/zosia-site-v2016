@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render, reverse
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from organizers.forms import OgranizerForm
+from organizers.forms import OrganizerForm
 from organizers.models import OrganizerContact
 
 from utils.forms import errors_format
@@ -27,7 +27,7 @@ def update(request, user_id=None):
         ctx['object'] = organizer
         kwargs['instance'] = organizer
 
-    form = OgranizerForm(request.POST or None, **kwargs)
+    form = OrganizerForm(request.POST or None, **kwargs)
 
     ctx['form'] = form
     ctx['organizer'] = organizer
