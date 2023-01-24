@@ -19,7 +19,8 @@ def create_zosia(commit=True, **kwargs):
     time = now()
     place, _ = Place.objects.get_or_create(
         name='Mieszko',
-        address='FooBar@Katowice'
+        address='FooBar@Katowice',
+        town='Katowice'
     )
     defaults = {
         'active': False,

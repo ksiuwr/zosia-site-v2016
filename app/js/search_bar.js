@@ -33,6 +33,8 @@ const SearchBar = (props) =>
       <ul style={{height: "50px", lineHeight: "45px", margin: 0}}>
         <li style={{float:"left", margin: "5px"}}>
           <a href="#" className="waves-effect waves-light btn" onClick={add_room}> Add room </a>
+          &nbsp;
+          <a href="/rooms/import/" className="waves-effect waves-light btn"> Import rooms </a>
         </li>
       </ul>
     </div> : "" }

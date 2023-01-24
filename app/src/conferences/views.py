@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
@@ -77,13 +77,6 @@ def export_shirts(request):
     return response
 
 
-@staff_member_required()
-@require_http_methods(['GET'])
-def export_data(request):
-    ctx = {}
-    return render(request, 'conferences/export_data.html', ctx)
-
-
 @require_http_methods(['GET'])
 def index(request):
     user = request.user
@@ -114,8 +107,6 @@ def index(request):
 @require_http_methods(['GET'])
 def terms_and_conditions(request):
     zosia = Zosia.objects.find_active()
-    if zosia is None:
-        raise Http404
     ctx = {'zosia': zosia}
     return render(request, 'conferences/terms_and_conditions.html', ctx)
 

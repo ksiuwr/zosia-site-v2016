@@ -40,12 +40,18 @@ def index(request):
         return redirect(reverse('user_zosia_register'))
 
     if preferences.room is not None and preferences.room.hidden:
-        messages.error(request, _('Your are already assigned to hidden room by organizators'))
+        messages.error(request, _('You have already been assigned to a hidden room by organizers'))
         return redirect(reverse('accounts_profile'))
 
     paid = preferences.payment_accepted
     if not paid:
         messages.error(request, _('Your payment must be accepted first'))
+        return redirect(reverse('accounts_profile'))
+
+    has_accommodation = preferences.accommodation_day_1 or preferences.accommodation_day_2 or \
+                        preferences.accommodation_day_3
+    if not has_accommodation:
+        messages.error(request, _("You haven't ordered any accommodation"))
         return redirect(reverse('accounts_profile'))
 
     if not zosia.is_rooming_open:
@@ -89,7 +95,8 @@ def list_csv_room_by_member(request):
 @require_http_methods(['GET'])
 def list_csv_members_by_room(request):
     rooms = Room.objects.prefetch_related('members').all()
-    data_list = [(str(r), r.members_to_string) for r in sorted(rooms, key=Room.name_to_key_orderable)]
+    data_list = [(str(r), r.members_to_string) for r in
+                 sorted(rooms, key=Room.name_to_key_orderable)]
     return csv_response(("Room", "Members"), data_list, filename='list_csv_members_by_room')
 
 
@@ -114,7 +121,8 @@ def handle_uploaded_file(csvfile):
         Room.objects.bulk_create(rooms)
     except ValueError:
         raise ValidationError(
-            "Could not add rooms, check whether the file is properly formed and all values are correct.",
+            "Could not add rooms, check whether the file is properly formed and all values are "
+            "correct.",
             code="invalid")
 
 
