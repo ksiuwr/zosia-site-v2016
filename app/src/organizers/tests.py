@@ -1,25 +1,17 @@
 from django.shortcuts import reverse
 from django.test import TestCase
 
-from utils.test_helpers import create_zosia
+from utils.test_helpers import create_zosia, create_user, user_login
 from utils.constants import UserInternals
 
 from organizers.forms import OrganizerForm
 from organizers.models import OrganizerContact
-from users.models import User
 
 class FormTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.staff = User.objects.create_user('paul@thebeatles.com',
-                                              'paulpassword')
-        self.staff.is_staff = True
-        self.staff.save()
-
-        self.normal = User.objects.create_user('lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
-
+        self.staff = create_user(0, person_type=UserInternals.PERSON_NORMAL, is_staff=True)
+        self.normal = create_user(1, person_type=UserInternals.PERSON_NORMAL)
         self.zosia = create_zosia()
 
     def test_no_data(self):
@@ -44,15 +36,8 @@ class FormTestCase(TestCase):
 class ViewsTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.staff = User.objects.create_user('paul@thebeatles.com',
-                                              'paulpassword')
-        self.staff.is_staff = True
-        self.staff.save()
-
-        self.normal = User.objects.create_user('lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
-
+        self.staff = create_user(0, person_type=UserInternals.PERSON_NORMAL, is_staff=True)
+        self.normal = create_user(1, person_type=UserInternals.PERSON_NORMAL)
         self.zosia = create_zosia()
 
     def test_index_get_no_user(self):
@@ -61,31 +46,31 @@ class ViewsTestCase(TestCase):
         self.assertRedirects(response, '/admin/login/?next=/organizers/')
 
     def test_index_get_normal_user(self):
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.client.login(**user_login(self.normal))
         response = self.client.get(reverse('organizers_index'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/organizers/')
 
     def test_index_get_staff_user(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        self.client.login(**user_login(self.staff))
         response = self.client.get(reverse('organizers_index'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
         self.assertEqual(list(context['objects']), list(OrganizerContact.objects.all()))
 
     def test_add_get_staff_user(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        self.client.login(**user_login(self.staff))
         response = self.client.get(reverse('organizers_add'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
         self.assertEqual(context['form'].__class__, OrganizerForm)
 
     def test_edit_get_staff_user(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        self.client.login(**user_login(self.staff))
         organizer = OrganizerContact(zosia=self.zosia, user=self.staff, phone_number='123456789')
         organizer.save()
         response = self.client.get(reverse('organizers_edit',
-                                           kwargs={'user_id': organizer.user.pk}),
+                                           kwargs={'contact_id': organizer.id}),
                                    follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
