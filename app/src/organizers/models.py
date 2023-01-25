@@ -8,7 +8,7 @@ from users.models import User
 from conferences.models import Zosia
 
 def validate_phone_number(value):
-    phone_reg = r'\d{9}'
+    phone_reg = r'^(?<!\w)(\(?\+?\d{1,3}\)?[ -])?[ -]?\d{3}[ -]?\d{3}[ -]?\d{3}(?!\w)'
     m = re.match(phone_reg, value)
     if not m:
         raise ValidationError(_('Please provide correct phone number'))
@@ -22,7 +22,7 @@ class OrganizerContact(models.Model):
     )
     phone_number = models.CharField(
         verbose_name=_('Phone number'), 
-        max_length=9,
+        max_length=18,
         validators=[validate_phone_number]
     )
     zosia = models.ForeignKey(

@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
             name='OrganizerContact',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('phone_number', models.CharField(max_length=9, validators=[organizers.models.validate_phone_number], verbose_name='Phone number')),
+                ('phone_number', models.CharField(max_length=18, validators=[organizers.models.validate_phone_number], verbose_name='Phone number')),
                 ('user', models.OneToOneField(limit_choices_to={'is_staff': True}, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, verbose_name='User')),
                 ('zosia', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='conferences.zosia', verbose_name='ZOSIA')),
             ],
