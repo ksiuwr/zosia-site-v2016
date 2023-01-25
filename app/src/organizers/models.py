@@ -17,7 +17,6 @@ class OrganizerContact(models.Model):
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
-        primary_key=True,
         verbose_name=_('User'),
         limit_choices_to={'is_staff': True}
     )

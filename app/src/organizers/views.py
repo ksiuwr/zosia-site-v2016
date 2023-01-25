@@ -17,13 +17,13 @@ def index(request):
 
 @staff_member_required()
 @require_http_methods(['POST', 'GET'])
-def update(request, user_id=None):
+def update(request, contact_id=None):
     ctx = {}
     kwargs = {}
     organizer = None
     
-    if user_id is not None:
-        organizer = get_object_or_404(OrganizerContact, pk=user_id)
+    if contact_id is not None:
+        organizer = get_object_or_404(OrganizerContact, pk=contact_id)
         ctx['object'] = organizer
         kwargs['instance'] = organizer
 
@@ -44,8 +44,8 @@ def update(request, user_id=None):
 
 @staff_member_required()
 @require_http_methods(['GET'])
-def delete(request, user_id):
-    organiser = get_object_or_404(OrganizerContact, pk=user_id)
+def delete(request, contact_id):
+    organiser = get_object_or_404(OrganizerContact, pk=contact_id)
     organiser.delete()
     messages.success(request, _('Organizer contact removed'))
     return redirect('organizers_index')

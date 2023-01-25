@@ -25,10 +25,10 @@
                 <span>{{ object.phone_number }}</span>
             </strong>
             <div class="switch right">
-              <a href="{% url 'organizers_edit' object.user.id %}">
+              <a href="{% url 'organizers_edit' object.id %}">
                 <i class="material-icons">mode_edit</i>
               </a>
-              <a href="{% url 'organizers_delete' object.user.id %}">
+              <a href="{% url 'organizers_delete' object.id %}">
                 <i class="material-icons">delete</i>
               </a>
             </div>
