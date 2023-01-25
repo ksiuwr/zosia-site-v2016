@@ -111,7 +111,7 @@ INSTALLED_APPS = [
     "boardgames.apps.BoardgameConfig",
     "conferences.apps.ConferencesConfig",
     "lectures.apps.LecturesConfig",
-	"organizers.apps.OrganizersConfig",
+    "organizers.apps.OrganizersConfig",
     "questions.apps.QuestionsConfig",
     "sponsors.apps.SponsorsConfig",
     "rooms.apps.RoomsConfig",
