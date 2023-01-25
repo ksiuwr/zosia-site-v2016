@@ -2,11 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import argparse as argp
-import subprocess as subp
-
 from os.path import dirname, normpath
-
-from typing import List
+import subprocess as subp
+from typing import List, Optional
 
 
 class Colour:
@@ -87,6 +85,18 @@ def setup(is_no_cache: bool) -> None:
     web_build()
 
 
+def run_tests(directories: Optional[List[str]], is_verbose: bool):
+    command = ["test"]
+
+    if directories:
+        command += list(directories)
+
+    if is_verbose:
+        command += ["-v", "2"]
+
+    docker_python(command)
+
+
 def migrate(is_create_admin: bool, is_create_data: bool) -> None:
     docker_python(["migrate"])
 
@@ -136,6 +146,9 @@ def cli():
         "test", aliases=["t"],
         help="run Django tests inside the container")
     test_parser.add_argument(
+        "-d", "--dir", action="append",
+        help="directory to run tests from [option can be repeated]")
+    test_parser.add_argument(
         "-v", "--verbose", action="store_true",
         help="add verbose option to test command")
 
@@ -175,7 +188,7 @@ def cli():
     run_server_parser = subparsers.add_parser(
         "server", aliases=["sv"],
         help="run Django development server inside the container "
-        "(localhost, port 8000, http://localhost:8000/)")
+             "(localhost, port 8000, http://localhost:8000/)")
 
     web_parser = subparsers.add_parser(
         "web", aliases=["javascript", "js"],
@@ -230,7 +243,7 @@ def cli():
         docker_compose_run(["down"])
 
     elif args.command in ["test", "t"]:
-        docker_python(["test"] + (["-v", "2"] if args.verbose else []))
+        run_tests(args.dir, args.verbose)
 
     elif args.command in ["shell", "sh"]:
         if args.shell in ["bash"]:
