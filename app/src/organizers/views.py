@@ -35,7 +35,7 @@ def update(request, user_id=None):
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, _("Form saved!"))
+            messages.success(request, _('Organizer contact updated successfully'))
             return redirect(reverse('organizers_index'))
         else:
             messages.error(request, errors_format(form))
@@ -47,4 +47,5 @@ def update(request, user_id=None):
 def delete(request, user_id):
     organiser = get_object_or_404(OrganizerContact, pk=user_id)
     organiser.delete()
+    messages.success(request, _('Organizer contact removed'))
     return redirect('organizers_index')
