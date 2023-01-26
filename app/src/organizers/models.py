@@ -8,9 +8,16 @@ from users.models import User
 from conferences.models import Zosia
 
 def validate_phone_number(value):
-    phone_reg = r'^(?<!\w)(\(?\+?\d{1,3}\)?[ -])?[ -]?\d{3}[ -]?\d{3}[ -]?\d{3}(?!\w)'
-    m = re.match(phone_reg, value)
-    if not m:
+    separators = ['', '-', ' ']
+    phone_reg_template = r'^(?:\+\d{{2,3}}{0})?(\d{{3}}{0}){{2}}\d{{3}}$'
+    matched = False
+    for separator in separators:
+        reg = phone_reg_template.format(separator)
+        if re.match(reg, value) != None:
+            matched = True
+            break
+
+    if not matched:
         raise ValidationError(_('Please provide correct phone number'))
 
 class OrganizerContact(models.Model):
