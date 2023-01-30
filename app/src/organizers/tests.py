@@ -10,7 +10,7 @@ from organizers.models import OrganizerContact
 class FormTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.staff = create_user(0, person_type=UserInternals.PERSON_NORMAL, is_staff=True)
+        self.organizer = create_user(0, person_type=UserInternals.PERSON_ORGANIZER)
         self.normal = create_user(1, person_type=UserInternals.PERSON_NORMAL)
         self.zosia = create_zosia()
 
@@ -20,16 +20,16 @@ class FormTestCase(TestCase):
 
     def test_create_object(self):
         count = OrganizerContact.objects.count()
-        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.staff.pk, 'phone_number': '123456789'})
+        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.organizer.pk, 'phone_number': '123456789'})
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(count + 1, OrganizerContact.objects.count())
 
     def test_valid_phone_number(self):
-        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.staff.pk, 'phone_number': '123s56A89'})
+        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.organizer.pk, 'phone_number': '123s56A89'})
         self.assertFalse(form.is_valid())
 
-    def test_organizer_must_be_staff(self):
+    def test_user_must_be_organizer(self):
         form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.normal.pk, 'phone_number': '123456789'})
         self.assertFalse(form.is_valid())
 

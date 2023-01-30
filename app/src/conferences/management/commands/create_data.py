@@ -132,6 +132,18 @@ def create_sample_staff_user():
 
     return User.objects.create_user(**data)
 
+def create_sample_organizer_user():
+    data = {
+        'email': 'organizator@example.com',
+        'first_name': 'Organizator',
+        'last_name': 'Ksiowy',
+        'password': 'pass',
+        'is_staff': False,
+        'person_type': UserInternals.PERSON_ORGANIZER,
+    }
+
+    return User.objects.create_user(**data)
+
 def create_contact_to_organizer(zosia, user):
     OrganizerContact.objects.create(
         zosia=zosia,
@@ -243,8 +255,10 @@ class Command(BaseCommand):
 
         sample_staff_user = create_sample_staff_user()
         self.stdout.write('Sample user has been created')
-        create_contact_to_organizer(zosia, sample_staff_user)
-        self.stdout.write('Contact to organizer created')
+        sample_organizer_user = create_sample_organizer_user()
+        self.stdout.write('Sample organizer has been created')
+        create_contact_to_organizer(zosia, sample_organizer_user)
+        self.stdout.write('Contact to sample organizer created')
         all_users.append(sample_staff_user)
 
         for i in range(5):
