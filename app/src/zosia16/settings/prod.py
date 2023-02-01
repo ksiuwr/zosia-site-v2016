@@ -58,3 +58,8 @@ INTERNAL_IPS = ["127.0.0.1"]
 REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",)
 }
+
+# The maximum number of parameters that may be received via GET or POST.
+# Our current implementation of the email module can generate quite a lot
+# parameters and thus exceed the limit (default 1000).
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 1500
