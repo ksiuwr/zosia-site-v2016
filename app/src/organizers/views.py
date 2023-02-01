@@ -6,8 +6,8 @@ from django.views.decorators.http import require_http_methods
 
 from organizers.forms import OrganizerForm
 from organizers.models import OrganizerContact
-
 from utils.forms import errors_format
+
 
 @staff_member_required()
 @require_http_methods(['GET'])
@@ -15,13 +15,14 @@ def index(request):
     ctx = {'objects': OrganizerContact.objects.all()}
     return render(request, 'organizers/index.html', ctx)
 
+
 @staff_member_required()
 @require_http_methods(['POST', 'GET'])
 def update(request, contact_id=None):
     ctx = {}
     kwargs = {}
     organizer = None
-    
+
     if contact_id is not None:
         organizer = get_object_or_404(OrganizerContact, pk=contact_id)
         ctx['object'] = organizer
@@ -41,6 +42,7 @@ def update(request, contact_id=None):
             messages.error(request, errors_format(form))
 
     return render(request, 'organizers/update.html', ctx)
+
 
 @staff_member_required()
 @require_http_methods(['GET'])

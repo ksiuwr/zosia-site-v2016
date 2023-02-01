@@ -25,6 +25,7 @@ from utils.views import csv_response
 @require_http_methods(['GET'])
 def export_json(request):
     zosia = Zosia.objects.find_active_or_404()
+
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email', 'user__person_type',
@@ -42,8 +43,7 @@ def export_json(request):
     sponsors = Sponsor.objects \
         .values('name', 'sponsor_type', 'path_to_logo')
 
-
-    organizersContacts = OrganizerContact.objects \
+    organizers_contacts = OrganizerContact.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'phone_number')
 
@@ -52,7 +52,7 @@ def export_json(request):
             "start_date": zosia.start_date,
             "end_date": zosia.end_date
         },
-        "contacts": list(organizersContacts),
+        "contacts": list(organizers_contacts),
         "lectures": list(lectures),
         "preferences": list(prefs),
         "sponsors": list(sponsors)

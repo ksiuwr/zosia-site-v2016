@@ -1,11 +1,11 @@
 from django.shortcuts import reverse
 from django.test import TestCase
 
-from utils.test_helpers import create_zosia, create_user, user_login
-from utils.constants import UserInternals
-
 from organizers.forms import OrganizerForm
 from organizers.models import OrganizerContact
+from utils.constants import UserInternals
+from utils.test_helpers import create_user, create_zosia, user_login
+
 
 class FormTestCase(TestCase):
     def setUp(self):
@@ -20,18 +20,22 @@ class FormTestCase(TestCase):
 
     def test_create_object(self):
         count = OrganizerContact.objects.count()
-        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.organizer.pk, 'phone_number': '123456789'})
+        form = OrganizerForm(
+            {'zosia': self.zosia.pk, 'user': self.organizer.pk, 'phone_number': '123456789'})
         self.assertTrue(form.is_valid())
         form.save()
         self.assertEqual(count + 1, OrganizerContact.objects.count())
 
     def test_valid_phone_number(self):
-        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.organizer.pk, 'phone_number': '123s56A89'})
+        form = OrganizerForm(
+            {'zosia': self.zosia.pk, 'user': self.organizer.pk, 'phone_number': '123s56A89'})
         self.assertFalse(form.is_valid())
 
     def test_user_must_be_organizer(self):
-        form = OrganizerForm({'zosia': self.zosia.pk, 'user': self.normal.pk, 'phone_number': '123456789'})
+        form = OrganizerForm(
+            {'zosia': self.zosia.pk, 'user': self.normal.pk, 'phone_number': '123456789'})
         self.assertFalse(form.is_valid())
+
 
 class ViewsTestCase(TestCase):
     def setUp(self):
@@ -77,5 +81,3 @@ class ViewsTestCase(TestCase):
         self.assertEqual(context['form'].__class__, OrganizerForm)
         self.assertIsNone(context['form'].fields.get('user'))
         self.assertEqual(context['object'], organizer)
-
-    
