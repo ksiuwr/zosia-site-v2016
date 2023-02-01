@@ -6,6 +6,7 @@ from django.utils import lorem_ipsum
 from blog.models import BlogPost
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
+from organizers.models import OrganizerContact
 from questions.models import QA
 from rooms.models import Room
 from users.models import Organization, User, UserPreferences
@@ -131,6 +132,25 @@ def create_sample_staff_user():
 
     return User.objects.create_user(**data)
 
+def create_sample_organizer_user():
+    data = {
+        'email': 'organizator@example.com',
+        'first_name': 'Organizator',
+        'last_name': 'Ksiowy',
+        'password': 'pass',
+        'is_staff': False,
+        'person_type': UserInternals.PERSON_ORGANIZER,
+    }
+
+    return User.objects.create_user(**data)
+
+def create_contact_to_organizer(zosia, user):
+    OrganizerContact.objects.create(
+        zosia=zosia,
+        user=user,
+        phone_number=str(random.randint(500000000, 999999999))
+    )
+
 
 def random_bool():
     return random.random() < 0.5
@@ -235,6 +255,10 @@ class Command(BaseCommand):
 
         sample_staff_user = create_sample_staff_user()
         self.stdout.write('Sample user has been created')
+        sample_organizer_user = create_sample_organizer_user()
+        self.stdout.write('Sample organizer has been created')
+        create_contact_to_organizer(zosia, sample_organizer_user)
+        self.stdout.write('Contact to sample organizer created')
         all_users.append(sample_staff_user)
 
         for i in range(5):

@@ -14,6 +14,7 @@ from django.views.decorators.http import require_http_methods
 from conferences.forms import BusForm, PlaceForm, ZosiaForm
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
+from organizers.models import OrganizerContact
 from sponsors.models import Sponsor
 from users.models import User, UserPreferences
 from utils.constants import SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES
@@ -24,6 +25,7 @@ from utils.views import csv_response
 @require_http_methods(['GET'])
 def export_json(request):
     zosia = Zosia.objects.find_active_or_404()
+
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email', 'user__person_type',
@@ -41,11 +43,16 @@ def export_json(request):
     sponsors = Sponsor.objects \
         .values('name', 'sponsor_type', 'path_to_logo')
 
+    organizers_contacts = OrganizerContact.objects \
+        .filter(zosia=zosia) \
+        .values('user__first_name', 'user__last_name', 'phone_number')
+
     data = {
         "zosia": {
             "start_date": zosia.start_date,
             "end_date": zosia.end_date
         },
+        "contacts": list(organizers_contacts),
         "lectures": list(lectures),
         "preferences": list(prefs),
         "sponsors": list(sponsors)
