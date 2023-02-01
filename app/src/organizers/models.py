@@ -3,6 +3,7 @@ import re
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from utils.constants import UserInternals
 
 from conferences.models import Zosia
 from users.models import User
@@ -27,7 +28,7 @@ class OrganizerContact(models.Model):
         User,
         on_delete=models.CASCADE,
         verbose_name=_('User'),
-        limit_choices_to={'is_staff': True}
+        limit_choices_to={'person_type': UserInternals.PERSON_ORGANIZER}
     )
     phone_number = models.CharField(
         verbose_name=_('Phone number'),
