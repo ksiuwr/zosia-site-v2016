@@ -51,7 +51,7 @@ There are 3 flags that you might want to use with `dev.py run`:
 - `--create-admin` - create super user / admin account with the password of your choice
 - `--create-data` - generate some semi-random data - the implementation can be found
   here: `src/conferences/management/commands/create_data.py`. This command also generates
-  several user accounts `zosia[0-9]?@example.com` that can be accessed with password: `pass`.
+  several user accounts `zosia[1-5]?@example.com` that can be accessed with password: `pass`.
 - `--no-cache` - build the fresh copy of the container image (ignore docker cache)
 
 #### I have run it - what is happening?
