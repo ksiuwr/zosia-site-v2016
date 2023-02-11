@@ -116,6 +116,44 @@ class PaymentAcceptedListFilter(admin.SimpleListFilter):
         return queryset
 
 
+class UserAccommodationListFilter(admin.SimpleListFilter):
+    title = 'user accommodation'
+    parameter_name = 'user_accommodation'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('no', 'No accommodation'),
+            ('not_continuous', "Not continuous accommodation"),
+            ('partial', "Partial accommodation"),
+            ('full', "Full accommodation"),
+        ]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == 'no':
+            return queryset.filter(
+                Q(preferences__accommodation_day_1=False) &
+                Q(preferences__accommodation_day_2=False) &
+                Q(preferences__accommodation_day_3=False))
+        if value == 'not_continuous':
+            return queryset.filter(
+                Q(preferences__accommodation_day_1=True) &
+                Q(preferences__accommodation_day_2=False) &
+                Q(preferences__accommodation_day_3=True))
+        if value == 'partial':
+            return queryset.filter(
+                Q(preferences__accommodation_day_1=True) |
+                Q(preferences__accommodation_day_2=True) |
+                Q(preferences__accommodation_day_3=True))
+        if value == 'full':
+            return queryset.filter(
+                Q(preferences__accommodation_day_1=True) &
+                Q(preferences__accommodation_day_2=True) &
+                Q(preferences__accommodation_day_3=True))
+
+        return queryset
+
+
 class HasLectureListFilter(admin.SimpleListFilter):
     title = 'has lecture'
     parameter_name = 'has_lecture'
@@ -194,7 +232,7 @@ class UserFiltersAdmin(admin.ModelAdmin):
                        'has_supporting_lecture', 'shirt_properties')
     search_fields = ('first_name', 'last_name', 'room_name')
     list_filter = (PaymentAcceptedListFilter, HasPreferencesListFilter, HasLectureListFilter,
-                   RoomNameListFilter, ShirtPropertiesListFilter)
+                   UserAccommodationListFilter, RoomNameListFilter, ShirtPropertiesListFilter)
     inlines = (UserPreferencesInline, RoomInline)
 
     def get_queryset(self, request):
