@@ -84,7 +84,7 @@ class HasPreferencesListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            ('true', 'Has any preference'),
+            ('true', "Has any preference"),
             ('false', "Doesn't have any preference"),
         ]
 
@@ -103,7 +103,7 @@ class PaymentAcceptedListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            ('true', 'Payment accepted'),
+            ('true', "Payment accepted"),
             ('false', "Payment not accepted"),
         ]
 
@@ -122,10 +122,10 @@ class UserAccommodationListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            ('no', 'No accommodation'),
-            ('not_continuous', "Not continuous accommodation"),
-            ('partial', "Partial accommodation"),
+            ('no', "No accommodation"),
+            ('any', "Any accommodation"),
             ('full', "Full accommodation"),
+            ('not_continuous', "Not continuous accommodation"),
         ]
 
     def queryset(self, request, queryset):
@@ -140,7 +140,7 @@ class UserAccommodationListFilter(admin.SimpleListFilter):
                 Q(preferences__accommodation_day_1=True) &
                 Q(preferences__accommodation_day_2=False) &
                 Q(preferences__accommodation_day_3=True))
-        if value == 'partial':
+        if value == 'any':
             return queryset.filter(
                 Q(preferences__accommodation_day_1=True) |
                 Q(preferences__accommodation_day_2=True) |
@@ -160,8 +160,8 @@ class HasLectureListFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return [
-            ('author', 'As author'),
-            ('supporter', 'As supporting author'),
+            ('author', "As author"),
+            ('supporter', "As supporting author"),
             ('none', "Doesn't have lecture"),
         ]
 
