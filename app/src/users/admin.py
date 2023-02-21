@@ -132,14 +132,14 @@ class UserAccommodationListFilter(admin.SimpleListFilter):
         value = self.value()
         if value == 'no':
             return queryset.filter(
-                Q(preferences__accommodation_day_1=False) &
-                Q(preferences__accommodation_day_2=False) &
-                Q(preferences__accommodation_day_3=False))
+                preferences__accommodation_day_1=False,
+                preferences__accommodation_day_2=False,
+                preferences__accommodation_day_3=False)
         if value == 'not_continuous':
             return queryset.filter(
-                Q(preferences__accommodation_day_1=True) &
-                Q(preferences__accommodation_day_2=False) &
-                Q(preferences__accommodation_day_3=True))
+                preferences__accommodation_day_1=True,
+                preferences__accommodation_day_2=False,
+                preferences__accommodation_day_3=True)
         if value == 'any':
             return queryset.filter(
                 Q(preferences__accommodation_day_1=True) |
@@ -147,9 +147,9 @@ class UserAccommodationListFilter(admin.SimpleListFilter):
                 Q(preferences__accommodation_day_3=True))
         if value == 'full':
             return queryset.filter(
-                Q(preferences__accommodation_day_1=True) &
-                Q(preferences__accommodation_day_2=True) &
-                Q(preferences__accommodation_day_3=True))
+                preferences__accommodation_day_1=True,
+                preferences__accommodation_day_2=True,
+                preferences__accommodation_day_3=True)
 
         return queryset
 
