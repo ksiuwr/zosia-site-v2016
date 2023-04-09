@@ -49,7 +49,7 @@ def docker_python(command):
 
 def docker_compose_run(command, with_project=True):
     project = ["-p", PROJECT_NAME] if with_project else []
-    command_run(["docker-compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
+    command_run(["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
 
 
 def web_install():

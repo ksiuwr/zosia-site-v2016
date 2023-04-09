@@ -51,10 +51,13 @@ def my_boardgames(request):
     return render(request, 'boardgames/my_boardgames.html', ctx)
 
 
-def validate_game_url(url) -> bool:
+def validate_game_url(url: str) -> bool:
     url_pattern = r'(https://)?boardgamegeek.com/boardgame/\d{1,6}(/[0-9a-z-]+)?'
     if re.match(url_pattern, url) is None:
         return False
+
+    if not url.startswith("https://"):
+        url = f"https://{url}"
 
     # Game name should be different then BoardGameGeek
     return get_game_name(url) != "BoardGameGeek"
