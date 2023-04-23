@@ -82,7 +82,10 @@ if sentry_dsn is not None:
     sentry_sdk.init(
         dsn=sentry_dsn,
         environment=ENV,
-        integrations=[DjangoIntegration()],
+        integrations=[DjangoIntegration(
+            # Additional settings for Django Integration
+            # https://docs.sentry.io/platforms/python/guides/django/#options
+        )],
         # If you wish to associate users to errors (assuming you are using
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True,
