@@ -41,16 +41,19 @@
                 <div class="card-content">
                     <span class="card-title">{% trans "Cost" %}</span>
                     <blockquote style="border-left-color: #3333cc">
-                        <i>{% trans "Prices (per night)" %}:</i><br />
-                        {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br />
+                        <i>{% trans "Price (per night)" %}:</i><br />
+                        {% comment %} {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br />
                         {% trans "Accommodation + breakfast" %}: <strong>{{ zosia.price_accommodation_breakfast }} PLN</strong><br />
-                        {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br />
+                        {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br /> {% endcomment %}
                         {% trans "Accommodation + both meals" %}: <strong>{{ zosia.price_whole_day }} PLN</strong><br />
                     </blockquote>
                     <blockquote style="border-left-color: #ee80ee">
                         <i>{% trans "Additional prices" %}:</i><br />
                         {% trans "Administration fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
-                        {% trans "Bus fee" %}: <strong>{{ zosia.price_transport }} PLN</strong><br />
+                        {% trans "Luggage transfer fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
+                        <small>We offer you tranport your baggage from train station to hotel and vice versa.<br/>
+                            Check out the Q&A for more information.</small><br/>
+                        {% trans "Train fee" %}: <strong>{{ zosia.price_transport }} PLN</strong><br />
                     </blockquote>
                     <blockquote style="border-left-color: #9900ff">
                         <i>{% trans "Total cost (updated automatically)" %}:</i><br />
@@ -92,10 +95,13 @@
         accommodations.forEach(accommId => {
             const isAccommChecked = $(accommId).is(':checked')
             dependencies[accommId].forEach(mealId => {
-                $(mealId).attr('disabled', payed || !isAccommChecked);
                 if (!isAccommChecked) {
                   $(mealId).prop('checked', false);
+                }else if($(mealId).attr('disabled'))
+                {
+                  $(mealId).prop('checked', true);
                 }
+                $(mealId).attr('disabled', payed || !isAccommChecked);
             })
         })
     }

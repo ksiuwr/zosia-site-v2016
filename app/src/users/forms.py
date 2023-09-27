@@ -177,6 +177,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         self.fields["terms_accepted"].label = mark_safe(terms_label)
         self.fields["terms_accepted"].error_messages = {'required': "You have to accept Terms & Conditions."}
         self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
+        self.fields['bus'].label = "Train"
 
     def call(self, zosia):
         user_preferences = self.save(commit=False)
@@ -204,6 +205,29 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                                     'meal': self.fields[m].label}
                         )
                     )
+
+            # TODO: this is hotfix for 2023 agreement
+            if _pays_for(accommodation) and not _pays_for(meals["breakfast"]):
+                self.add_error(
+                    meals['breakfast'],
+                    forms.ValidationError(
+                        _(f"This year breakfest is required (its price is included in accommodation price). Please check ``"),
+                        code='invalid',
+                        params={'accomm': self.fields[accommodation].label,
+                                'meal': self.fields[meals['breakfast']].label}
+                    )
+                )
+
+            if _pays_for(accommodation) and not _pays_for(meals["dinner"]):
+                self.add_error(
+                    meals['dinner'],
+                    forms.ValidationError(
+                        _("This year dinner is required (its price is included in accommodation price). Please check `%(meal)s`"),
+                        code='invalid',
+                        params={'accomm': self.fields[accommodation].label,
+                                'meal': self.fields[meals['dinner']].label}
+                    )
+                )
 
     def disable(self):
         for field in self.fields:
