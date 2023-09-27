@@ -112,8 +112,36 @@ class Zosia(models.Model):
     price_transport = models.IntegerField(
         verbose_name=_('Price for transportation')
     )
+    price_transport_with_discount = models.IntegerField(
+        verbose_name=_('Price for transportation with discount')
+    )
     price_base = models.IntegerField(
         verbose_name=_('Organisation fee'),
+        default=0
+    )
+
+    first_discount = price_base = models.IntegerField(
+        verbose_name=_('First discount'),
+        default=0
+    )
+    first_discount_limit = price_base = models.IntegerField(
+        verbose_name=_('Limited number of registered users for first discount'),
+        default=0
+    )
+    second_discount = price_base = models.IntegerField(
+        verbose_name=_('Second discount'),
+        default=0
+    )
+    second_discount_limit = price_base = models.IntegerField(
+        verbose_name=_('Limited number of registered users for second discount'),
+        default=0
+    )
+    third_discount = price_base = models.IntegerField(
+        verbose_name=_('Third discount'),
+        default=0
+    )
+    third_discount_limit = price_base = models.IntegerField(
+        verbose_name=_('Limited number of registered users for third discount'),
         default=0
     )
 
