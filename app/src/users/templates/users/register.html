@@ -46,8 +46,8 @@
                         {% trans "Accommodation + breakfast" %}: <strong>{{ zosia.price_accommodation_breakfast }} PLN</strong><br />
                         {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br /> {% endcomment %}
                         {% trans "Accommodation + both meals" %}: <strong>{{ zosia.price_whole_day }} PLN</strong><br />
-                        <div id="discount">
-                            Your discount: <strong style="color: red;">{% firstof object.discount discount %} PLN</strong><br/>
+                        <div id="discount" style="display: none;">
+                            Your discount: <strong style="color: red;"><span id="discount_amount">0</span> PLN</strong><br/>
                             {% if first_call %}
                             <small>This is your possible discount. The true discount amount will be calculated after you save your registration.</small><br/>
                             {% endif %}
@@ -97,10 +97,14 @@
         {% endfor %}
     }
 
-    const transport_price = {{ zosia.price_transport }}
-    const transport_discount_price = {{ zosia.price_transport_with_discount }}
+    const transport_price = {{ zosia.price_transport }};
+    const transport_discount_price = {{ zosia.price_transport_with_discount }};
 
-    const discount = {% firstof object.discount discount %}
+    let discount = {{ discount }};
+    {% if object.discount %}
+    discount = {{ object.discount }};
+    {% endif %}
+    $('#discount_amount').text(discount);
 
     const enableMeals = accommodations => {
         accommodations.forEach(accommId => {
@@ -125,7 +129,7 @@
         let transport = transport_price;
         if(isStudent){
             transport = transport_discount_price;
-            $('#discount').show();
+            discount > 0 && $('#discount').show();
         }else{
             $('#discount').hide();
         }
