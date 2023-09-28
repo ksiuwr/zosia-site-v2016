@@ -122,7 +122,7 @@
     }
 
     const countPayment = () => {
-        if(payed) return;
+        if (payed) return;
         let totalPayment = {{ zosia.price_base }};
         let totalDiscount = 0;
 
@@ -194,10 +194,15 @@
     $('select[name="bus"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
+    
+
     if(!payed) {
         countPayment();
     }else if(discount > 0){
         $('#discount').show();
+        {% if object.is_student %}
+        $("#transport-fee").text(transport_discount_price);
+        {% endif %}
     }
   });
 </script>
