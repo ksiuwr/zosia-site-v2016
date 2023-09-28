@@ -277,7 +277,10 @@ class UserPreferences(models.Model):
                 accommodation[:-6]: self._pays_for(accommodation),
                 **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
-            payment += self._price_for(chosen)
+            pricefor = self._price_for(chosen)
+            payment += pricefor
+            if pricefor > 0:
+                payment -= self.discount 
 
         return payment
 

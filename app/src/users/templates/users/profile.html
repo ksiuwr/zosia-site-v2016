@@ -87,6 +87,12 @@
                   <strong><i style="font-size: 1.125rem; color: #ff4000">
                       {% trans "IMPORTANT NOTE: Please copy and use the provided transfer title! Otherwise, the organizers may not guarantee your time bonus for rooming." %}
                   </i></strong>
+                  {% if current_prefs.discount > 0 %}
+                  <br />
+                  <strong><i style="font-size: 1rem; color: #ff4000">
+                    {% trans "Your total payment includes a discount, pay for the conference immediately so you don't lose it." %}
+                </i></strong>
+                  {% endif %}
               </blockquote>
             {% endif %}
 
