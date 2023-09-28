@@ -116,6 +116,10 @@ class Zosia(models.Model):
         verbose_name=_('Price for transportation with discount'),
         default=0
     )
+    price_transport_baggage = models.IntegerField(
+        verbose_name=_('Price for transport baggage'),
+        default=0
+    )
     price_base = models.IntegerField(
         verbose_name=_('Organisation fee'),
         default=0

@@ -153,6 +153,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
             'is_student',
             'organization',
             'bus',
+            'transport_baggage',
             'dinner_day_1',
             'accommodation_day_1',
             'breakfast_day_2',
@@ -176,8 +177,10 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         self.fields['is_student'].label = "I am a student and I have a valid Student ID."
         self.fields['is_student'].help_text = "<br/>" # Just for do some space
         
-        
         self.fields['bus'].label = "Train"
+
+        self.fields['transport_baggage'].label = "I want my luggage to be transported."
+        self.fields['transport_baggage'].help_text = "<br/>"
 
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
         self.fields["terms_accepted"].required = True

@@ -163,6 +163,8 @@ class UserPreferences(models.Model):
         on_delete=models.SET_NULL
     )
 
+    transport_baggage = models.BooleanField(default=False)
+
     # Day 1 (Coming)
     dinner_day_1 = models.BooleanField(default=False)
     accommodation_day_1 = models.BooleanField(default=False)
@@ -271,6 +273,9 @@ class UserPreferences(models.Model):
             else:
                 payment += self.zosia.price_transport
 
+        if self.transport_baggage:
+            payment += self.zosia.price_transport_baggage
+
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {
                 # [:-6] removes day index, so we know which option has been chosen
@@ -280,7 +285,7 @@ class UserPreferences(models.Model):
             pricefor = self._price_for(chosen)
             payment += pricefor
             if pricefor > 0:
-                payment -= self.discount 
+                payment -= self.discount
 
         return payment
 

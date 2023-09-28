@@ -57,7 +57,7 @@
                         <i>{% trans "Additional prices" %}:</i><br />
                         {% trans "Administration fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
                         {% trans "Train fee" %}: <strong><span id="transport-fee">{{ zosia.price_transport }}</span> PLN</strong><br />
-                        {% trans "Luggage transfer fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
+                        {% trans "Luggage transfer fee" %}: <strong>{{ zosia.price_transport_baggage }} PLN</strong><br />
                         <small>We offer you tranport your baggage from train station to hotel and vice versa.<br/>
                             Check out the Q&A for more information.</small><br/>
                     </blockquote>
@@ -122,6 +122,7 @@
     }
 
     const countPayment = () => {
+        if(payed) return;
         let totalPayment = {{ zosia.price_base }};
         let totalDiscount = 0;
 
@@ -163,6 +164,10 @@
             totalPayment += transport;
         }
 
+        if($('#id_transport_baggage').is(':checked')) {
+            totalPayment += {{ zosia.price_transport_baggage }};
+        }
+
         const totalPaymentWithDiscount = totalPayment - totalDiscount;
         if(totalDiscount > 0)
             $("#total-price").html(`<s>${totalPayment}</s> ${totalPaymentWithDiscount}`);
@@ -184,11 +189,15 @@
         }
     )
 
+    $('#id_transport_baggage').change(event => countPayment());
+
     $('select[name="bus"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
     if(!payed) {
         countPayment();
+    }else if(discount > 0){
+        $('#discount').show();
     }
   });
 </script>

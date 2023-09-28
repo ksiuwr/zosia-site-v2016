@@ -261,6 +261,7 @@ def register(request):
     if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
+        ctx['discount'] = 0
     else:
         ctx['discount'] = UserPreferences.get_current_discount(zosia)
 
