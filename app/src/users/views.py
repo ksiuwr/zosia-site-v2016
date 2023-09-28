@@ -241,6 +241,7 @@ def register(request):
     user = request.user
     zosia = Zosia.objects.find_active_or_404()
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=user).first()
+    first_call = False
 
     if user_prefs is None:
         if not zosia.is_user_registration_open(user):
@@ -250,16 +251,24 @@ def register(request):
         if zosia.is_registration_over:
             messages.error(request, _('You missed registration for ZOSIA'))
             return redirect(reverse('index'))
+        
+        first_call = True
 
     ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
+    ctx['first_call'] = first_call
     form_args = {}
 
     if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
+    else:
+        ctx['discount'] = UserPreferences.get_current_discount(zosia)
 
     form = UserPreferencesForm(request.user, request.POST or None, **form_args)
     ctx['form'] = form
+
+    if user_prefs:
+        form.fields['is_student'].disabled = True
 
     if user_prefs and user_prefs.payment_accepted:
         ctx['payed'] = True
@@ -267,7 +276,7 @@ def register(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            form.call(zosia)
+            form.call(zosia, first_call)
             messages.success(request, _("Preferences saved!"))
 
             return redirect(reverse('accounts_profile') + '#zosia')

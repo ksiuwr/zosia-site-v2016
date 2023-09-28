@@ -120,27 +120,27 @@ class Zosia(models.Model):
         default=0
     )
 
-    first_discount = price_base = models.IntegerField(
-        verbose_name=_('First discount'),
+    first_discount = models.IntegerField(
+        verbose_name=_('First discount per day'),
         default=0
     )
-    first_discount_limit = price_base = models.IntegerField(
+    first_discount_limit = models.IntegerField(
         verbose_name=_('Limited number of registered users for first discount'),
         default=0
     )
-    second_discount = price_base = models.IntegerField(
-        verbose_name=_('Second discount'),
+    second_discount = models.IntegerField(
+        verbose_name=_('Second discount per day'),
         default=0
     )
-    second_discount_limit = price_base = models.IntegerField(
+    second_discount_limit = models.IntegerField(
         verbose_name=_('Limited number of registered users for second discount'),
         default=0
     )
-    third_discount = price_base = models.IntegerField(
-        verbose_name=_('Third discount'),
+    third_discount = models.IntegerField(
+        verbose_name=_('Third discount per day'),
         default=0
     )
-    third_discount_limit = price_base = models.IntegerField(
+    third_discount_limit = models.IntegerField(
         verbose_name=_('Limited number of registered users for third discount'),
         default=0
     )

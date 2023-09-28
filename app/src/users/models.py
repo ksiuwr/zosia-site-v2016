@@ -47,7 +47,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     date_joined = models.DateTimeField(_('date joined'), auto_now_add=True)
     is_active = models.BooleanField(_('active'), default=True)
     is_staff = models.BooleanField(_('staff'), default=False)
-    is_student = models.BooleanField(_('student'), default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['first_name', 'last_name']
@@ -144,6 +143,7 @@ class UserPreferences(models.Model):
 
     user = models.ForeignKey(User, related_name="preferences", on_delete=models.CASCADE)
     zosia = models.ForeignKey(Zosia, related_name="registrations", on_delete=models.CASCADE)
+    is_student = models.BooleanField(default=False)
 
     organization = models.ForeignKey(
         Organization,
@@ -224,6 +224,9 @@ class UserPreferences(models.Model):
         validators=[MinValueValidator(MIN_BONUS_MINUTES), MaxValueValidator(MAX_BONUS_MINUTES)]
     )
 
+    # Assigned by form view after registration.
+    discount = models.IntegerField(default=0)
+
     def _pays_for(self, option_name):
         return getattr(self, option_name)
 
@@ -241,13 +244,32 @@ class UserPreferences(models.Model):
             return self.zosia.price_accommodation_breakfast
 
         return self.zosia.price_accommodation
+    
+    @staticmethod
+    def get_current_discount(zosia: Zosia):
+        registered_users_num = UserPreferences.objects.filter(zosia=zosia).count()
+        turn_one_limit = zosia.first_discount_limit
+        turn_two_limit = turn_one_limit + zosia.second_discount_limit
+        turn_three_limit = turn_two_limit + zosia.third_discount_limit
+
+        if(registered_users_num <= turn_one_limit):
+            return zosia.first_discount
+        if(registered_users_num <= turn_two_limit):
+            return zosia.second_discount
+        if(registered_users_num <= turn_three_limit):
+            return zosia.third_discount
+        
+        return 0
 
     @property
     def price(self):
         payment = self.zosia.price_base
 
         if self.bus is not None:
-            payment += self.zosia.price_transport
+            if self.is_student:
+                payment += self.zosia.price_transport_with_discount
+            else:
+                payment += self.zosia.price_transport
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {

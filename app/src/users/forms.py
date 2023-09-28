@@ -150,6 +150,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
     class Meta:
         model = UserPreferences
         fields = [
+            'is_student',
             'organization',
             'bus',
             'dinner_day_1',
@@ -172,17 +173,24 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        self.fields['is_student'].label = "I am a student and I have a valid Student ID."
+        self.fields['is_student'].help_text = "<br/>" # Just for do some space
+        
+        
+        self.fields['bus'].label = "Train"
+
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
         self.fields["terms_accepted"].required = True
         self.fields["terms_accepted"].label = mark_safe(terms_label)
         self.fields["terms_accepted"].error_messages = {'required': "You have to accept Terms & Conditions."}
         self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
-        self.fields['bus'].label = "Train"
 
-    def call(self, zosia):
+    def call(self, zosia, first_call):
         user_preferences = self.save(commit=False)
         user_preferences.user = self.user
         user_preferences.zosia = zosia
+        if first_call:
+            user_preferences.discount = UserPreferences.get_current_discount(zosia)
         user_preferences.save()
 
         return user_preferences
@@ -206,12 +214,12 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                         )
                     )
 
-            # TODO: this is hotfix for 2023 agreement
+            # TODO: this is the hotfix for ZOSIA 2024 agreement
             if _pays_for(accommodation) and not _pays_for(meals["breakfast"]):
                 self.add_error(
                     meals['breakfast'],
                     forms.ValidationError(
-                        _(f"This year breakfest is required (its price is included in accommodation price). Please check ``"),
+                        _("This year breakfest is required (its price is included in accommodation price). Please check `%(meal)s`"),
                         code='invalid',
                         params={'accomm': self.fields[accommodation].label,
                                 'meal': self.fields[meals['breakfast']].label}
