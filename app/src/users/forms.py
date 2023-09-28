@@ -200,6 +200,17 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
+        
+        if(_pays_for('accommodation_day_1') and _pays_for('accommodation_day_3') \
+           and (not _pays_for('accommodation_day_2'))):
+            self.add_error(
+                        'accommodation_day_2',
+                        forms.ValidationError(
+                            _("When choosing the other days, this one must also be chosen. Please check `%(accomm)s`"),
+                            code='invalid',
+                            params={'accomm': self.fields['accommodation_day_2'].label}
+                        )
+                    )
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             for m in meals.values():
