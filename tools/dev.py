@@ -50,7 +50,8 @@ def docker_python(command):
 
 def docker_compose_run(command, with_project=True):
     project = ["-p", PROJECT_NAME] if with_project else []
-    status_code = command_run(["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
+    status_code = command_run(
+        ["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
     if status_code != 0:
         exit(1)
 
@@ -59,8 +60,8 @@ def web_install():
     docker_shell(["yarn", "install"])
 
 
-def web_build():    
-    docker_shell(["yarn", "build"])
+def web_build():
+    docker_shell(["NODE_OPTIONS=--openssl-legacy-provider", "yarn", "build"])
 
 
 def run_server():

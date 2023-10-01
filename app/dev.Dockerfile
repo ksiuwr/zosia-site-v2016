@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED 1
 ENV NODE_PATH=/node_modules
 ENV NODE_MAJOR=18
 
-# DJango settings
+# DJANGO settings
 ENV DJANGO_ENV=${DJANGO_ENV}
 ENV DJANGO_SETTINGS_MODULE="zosia16.settings.dev"
 
