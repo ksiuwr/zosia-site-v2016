@@ -246,7 +246,7 @@ class UserPreferences(models.Model):
             return self.zosia.price_accommodation_breakfast
 
         return self.zosia.price_accommodation
-    
+
     @staticmethod
     def get_current_discount(zosia: Zosia):
         registered_users_num = UserPreferences.objects.filter(zosia=zosia).count()
@@ -254,13 +254,13 @@ class UserPreferences(models.Model):
         turn_two_limit = turn_one_limit + zosia.second_discount_limit
         turn_three_limit = turn_two_limit + zosia.third_discount_limit
 
-        if(registered_users_num <= turn_one_limit):
+        if registered_users_num <= turn_one_limit:
             return zosia.first_discount
-        if(registered_users_num <= turn_two_limit):
+        if registered_users_num <= turn_two_limit:
             return zosia.second_discount
-        if(registered_users_num <= turn_three_limit):
+        if registered_users_num <= turn_three_limit:
             return zosia.third_discount
-        
+
         return 0
 
     @property
@@ -282,9 +282,10 @@ class UserPreferences(models.Model):
                 accommodation[:-6]: self._pays_for(accommodation),
                 **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
-            pricefor = self._price_for(chosen)
-            payment += pricefor
-            if pricefor > 0:
+            stay_price = self._price_for(chosen)
+            payment += stay_price
+
+            if stay_price > 0:
                 payment -= self.discount
 
         return payment

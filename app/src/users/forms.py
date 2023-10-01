@@ -176,10 +176,10 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         self.user = user
         self.fields['is_student'].label = "I am a student and I have a valid Student ID."
         self.fields['is_student'].help_text = "<br/>" # Just for do some space
-        
+
         self.fields['bus'].label = "Train"
 
-        self.fields['transport_baggage'].label = "I want my luggage to be transported."
+        self.fields['transport_baggage'].label = "I want to have my baggage transported."
         self.fields['transport_baggage'].help_text = "<br/>"
 
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
@@ -203,9 +203,9 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
-        
-        if(_pays_for('accommodation_day_1') and _pays_for('accommodation_day_3') \
-           and (not _pays_for('accommodation_day_2'))):
+
+        if (_pays_for('accommodation_day_1') and _pays_for('accommodation_day_3')
+                and not _pays_for('accommodation_day_2')):
             self.add_error(
                         'accommodation_day_2',
                         forms.ValidationError(
@@ -233,7 +233,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                 self.add_error(
                     meals['breakfast'],
                     forms.ValidationError(
-                        _("This year breakfest is required (its price is included in accommodation price). Please check `%(meal)s`"),
+                        _("This year breakfast is required (its price is included in accommodation price). Please check `%(meal)s`"),
                         code='invalid',
                         params={'accomm': self.fields[accommodation].label,
                                 'meal': self.fields[meals['breakfast']].label}

@@ -49,7 +49,7 @@
                         <div id="discount" style="display: none;">
                             Your discount: <strong style="color: red;"><span id="discount_amount">0</span> PLN</strong><br/>
                             {% if first_call %}
-                            <small>This is your possible discount. The true discount amount will be calculated after you save your registration.</small><br/>
+                            <small>This is your possible discount. The actual discount will be calculated after you save your registration.</small><br/>
                             {% endif %}
                         </div>
                     </blockquote>
@@ -57,8 +57,8 @@
                         <i>{% trans "Additional prices" %}:</i><br />
                         {% trans "Administration fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
                         {% trans "Train fee" %}: <strong><span id="transport-fee">{{ zosia.price_transport }}</span> PLN</strong><br />
-                        {% trans "Luggage transfer fee" %}: <strong>{{ zosia.price_transport_baggage }} PLN</strong><br />
-                        <small>We offer you tranport your baggage from train station to hotel and vice versa.<br/>
+                        {% trans "Baggage transfer fee" %}: <strong>{{ zosia.price_transport_baggage }} PLN</strong><br />
+                        <small>We offer you to transport your baggage from the train station to the hotel and back.<br/>
                             Check out the Q&A for more information.</small><br/>
                     </blockquote>
                     <blockquote style="border-left-color: #9900ff">
@@ -194,7 +194,6 @@
     $('select[name="bus"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
-    
 
     if(!payed) {
         countPayment();
