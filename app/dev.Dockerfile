@@ -1,15 +1,23 @@
 FROM python:3.10
 
 ENV PYTHONUNBUFFERED 1
+
+# NODE settings
 ENV NODE_PATH=/node_modules
+ENV NODE_MAJOR=18
+
+# DJango settings
 ENV DJANGO_ENV=${DJANGO_ENV}
 ENV DJANGO_SETTINGS_MODULE="zosia16.settings.dev"
 
 # install nodejs and npm
 RUN set -x \
-    && curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     && apt-get update \
-    && apt-get install -y nodejs --no-install-recommends \
+    && apt-get install -y ca-certificates curl gnupg --no-install-recommends \
+    && mkdir -p /etc/apt/keyrings \
+    && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+    && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+    && apt-get install -y nodejs npm --no-install-recommends \
     && npm install -g yarn \
     ;
 
