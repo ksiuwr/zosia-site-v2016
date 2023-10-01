@@ -53,9 +53,7 @@ def docker_python(command: List[str]) -> None:
 
 def docker_compose_run(command: List[str], with_project: bool = True) -> None:
     project = ["-p", PROJECT_NAME] if with_project else []
-    command_run(
-        ["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE]
-        + project + command)
+    command_run(["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
 
 
 def web_install() -> None:
