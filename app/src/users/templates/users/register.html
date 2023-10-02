@@ -168,7 +168,7 @@
             totalPayment += {{ zosia.price_transport_baggage }};
         }
 
-        const totalPaymentWithDiscount = totalPayment - totalDiscount;
+        const totalPaymentWithDiscount = Math.max(0, totalPayment - totalDiscount);
         if(totalDiscount > 0)
             $("#total-price").html(`<s>${totalPayment}</s> ${totalPaymentWithDiscount}`);
         else

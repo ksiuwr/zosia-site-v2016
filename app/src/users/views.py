@@ -239,7 +239,7 @@ def user_preferences_admin_edit(request):
 @require_http_methods(['GET', 'POST'])
 def register(request):
     user = request.user
-    zosia = Zosia.objects.find_active_or_404()
+    zosia: Zosia = Zosia.objects.find_active_or_404()
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=user).first()
     first_call = False
 
@@ -261,9 +261,13 @@ def register(request):
     if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
-        ctx['discount'] = 0
+        ctx['discount'] = zosia.get_discount_for_round(
+            user_prefs.discount_round
+        )
     else:
-        ctx['discount'] = UserPreferences.get_current_discount(zosia)
+        ctx['discount'] = zosia.get_discount_for_round(
+            UserPreferences.get_current_discount_round(zosia)
+        )
 
     form = UserPreferencesForm(request.user, request.POST or None, **form_args)
     ctx['form'] = form

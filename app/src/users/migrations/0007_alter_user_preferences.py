@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='userpreferences',
-            name='discount',
+            name='discount_round',
             field=models.IntegerField(default=0),
         ),
         migrations.AddField(

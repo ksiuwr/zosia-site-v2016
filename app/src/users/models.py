@@ -227,7 +227,7 @@ class UserPreferences(models.Model):
     )
 
     # Assigned by form view after registration.
-    discount = models.IntegerField(default=0)
+    discount_round = models.IntegerField(default=0)
 
     def _pays_for(self, option_name):
         return getattr(self, option_name)
@@ -248,19 +248,20 @@ class UserPreferences(models.Model):
         return self.zosia.price_accommodation
 
     @staticmethod
-    def get_current_discount(zosia: Zosia):
-        registered_users_num = UserPreferences.objects.filter(zosia=zosia).count()
+    def get_current_discount_round(zosia: Zosia):
+        registered_users_num = UserPreferences.objects \
+            .filter(zosia=zosia, is_student=True).count()
         turn_one_limit = zosia.first_discount_limit
         turn_two_limit = turn_one_limit + zosia.second_discount_limit
         turn_three_limit = turn_two_limit + zosia.third_discount_limit
 
-        if registered_users_num <= turn_one_limit:
-            return zosia.first_discount
-        if registered_users_num <= turn_two_limit:
-            return zosia.second_discount
-        if registered_users_num <= turn_three_limit:
-            return zosia.third_discount
-
+        if(registered_users_num < turn_one_limit):
+            return 1
+        if(registered_users_num < turn_two_limit):
+            return 2
+        if(registered_users_num < turn_three_limit):
+            return 3
+        
         return 0
 
     @property
@@ -282,13 +283,12 @@ class UserPreferences(models.Model):
                 accommodation[:-6]: self._pays_for(accommodation),
                 **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
-            stay_price = self._price_for(chosen)
-            payment += stay_price
+            pricefor = self._price_for(chosen)
+            payment += pricefor
+            if pricefor > 0:
+                payment -= self.zosia.get_discount_for_round(self.discount_round)
 
-            if stay_price > 0:
-                payment -= self.discount
-
-        return payment
+        return max(0, payment)
 
     def __str__(self):
         return f"{str(self.user)} preferences"

@@ -238,6 +238,18 @@ class Zosia(models.Model):
 
         super(Zosia, self).validate_unique(**kwargs)
 
+
+    def get_discount_for_round(self, round):
+        if round <= 0 or round > 3:
+            return 0
+        
+        if round == 1:
+            return self.first_discount
+        if round == 2:
+            return self.second_discount
+        return self.third_discount
+    
+
     def clean(self):
         if self.early_registration_start is not None:
             if self.early_registration_start > self.registration_start:
