@@ -13,7 +13,7 @@
     "url": "https://github.com/ksiuwr/zosia16-site/issues"
   },
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider webpack --mode production",
     "watch": "webpack --watch --mode development"
   },
   "dependencies": {
