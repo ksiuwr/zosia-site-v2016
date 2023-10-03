@@ -151,6 +151,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         model = UserPreferences
         fields = [
             'is_student',
+            'student_number',
             'organization',
             'bus',
             'transport_baggage',

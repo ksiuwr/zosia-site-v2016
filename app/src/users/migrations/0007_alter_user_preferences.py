@@ -25,4 +25,9 @@ class Migration(migrations.Migration):
             name='transport_baggage',
             field=models.BooleanField(default=False),
         ),
+        migrations.AddField(
+            model_name='userpreferences',
+            name='student_number',
+            field=models.TextField(blank=True, default='', help_text='Providing false information risks removal of your application with no refund.'),
+        ),
     ]

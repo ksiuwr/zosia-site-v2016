@@ -133,6 +133,7 @@
             discount > 0 && $('#discount').show();
         }else{
             $('#discount').hide();
+            $('#id_student_number').parent().hide()
         }
         $("#transport-fee").text(transport);
 
@@ -186,6 +187,13 @@
     $('#id_is_student').change(event => {
             alert("Be careful. You won't be able to change it later!")
             countPayment()
+            if(event.target.checked)
+                $('#id_student_number').parent().show()
+            else{
+                const student_number_field = $('#id_student_number')
+                student_number_field.val('')
+                student_number_field.parent().hide()
+            }
         }
     )
 
@@ -194,12 +202,16 @@
     $('select[name="bus"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
+    {% if not object.is_student %}
+    $('#id_student_number').parent().hide();
+    {% endif %}
+
 
     if(!payed) {
         countPayment();
     }else if(discount > 0){
-        $('#discount').show();
         {% if object.is_student %}
+        $('#discount').show();
         $("#transport-fee").text(transport_discount_price);
         {% endif %}
     }
