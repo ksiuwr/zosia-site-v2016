@@ -292,7 +292,7 @@ class UserPreferences(models.Model):
             }
             pricefor = self._price_for(chosen)
             payment += pricefor
-            if pricefor > 0:
+            if self.is_student and pricefor > 0:
                 payment -= self.zosia.get_discount_for_round(self.discount_round)
 
         return max(0, payment)
