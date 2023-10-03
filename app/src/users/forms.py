@@ -274,7 +274,8 @@ class UserPreferencesAdminForm(UserPreferencesWithBusForm):
             'dinner_day_3',
             'breakfast_day_3',
             'breakfast_day_4',
-            'vegetarian'
+            'vegetarian',
+            'discount_round'
         ]
 
     def __init__(self, *args, **kwargs):

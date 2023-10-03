@@ -61,7 +61,7 @@ def web_install():
 
 
 def web_build():
-    docker_shell(["NODE_OPTIONS=--openssl-legacy-provider", "yarn", "build"])
+    docker_shell(["yarn", "build"])
 
 
 def run_server():
