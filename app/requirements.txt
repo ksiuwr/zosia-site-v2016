@@ -1,15 +1,17 @@
-Django~=2.2.0
-django-anymail==3.0
-git+https://github.com/ksiuwr/django-materializecss-form@master#egg=django-materializecss-form
-djangorestframework>=3.9.0
-drf-yasg>=1.16.0
+# python >= 3.8
+Django~=3.2.9 # 4.2.0 since ca. 2023-04
+Pillow
+django-anymail~=8.6
+django-materializecss-form>=1.1.15, <2.0
+# git+https://github.com/ksiuwr/django-materializecss-form@master#egg=django-materializecss-form
+djangorestframework~=3.14
+drf-yasg~=1.20
 packaging>=19.1
-Pillow>=3.4.1
-psycopg2==2.8.3
-pytz==2021.1
-sentry-sdk==0.13.5
+psycopg2~=2.9.5
+pytz>=2022.4
+sentry-sdk~=1.19
 gunicorn~=20.1.0
 argon2-cffi~=21.3.0
-boto3~=1.20.23
-python-dotenv~=0.19.2
-google-cloud-secret-manager==2.8.0
+boto3>=1.20.23, <2.0
+python-dotenv~=0.21.0
+google-cloud-secret-manager~=2.8

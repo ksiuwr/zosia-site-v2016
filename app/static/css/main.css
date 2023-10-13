@@ -268,7 +268,12 @@ footer.page-footer {
 }
 
 .main_title {
-    -webkit-text-stroke: 1px #1e1e1e;
+    text-shadow:
+        1px 1px 0 #000,
+        -1px -1px 0 #000,
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
     font-weight: 700;
 }
 
@@ -325,4 +330,26 @@ footer.page-footer {
 
 .sponsors-row > div {
     margin-left: 0 !important;
+}
+
+.sponsor_type_badge {
+    padding: 0.25em 0.4em;
+    border-radius: 0.25rem;
+    vertical-align: baseline;
+    text-align: center;
+}
+
+.sponsor_type_bronze {
+    background-color: #CD7F32;
+    color: white;
+}
+
+.sponsor_type_silver {
+    background-color: silver;
+    color: black;
+}
+
+.sponsor_type_gold {
+    background-color: gold;
+    color: black;
 }

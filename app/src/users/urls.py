@@ -10,7 +10,7 @@ urlpatterns = [
     re_path(r'^edit/$', views.account_edit, name='accounts_edit'),
     re_path(r'^mail/$', views.mail_to_all, name='mail_all'),
     re_path(
-        r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,40})/$',
         views.activate, name='accounts_activate'),
     re_path(r'^login/$',
             anonymous_required(LoginView.as_view(template_name='registration/login.html')),
@@ -29,6 +29,8 @@ urlpatterns = [
             name='list_csv_preferences_all'),
     re_path(r'^preferences/list/paid$', views.list_csv_preferences_paid,
             name='list_csv_preferences_paid'),
+    re_path(r'^lectures/list/all$', views.list_csv_lectures,
+            name='list_csv_lectures'),
     re_path(r'^register/$', views.register, name='user_zosia_register'),
     re_path(r'^', include('django.contrib.auth.urls')),
     # NOTE: it adds following URLs:

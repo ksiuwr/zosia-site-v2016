@@ -87,6 +87,10 @@
       const max_bonus = {{ max_bonus }}
       const min_bonus = {{ min_bonus }}
       const bonus_step = {{ bonus_step }}
+
+      const QUEUE = [];
+      let QUEUE_N = 0;
+
       let paymentInfo = {
         {% for object in objects %}
         "{{ object.id }}": {
@@ -136,6 +140,54 @@
                 });
             }
         });
+      }
+
+      const setBonuses = () => {
+        if(QUEUE_N == QUEUE.length)
+          return
+
+        const {id, value, firstName, lastName} = QUEUE[QUEUE_N];
+
+        if (value > max_bonus) {
+          value = max_bonus
+        }
+
+        if (value < min_bonus) {
+          value = min_bonus
+        }
+
+        $.ajax({
+            type: "POST",
+            url: '{% url 'user_preferences_admin_edit' %}',
+            data: {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'key': id,
+                'command': '{{ change_bonus }}',
+                'bonus': value
+            },
+            success: function(data) {
+                QUEUE_N++;
+                paymentInfo[id].bonus = data['bonus']
+                $('#bonus-value-' + id).text(data['bonus']);
+                M.toast({
+                  html: data['msg'],
+                  displayLength: 2000,
+                  classes: "success"
+                });
+                setTimeout(setBonuses, 200);
+            },
+            error: function(){
+                QUEUE_N++;
+                M.toast({
+                  html: "Error setting bonus.",
+                  displayLength: 2000,
+                  classes: "error"
+                });
+                setTimeout(setBonuses, 200);
+            }
+        });
+
+        reportSuccess("Bonus for " + firstName + " " + lastName + " set to " + value);
       }
 
       const setPaymentStatus = (id, payment_status) => {
@@ -190,13 +242,21 @@
       }
 
       const updateBonuses = (entries) => {
+        QUEUE_N = 0;
+        QUEUE.length = 0;
+
         for (let i = 0; i < entries.length; i++)
         {
           const entry = entries[i];
           const bonus = Math.max(Math.floor(max_bonus - bonus_step * i), min_bonus);
-          setBonus(entry.id, bonus);
-          reportSuccess("Bonus for " + entry.firstName + " " + entry.lastName + " set to " + bonus);
+          QUEUE.push({
+            id: entry.id,
+            value: bonus,
+            firstName: entry.firstName,
+            lastName: entry.lastName
+          })
         }
+        setBonuses();
       }
 
       const report = $('#report');

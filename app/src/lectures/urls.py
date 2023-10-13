@@ -11,6 +11,5 @@ urlpatterns = [
     path('accept/', views.toggle_accept, name="lectures_toggle_accept"),
     path('schedule/', views.schedule_display, name='lectures_schedule'),
     path('schedule/update/', views.schedule_update, name='lectures_schedule_add'),
-
-    path('ajax/durations/', views.ajax_load_durations, name='ajax_load_durations')
+    path('durations/', views.load_durations, name='load_durations')
 ]

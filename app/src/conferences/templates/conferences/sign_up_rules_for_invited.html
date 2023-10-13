@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load i18n %}
+
+{% block content %}
+    <div class="container grey-text text-darken-2">
+        <div class="row">
+            <div class="col l8 center-align">
+                <h3>{% trans 'Zapisy dla Zaproszonych na Zimowy Obóz Studentów Informatyki A' %}</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col l8">
+                <h4>Instrukcja zapisów</h4>
+                <ol>
+                    <li style="margin-bottom: 10px">
+                        Stwórz konto za pomocą przycisku "Sign up".
+                        Jako Email podaj adres w domenie <b>cs.uni.wroc.pl</b>.<br/>
+                        Konta zakładane na naszej stronie w przeszłości zostały usunięte.
+                    </li>
+                    <li style="margin-bottom: 10px">
+                        Od <b>19 grudnia</b> będziesz mieć możliwość zapisania się na najbliższą edycję ZOSI.
+                        W tym celu na stronie głównej lub w swoim profilu w zakładce ZOSIA kliknij przycisk <b>REGISTER</b>.
+                    </li>
+                    <li style="margin-bottom: 10px">
+                        Uzupełnij kwestionariusz. W polu <i>Information</i> wpisz swoje preferencje przy wyborze pokoju.
+                        Wolisz pokój jednoosobowy, umieszczony w cichym zakątku ośrodka, a może potrzebujesz miejsca dla osoby towarzyszącej -
+                        napisz nam o tym.
+                    </li>
+                    <li>Wyślij formularz i gotowe!</li>
+                </ol>
+                <p>
+                    Jako osoba zaproszona posiadasz priorytet zapisania się na konferencję i możesz wybrać pokój przed resztą uczestników.
+                    Masz na to czas do <b>1 stycznia 2023</b>.
+                    Jest to data otwarcia zapisów dla wszystkich chętnych.
+                    Po jej przekroczeniu wciąż możesz się zapisać, ale niestety wybór miejsc może okazać się wtedy mocno ograniczony.
+                </p>
+                <p>
+                    W razie jakichkolwiek pytań lub problemów, zachęcamy do kontaktu: <a href="mailto:ksi@cs.uni.wroc.pl">ksi@cs.uni.wroc.pl</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

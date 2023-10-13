@@ -30,13 +30,13 @@ class SendActivationEmail:
         }
 
         to_email = self.user.email
-        from_email = settings.DEFAULT_FROM_EMAIL
         # NOTE: Copied from django/contrib/auth/forms.py, with adjustments
         subject = loader.render_to_string(SUBJECT_TEMPLATE_NAME, context)
         # Email subject *must not* contain newlines
         subject = ''.join(subject.splitlines())
         body = loader.render_to_string(EMAIL_TEMPLATE_NAME, context)
 
-        email_message = EmailMultiAlternatives(subject, body, from_email, [to_email])
+        email_message = EmailMultiAlternatives(
+            subject, body, settings.DEFAULT_MAIL, to=[to_email])
 
         email_message.send()

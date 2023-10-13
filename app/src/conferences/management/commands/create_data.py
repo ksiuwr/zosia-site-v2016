@@ -3,23 +3,24 @@ import random
 from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
+from blog.models import BlogPost
 from conferences.models import Bus, Place, Zosia
 from lectures.models import Lecture
+from organizers.models import OrganizerContact
 from questions.models import QA
-from blog.models import BlogPost
 from rooms.models import Room
-from users.models import User, Organization, UserPreferences
-from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals, MAX_BONUS_MINUTES
+from users.models import Organization, User, UserPreferences
+from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, MAX_BONUS_MINUTES, UserInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
-
-IMIONA = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
+FIRST_NAMES = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
 
 def create_question():
     data = {
         'question': lorem_ipsum.words(random.randint(5, 10)) + "?",
         'answer': ''.join(lorem_ipsum.paragraphs(1))[:400],
+        'priority': random.randint(0, 100),
     }
     return QA.objects.create(**data)
 
@@ -33,7 +34,6 @@ def create_lecture(zosia, author):
         'abstract': ' '.join(lorem_ipsum.paragraphs(3))[:1000],
         'duration': random.choice(FULL_DURATION_CHOICES)[0],
         'lecture_type': random.choice(LECTURE_TYPE)[0],
-        'person_type': LectureInternals.PERSON_NORMAL,
         'description': lorem_ipsum.words(random.randint(10, 20))[:255],
         'author': author,
         'accepted': random_bool(),
@@ -59,7 +59,8 @@ def create_place():
     data = {
         'name': 'Old Forest Inn',
         'url': 'http://google.com',
-        'address': 'Bakery Street 23, Glasgow'
+        'address': 'Bakery Street 23, Glasgow',
+        'town': 'Glasgow'
     }
     return Place.objects.create(**data)
 
@@ -82,12 +83,13 @@ def create_buses(zosia):
 
 def create_active_zosia(place, **kwargs):
     today = now()
-    start_date = timedelta_since_now(days=350)
+    start_date = timedelta_since_now(days=200)
     start = today
-    end = start_date
+    end = timedelta_since(start_date, days=7)
     data = {
         'active': True,
         'place': place,
+        'early_registration_start': None,
         'registration_start': start,
         'registration_end': end,
         'start_date': start_date,
@@ -95,25 +97,6 @@ def create_active_zosia(place, **kwargs):
         'rooming_end': end,
         'lecture_registration_start': start,
         'lecture_registration_end': end,
-    }
-    return create_zosia(**data)
-
-
-def create_past_zosia(place, **kwargs):
-    start_date = random_date_before(now(), 400)
-    registration_end = random_date_before(start_date, 20)
-    registration_start = random_date_before(registration_end, 40)
-    rooming_end = registration_end
-    rooming_start = random_date_before(rooming_end, 12)
-    data = {
-        'place': place,
-        'registration_start': registration_start,
-        'registration_end': registration_end,
-        'start_date': start_date,
-        'rooming_start': rooming_start,
-        'rooming_end': rooming_end,
-        'lecture_registration_start': rooming_start,
-        'lecture_registration_end': rooming_end,
     }
     return create_zosia(**data)
 
@@ -143,10 +126,30 @@ def create_sample_staff_user():
         'first_name': 'Zosia',
         'last_name': 'Ksiowa',
         'password': 'pass',
-        'is_staff': True
+        'is_staff': True,
+        'person_type': UserInternals.PERSON_NORMAL,
     }
 
     return User.objects.create_user(**data)
+
+def create_sample_organizer_user():
+    data = {
+        'email': 'organizator@example.com',
+        'first_name': 'Organizator',
+        'last_name': 'Ksiowy',
+        'password': 'pass',
+        'is_staff': False,
+        'person_type': UserInternals.PERSON_ORGANIZER,
+    }
+
+    return User.objects.create_user(**data)
+
+def create_contact_to_organizer(zosia, user):
+    OrganizerContact.objects.create(
+        zosia=zosia,
+        user=user,
+        phone_number=str(random.randint(500000000, 999999999))
+    )
 
 
 def random_bool():
@@ -156,8 +159,9 @@ def random_bool():
 def create_random_user_with_preferences(zosia, id):
     data = {
         'email': f'zosia{id}@example.com',
-        'first_name': random.choice(IMIONA),
+        'first_name': random.choice(FIRST_NAMES),
         'last_name': f'Testowa{id}',
+        'person_type': UserInternals.PERSON_NORMAL,
     }
     u = User.objects.get_or_create(**data)[0]
     u.set_password('pass')
@@ -178,7 +182,8 @@ def create_random_user_with_preferences(zosia, id):
     dinner_day_3 = random_bool() if accommodation_day_3 else False
     breakfast_day_4 = random_bool() if accommodation_day_3 else False
 
-    phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} {random.randint(100, 999)}'
+    phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} ' \
+                   f'{random.randint(100, 999)}'
     bus = random.choice(Bus.objects.find_with_free_places(zosia)) if random_bool() else None
 
     payment_acc = random_bool()
@@ -250,6 +255,10 @@ class Command(BaseCommand):
 
         sample_staff_user = create_sample_staff_user()
         self.stdout.write('Sample user has been created')
+        sample_organizer_user = create_sample_organizer_user()
+        self.stdout.write('Sample organizer has been created')
+        create_contact_to_organizer(zosia, sample_organizer_user)
+        self.stdout.write('Contact to sample organizer created')
         all_users.append(sample_staff_user)
 
         for i in range(5):

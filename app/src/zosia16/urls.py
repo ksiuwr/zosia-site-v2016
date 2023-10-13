@@ -38,6 +38,7 @@ urlpatterns = \
         re_path(r'^lectures/', include('lectures.urls')),
         re_path(r'^questions/', include('questions.urls')),
         re_path(r'^boardgames/', include('boardgames.urls')),
+        re_path(r'^organizers/', include('organizers.urls')),
 
         # API URLs
         re_path(r'^api/v1/rooms/', include('rooms.api.v1.urls')),

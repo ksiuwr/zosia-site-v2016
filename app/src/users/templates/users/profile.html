@@ -80,9 +80,13 @@
                   {% trans "Total price" %}: <strong>{{ current_prefs.price }} PLN</strong><br />
                   {% trans "Transfer title" %}: <strong>{{ current_prefs.transfer_title }}</strong><br />
                   {% trans "Account number" %}: <strong>{{ current_prefs.zosia.account_number }}</strong><br />
-                  ({% trans "Check if bank name is correct" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)<br />
+                  <i>({% trans "Check if bank name is correct" %}: <strong>{{ current_prefs.zosia.account_bank }}</strong>)</i><br />
                   {% trans "Receiver name" %}: <strong>{{ current_prefs.zosia.account_owner }}</strong><br />
-                  {% trans "Receiver address" %}: <strong>{{ current_prefs.zosia.account_address }}</strong>
+                  {% trans "Receiver address" %}: <strong>{{ current_prefs.zosia.account_address }}</strong><br />
+                  <br />
+                  <strong><i style="font-size: 1.125rem; color: #ff4000">
+                      {% trans "IMPORTANT NOTE: Please copy and use the provided transfer title! Otherwise, the organizers may not guarantee your time bonus for rooming." %}
+                  </i></strong>
               </blockquote>
             {% endif %}
 
@@ -169,8 +173,12 @@
             </h5>
           {% else %}
             <div class="card-content">
-              {% if not zosia.is_registration_open %}
-              <p>{% trans "Registration will open at" %} {{zosia.registration_start | zoneformat:"Europe/Warsaw"}}</p>
+              {% if not registration_open %}
+                {% if zosia.registration_suspended %}
+                <p>{% trans "Registration is suspended, please wait for further information" %}</p>
+                {% else %}
+                <p>{% trans "Registration will open at" %} {{ registration_start | zoneformat:"Europe/Warsaw" }}</p>
+                {% endif %}
               {% elif zosia.is_registration_over %}
               <p>{% trans "Registration has ended - we hope to see you next year :)" %}</p>
               {% else %}
@@ -180,7 +188,7 @@
           {% endif %}
         </div>
         <div class="card-action">
-          {% if zosia.is_registration_open and not zosia.is_registration_over or zosia.is_registration_over and current_prefs %}
+          {% if enable_preferences %}
           <a href="{% url 'user_zosia_register' %}">
               {% if current_prefs %}
               {% trans "Update preferences" %}

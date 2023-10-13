@@ -33,6 +33,8 @@ class PlaceForm(forms.ModelForm):
 
 
 class ZosiaForm(forms.ModelForm):
+    early_registration_start = SplitDateTimePickerField(required=False)
+
     class Meta:
         model = Zosia
         fields = '__all__'

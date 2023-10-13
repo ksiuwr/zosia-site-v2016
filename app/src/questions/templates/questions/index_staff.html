@@ -17,7 +17,7 @@
     <li>
         <div class="collapsible-header">
             <i class="material-icons">person_pin</i>
-            {{ question.question }}
+            {{ question.question }} | Priority: {{ question.priority }}
             <span class="right">
                 <a href="{% url 'questions_edit' question.id %}">
                     <i class="material-icons">mode_edit</i>
@@ -28,7 +28,7 @@
             </span>
         </div>
         <div class="collapsible-body">
-            <span>{{ question.answer }}</span>
+            <span>{{ question.answer|linebreaks }}</span>
         </div>
     </li>
     {% endfor %}

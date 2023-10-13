@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   run_tests:
     docker:
-      - image: python:3.8
+      - image: python:3.10
       - image: postgres
         environment:
           POSTGRES_DB: "zosia"
@@ -28,41 +28,42 @@ jobs:
 
   deploy:
     docker:
-      - image: ubuntu:20.04
+      - image: nikolaik/python-nodejs:python3.10-nodejs16
     steps:
-      - run:
-          name: Install node
-          command: |
-            apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs npm
-      - run:
-          name: Install gcloud
-          command: |
-            DEBIAN_FRONTEND=noninteractive apt-get install -y curl apt-transport-https ca-certificates gnupg
-            echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
-            curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
-            apt-get update
+      # - run:
+      #     name: Install gcloud
+      #     command: |
+      #       DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl apt-transport-https ca-certificates gnupg
+      #       echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+      #       curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+      #       apt-get update
 
-            DEBIAN_FRONTEND=noninteractive apt-get install -y google-cloud-sdk
-            echo ${GCLOUD_KEY} | base64 --decode | gcloud auth activate-service-account --key-file=-
-            gcloud --quiet config set project ${GCLOUD_PROJECT}
-            gcloud --quiet config set compute/zone europe_central2
+      #       DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y google-cloud-sdk
+      #       echo ${GCLOUD_KEY} | base64 --decode | gcloud auth activate-service-account --key-file=-
+      #       gcloud --quiet config set project ${GCLOUD_PROJECT}
+      #       gcloud --quiet config set compute/zone europe_central2
       - checkout
       - run:
           name: Build frontend
           command: |
-            npm install -g yarn
             (cd ./app && yarn install && yarn build)
       - run:
-          name: Push image to App Engine
-          command: (cd ./app && gcloud app deploy app.yaml)
-      - run:
-          name: Purge cache
+          name: Collect static files
+          # we could prepare separate setting files for this without dependencies and with different STATIC_ROOT
           command: |
-            curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
-              -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
-              -H "Content-Type: application/json" \
-              --data '{"purge_everything":true}'
+            python3 -m pip install -r ./app/requirements.txt
+            cd ./app/src && python3 ./manage.py collectstatic --no-input && cp -r /static/. ../static/
+
+      # - run:
+      #     name: Push image to App Engine
+      #     command: (cd ./app && gcloud app deploy app.yaml)
+      # - run:
+      #     name: Purge cache
+      #     command: |
+      #       curl -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/purge_cache" \
+      #         -H "Authorization: Bearer ${CF_CACHE_CLEANER_API_TOKEN}" \
+      #         -H "Content-Type: application/json" \
+      #         --data '{"purge_everything":true}'
 
 workflows:
   version: 2

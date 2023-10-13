@@ -20,11 +20,11 @@ urlpatterns = [
     re_path(r'^conferences/$', views.conferences, name='conferences'),
     re_path(r'^conferences/add/$', views.update_zosia, name='zosia_add'),
     re_path(r'^conferences/(?P<pk>\d+)/update/$', views.update_zosia, name='zosia_update'),
-    re_path(r'^conferences/export_data/$', views.export_data, name='export_data'),
     re_path(r'^conferences/export_shirts/$', views.export_shirts, name='export_shirts'),
     re_path(r'^conferences/export_json/$', views.export_json, name='export_json'),
     re_path(r'^place/$', views.place, name='place'),
     re_path(r'^place/add/$', views.place_add, name='place_add'),
     re_path(r'^place/(?P<pk>\d+)/update/$', views.place_add, name='place_update'),
     re_path(r'^statistics/$', views.statistics, name='statistics'),
+    re_path(r'^zapisy/$', views.sign_up_rules_for_invited, name='invited'),
 ]

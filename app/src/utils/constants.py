@@ -5,18 +5,20 @@ from django.utils.translation import ugettext_lazy as _
 DELIMITER = ", "
 
 # Shirts
+# NOTE: We should consider not to hardcode that but rather set in options
 SHIRT_SIZE_CHOICES = [
     ("S", "S"),
     ("M", "M"),
     ("L", "L"),
     ("XL", "XL"),
     ("XXL", "XXL"),
-    ("XXXL", "XXXL"),
+    # ("XXXL", "XXXL"),
 ]
 
 SHIRT_TYPES_CHOICES = [
     ("m", _("classic")),
-    ("f", _("female")),
+    # ("f", _("female")),
+    # ("u", _("unisex")),
 ]
 
 # Admin commands
@@ -49,11 +51,8 @@ ROOM_LOCK_TIMEOUT = timedelta(hours=3)
 
 # Lectures
 class LectureInternals:
-    TYPE_LECTURE = "0"
-    TYPE_WORKSHOP = "1"
-    PERSON_SPONSOR = "0"
-    PERSON_GUEST = "1"
-    PERSON_NORMAL = "2"
+    TYPE_LECTURE = "Lecture"
+    TYPE_WORKSHOP = "Workshop"
 
 
 LECTURE_NORMAL_MAX_DURATION = 60
@@ -87,10 +86,38 @@ LECTURE_TYPE = [
     (LectureInternals.TYPE_WORKSHOP, _("Workshop"))
 ]
 
+
+# Users
+class UserInternals:
+    PERSON_NORMAL = "Normal"
+    PERSON_GUEST = "Guest"
+    PERSON_SPONSOR = "Sponsor"
+    PERSON_EARLY_REGISTERING = "Early_registering"
+    PERSON_ORGANIZER = "Organizer"
+
+
 PERSON_TYPE = [
-    (LectureInternals.PERSON_SPONSOR, _("Sponsor")),
-    (LectureInternals.PERSON_GUEST, _("Guest")),
-    (LectureInternals.PERSON_NORMAL, _("Normal"))
+    (UserInternals.PERSON_NORMAL, _("Normal")),
+    (UserInternals.PERSON_GUEST, _("Guest")),
+    (UserInternals.PERSON_SPONSOR, _("Sponsor")),
+    (UserInternals.PERSON_EARLY_REGISTERING, _("Early registering")),
+    (UserInternals.PERSON_ORGANIZER, _("Organizer"))
+]
+
+II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
+
+
+# Sponsors
+class SponsorInternals:
+    TYPE_BRONZE = "bronze"
+    TYPE_SILVER = "silver"
+    TYPE_GOLD = "gold"
+
+
+SPONSOR_TYPE = [
+    (SponsorInternals.TYPE_BRONZE, _("Bronze")),
+    (SponsorInternals.TYPE_SILVER, _("Silver")),
+    (SponsorInternals.TYPE_GOLD, _("Gold"))
 ]
 
 # Time

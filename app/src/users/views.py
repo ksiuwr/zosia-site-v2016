@@ -11,28 +11,45 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
 from conferences.models import Zosia
+from lectures.models import Lecture
 from users import forms
 from users.actions import ActivateUser
 from users.forms import OrganizationForm, UserPreferencesAdminForm, UserPreferencesForm
 from users.models import Organization, UserPreferences
 from utils.constants import ADMIN_USER_PREFERENCES_COMMAND_CHANGE_BONUS, \
-    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
-    PAYMENT_GROUPS
+    ADMIN_USER_PREFERENCES_COMMAND_TOGGLE_PAYMENT, BONUS_STEP, MAX_BONUS_MINUTES, \
+    MIN_BONUS_MINUTES, PAYMENT_GROUPS, UserInternals
 from utils.forms import errors_format
 from utils.views import csv_response
+
 
 @login_required
 @require_http_methods(['GET'])
 def profile(request):
+    user = request.user
     current_zosia = Zosia.objects.find_active()
-    user_preferences = UserPreferences.objects.select_related(
-        'bus', 'zosia').filter(user=request.user)
+    user_preferences = UserPreferences.objects.select_related('bus', 'zosia').filter(user=user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
 
+    if current_zosia:
+        registration_open = current_zosia.is_user_registration_open(user)
+        registration_start = current_zosia.user_registration_start(user)
+        enable_preferences = \
+            registration_open and not current_zosia.is_registration_over or \
+            current_prefs and (current_zosia.is_registration_over or
+                               current_zosia.registration_suspended)
+    else:
+        registration_open = False
+        registration_start = None
+        enable_preferences = False
+
     ctx = {
         'zosia': current_zosia,
-        'current_prefs': current_prefs
+        'current_prefs': current_prefs,
+        'registration_open': registration_open,
+        'registration_start': registration_start,
+        'enable_preferences': enable_preferences
     }
     return render(request, 'users/profile.html', ctx)
 
@@ -210,7 +227,8 @@ def user_preferences_admin_edit(request):
 
         return JsonResponse({
             'msg': _(
-                f"Changed bonus of {escape(user_preferences.user.full_name)} to {user_preferences.bonus_minutes}"),
+                f"Changed bonus of {escape(user_preferences.user.full_name)} to "
+                f"{user_preferences.bonus_minutes}"),
             'bonus': user_preferences.bonus_minutes
         })
 
@@ -220,17 +238,18 @@ def user_preferences_admin_edit(request):
 @login_required
 @require_http_methods(['GET', 'POST'])
 def register(request):
+    user = request.user
     zosia = Zosia.objects.find_active_or_404()
+    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=user).first()
 
-    if not zosia.is_registration_open:
-        messages.error(request, _('Registration for ZOSIA is not open yet'))
-        return redirect(reverse('index'))
+    if user_prefs is None:
+        if not zosia.is_user_registration_open(user):
+            messages.error(request, _('Registration for ZOSIA is not open yet'))
+            return redirect(reverse('index'))
 
-    user_prefs = UserPreferences.objects.filter(zosia=zosia, user=request.user).first()
-
-    if zosia.is_registration_over and user_prefs is None:
-        messages.error(request, _('You missed registration for ZOSIA'))
-        return redirect(reverse('index'))
+        if zosia.is_registration_over:
+            messages.error(request, _('You missed registration for ZOSIA'))
+            return redirect(reverse('index'))
 
     ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
     form_args = {}
@@ -267,12 +286,14 @@ def list_csv_preferences_all(request):
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
     data_list = [(
-        str(p.user), ("" if p.organization is None else str(p.organization.name)), str(p.payment_accepted),
-        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3), str(p.dinner_day_1),
+        str(p.user), ("" if p.organization is None else str(p.organization.name)),
+        str(p.payment_accepted),
+        str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
+        str(p.dinner_day_1),
         str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
         str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
         str(p.get_shirt_type_display())
-         ) for p in prefs
+    ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_all")
 
@@ -289,8 +310,25 @@ def list_csv_preferences_paid(request):
         str(p.user), ("" if p.organization is None else str(p.organization.name)),
         str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
         str(p.dinner_day_1), str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3),
-        str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian), str(p.get_shirt_size_display()),
+        str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian),
+        str(p.get_shirt_size_display()),
         str(p.get_shirt_type_display())
-        ) for p in prefs
+    ) for p in prefs
     ]
     return csv_response(header, data_list, filename="list_csv_preferences_paid")
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_lectures(request):
+    lectures = Lecture.objects.all()
+    header = ("Name", "Printed name", "Lecturers", "Duration", "Type",
+              "Highlighted", "Comment")
+    data = [(
+        str(lecture.title), "", str(lecture.all_authors_names), str(lecture.duration),
+        str(lecture.lecture_type),
+        str("Yes" if lecture.author.person_type == UserInternals.PERSON_SPONSOR else "No"),
+        str(lecture.requests),
+    ) for lecture in lectures
+    ]
+    return csv_response(header, data, filename="lectures")

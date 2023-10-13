@@ -13,6 +13,7 @@
                 <li class="tab col"><a href="#blog_tab">{% trans 'Blog' %}</a></li>
                 <li class="tab col"><a href="#sponsors_tab">{% trans 'Sponsors' %}</a></li>
                 <li class="tab col"><a href="#users_tab" class="active">{% trans 'Users' %}</a></li>
+                <li class="tab col"><a href="#organizers_tab">{% trans 'Organizers' %}</a></li>
                 <li class="tab col"><a href="#qa_tab">{% trans 'Q&A' %}</a></li>
                 <li class="tab col"><a href="#lectures_tab">{% trans 'Lectures' %}</a></li>
                 <li class="tab col"><a href="#rooms_tab">{% trans 'Rooms' %}</a></li>
@@ -25,6 +26,13 @@
             <ul class="collection">
                 <a href="{% url 'user_preferences_index' %}" class="collection-item">{% trans 'Preferences' %}</a>
                 <a href="{% url 'mail_all' %}" class="collection-item">{% trans 'Email users' %}</a>
+            </ul>
+        </div>
+
+        <div id="organizers_tab" class="col s12">
+            <ul class="collection">
+                <a href="{% url 'organizers_index' %}" class="collection-item">{% trans 'Organizers' %}</a>
+                <a href="{% url 'organizers_add' %}" class="collection-item">{% trans 'Add organizer' %}</a>
             </ul>
         </div>
 
@@ -68,7 +76,6 @@
                 <a href="{% url 'bus_admin' %}" class="collection-item">{% trans 'Bus' %}</a>
                 <a href="{% url 'organizations' %}" class="collection-item">{% trans 'Organizations' %}</a>
                 <a href="{% url 'rooms_import' %}" class="collection-item"> {% trans 'Upload rooms' %}</a>
-                <a href="{% url 'export_data' %}" class="collection-item"> {% trans 'Export data' %}</a>
                 <a href="{% url 'statistics' %}" class="collection-item">{% trans 'Statistics' %}</a>
                 <a href="{% url 'boardgames_accept' %}" class="collection-item">{% trans 'Boardgames' %}</a>
             </ul>
@@ -76,6 +83,15 @@
 
         <div id="downloads_tab" class="col s12">
             <ul class="collection">
+                <a href="{% url 'export_json' %}" class="collection-item">
+                    {% trans 'ZOSIA data export (for zosia-print script)' %} (JSON)
+                </a>
+                <a href="{% url 'list_csv_lectures' %}" class="collection-item">
+                    {% trans 'Lectures export (for spreadsheet-scheduler)' %} (CSV)
+                </a>
+                <a href="{% url 'export_shirts' %}" class="collection-item">
+                    {% trans 'Shirts export' %} (CSV)
+                </a>
                 <a href="{% url 'list_csv_preferences_all' %}" class="collection-item">
                     {% trans 'Preferences of registered users' %} (CSV)
                 </a>

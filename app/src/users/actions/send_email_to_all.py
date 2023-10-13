@@ -14,6 +14,7 @@ class SendEmailToAll:
         self.use_https = use_https
 
     def call(self, subject, text):
-        from_email = settings.DEFAULT_FROM_EMAIL
-        emails = [(subject, text, from_email, [user.email]) for user in self.users]
+        emails = [
+            (subject, text, settings.DEFAULT_MAIL, [user.email])
+            for user in self.users]
         send_mass_mail(emails, fail_silently=False)

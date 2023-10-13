@@ -18,10 +18,14 @@ from conferences.models import Zosia
 from users.models import UserPreferences
 
 
+MAX_NUMBER_OF_GAMES = 3
+
+
 @login_required
 @require_http_methods(['GET'])
 def index(request):
-    boardgames = Boardgame.objects.all().annotate(votes=Count('boardgame_votes')).order_by('-votes', 'name')
+    boardgames = Boardgame.objects.all().annotate(
+        votes=Count('boardgame_votes')).order_by('-votes', 'name')
 
     try:
         current_zosia = Zosia.objects.find_active()
@@ -39,19 +43,28 @@ def index(request):
 @login_required
 @require_http_methods(['GET', 'POST'])
 def my_boardgames(request):
-    user_boardgames = Boardgame.objects.filter(user=request.user).annotate(votes=Count('boardgame_votes')).order_by('-votes', 'name')
-    can_add = user_boardgames.count() < 3
+    user_boardgames = Boardgame.objects.filter(user=request.user).annotate(
+        votes=Count('boardgame_votes')).order_by('-votes', 'name')
+    can_add = user_boardgames.count() < MAX_NUMBER_OF_GAMES
     ctx = {'user_boardgames': user_boardgames,
            'can_add': can_add}
     return render(request, 'boardgames/my_boardgames.html', ctx)
 
 
-def validate_url(url):
+def validate_game_url(url: str) -> bool:
     url_pattern = r'(https://)?boardgamegeek.com/boardgame/\d{1,6}(/[0-9a-z-]+)?'
-    return re.match(url_pattern, url)
+    if re.match(url_pattern, url) is None:
+        return False
+
+    if not url.startswith("https://"):
+        url = f"https://{url}"
+
+    # Game name should be different then BoardGameGeek
+    return get_game_name(url) != "BoardGameGeek"
 
 
-def get_name(request, url):
+# TODO: Simplify title detection
+def get_game_name(url) -> str:
     boargamegeek_html = urlopen(url).read()
     title_str = '<title>'
     encoding = "utf-8"
@@ -64,9 +77,11 @@ def get_name(request, url):
     name_str = name_bytes.decode(encoding)
     return name_str
 
+
 def get_id(url):
-    match = re.search("(boardgame\/)([0-9]+)", url)
+    match = re.search(r'(boardgame\/)([0-9]+)', url)
     return match.group(2)
+
 
 @login_required
 @require_http_methods(['GET', 'POST'])
@@ -75,27 +90,27 @@ def create(request):
     ctx = {'form': BoardgameForm(request.POST or None)}
 
     if request.method == 'POST':
-        if ctx['form'].is_valid() and user_boardgames.count() < 3:
+        if user_boardgames.count() >= MAX_NUMBER_OF_GAMES:
+            messages.error(request, _(f"Number of boardgames per account exceeded (max: {MAX_NUMBER_OF_GAMES})."))
+        elif ctx['form'].is_valid():
             new_url = ctx['form'].cleaned_data['url']
-            id = get_id(new_url)
-            url_part = 'boardgame/' + id #TODO: We should save id in the model instead
-            if Boardgame.objects.filter(url__contains=url_part).exists():
-                messages.error(
-                    request, _("This boardgame has been already added"))
-            elif not validate_url(new_url):
+            if not validate_game_url(new_url):
                 messages.error(request, _("This is not a valid boardgame url"))
             else:
-                name = get_name(request, new_url)
-                if name == "BoardGameGeek":
-                    messages.error(request, _(
-                        "This is not a valid boardgame url"))
+                game_id = get_id(new_url)
+                # TODO: We should save only game id in the model instead of full URL
+                url_part = 'boardgame/' + game_id
+                if Boardgame.objects.filter(url__contains=url_part).exists():
+                    messages.error(
+                        request, _("This boardgame has been already added"))
                 else:
+                    name = get_game_name(new_url)
                     boardgame = Boardgame(
                         name=name, user=request.user, url=new_url)
                     boardgame.save()
                     return redirect('my_boardgames')
         else:
-            messages.error(request, _("Error adding boardgame"))
+            messages.error(request, _("Can't add boardgame - form is not valid."))
 
     return render(request, 'boardgames/create.html', ctx)
 
@@ -114,7 +129,8 @@ def vote(request):
 @require_http_methods(['POST'])
 def vote_edit(request):
     current_zosia = Zosia.objects.find_active()
-    preferences = UserPreferences.objects.get(zosia=current_zosia, user=request.user)
+    preferences = UserPreferences.objects.get(
+        zosia=current_zosia, user=request.user)
 
     if not preferences.payment_accepted:
         return HttpResponseBadRequest(
@@ -125,7 +141,7 @@ def vote_edit(request):
 
     new_ids = json.loads(request.POST.get('new_ids'))
 
-    if len(new_ids) > 3:
+    if len(new_ids) > MAX_NUMBER_OF_GAMES:
         return HttpResponseBadRequest(
             '<h1>Bad request(400)</h1>'
             'Everyone can vote only for up to three boardgames',

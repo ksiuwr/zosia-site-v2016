@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from users.forms import UserPreferencesAdminForm, UserPreferencesForm
 from users.models import UserPreferences
+from utils.constants import UserInternals
 from utils.test_helpers import PRICE_BASE, PRICE_BREAKFAST, PRICE_DINNER, PRICE_FULL, \
     create_organization, create_user, create_user_preferences, create_zosia
 from utils.time_manager import timedelta_since_now
@@ -23,7 +24,7 @@ class UserPreferencesModelTestCase(UserPreferencesTestCase):
             'zosia': self.zosia,
             'contact': 'fb: me',
             'shirt_size': 'S',
-            'shirt_type': 'f',
+            'shirt_type': 'm',
             'terms_accepted': True
         }
         defaults.update(**override)
@@ -157,7 +158,7 @@ class UserPreferencesFormTestCase(TestCase):
         defaults = {
             'contact': 'fb: me',
             'shirt_size': 'S',
-            'shirt_type': 'f',
+            'shirt_type': 'm',
             'terms_accepted': True
         }
         defaults.update(**override)
@@ -278,7 +279,7 @@ class UserPreferencesEditTestCase(UserPreferencesTestCase):
         response = self.client.post(self.url,
                                     data={
                                         'shirt_size': 'XXL',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'contact': self.user_prefs.contact,
                                         'bonus_minutes': 0,
                                         'terms_accepted': True
@@ -287,13 +288,14 @@ class UserPreferencesEditTestCase(UserPreferencesTestCase):
         self.assertEqual(response.status_code, 200)
         prefs = UserPreferences.objects.filter(pk=self.user_prefs.pk).first()
         self.assertEqual(prefs.shirt_size, 'XXL')
-        self.assertEqual(prefs.shirt_type, 'f')
+        self.assertEqual(prefs.shirt_type, 'm')
 
 
 class RegisterViewTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.normal = create_user(0)
+        self.early_registering = create_user(1, person_type=UserInternals.PERSON_EARLY_REGISTERING)
         self.zosia = create_zosia(active=True)
         self.url = reverse('user_zosia_register')
 
@@ -301,9 +303,32 @@ class RegisterViewTestCase(TestCase):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/accounts/login/?next={}'.format(self.url))
- 
+
     def test_get_regular_user_not_registered(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, UserPreferencesForm)
+        self.assertFalse('object' in context)
+
+    def test_get_early_registering_user_not_registered(self):
+        self.client.login(email="starr@thebeatles.com", password="ringopassword")
+        self.zosia.early_registration_start = timedelta_since_now(hours=-1)
+        self.zosia.registration_start = timedelta_since_now(hours=1)
+        self.zosia.save()
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, UserPreferencesForm)
+        self.assertFalse('object' in context)
+
+    def test_get_early_registering_user_not_registered_during_suspended_registration(self):
+        self.client.login(email="starr@thebeatles.com", password="ringopassword")
+        self.zosia.registration_suspended = True
+        self.zosia.save()
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
 
@@ -314,6 +339,24 @@ class RegisterViewTestCase(TestCase):
     def test_get_regular_user_before_registration(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
         self.zosia.registration_start = timedelta_since_now(hours=1)
+        self.zosia.save()
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('index'))
+
+    def test_get_regular_user_before_early_registration(self):
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.zosia.early_registration_start = timedelta_since_now(hours=-1)
+        self.zosia.registration_start = timedelta_since_now(hours=1)
+        self.zosia.save()
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertRedirects(response, reverse('index'))
+
+    def test_get_early_registering_user_before_early_registration(self):
+        self.client.login(email="starr@thebeatles.com", password="ringopassword")
+        self.zosia.early_registration_start = timedelta_since_now(hours=1)
+        self.zosia.registration_start = timedelta_since_now(hours=2)
         self.zosia.save()
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -351,6 +394,19 @@ class RegisterViewTestCase(TestCase):
         self.assertEqual(context['form'].__class__, UserPreferencesForm)
         self.assertEqual(context['object'], user_prefs)
 
+    def test_get_regular_user_already_registered_during_suspended_registration(self):
+        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
+        self.zosia.registration_suspended = True
+        self.zosia.save()
+        org = create_organization(name='ksi', accepted=True)
+        user_prefs = create_user_preferences(self.normal, self.zosia, organization=org)
+        response = self.client.get(self.url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        context = response.context[-1]
+        self.assertEqual(context['form'].__class__, UserPreferencesForm)
+        self.assertEqual(context['object'], user_prefs)
+
     def test_post_user_not_registered_empty_data(self):
         self.assertEqual(UserPreferences.objects.filter(user=self.normal).count(), 0)
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
@@ -367,7 +423,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'terms_accepted': True
                                     },
                                     follow=True)
@@ -382,7 +438,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'contact': 'fb: me',
                                         'shirt_size': 'S',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'terms_accepted': True
                                     },
                                     follow=True)
@@ -398,7 +454,7 @@ class RegisterViewTestCase(TestCase):
                                     data={
                                         'accommodation_day_1': True,
                                         'shirt_size': 'M',
-                                        'shirt_type': 'f',
+                                        'shirt_type': 'm',
                                         'contact': 'fb: me',
                                         'terms_accepted': True
                                     },
