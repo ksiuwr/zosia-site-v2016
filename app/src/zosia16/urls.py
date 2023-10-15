@@ -45,8 +45,9 @@ api_urls = [
     re_path(r'^api/v1/users/', include('users.api.urls')),
 ]
 
-urlpatterns = site_urls + api_urls + [
-    # Swagger URLs
-    re_path(r'^swagger/', schema_view.with_ui('swagger', cache_timeout=0),
-            name='schema-swagger-ui')
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+swagger_urls = [
+    re_path(r'^swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui')
+]
+
+urlpatterns = site_urls + api_urls + swagger_urls + static(settings.STATIC_URL,
+                                                           document_root=settings.STATIC_ROOT)
