@@ -110,7 +110,7 @@ class RoomSerializer(serializers.ModelSerializer):
 class RoomWithLockPasswordSerializer(RoomSerializer):
     lock = RoomLockWithPasswordSerializer(read_only=True)
 
-    class Meta:
+    class Meta(RoomSerializer.Meta):
         ref_name = "RoomWithLockPasswordSerializer_v2"
 
 
