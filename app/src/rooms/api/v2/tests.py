@@ -242,7 +242,7 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
     def test_user_cannot_view_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
 
-        url = reverse("rooms_api_detail", kwargs={"pk": 0})
+        url = reverse("rooms_api2_detail", kwargs={"pk": 0})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -604,11 +604,11 @@ class RoomMemberCreateAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_user_cannot_join_nonexisting_room(self):
+    def test_user_cannot_join_not_existing_room(self):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
-        url = reverse("rooms_api_join", kwargs={"pk": 0})
+        url = reverse("rooms_api2_member", kwargs={"pk": 0})
         data = {"user": self.normal_1.pk}
         response = self.client.post(url, data)
 
@@ -829,7 +829,7 @@ class RoomLockCreateAPITestCase(RoomsAPITestCase):
     def test_staff_cannot_lock_nonexisting_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_lock", kwargs={"pk": 0})
+        url = reverse("rooms_api2_lock", kwargs={"pk": 0})
         expiration_date = timedelta_since_now(days=1)
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(url, data)
