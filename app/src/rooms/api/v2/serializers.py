@@ -13,6 +13,7 @@ class UserRoomSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
+        ref_name = "UserRoomSerializer_v2"
         model = UserRoom
         fields = ("room_name", "user")
 
@@ -21,6 +22,7 @@ class RoomMemberSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
+        ref_name = "RoomMemberSerializer_v2"
         model = UserRoom
         fields = ("user", "joined_at")
 
@@ -30,6 +32,7 @@ class RoomLockSerializer(serializers.ModelSerializer):
     password = serializers.SerializerMethodField("send_password")
 
     class Meta:
+        ref_name = "RoomLockSerializer_v2"
         model = RoomLock
         fields = ("user", "password", "expiration_date")
 
@@ -43,6 +46,7 @@ class RoomLockWithPasswordSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
+        ref_name = "RoomLockWithPasswordSerializer_v2"
         model = RoomLock
         fields = ("user", "password", "expiration_date")
 
@@ -57,6 +61,7 @@ class RoomSerializer(serializers.ModelSerializer):
     members = RoomMemberSerializer(source="userroom_set", read_only=True, many=True)
 
     class Meta:
+        ref_name = "RoomSerializer_v2"
         model = Room
         fields = ("id", "name", "description", "hidden", "beds_single", "beds_double",
                   "available_beds_single", "available_beds_double", "lock", "members")
@@ -105,10 +110,16 @@ class RoomSerializer(serializers.ModelSerializer):
 class RoomWithLockPasswordSerializer(RoomSerializer):
     lock = RoomLockWithPasswordSerializer(read_only=True)
 
+    class Meta:
+        ref_name = "RoomWithLockPasswordSerializer_v2"
+
 
 class RoomMemberCreateMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
     password = serializers.CharField(max_length=4, required=False)
+
+    class Meta:
+        ref_name = "RoomMemberCreateMethodSerializer_v2"
 
     def __init__(self, *args, **kwargs):
         super(RoomMemberCreateMethodSerializer, self).__init__(*args, **kwargs)
@@ -134,6 +145,9 @@ class RoomMemberCreateMethodSerializer(serializers.BaseSerializer):
 class RoomMemberDestroyMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
 
+    class Meta:
+        ref_name = "RoomMemberDestroyMethodSerializer_v2"
+
     def __init__(self, *args, **kwargs):
         super(RoomMemberDestroyMethodSerializer, self).__init__(*args, **kwargs)
 
@@ -151,6 +165,9 @@ class RoomMemberDestroyMethodSerializer(serializers.BaseSerializer):
 
 class RoomLockCreateMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
+
+    class Meta:
+        ref_name = "RoomLockCreateMethodSerializer_v2"
 
     def __init__(self, *args, **kwargs):
         super(RoomLockCreateMethodSerializer, self).__init__(*args, **kwargs)
@@ -170,6 +187,9 @@ class RoomLockCreateMethodSerializer(serializers.BaseSerializer):
 class RoomLockCreateMethodAdminSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
     expiration_date = serializers.DateTimeField(input_formats=["iso-8601"], required=False)
+
+    class Meta:
+         ref_name = "RoomLockCreateMethodAdminSerializer_v2"
 
     def __init__(self, *args, **kwargs):
         super(RoomLockCreateMethodAdminSerializer, self).__init__(*args, **kwargs)
