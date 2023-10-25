@@ -16,6 +16,10 @@
         height: 500px;
     }
 
+    .discounts-bar-chart-container {
+        height: 400px;
+    }
+
     .bus-info-bar-chart-container {
         height: calc({{numberOfBuses}} * 90px + 120px );
     }
@@ -27,6 +31,10 @@
 
         .users-cost-bar-chart-container {
             height: 300px;
+        }
+
+        .discounts-bar-chart-container {
+            height: 200px;
         }
 
         .bus-info-bar-chart-container {
@@ -43,6 +51,7 @@
                     <span class="card-title">{% trans "ZOSIA statistics" %}</span>
                     <br />
                     <div><b>Registered users:</b> {{ registeredUsers }} </div>
+                    <div><b>Students:</b> {{ students }} </div>
                     <div><b>Vegetarians:</b> {{ vegetarians }} </div>
                     <hr />
                     <div class="users-pie-chart-container">
@@ -51,6 +60,10 @@
                     <hr />
                     <div class="users-cost-bar-chart-container">
                         <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
+                    </div>
+                    <hr />
+                    <div class="discounts-bar-chart-container">
+                        <canvas id="discounts_bar_chart" aria-label="Bar chart with discounts data" role="img"></canvas>
                     </div>
                     <hr />
                     <div class="bus-info-bar-chart-container">
@@ -161,9 +174,54 @@
         },
     });
 
+    var discountData = {{ discountsData | safe }}
 
-    var busesLabels = {{ busesLabels|safe }}
-    var busesValues = {{ busesValues|safe }}
+    var discountsCanvas = document.getElementById('discounts_bar_chart');
+    var discountsBarChart = new Chart(discountsCanvas, {
+        type: 'bar',
+        data: {
+            labels: ["Round 1", "Round 2", "Round 3"],
+            datasets: [
+                {
+                    label: "Taken",
+                    data: discountData["taken"],
+                    backgroundColor: 'rgba(70, 195, 40, 0.5)'
+                },
+                {
+                    label: "Available",
+                    data: discountData["available"],
+                    backgroundColor: 'rgba(50, 50, 50, 0.5)'
+                }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Discounts',
+                    font: {
+                        size: 20
+                    }
+                },
+            },
+            responsive: true,
+            scales: {
+                x: {
+                    stacked: true,
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                }
+            }
+        }
+    });
+
+    var busesLabels = {{ busesLabels| safe }}
+    var busesValues = {{ busesValues| safe }}
 
     var busInfoCanvas = document.getElementById('bus_info_bar_chart');
     var busInfoBarChart = new Chart(busInfoCanvas, {

@@ -282,12 +282,33 @@ def statistics(request):
         buses_values['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
         buses_values['empty'].append(bus.free_seats)
 
+    # discount
+    discounts = list(
+        user_prefs.filter(discount_round__gt=0).values_list('discount_round', flat=True))
+
+    # discount_values = {
+    #     "round_1": (discounts.count(1), zosia.first_discount_limit),
+    #     "round_2": (discounts.count(2), zosia.second_discount_limit),
+    #     "round_3": (discounts.count(3), zosia.third_discount_limit)
+    #     }
+
+    discount_values = {
+        "taken": [discounts.count(x) for x in (1, 2, 3)],
+        "available": [
+            zosia.first_discount_limit-discounts.count(1),
+            zosia.second_discount_limit-discounts.count(2),
+            zosia.third_discount_limit-discounts.count(3)]
+    }
+
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
+    students = user_prefs.filter(is_student=True).count()
 
     ctx = {
         'registeredUsers': prefs_count,
         'vegetarians': vegetarians,
+        'students': students,
+        'discountsData': json.dumps(discount_values),
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
         'userCostsCounts': list(price_counts),

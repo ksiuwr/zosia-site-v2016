@@ -262,13 +262,13 @@ class UserPreferences(models.Model):
         turn_two_limit = turn_one_limit + zosia.second_discount_limit
         turn_three_limit = turn_two_limit + zosia.third_discount_limit
 
-        if(registered_users_num < turn_one_limit):
+        if (registered_users_num < turn_one_limit):
             return 1
-        if(registered_users_num < turn_two_limit):
+        if (registered_users_num < turn_two_limit):
             return 2
-        if(registered_users_num < turn_three_limit):
+        if (registered_users_num < turn_three_limit):
             return 3
-        
+
         return 0
 
     @property
