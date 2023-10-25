@@ -242,13 +242,13 @@ class Zosia(models.Model):
     def get_discount_for_round(self, round):
         if round <= 0 or round > 3:
             return 0
-        
+
         if round == 1:
             return self.first_discount
         if round == 2:
             return self.second_discount
         return self.third_discount
-    
+
 
     def clean(self):
         if self.early_registration_start is not None:
@@ -288,7 +288,7 @@ class Bus(models.Model):
     objects = BusManager()
 
     zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
-    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
+    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     departure_time = models.DateTimeField()
     name = models.TextField(default="Bus")
 
