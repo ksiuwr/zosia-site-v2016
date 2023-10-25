@@ -63,10 +63,11 @@ class OrganizationNameListFilter(admin.SimpleListFilter):
 
 class UserPreferencesAdmin(admin.ModelAdmin):
     list_display = ('user', 'payment_accepted', 'organization_name', 'accommodation_day_1',
-                    'accommodation_day_2', 'accommodation_day_3', 'vegetarian', 'bonus_minutes')
+                    'accommodation_day_2', 'accommodation_day_3', 'vegetarian',
+                    'bonus_minutes', 'discount_round')
     readonly_fields = ('user', 'zosia', 'terms_accepted')
     list_filter = ('payment_accepted', OrganizationNameListFilter, 'accommodation_day_1',
-                   'accommodation_day_2', 'accommodation_day_3', 'vegetarian')
+                   'accommodation_day_2', 'accommodation_day_3', 'vegetarian', 'discount_round')
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
