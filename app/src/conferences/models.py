@@ -112,8 +112,41 @@ class Zosia(models.Model):
     price_transport = models.IntegerField(
         verbose_name=_('Price for transportation')
     )
+    price_transport_with_discount = models.IntegerField(
+        verbose_name=_('Price for transportation with discount'),
+        default=0
+    )
+    price_transport_baggage = models.IntegerField(
+        verbose_name=_('Price for transport baggage'),
+        default=0
+    )
     price_base = models.IntegerField(
         verbose_name=_('Organisation fee'),
+        default=0
+    )
+
+    first_discount = models.IntegerField(
+        verbose_name=_('First discount per day'),
+        default=0
+    )
+    first_discount_limit = models.IntegerField(
+        verbose_name=_('Limited number of registered users for first discount'),
+        default=0
+    )
+    second_discount = models.IntegerField(
+        verbose_name=_('Second discount per day'),
+        default=0
+    )
+    second_discount_limit = models.IntegerField(
+        verbose_name=_('Limited number of registered users for second discount'),
+        default=0
+    )
+    third_discount = models.IntegerField(
+        verbose_name=_('Third discount per day'),
+        default=0
+    )
+    third_discount_limit = models.IntegerField(
+        verbose_name=_('Limited number of registered users for third discount'),
         default=0
     )
 
@@ -204,6 +237,18 @@ class Zosia(models.Model):
             raise ValidationError(_('Only one Zosia may be active at any given time'))
 
         super(Zosia, self).validate_unique(**kwargs)
+
+
+    def get_discount_for_round(self, round):
+        if round <= 0 or round > 3:
+            return 0
+        
+        if round == 1:
+            return self.first_discount
+        if round == 2:
+            return self.second_discount
+        return self.third_discount
+    
 
     def clean(self):
         if self.early_registration_start is not None:
