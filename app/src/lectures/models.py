@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Zosia
 from users.models import User
-from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals
+from utils.constants import DELIMITER, FULL_DURATION_CHOICES, LECTURE_TYPE, LectureInternals
 from utils.forms import get_durations
 
 
@@ -62,7 +62,7 @@ class Lecture(models.Model):
 
     @property
     def all_authors_names(self):
-        return ', '.join(map(str, self.all_authors_tuple))
+        return DELIMITER.join(map(str, self.all_authors_tuple))
 
     def __str__(self):
         return f"{self.all_authors_names} - {self.title}"

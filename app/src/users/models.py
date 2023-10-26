@@ -84,7 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def save(self, *args, **kwargs):
         if self.email.endswith(II_UWR_EMAIL_DOMAIN) \
                 and (self.person_type is None or self.person_type == UserInternals.PERSON_NORMAL):
-            self.person_type = UserInternals.PERSON_EARLY_REGISTERING
+            self.person_type = UserInternals.PERSON_PRIVILEGED
 
         if self.hash is None:
             self.hash = hashlib.sha256(

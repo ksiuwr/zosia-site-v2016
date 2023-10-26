@@ -21,8 +21,8 @@
         <li>
           <div class="collapsible-header">
             <i class="material-icons">contacts</i>
-            <strong>{{ object.name }} - 
-                <span class="sponsor_type_badge sponsor_type_{{ object.sponsor_type }}">{{ object.get_sponsor_type_display }}</span>
+            <strong>{{ object.name }} -
+                <span class="sponsor-type-badge sponsor-type-{{ object.sponsor_type }}">{{ object.get_sponsor_type_display }}</span>
             </strong>
             <div class="switch right">
               <a href="{% url 'sponsors_edit' object.id %}">

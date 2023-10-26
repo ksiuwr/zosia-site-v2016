@@ -295,7 +295,7 @@ class RegisterViewTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.normal = create_user(0)
-        self.early_registering = create_user(1, person_type=UserInternals.PERSON_EARLY_REGISTERING)
+        self.early_registering = create_user(1, person_type=UserInternals.PERSON_PRIVILEGED)
         self.zosia = create_zosia(active=True)
         self.url = reverse('user_zosia_register')
 
