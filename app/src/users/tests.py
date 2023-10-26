@@ -217,7 +217,7 @@ class UserPreferencesAdminEditTestCase(UserPreferencesTestCase):
     def test_post_no_user(self):
         response = self.client.get(self.url, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, '/admin/login/?next=/accounts/preferences/admin_edit/')
+        self.assertRedirects(response, '/admin/login/?next=/accounts/preferences/admin/')
 
     def test_post_normal_user(self):
         self.client.login(email="lennon@thebeatles.com", password="johnpassword")
@@ -225,7 +225,7 @@ class UserPreferencesAdminEditTestCase(UserPreferencesTestCase):
                                     {'key': self.user_prefs.pk},
                                     follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertRedirects(response, '/admin/login/?next=/accounts/preferences/admin_edit/')
+        self.assertRedirects(response, '/admin/login/?next=/accounts/preferences/admin/')
 
     def test_post_staff_user_can_change_payment_status(self):
         self.client.login(email="starr@thebeatles.com", password='ringopassword')
