@@ -16,7 +16,7 @@ class Colour:
 
 
 PROJECT_NAME = "zosia"
-ROOT_DIR = normpath(dirname(__file__) + "/..")
+ROOT_DIR = normpath(f"{dirname(__file__)}/..")
 DOCKER_COMPOSE = f"{ROOT_DIR}/docker-compose.dev.yml"
 
 WEB_CONTAINER_NAME = f"{PROJECT_NAME}_web_1"

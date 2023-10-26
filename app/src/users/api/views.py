@@ -20,7 +20,7 @@ class UserViewSet(ReadOnlyModelViewSet):
         return [permission() for permission in permission_classes]
 
     @action(detail=False, methods=["GET"])
-    def session(self, request, version):
+    def session(self, request):
         sender = request.user
         serializer = self.get_serializer(sender)
 

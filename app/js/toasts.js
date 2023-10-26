@@ -4,7 +4,7 @@ import { escapeHtml } from './helpers';
 export const apiErrorToast = err => {
     console.log(err.body);
 
-    let message = 'There was an internal error with your request.';
+    let message = 'There was an internal error with your request. Please contact site administrators.';
 
     if(typeof(err.body) === 'string' || err.body instanceof String) {
         message = 'ERROR!<br/>' + escapeHtml(err.body)

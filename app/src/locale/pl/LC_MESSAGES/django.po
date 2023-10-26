@@ -626,7 +626,7 @@ msgid "staff"
 msgstr ""
 
 #: users/templates/registration/logged_out.html:10
-msgid "You were logged out."
+msgid "You have been logged out."
 msgstr ""
 
 #: users/templates/registration/login.html:12

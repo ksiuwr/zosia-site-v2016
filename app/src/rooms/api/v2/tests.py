@@ -34,15 +34,33 @@ class RoomsAPITestCase(APITestCase):
 class RoomListAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("rooms_api_list", kwargs={"version": "v1"})
+        self.url = reverse("rooms_api2_list")
 
-    def test_user_can_get_all_visible_rooms(self):
+    def test_user_not_member_can_get_all_visible_rooms(self):
         self.client.force_authenticate(user=self.normal_1)
 
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
+
+    def test_user_as_member_can_get_all_visible_rooms_with_own_visible_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+        self.room_1.join(self.normal_1)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_user_as_member_can_get_all_visible_rooms_with_own_hidden_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+        self.room_3.join(self.normal_1, self.staff_2)
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
 
     def test_staff_can_get_all_rooms(self):
         self.client.force_authenticate(user=self.staff_2)
@@ -170,9 +188,9 @@ class RoomListAPITestCase(RoomsAPITestCase):
 class RoomDetailAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_2.pk})
-        self.url_3 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_3.pk})
+        self.url_1 = reverse("rooms_api2_detail", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api2_detail", kwargs={"pk": self.room_2.pk})
+        self.url_3 = reverse("rooms_api2_detail", kwargs={"pk": self.room_3.pk})
 
     def test_user_can_view_visible_room(self):
         self.room_1.join(self.staff_2)
@@ -224,7 +242,7 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
     def test_user_cannot_view_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
 
-        url = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api2_detail", kwargs={"pk": 0})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -356,12 +374,12 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RoomJoinAPITestCase(RoomsAPITestCase):
+class RoomMemberCreateAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_2.pk})
-        self.url_3 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_3.pk})
+        self.url_1 = reverse("rooms_api2_member", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api2_member", kwargs={"pk": self.room_2.pk})
+        self.url_3 = reverse("rooms_api2_member", kwargs={"pk": self.room_3.pk})
 
     def test_user_can_join_free_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -371,7 +389,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_2)
 
     def test_user_can_join_room_when_available_place(self):
@@ -383,7 +401,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_2, self.room_2)
         room_assertions.assertJoined(self.normal_1, self.room_2)
 
@@ -397,7 +415,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         self.room_1.refresh_from_db()
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertEmpty(self.room_1)
         room_assertions.assertJoined(self.normal_1, self.room_2)
 
@@ -477,7 +495,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_2)
         room_assertions.assertJoined(self.normal_2, self.room_2)
 
@@ -510,7 +528,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_2)
 
     def test_staff_can_add_user_to_hidden_room(self):
@@ -521,7 +539,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_3, data)
         self.room_3.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_3)
 
     def test_staff_can_add_user_to_locked_room(self):
@@ -534,7 +552,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_2)
         room_assertions.assertJoined(self.normal_2, self.room_2)
 
@@ -559,7 +577,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_1)
 
     def test_staff_can_add_user_to_room_before_rooming_starts(self):
@@ -573,7 +591,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertJoined(self.normal_1, self.room_1)
 
     def test_user_cannot_add_other_user_to_room(self):
@@ -586,17 +604,17 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_user_cannot_join_nonexisting_room(self):
+    def test_user_cannot_join_not_existing_room(self):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
-        url = reverse("rooms_api_join", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api2_member", kwargs={"pk": 0})
         data = {"user": self.normal_1.pk}
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_staff_cannot_add_nonexisting_user(self):
+    def test_staff_cannot_add_not_existing_user(self):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {"user": 0}
@@ -605,11 +623,11 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RoomLeaveAPITestCase(RoomsAPITestCase):
+class RoomMemberDestroyAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": self.room_2.pk})
+        self.url_1 = reverse("rooms_api2_member", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api2_member", kwargs={"pk": self.room_2.pk})
 
     def test_user_can_leave_joined_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -618,7 +636,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.room_1.join(self.normal_1)
 
         data = {"user": self.normal_1.pk}
-        response = self.client.post(self.url_1, data)
+        response = self.client.delete(self.url_1, data)
         self.room_1.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -632,7 +650,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.room_2.set_lock(self.normal_2)
 
         data = {"user": self.normal_2.pk}
-        response = self.client.post(self.url_2, data)
+        response = self.client.delete(self.url_2, data)
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -648,7 +666,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.room_2.set_lock(self.normal_2)
 
         data = {"user": self.normal_1.pk}
-        response = self.client.post(self.url_2, data)
+        response = self.client.delete(self.url_2, data)
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -662,7 +680,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.room_1.join(self.normal_1)
 
         data = {"user": self.normal_1.pk}
-        response = self.client.post(self.url_1, data)
+        response = self.client.delete(self.url_1, data)
         self.room_1.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -676,7 +694,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.room_2.join(self.normal_2)
 
         data = {"user": self.normal_2.pk}
-        response = self.client.post(self.url_2, data)
+        response = self.client.delete(self.url_2, data)
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -685,9 +703,9 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
-        url = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api2_member", kwargs={"pk": 0})
         data = {"user": self.normal_1.pk}
-        response = self.client.post(url, data)
+        response = self.client.delete(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
@@ -695,17 +713,17 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {"user": 0}
-        response = self.client.post(self.url_2, data)
+        response = self.client.delete(self.url_2, data)
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RoomLockAPITestCase(RoomsAPITestCase):
+class RoomLockCreateAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_2.pk})
-        self.url_3 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_3.pk})
+        self.url_1 = reverse("rooms_api2_lock", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api2_lock", kwargs={"pk": self.room_2.pk})
+        self.url_3 = reverse("rooms_api2_lock", kwargs={"pk": self.room_3.pk})
 
     def test_user_can_lock_room_after_joining(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -717,7 +735,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertLocked(self.room_1, self.normal_1)
         self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
         self.assertIsNotNone(response.data["lock"]["password"])
@@ -743,7 +761,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_2, data)
         self.room_2.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertLocked(self.room_2, self.normal_1)
         self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
         self.assertIsNotNone(response.data["lock"]["password"])
@@ -759,7 +777,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertLocked(self.room_1, self.normal_1)
         self.assertEqual(self.room_1.lock.expiration_date, expiration_date)
 
@@ -775,7 +793,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertLocked(self.room_1, self.normal_1)
         self.assertEqual(self.room_1.lock.expiration_date, expiration_date)
 
@@ -789,7 +807,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_3, data)
         self.room_3.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertLocked(self.room_3, self.normal_2)
 
     def test_staff_can_lock_before_rooming_starts(self):
@@ -805,13 +823,13 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         response = self.client.post(self.url_1, data)
         self.room_1.refresh_from_db()
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         room_assertions.assertLocked(self.room_1, self.normal_1)
 
     def test_staff_cannot_lock_nonexisting_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api2_lock", kwargs={"pk": 0})
         expiration_date = timedelta_since_now(days=1)
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(url, data)
@@ -828,11 +846,11 @@ class RoomLockAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-class RoomUnlockAPITestCase(RoomsAPITestCase):
+class RoomLockDestroyAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_unlock", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_unlock", kwargs={"version": "v1", "pk": self.room_2.pk})
+        self.url_1 = reverse("rooms_api2_lock", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api2_lock", kwargs={"pk": self.room_2.pk})
 
     def test_owner_can_unlock_owned_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -841,7 +859,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
 
-        response = self.client.post(self.url_1, {})
+        response = self.client.delete(self.url_1, {})
         self.room_1.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -855,7 +873,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
         self.room_2.set_lock(self.normal_2)
         self.room_2.join(self.normal_1, password=self.room_2.lock.password)
 
-        response = self.client.post(self.url_2, {})
+        response = self.client.delete(self.url_2, {})
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -871,7 +889,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
         self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
-        response = self.client.post(self.url_2, {})
+        response = self.client.delete(self.url_2, {})
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
@@ -884,7 +902,7 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
         self.room_1.join(self.normal_1)
         self.room_1.set_lock(self.normal_1)
 
-        response = self.client.post(self.url_1, {})
+        response = self.client.delete(self.url_1, {})
         self.room_1.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -900,18 +918,18 @@ class RoomUnlockAPITestCase(RoomsAPITestCase):
         self.zosia.rooming_end = timedelta_since_now(days=-7)
         self.zosia.save()
 
-        response = self.client.post(self.url_2, {})
+        response = self.client.delete(self.url_2, {})
         self.room_2.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertUnlocked(self.room_2)
 
 
-class RoomHideUnhideAPITestCase(RoomsAPITestCase):
+class RoomHiddenAPITestCase(RoomsAPITestCase):
     def test_staff_can_hide_room(self):
         self.client.force_authenticate(user=self.staff_1)
 
-        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": self.room_1.pk})
+        url = reverse("rooms_api2_hidden", kwargs={"pk": self.room_1.pk})
         response = self.client.post(url, {})
         self.room_1.refresh_from_db()
 
@@ -921,8 +939,8 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_staff_can_unhide_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
-        response = self.client.post(url, {})
+        url = reverse("rooms_api2_hidden", kwargs={"pk": self.room_3.pk})
+        response = self.client.delete(url, {})
         self.room_3.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -931,7 +949,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_user_cannot_hide_room(self):
         self.client.force_authenticate(user=self.normal_1)
 
-        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": self.room_2.pk})
+        url = reverse("rooms_api2_hidden", kwargs={"pk": self.room_2.pk})
         response = self.client.post(url, {})
         self.room_2.refresh_from_db()
 
@@ -940,24 +958,54 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_user_cannot_unhide_room(self):
         self.client.force_authenticate(user=self.normal_2)
 
-        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
-        response = self.client.post(url, {})
+        url = reverse("rooms_api2_hidden", kwargs={"pk": self.room_3.pk})
+        response = self.client.delete(url, {})
         self.room_3.refresh_from_db()
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_staff_cannot_hide_nonexisting_room(self):
+    def test_staff_cannot_hide_not_existing_room(self):
         self.client.force_authenticate(user=self.staff_1)
 
-        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api2_hidden", kwargs={"pk": 0})
         response = self.client.post(url, {})
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_staff_cannot_unhide_nonexisting_room(self):
+    def test_staff_cannot_unhide_not_existing_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": 0})
-        response = self.client.post(url, {})
+        url = reverse("rooms_api2_hidden", kwargs={"pk": 0})
+        response = self.client.delete(url, {})
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class RoomMineAPITestCase(RoomsAPITestCase):
+    def test_user_without_room(self):
+        self.client.force_authenticate(user=self.normal_1)
+
+        url = reverse("rooms_api2_mine")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_user_joined_visible_room(self):
+        self.room_1.join(self.normal_1)
+        self.client.force_authenticate(user=self.normal_1)
+
+        url = reverse("rooms_api2_mine")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "111")
+
+    def test_user_joined_hidden_room(self):
+        self.room_3.join(self.normal_2, self.staff_2)
+        self.client.force_authenticate(user=self.normal_2)
+
+        url = reverse("rooms_api2_mine")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["name"], "333")

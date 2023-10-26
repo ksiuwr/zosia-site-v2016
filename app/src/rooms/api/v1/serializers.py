@@ -12,6 +12,7 @@ class UserInRoomSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
+        ref_name = "UserInRoomSerializer_v1"
         model = UserRoom
         fields = ("user", "joined_at")
 
@@ -21,6 +22,7 @@ class RoomMembersSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
+        ref_name = "RoomMembersSerializer_v1"
         model = UserRoom
         fields = ("room_name", "user")
 
@@ -30,6 +32,7 @@ class RoomLockSerializer(serializers.ModelSerializer):
     password = serializers.SerializerMethodField("send_password")
 
     class Meta:
+        ref_name = "RoomLockSerializer_v1"
         model = RoomLock
         fields = ("user", "password", "expiration_date")
 
@@ -43,6 +46,7 @@ class RoomLockWithPasswordSerializer(serializers.ModelSerializer):
     user = UserDataSerializer()
 
     class Meta:
+        ref_name = "RoomLockWithPasswordSerializer_v1"
         model = RoomLock
         fields = ("user", "password", "expiration_date")
 
@@ -57,6 +61,7 @@ class RoomSerializer(serializers.ModelSerializer):
     members = UserInRoomSerializer(source="userroom_set", read_only=True, many=True)
 
     class Meta:
+        ref_name = "RoomSerializer_v1"
         model = Room
         fields = ("id", "name", "description", "hidden", "beds_single", "beds_double",
                   "available_beds_single", "available_beds_double", "lock", "members")
@@ -77,16 +82,16 @@ class RoomSerializer(serializers.ModelSerializer):
 
         if available_beds_single_data > beds_single_data + beds_double_data:
             raise serializers.ValidationError(
-                _("Available single beds cannot exceed real single beds plus double beds"),
-                code='invalid'
+                    _("Available single beds cannot exceed real single beds plus double beds"),
+                    code='invalid'
             )
 
         double_as_single = max(0, available_beds_single_data - beds_single_data)
 
         if available_beds_double_data > beds_double_data - double_as_single:
             raise serializers.ValidationError(_(
-                "Available double beds cannot exceed real double beds minus double-as-single beds"),
-                code='invalid'
+                    "Available double beds cannot exceed real double beds minus double-as-single beds"),
+                    code='invalid'
             )
 
         available_members = available_beds_single_data + 2 * available_beds_double_data
@@ -94,8 +99,8 @@ class RoomSerializer(serializers.ModelSerializer):
 
         if available_members < members_count:
             raise serializers.ValidationError(
-                _("Available beds must exceed already joined members"),
-                code='invalid'
+                    _("Available beds must exceed already joined members"),
+                    code='invalid'
             )
 
         return data
@@ -104,9 +109,15 @@ class RoomSerializer(serializers.ModelSerializer):
 class RoomWithLockPasswordSerializer(RoomSerializer):
     lock = RoomLockWithPasswordSerializer(read_only=True)
 
+    class Meta(RoomSerializer.Meta):
+        ref_name = "RoomWithLockPasswordSerializer_v1"
+
 
 class LeaveMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
+
+    class Meta:
+        ref_name = "LeaveMethodSerializer_v1"
 
     def __init__(self, *args, **kwargs):
         super(LeaveMethodSerializer, self).__init__(*args, **kwargs)
@@ -126,6 +137,9 @@ class LeaveMethodSerializer(serializers.BaseSerializer):
 class JoinMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
     password = serializers.CharField(max_length=4, required=False)
+
+    class Meta:
+        ref_name = "JoinMethodSerializer_v1"
 
     def __init__(self, *args, **kwargs):
         super(JoinMethodSerializer, self).__init__(*args, **kwargs)
@@ -151,6 +165,9 @@ class JoinMethodSerializer(serializers.BaseSerializer):
 class LockMethodSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
 
+    class Meta:
+        ref_name = "LockMethodSerializer_v1"
+
     def __init__(self, *args, **kwargs):
         super(LockMethodSerializer, self).__init__(*args, **kwargs)
 
@@ -169,6 +186,9 @@ class LockMethodSerializer(serializers.BaseSerializer):
 class LockMethodAdminSerializer(serializers.BaseSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects)
     expiration_date = serializers.DateTimeField(input_formats=['iso-8601'], required=False)
+
+    class Meta:
+        ref_name = "LockMethodAdminSerializer_v1"
 
     def __init__(self, *args, **kwargs):
         super(LockMethodAdminSerializer, self).__init__(*args, **kwargs)
