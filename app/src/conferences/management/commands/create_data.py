@@ -13,7 +13,7 @@ from users.models import Organization, User, UserPreferences
 from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, MAX_BONUS_MINUTES, UserInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
-FIRST_NAMES = ['Zosia', 'Kasia', 'Basia', 'Ula', 'Natalia', 'Ania', 'Ewa', 'Alicja']
+FIRST_NAMES = ['Kasia', 'Marta', 'Julia', 'Ola', 'Natalia', 'Ania', 'Ewa', 'Alicja']
 
 
 def create_question():
@@ -65,7 +65,7 @@ def create_place():
     return Place.objects.create(**data)
 
 
-def create_buses(zosia):
+def create_transport(zosia):
     time = now()
 
     Bus.objects.create(
@@ -82,27 +82,20 @@ def create_buses(zosia):
 
 
 def create_active_zosia(place, **kwargs):
-    today = now()
-    start_date = timedelta_since_now(days=200)
-    start = today
-    end = timedelta_since(start_date, days=7)
+    zosia_start = timedelta_since_now(days=60)
+    start_date = now()
+    end_date = timedelta_since(start_date, days=14)
     data = {
         'active': True,
         'place': place,
         'early_registration_start': None,
-        'registration_start': start,
-        'registration_end': end,
-        'start_date': start_date,
-        'rooming_start': start,
-        'rooming_end': end,
-        'lecture_registration_start': start,
-        'lecture_registration_end': end,
-    }
-    return create_zosia(**data)
-
-
-def create_zosia(**kwargs):
-    data = {
+        'registration_start': start_date,
+        'registration_end': end_date,
+        'start_date': zosia_start,
+        'rooming_start': start_date,
+        'rooming_end': end_date,
+        'lecture_registration_start': start_date,
+        'lecture_registration_end': end_date,
         'description': 'Once upon a time there were apes',
         'price_accommodation': 50,
         'price_accommodation_breakfast': 60,
@@ -116,21 +109,22 @@ def create_zosia(**kwargs):
     }
     data.update(kwargs)
     zosia = Zosia.objects.create(**data)
-    create_buses(zosia)
+    create_transport(zosia)
     return zosia
 
 
 def create_sample_staff_user():
     data = {
-        'email': 'zosia@example.com',
-        'first_name': 'Zosia',
+        'email': 'staff@example.com',
+        'first_name': 'Zofia',
         'last_name': 'Ksiowa',
         'password': 'pass',
         'is_staff': True,
-        'person_type': UserInternals.PERSON_NORMAL,
+        'person_type': UserInternals.PERSON_PRIVILEGED,
     }
 
     return User.objects.create_user(**data)
+
 
 def create_sample_organizer_user():
     data = {
@@ -143,6 +137,7 @@ def create_sample_organizer_user():
     }
 
     return User.objects.create_user(**data)
+
 
 def create_contact_to_organizer(zosia, user):
     OrganizerContact.objects.create(
@@ -161,11 +156,10 @@ def create_random_user_with_preferences(zosia, id):
         'email': f'zosia{id}@example.com',
         'first_name': random.choice(FIRST_NAMES),
         'last_name': f'Testowa{id}',
+        'password': 'pass',
         'person_type': UserInternals.PERSON_NORMAL,
     }
-    u = User.objects.get_or_create(**data)[0]
-    u.set_password('pass')
-    u.save()
+    u = User.objects.create_user(**data)
 
     org = Organization.objects.create(name=f"org_{id}", user=u, accepted=random_bool()) \
         if random_bool() else None
@@ -235,53 +229,52 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         if Zosia.objects.filter(active=True).count() > 0:
-            self.stdout.write('\033[1;91mThere is already active Zosia in database.'
+            self.stdout.write('\033[1;91mThere is already active ZOSIA in database.'
                               '\033[0m Do you want to create data anyway? [y/n]')
             choice = input().lower()
             if choice not in {'yes', 'y'}:
                 return
 
         place = create_place()
-        self.stdout.write('Place for zosia has been created!')
+        self.stdout.write('Place for ZOSIA has been created!')
 
         zosia = create_active_zosia(place)
-        self.stdout.write('Active zosia has been created!')
-
-        # for i in range(2):
-        #     create_past_zosia(place)
-        #     self.stdout.write('Past zosia #%d has been created' % i)
+        self.stdout.write('Active ZOSIA has been created!')
 
         all_users = []
 
         sample_staff_user = create_sample_staff_user()
-        self.stdout.write('Sample user has been created')
+        all_users.append(sample_staff_user)
+        self.stdout.write('Sample staff user has been created')
+
         sample_organizer_user = create_sample_organizer_user()
+        all_users.append(sample_organizer_user)
         self.stdout.write('Sample organizer has been created')
+
         create_contact_to_organizer(zosia, sample_organizer_user)
         self.stdout.write('Contact to sample organizer created')
-        all_users.append(sample_staff_user)
 
-        for i in range(5):
-            user_with_prefs = create_random_user_with_preferences(zosia, i + 1)
+        user_num = 5
+        for i in range(1, user_num + 1):
+            user_with_prefs = create_random_user_with_preferences(zosia, i)
             self.stdout.write(f"Created random user #{i}")
             all_users.append(user_with_prefs)
 
         for i in range(4):
             author = random.choice(all_users)
             create_lecture(zosia, author)
-            self.stdout.write(f"Created lecture #{i}")
+            self.stdout.write(f"Created lecture #{i + 1}")
 
         create_blogpost(sample_staff_user)
 
         question_num = random.randint(3, 9)
         for i in range(question_num):
             create_question()
-            self.stdout.write(f"Created question #{i}")
+            self.stdout.write(f"Created question #{i + 1}")
 
         room_num = random.randint(7, 20)
         for i in range(1, room_num + 1):
             create_room(i)
             self.stdout.write(f"Created room #{i}")
 
-        self.stdout.write(
-            self.style.SUCCESS('Database has been filled with some data!'))
+        self.stdout.write(self.style.SUCCESS('Database has been filled with some data!'))
