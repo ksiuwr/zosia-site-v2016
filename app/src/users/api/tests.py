@@ -84,7 +84,7 @@ class UserDetailAPITestCase(UsersAPITestCase):
         response = self.client.get(self.url_n1)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["email"], "lennon@thebeatles.com")
+        self.assertEqual(response.data["email"], self.normal_1.email)
 
     def test_staff_can_get_staff_user(self):
         self.client.force_authenticate(user=self.staff_1)
@@ -92,7 +92,7 @@ class UserDetailAPITestCase(UsersAPITestCase):
         response = self.client.get(self.url_s2)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["email"], "harrison@thebeatles.com")
+        self.assertEqual(response.data["email"], self.staff_2.email)
 
 
 class UserMeAPITestCase(UsersAPITestCase):

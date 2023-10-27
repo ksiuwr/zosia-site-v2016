@@ -183,7 +183,7 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["last_name"], "harrison")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], self.staff_2.last_name)
         self.assertIsNone(response.data["lock"])
 
     def test_user_can_view_visible_self_locked_room(self):
@@ -196,8 +196,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], self.normal_2.last_name)
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_2.last_name)
         self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_user_can_view_visible_room_locked_by_other(self):
@@ -210,8 +210,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], self.normal_2.last_name)
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_2.last_name)
         self.assertIsNone(response.data["lock"]["password"])
 
     def test_user_cannot_view_hidden_room(self):
@@ -719,7 +719,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_1, self.normal_1)
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_1.last_name)
         self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_user_cannot_lock_room_without_joining(self):
@@ -745,7 +745,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_2, self.normal_1)
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_1.last_name)
         self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_staff_can_lock_room_with_expiration_date(self):

@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import re
 
 from conferences.models import Bus, Place, Zosia
 from users.models import Organization, User, UserPreferences
@@ -14,10 +13,24 @@ PRICE_BASE = 1 << 4
 PRICE_TRANSPORT = 1 << 5
 PRICE_FULL = 1 << 6
 
+USER_DATA = [
+    ('mccartney@thebeatles.com', 'paul!password'),
+    ('lennon@thebeatles.com', 'john!password'),
+    ('harrison@thebeatles.com', 'george!password'),
+    ('starr@thebeatles.com', 'ringo!password')
+]
 
-def create_zosia(commit=True, **kwargs):
+
+def login_as_user(user, client, /):
+    return client.login(
+        email=user.email,
+        password=next(filter(lambda x: x[0] == user.email, USER_DATA))[1]
+    )
+
+
+def create_zosia(**kwargs):
     time = now()
-    place, _ = Place.objects.get_or_create(
+    place = Place.objects.create(
         name='Mieszko',
         address='FooBar@Katowice',
         town='Katowice'
@@ -45,22 +58,11 @@ def create_zosia(commit=True, **kwargs):
         'account_address': 'ul. Fajna 42, 51-109, Wrocław'
     }
     defaults.update(kwargs)
-    zosia = Zosia(**defaults)
-    if commit:
-        zosia.save()
-    return zosia
+    return Zosia.objects.create(**defaults)
 
 
-USER_DATA = [
-    ['lennon@thebeatles.com', 'johnpassword'],
-    ['starr@thebeatles.com', 'ringopassword'],
-    ['mccartney@thebeatles.com', 'paulpassword'],
-    ['harrison@thebeatles.com', 'georgepassword']
-]
-
-
-def create_user(index, person_type=UserInternals.PERSON_NORMAL, **kwargs):
-    first_name = re.split(r"password", USER_DATA[index][1], 1)[0]
+def create_user(index, /, person_type=UserInternals.PERSON_NORMAL, **kwargs):
+    first_name = USER_DATA[index][1].split("!", 1)[0]
     last_name = USER_DATA[index][0].split("@", 1)[0]
 
     return User.objects.create_user(email=USER_DATA[index][0], password=USER_DATA[index][1],
@@ -68,31 +70,18 @@ def create_user(index, person_type=UserInternals.PERSON_NORMAL, **kwargs):
                                     person_type=person_type, **kwargs)
 
 
+def create_user_preferences(user, zosia, **kwargs):
+    return UserPreferences.objects.create(user=user, zosia=zosia, terms_accepted=True, **kwargs)
+
+
 def create_organization(name, user=None, **kwargs):
     return Organization.objects.create(name=name, user=user, **kwargs)
 
 
-def user_login(user):
-    return {
-        'email': user.email,
-        'password': next(filter(lambda x: x[0] == user.email, USER_DATA))[1]
-    }
-
-
-def create_bus(commit=True, **override):
-    zosia = override['zosia'] or create_zosia()
+def create_transport(zosia, **kwargs):
     defaults = {
         'capacity': 0,
         'departure_time': now(),
-        'zosia': zosia,
-
     }
-    defaults.update(**override)
-    bus = Bus(**defaults)
-    if commit:
-        bus.save()
-    return bus
-
-
-def create_user_preferences(user, zosia, **kwargs):
-    return UserPreferences.objects.create(user=user, zosia=zosia, terms_accepted=True, **kwargs)
+    defaults.update(kwargs)
+    return Bus.objects.create(zosia=zosia, **defaults)

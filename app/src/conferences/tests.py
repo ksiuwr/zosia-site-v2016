@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from conferences.models import Bus, Zosia
-from utils.test_helpers import create_bus, create_user, create_user_preferences, create_zosia
+from utils.test_helpers import create_transport, create_user, create_user_preferences, create_zosia
 from utils.time_manager import now, time_point
 
 User = get_user_model()
@@ -19,7 +19,7 @@ class ZosiaTestCase(TestCase):
     def test_only_one_active_Zosia_can_exist(self):
         """Creating another active Zosia throws an error"""
         with self.assertRaises(ValidationError):
-            create_zosia(active=True, commit=False).full_clean()
+            create_zosia(active=True).full_clean()
 
     def test_find_active(self):
         """Zosia.find_active returns active Zosia"""
@@ -63,9 +63,9 @@ class BusTestCase(TestCase):
         self.normal = create_user(0)
         self.zosia = create_zosia()
 
-        self.bus1 = create_bus(zosia=self.zosia, capacity=0)
-        self.bus2 = create_bus(zosia=self.zosia, capacity=1)
-        self.bus3 = create_bus(zosia=self.zosia, capacity=2)
+        self.bus1 = create_transport(self.zosia, capacity=0)
+        self.bus2 = create_transport(self.zosia, capacity=1)
+        self.bus3 = create_transport(self.zosia, capacity=2)
 
     def test_find_buses_with_free_places_when_all_empty(self):
         buses = Bus.objects.find_with_free_places(self.zosia)

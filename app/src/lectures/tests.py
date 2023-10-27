@@ -5,11 +5,10 @@ from django.forms import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
 
-from conferences.models import Place, Zosia
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
 from utils.constants import LectureInternals, UserInternals
-from utils.test_helpers import create_user
+from utils.test_helpers import create_user, create_zosia, login_as_user
 from utils.time_manager import now, timedelta_since_now
 
 User = get_user_model()
@@ -18,11 +17,9 @@ User = get_user_model()
 class LectureTestCase(TestCase):
     def setUp(self):
         time = now()
-        place = Place.objects.create(name="Mieszko", address="foo")
-        self.zosia = Zosia.objects.create(
+        self.zosia = create_zosia(
             start_date=timedelta_since_now(days=1),
             active=True,
-            place=place,
             price_accommodation=23,
             registration_end=time,
             registration_start=time,
@@ -35,7 +32,7 @@ class LectureTestCase(TestCase):
             price_accommodation_breakfast=0,
             price_whole_day=0
         )
-        self.user = create_user(0, UserInternals.PERSON_NORMAL)
+        self.normal_user = create_user(0, UserInternals.PERSON_NORMAL)
         self.sponsor_user = create_user(1, UserInternals.PERSON_SPONSOR)
         self.guest_user = create_user(2, UserInternals.PERSON_GUEST)
 
@@ -47,7 +44,7 @@ class ModelTestCase(LectureTestCase):
             abstract="foo",
             duration=10,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -59,7 +56,7 @@ class ModelTestCase(LectureTestCase):
             abstract="foo",
             duration=10,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -71,7 +68,7 @@ class ModelTestCase(LectureTestCase):
             title="foo",
             duration=10,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -83,7 +80,7 @@ class ModelTestCase(LectureTestCase):
             title="foo",
             abstract="foo",
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -95,7 +92,7 @@ class ModelTestCase(LectureTestCase):
             title="foo",
             abstract="foo",
             duration=10,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -120,7 +117,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=90,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -166,7 +163,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=60,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
 
         count = Lecture.objects.count()
@@ -206,7 +203,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=15,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            author=self.user
+            author=self.normal_user
         )
 
         with self.assertRaises(ValidationError):
@@ -253,16 +250,18 @@ class ModelTestCase(LectureTestCase):
         self.assertEqual(count + 1, Lecture.objects.count())
 
     def test_str(self):
+        title = "foo bar baz"
         lecture = Lecture.objects.create(
             zosia=self.zosia,
-            title="foo",
-            abstract="bar",
+            title=title,
+            abstract="qux quux quuux",
             duration=15,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.user
+            author=self.normal_user
         )
+        lecture.supporting_authors.add(self.sponsor_user)
 
-        self.assertEqual(str(lecture), "john lennon - foo")
+        self.assertEqual(str(lecture), f"{self.normal_user}, {self.sponsor_user} - {title}")
 
     def test_toggle_accepted(self):
         lecture = Lecture.objects.create(
@@ -297,7 +296,7 @@ class FormTestCase(LectureTestCase):
         count = Lecture.objects.count()
         obj = form.save(commit=False)
         obj.zosia = self.zosia
-        obj.author = self.user
+        obj.author = self.normal_user
         obj.save()
         self.assertEqual(count + 1, Lecture.objects.count())
 
@@ -308,7 +307,7 @@ class FormTestCase(LectureTestCase):
     def test_admin_create_object(self):
         form = LectureAdminForm({'title': 'foo', 'abstract': 'bar', 'duration': 45,
                                  'lecture_type': LectureInternals.TYPE_LECTURE,
-                                 'author': self.user.id})
+                                 'author': self.normal_user.id})
 
         with transaction.atomic():
             with self.assertRaises(IntegrityError):
@@ -339,13 +338,13 @@ class ViewsTestCase(LectureTestCase):
         self.assertRedirects(response, '/admin/login/?next=/lectures/all')
 
     def test_display_all_normal(self):
-        self.client.login(email=self.user.email, password=self.user.password)
+        login_as_user(self.normal_user, self.client)
         response = self.client.get(reverse('lectures_all_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/lectures/all')
 
     def test_display_all_staff(self):
-        self.client.login(email=self.superuser.email, password=self.superuser.password)
+        login_as_user(self.superuser, self.client)
         response = self.client.get(reverse('lectures_all_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed('lectures/all.html')
