@@ -106,10 +106,10 @@
 
               <div class="col s12">
                 <i class="fa fa-bus" aria-hidden="true"></i>
-                {% if current_prefs.bus %}
-                  {{ current_prefs.bus }}
+                {% if current_prefs.transport %}
+                  {{ current_prefs.transport }}
                 {% else %}
-                  {% trans "You haven't selected any bus" %}
+                  {% trans "You haven't selected any form of transport" %}
                 {% endif %}
               </div>
             </div>

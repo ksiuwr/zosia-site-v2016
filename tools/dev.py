@@ -140,7 +140,7 @@ def cli():
         help="create super user account (password specified manually)")
     run_app_parser.add_argument(
         "-D", "--create-data", action="store_true",
-        help="create some random data to work on, like conference, buses, rooms, etc.")
+        help="create some random data to work on, like conference, transport, rooms, etc.")
     run_app_parser.add_argument(
         "--no-cache", action="store_true",
         help="do not use cache when building container images")
@@ -201,7 +201,7 @@ def cli():
         help="create super user account (password specified manually)")
     migrations_apply_parser.add_argument(
         "-D", "--create-data", action="store_true",
-        help="create some random data to work on like conference, buses, rooms, etc.")
+        help="create some random data to work on like conference, transport, rooms, etc.")
     migrations_subparsers.add_parser(
         "make", aliases=["m"], add_help=False,
         help=f"generate Django migrations from models {FILE_SYSTEM_NOTE}")

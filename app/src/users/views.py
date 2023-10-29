@@ -28,7 +28,7 @@ from utils.views import csv_response
 def profile(request):
     user = request.user
     current_zosia = Zosia.objects.find_active()
-    user_preferences = UserPreferences.objects.select_related('bus', 'zosia').filter(user=user)
+    user_preferences = UserPreferences.objects.select_related('transport', 'zosia').filter(user=user)
 
     current_prefs = user_preferences.filter(zosia=current_zosia).first()
 

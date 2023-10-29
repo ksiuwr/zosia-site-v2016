@@ -7,7 +7,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
-from conferences.models import Bus, Zosia
+from conferences.models import Transport, Zosia
 from utils.constants import II_UWR_EMAIL_DOMAIN, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
     PAYMENT_GROUPS, PERSON_TYPE, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, UserInternals
 from utils.time_manager import timedelta_since
@@ -152,10 +152,10 @@ class UserPreferences(models.Model):
         on_delete=models.SET_NULL
     )
 
-    # NOTE: Deleting bus will render some payment information inaccessible
+    # NOTE: Deleting transport will render some payment information inaccessible
     # (i.e. user chose transport -> user paid for it, transport is deleted, what now?)
-    bus = models.ForeignKey(
-        Bus,
+    transport = models.ForeignKey(
+        Transport,
         related_name="passengers",
         null=True,
         blank=True,
@@ -245,7 +245,7 @@ class UserPreferences(models.Model):
     def price(self):
         payment = self.zosia.price_base
 
-        if self.bus is not None:
+        if self.transport is not None:
             payment += self.zosia.price_transport
 
         for accommodation, meals in PAYMENT_GROUPS.items():

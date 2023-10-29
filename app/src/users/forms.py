@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 
-from conferences.models import Bus, Zosia
+from conferences.models import Transport, Zosia
 from users.actions import SendActivationEmail, SendEmailToAll
 from users.models import Organization, User, UserPreferences
 from utils.constants import PAYMENT_GROUPS
@@ -129,17 +129,17 @@ class OrganizationForm(forms.ModelForm):
         fields = ['name', 'accepted']
 
 
-class UserPreferencesWithBusForm(forms.ModelForm):
+class UserPreferencesWithTransportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
+        self.fields['transport'].queryset = self.transport_queryset(kwargs.get('instance'))
 
-    def bus_queryset(self, instance=None):
-        queryset = Bus.objects.find_available(Zosia.objects.find_active(), passenger=instance)
+    def transport_queryset(self, instance=None):
+        queryset = Transport.objects.find_available(Zosia.objects.find_active(), passenger=instance)
         return queryset
 
 
-class UserPreferencesForm(UserPreferencesWithBusForm):
+class UserPreferencesForm(UserPreferencesWithTransportForm):
     use_required_attribute = False
 
     # NOTE: In hindsight, this sucks.
@@ -151,7 +151,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         model = UserPreferences
         fields = [
             'organization',
-            'bus',
+            'transport',
             'dinner_day_1',
             'accommodation_day_1',
             'breakfast_day_2',
@@ -212,7 +212,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                 self.fields[field].disabled = True
 
 
-class UserPreferencesAdminForm(UserPreferencesWithBusForm):
+class UserPreferencesAdminForm(UserPreferencesWithTransportForm):
     class Meta:
         model = UserPreferences
         exclude = [

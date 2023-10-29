@@ -16,8 +16,8 @@
         height: 500px;
     }
 
-    .bus-info-bar-chart-container {
-        height: calc({{numberOfBuses}} * 90px + 120px );
+    .transport-info-bar-chart-container {
+        height: calc({{numberOfTransport}} * 90px + 120px );
     }
 
     @media (max-width: 767px) {
@@ -29,8 +29,8 @@
             height: 300px;
         }
 
-        .bus-info-bar-chart-container {
-            height: calc({{numberOfBuses}} * 60px + 120px );
+        .transport-info-bar-chart-container {
+            height: calc({{numberOfTransport}} * 60px + 120px );
         }
     }
 </style>
@@ -53,8 +53,8 @@
                         <canvas id="user_costs_bar_chart" aria-label="Bar chart with user data" role="img"></canvas>
                     </div>
                     <hr />
-                    <div class="bus-info-bar-chart-container">
-                        <canvas id="bus_info_bar_chart" aria-label="Bar chart with bus info" role="img"></canvas>
+                    <div class="transport-info-bar-chart-container">
+                        <canvas id="transport_info_bar_chart" aria-label="Bar chart with transport info" role="img"></canvas>
                     </div>
                 </div>
             </div>
@@ -162,28 +162,28 @@
     });
 
 
-    var busesLabels = {{ busesLabels|safe }}
-    var busesValues = {{ busesValues|safe }}
+    var transportLabels = {{ transportLabels|safe }}
+    var transportValues = {{ transportValues|safe }}
 
-    var busInfoCanvas = document.getElementById('bus_info_bar_chart');
-    var busInfoBarChart = new Chart(busInfoCanvas, {
+    var transportInfoCanvas = document.getElementById('transport_info_bar_chart');
+    var transportInfoBarChart = new Chart(transportInfoCanvas, {
         type: 'bar',
         data: {
-            labels: busesLabels,
+            labels: transportLabels,
             datasets: [
                 {
                     label: "Paid",
-                    data: busesValues["paid"],
+                    data: transportValues["paid"],
                     backgroundColor: 'rgba(70, 195, 40, 0.5)'
                 },
                 {
                     label: "Not Paid",
-                    data: busesValues["notPaid"],
+                    data: transportValues["notPaid"],
                     backgroundColor: 'rgba(50, 70, 190, 0.5)'
                 },
                 {
                     label: "Empty",
-                    data: busesValues["empty"],
+                    data: transportValues["empty"],
                     backgroundColor: 'rgba(50, 50, 50, 0.5)'
                 }
             ]
@@ -198,7 +198,7 @@
             plugins: {
                 title: {
                     display: true,
-                    text: 'Bus info',
+                    text: 'Transport info',
                     font: {
                         size: 20
                     }
@@ -222,7 +222,7 @@
                     stacked: true,
                     title: {
                         display: true,
-                        text: 'buses',
+                        text: 'transport',
                         font: {
                             weight: "600",
                             size: 14

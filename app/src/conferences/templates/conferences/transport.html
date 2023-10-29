@@ -3,30 +3,30 @@
 
 {% block content %}
   <div class="container">
-    <h3>{% trans "Bus" %}</h3>
+    <h3>{% trans "Transport" %}</h3>
 
     <div class="row">
         <div class="col s12">
             <ul class="tabs">
-              <li class="tab col s6"><a href="#buses">{% trans 'Buses' %}</a></li>
-              <li class="tab col s6"><a href="{% url 'bus_add' %}" target='_self'>{% trans 'Add' %}</a></li>
+              <li class="tab col s6"><a href="#transport">{% trans 'Transport' %}</a></li>
+              <li class="tab col s6"><a href="{% url 'transport_add' %}" target='_self'>{% trans 'Add' %}</a></li>
             </ul>
         </div>
 
-        <div id="buses" class="col s12">
+        <div id="transport" class="col s12">
             <ul class="collection">
-              {% for bus in buses %}
+              {% for transport in transports %}
               <li class='collection-item'>
                   <div class='chip'>
                     <i class="fa fa-bus" aria-hidden="true"></i>
-                    {{ bus.passengers_count }} / {{ bus.capacity }}
+                    {{ transport.passengers_count }} / {{ transport.capacity }}
                   </div>
-                  {{ bus }}
+                  {{ transport }}
                 <div class='right'>
-                  <a href="{% url 'bus_update' bus.id %}">
+                  <a href="{% url 'transport_update' transport.id %}">
                     <i class="material-icons">mode_edit</i>
                   </a>
-                  <a href="{% url 'bus_people' bus.id %}">
+                  <a href="{% url 'transport_people' transport.id %}">
                     <i class="material-icons">assignment_ind</i>
                   </a>
                 </div>

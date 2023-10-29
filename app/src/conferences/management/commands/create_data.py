@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from django.utils import lorem_ipsum
 
 from blog.models import BlogPost
-from conferences.models import Bus, Place, Zosia
+from conferences.models import Place, Transport, Zosia
 from lectures.models import Lecture
 from organizers.models import OrganizerContact
 from questions.models import QA
@@ -68,13 +68,13 @@ def create_place():
 def create_transport(zosia):
     time = now()
 
-    Bus.objects.create(
+    Transport.objects.create(
         zosia=zosia,
         departure_time=time_point(time.year, time.month, time.day, 16),
         capacity=45
     )
 
-    Bus.objects.create(
+    Transport.objects.create(
         zosia=zosia,
         departure_time=time_point(time.year, time.month, time.day, 18),
         capacity=45
@@ -178,7 +178,7 @@ def create_random_user_with_preferences(zosia, id):
 
     phone_number = f'+48 {random.randint(100, 999)} {random.randint(100, 999)} ' \
                    f'{random.randint(100, 999)}'
-    bus = random.choice(Bus.objects.find_with_free_places(zosia)) if random_bool() else None
+    transport = random.choice(Transport.objects.find_with_free_places(zosia)) if random_bool() else None
 
     payment_acc = random_bool()
     bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
@@ -187,7 +187,7 @@ def create_random_user_with_preferences(zosia, id):
         user=u,
         zosia=zosia,
         organization=org,
-        bus=bus,
+        transport=transport,
         accommodation_day_1=accommodation_day_1,
         dinner_day_1=dinner_day_1,
         accommodation_day_2=accommodation_day_2,

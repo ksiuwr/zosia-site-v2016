@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from conferences.models import Bus, Place, Zosia
+from conferences.models import Place, Transport, Zosia
 from users.models import Organization, User, UserPreferences
 from utils.constants import UserInternals
 from utils.time_manager import now, timedelta_since_now
@@ -84,4 +84,4 @@ def create_transport(zosia, **kwargs):
         'departure_time': now(),
     }
     defaults.update(kwargs)
-    return Bus.objects.create(zosia=zosia, **defaults)
+    return Transport.objects.create(zosia=zosia, **defaults)
