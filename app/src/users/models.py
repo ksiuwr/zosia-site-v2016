@@ -256,17 +256,16 @@ class UserPreferences(models.Model):
 
     @staticmethod
     def get_current_discount_round(zosia: Zosia):
-        registered_users_num = UserPreferences.objects \
-            .filter(zosia=zosia, is_student=True).count()
-        turn_one_limit = zosia.first_discount_limit
-        turn_two_limit = turn_one_limit + zosia.second_discount_limit
-        turn_three_limit = turn_two_limit + zosia.third_discount_limit
+        boxed_discount_turn_students_counts = UserPreferences.objects \
+            .values('discount_round').annotate(count=models.Count('discount_round'))
 
-        if (registered_users_num < turn_one_limit):
+        discount_turn_students_counts = {d['discount_round']: d['count'] for d in boxed_discount_turn_students_counts}
+
+        if ((discount_turn_students_counts[1] if 1 in discount_turn_students_counts else 0) < zosia.first_discount_limit):
             return 1
-        if (registered_users_num < turn_two_limit):
+        if ((discount_turn_students_counts[2] if 2 in discount_turn_students_counts else 0) < zosia.second_discount_limit):
             return 2
-        if (registered_users_num < turn_three_limit):
+        if ((discount_turn_students_counts[3] if 3 in discount_turn_students_counts else 0) < zosia.third_discount_limit):
             return 3
 
         return 0
