@@ -193,7 +193,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
         user_preferences = self.save(commit=False)
         user_preferences.user = self.user
         user_preferences.zosia = zosia
-        if first_call:
+        if first_call and user_preferences.is_student:
             user_preferences.discount_round = UserPreferences.get_current_discount_round(zosia)
         user_preferences.save()
 
