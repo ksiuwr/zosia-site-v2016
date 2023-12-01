@@ -268,6 +268,7 @@ def register(request):
         ctx['discount'] = zosia.get_discount_for_round(
             UserPreferences.get_current_discount_round(zosia)
         )
+        ctx['before_discounts'] = zosia.first_discount_limit == 0
 
     form = UserPreferencesForm(request.user, request.POST or None, **form_args)
     ctx['form'] = form

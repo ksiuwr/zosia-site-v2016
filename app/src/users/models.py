@@ -9,7 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from conferences.models import Bus, Zosia
 from utils.constants import II_UWR_EMAIL_DOMAIN, MAX_BONUS_MINUTES, MIN_BONUS_MINUTES, \
-    PAYMENT_GROUPS, PERSON_TYPE, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, UserInternals
+    PAYMENT_GROUPS, PERSON_TYPE, SHIRT_SIZE_CHOICES, SHIRT_TYPES_CHOICES, UWR_EMAIL_DOMAIN, UserInternals
 from utils.time_manager import timedelta_since
 
 
@@ -82,8 +82,9 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.full_name
 
     def save(self, *args, **kwargs):
-        if self.email.endswith(II_UWR_EMAIL_DOMAIN) \
-                and (self.person_type is None or self.person_type == UserInternals.PERSON_NORMAL):
+        if (self.email.endswith(II_UWR_EMAIL_DOMAIN) or \
+            self.email.endswith(UWR_EMAIL_DOMAIN)) \
+            and (self.person_type is None or self.person_type == UserInternals.PERSON_NORMAL):
             self.person_type = UserInternals.PERSON_EARLY_REGISTERING
 
         if self.hash is None:

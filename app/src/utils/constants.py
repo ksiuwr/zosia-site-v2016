@@ -105,7 +105,7 @@ PERSON_TYPE = [
 ]
 
 II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
-
+UWR_EMAIL_DOMAIN = "@uwr.edu.pl"
 
 # Sponsors
 class SponsorInternals:

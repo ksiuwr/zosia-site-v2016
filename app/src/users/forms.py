@@ -175,7 +175,7 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
-        self.fields['is_student'].label = "I am a student and I have a valid Student ID."
+        self.fields['is_student'].label = "I am a student under 25 and I have a valid Student ID card."
         self.fields['is_student'].help_text = "<br/>" # Just for do some space
 
         self.fields['bus'].label = "Train"
