@@ -5,6 +5,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
 from conferences.models import Bus, Zosia
 from users.actions import SendActivationEmail, SendEmailToAll
@@ -91,6 +93,7 @@ class MailForm(forms.Form):
 
 class UserForm(UserCreationForm):
     privacy_consent = forms.BooleanField(required=True)
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     class Meta:
         model = User
@@ -100,6 +103,7 @@ class UserForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         label = f'I agree to the <a href="{reverse("privacy_policy")}">Privacy Policy</a>'
         self.fields['privacy_consent'].label = mark_safe(label)
+        print('LOG',self.fields['captcha'].label)
 
     def save(self, request):
         user = super().save(commit=False)
