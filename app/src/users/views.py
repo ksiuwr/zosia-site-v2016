@@ -297,12 +297,12 @@ def register(request):
 def list_csv_preferences_all(request):
     prefs = UserPreferences.objects.select_related('user').order_by("user__last_name",
                                                                     "user__first_name")
-    header = ("User", "Organization", "Paid", "AccommodationDay1", "AccommodationDay2",
+    header = ("User", "Student", "Organization", "Paid", "Baggage Transport", "AccommodationDay1", "AccommodationDay2",
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
     data_list = [(
-        str(p.user), ("" if p.organization is None else str(p.organization.name)),
-        str(p.payment_accepted),
+        str(p.user), str(p.is_student), ("" if p.organization is None else str(p.organization.name)),
+        str(p.payment_accepted), str(p.transport_baggage),
         str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
         str(p.dinner_day_1),
         str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
@@ -318,11 +318,12 @@ def list_csv_preferences_all(request):
 def list_csv_preferences_paid(request):
     prefs = UserPreferences.objects.select_related('user').filter(payment_accepted=True) \
         .order_by("user__last_name", "user__first_name")
-    header = ("User", "Organization", "AccommodationDay1", "AccommodationDay2",
+    header = ("User", "Student", "Organization", "Baggage Transport", "AccommodationDay1", "AccommodationDay2",
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
     data_list = [(
-        str(p.user), ("" if p.organization is None else str(p.organization.name)),
+        str(p.user), str(p.is_student), ("" if p.organization is None else str(p.organization.name)),
+        str(p.transport_baggage),
         str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
         str(p.dinner_day_1), str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3),
         str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian),

@@ -252,6 +252,22 @@ def list_csv_paid_users_by_bus(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
+def list_csv_paid_students_by_bus(request):
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string(paid=True, student=True)) for b in buses]
+    return csv_response(("Bus", "Paid student users"), data_list, filename='list_csv_paid_student_users_by_bus')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_paid_not_students_by_bus(request):
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string(paid=True, student=False)) for b in buses]
+    return csv_response(("Bus", "Paid student users"), data_list, filename='list_csv_paid_not_student_users_by_bus')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
 def statistics(request):
     zosia = Zosia.objects.find_active_or_404()
     user_prefs = UserPreferences.objects.filter(zosia=zosia)

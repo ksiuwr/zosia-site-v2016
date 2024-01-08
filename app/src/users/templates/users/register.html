@@ -218,9 +218,10 @@
 
     if(!payed) {
         countPayment();
-    }else if(discount > 0){
+    }else{
         {% if object.is_student %}
-        $('#discount').show();
+        if(discount > 0)
+            $('#discount').show();
         $("#transport-fee").text(transport_discount_price);
         {% endif %}
     }

@@ -307,10 +307,16 @@ class Bus(models.Model):
     def paid_passengers_count(self):
         return self.passengers.filter(payment_accepted=True).count()
 
-    def passengers_to_string(self, paid=False):
+    def passengers_to_string(self, paid=False, student=None):
         bus_passengers = self.passengers.order_by("user__last_name", "user__first_name")
 
         if paid:
             bus_passengers = bus_passengers.filter(payment_accepted=True)
+
+        if student is not None:
+            if student:
+                bus_passengers = bus_passengers.filter(is_student=True)
+            else:
+                bus_passengers = bus_passengers.filter(is_student=False)
 
         return DELIMITER.join(map(lambda p: str(p.user), bus_passengers))
