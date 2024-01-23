@@ -38,7 +38,7 @@
                                 <tbody>
                                     {% for boardgame in user_boardgames %}
                                     <tr id="tr{{boardgame.id}}">
-                                        <td><a href={{boardgame.url}}>{{ boardgame.name }}</a></td>
+                                        <td><a href={{boardgame.url}}>{{ boardgame.name|safe|escape }}</a></td>
                                         <td>{{boardgame.votes}}</td>
                                         <td><a class="waves-effect waves-light btn modal-trigger"
                                                 href="#{{boardgame.pk}}">{% trans 'Delete' %}</a>
@@ -47,7 +47,7 @@
                                     <div id="{{boardgame.pk}}" class="modal">
                                         <div class="modal-content">
                                             <h4>Delete the boardgame</h4>
-                                            <p>{% blocktrans with name=boardgame.name %} Are you sure you want to
+                                            <p>{% blocktrans with name=boardgame.name|safe|escape %} Are you sure you want to
                                                 delete
                                                 the boardgame:
                                                 <b>{{ name }}</b>{% endblocktrans %}
