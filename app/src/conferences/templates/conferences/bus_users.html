@@ -10,6 +10,9 @@
               <li class='collection-item'>
                   {{ forloop.counter }}.
                   {{ user.user }}
+                  {% if user.is_student %}
+                  (student)
+                  {% endif %}
               </li>
               {% endfor %}
             </ul>
