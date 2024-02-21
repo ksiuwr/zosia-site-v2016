@@ -33,7 +33,7 @@ def export_json(request):
                 'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
                 'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
                 'contact', 'information', 'vegetarian', 'payment_accepted',
-                'shirt_size', 'shirt_type')
+                'shirt_size', 'shirt_type', 'is_student', 'transport_baggage')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
