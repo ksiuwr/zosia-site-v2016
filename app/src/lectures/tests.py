@@ -7,7 +7,8 @@ from django.test import TestCase
 
 from lectures.forms import LectureAdminForm, LectureForm
 from lectures.models import Lecture
-from utils.constants import LectureInternals, UserInternals
+from utils.constants import LECTURE_NORMAL_MAX_DURATION, LECTURE_SPONSOR_MAX_DURATION, \
+    LectureInternals, UserInternals, WORKSHOP_MIN_DURATION
 from utils.test_helpers import create_user, create_zosia, login_as_user
 from utils.time_manager import now, timedelta_since_now
 
@@ -34,7 +35,6 @@ class LectureTestCase(TestCase):
         )
         self.normal_user = create_user(0, UserInternals.PERSON_NORMAL)
         self.sponsor_user = create_user(1, UserInternals.PERSON_SPONSOR)
-        self.guest_user = create_user(2, UserInternals.PERSON_GUEST)
 
 
 class ModelTestCase(LectureTestCase):
@@ -115,7 +115,7 @@ class ModelTestCase(LectureTestCase):
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration=90,
+            duration=75,
             lecture_type=LectureInternals.TYPE_LECTURE,
             author=self.normal_user
         )
@@ -128,7 +128,7 @@ class ModelTestCase(LectureTestCase):
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration=90,
+            duration=75,
             lecture_type=LectureInternals.TYPE_LECTURE,
             author=self.sponsor_user
         )
@@ -143,25 +143,12 @@ class ModelTestCase(LectureTestCase):
         lecture.save()
         self.assertEqual(count + 1, Lecture.objects.count())
 
-    def test_lecture_is_invalid_for_guest_person_with_duration_more_than_60(self):
-        lecture = Lecture(
-            zosia=self.zosia,
-            title="foo",
-            abstract="bar",
-            duration=90,
-            lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.guest_user
-        )
-
-        with self.assertRaises(ValidationError):
-            lecture.full_clean()
-
     def test_lecture_is_valid_for_normal_person(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration=60,
+            duration=20,
             lecture_type=LectureInternals.TYPE_LECTURE,
             author=self.normal_user
         )
@@ -176,14 +163,34 @@ class ModelTestCase(LectureTestCase):
         lecture.save()
         self.assertEqual(count + 1, Lecture.objects.count())
 
-    def test_lecture_is_valid_for_guest_person(self):
+    def test_lecture_is_valid_with_maximal_duration_for_normal_person(self):
         lecture = Lecture(
             zosia=self.zosia,
             title="foo",
             abstract="bar",
-            duration=20,
+            duration=LECTURE_NORMAL_MAX_DURATION,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.guest_user
+            author=self.normal_user
+        )
+
+        count = Lecture.objects.count()
+
+        try:
+            lecture.full_clean()
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
+        lecture.save()
+        self.assertEqual(count + 1, Lecture.objects.count())
+
+    def test_lecture_is_valid_for_sponsor_person_with_maximal_duration(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=LECTURE_SPONSOR_MAX_DURATION,
+            lecture_type=LectureInternals.TYPE_LECTURE,
+            author=self.sponsor_user
         )
 
         count = Lecture.objects.count()
@@ -229,6 +236,26 @@ class ModelTestCase(LectureTestCase):
         lecture.save()
         self.assertEqual(count + 1, Lecture.objects.count())
 
+    def test_workshop_is_valid_with_minimal_duration(self):
+        lecture = Lecture(
+            zosia=self.zosia,
+            title="foo",
+            abstract="bar",
+            duration=WORKSHOP_MIN_DURATION,
+            lecture_type=LectureInternals.TYPE_WORKSHOP,
+            author=self.normal_user
+        )
+
+        count = Lecture.objects.count()
+
+        try:
+            lecture.full_clean()
+        except ValidationError as e:
+            self.fail("Full clean failed! {}".format(e.message_dict))
+
+        lecture.save()
+        self.assertEqual(count + 1, Lecture.objects.count())
+
     def test_workshop_is_valid_with_maximal_duration(self):
         lecture = Lecture(
             zosia=self.zosia,
@@ -236,7 +263,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=120,
             lecture_type=LectureInternals.TYPE_WORKSHOP,
-            author=self.guest_user
+            author=self.normal_user
         )
 
         count = Lecture.objects.count()
@@ -270,7 +297,7 @@ class ModelTestCase(LectureTestCase):
             abstract="bar",
             duration=45,
             lecture_type=LectureInternals.TYPE_LECTURE,
-            author=self.guest_user
+            author=self.normal_user
         )
 
         self.assertFalse(lecture.accepted)
