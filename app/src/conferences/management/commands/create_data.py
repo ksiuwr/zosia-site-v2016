@@ -260,17 +260,18 @@ class Command(BaseCommand):
             self.stdout.write(f"Created random user #{i}")
             all_users.append(user_with_prefs)
 
-        for i in range(4):
+        lectures_num = 4
+        for i in range(1, lectures_num + 1):
             author = random.choice(all_users)
             create_lecture(zosia, author)
-            self.stdout.write(f"Created lecture #{i + 1}")
+            self.stdout.write(f"Created lecture #{i}")
 
         create_blogpost(sample_staff_user)
 
         question_num = random.randint(3, 9)
-        for i in range(question_num):
+        for i in range(1, question_num + 1):
             create_question()
-            self.stdout.write(f"Created question #{i + 1}")
+            self.stdout.write(f"Created question #{i}")
 
         room_num = random.randint(7, 20)
         for i in range(1, room_num + 1):

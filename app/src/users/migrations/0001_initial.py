@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(blank=True, max_length=30, verbose_name='first name')),
                 ('last_name', models.CharField(blank=True, max_length=30, verbose_name='last name')),
                 ('hash', models.CharField(default=None, max_length=64, unique=True, validators=[users.models.validate_hash], verbose_name='hash')),
-                ('person_type', models.CharField(choices=[('Normal', 'Normal'), ('Guest', 'Guest'), ('Sponsor', 'Sponsor'), ('Privileged', 'Privileged'), ('Organizer', 'Organizer')], default='Normal', max_length=20, verbose_name='person type')),
+                ('person_type', models.CharField(choices=[('Normal', 'Normal'), ('Sponsor', 'Sponsor'), ('Privileged', 'Privileged'), ('Organizer', 'Organizer')], default='Normal', max_length=20, verbose_name='person type')),
                 ('date_joined', models.DateTimeField(auto_now_add=True, verbose_name='date joined')),
                 ('is_active', models.BooleanField(default=True, verbose_name='active')),
                 ('is_staff', models.BooleanField(default=False, verbose_name='staff')),
