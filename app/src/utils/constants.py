@@ -93,7 +93,7 @@ class UserInternals:
     # User working at sponsor company
     PERSON_SPONSOR = "Sponsor"
 
-    # User able to early registering
+    # User with registration privileges: earlier registration, not suspendable
     PERSON_PRIVILEGED = "Privileged"
 
     # User organizing ZOSIA
