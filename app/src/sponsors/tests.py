@@ -1,14 +1,15 @@
+import os
+
 from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.auth import get_user_model
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.forms import ValidationError
 from django.shortcuts import reverse
 from django.test import TestCase
-from sponsors.models import Sponsor
-from sponsors.forms import SponsorForm
-import os
-from utils.constants import SponsorInternals
 
+from sponsors.forms import SponsorForm
+from sponsors.models import Sponsor
+from utils.constants import SponsorInternals
 
 User = get_user_model()
 
@@ -40,17 +41,22 @@ class ModelTestCase(SponsorTestCase):
         with self.assertRaises(ValidationError):
             sponsor.full_clean()
 
-    def test_must_have_image(self):
-        sponsor = Sponsor(url="http://google.com", name="foo")
+    def test_object_must_have_url(self):
+        sponsor = Sponsor(name='foo', path_to_logo=self.image.name)
         with self.assertRaises(ValidationError):
             sponsor.full_clean()
 
-    def test_do_not_need_url(self):
+    def test_object_does_not_need_image(self):
         count = Sponsor.objects.count()
-        sponsor = Sponsor(name='foo', path_to_logo=self.image.name)
+        sponsor = Sponsor(name="foo", url="http://google.com")
         sponsor.full_clean()
         sponsor.save()
         self.assertEqual(count + 1, Sponsor.objects.count())
+
+    def test_url_must_be_valid(self):
+        sponsor = Sponsor(name="foo", path_to_logo=self.image.name, url="goo.baz")
+        with self.assertRaises(ValidationError):
+            sponsor.full_clean()
 
     def test_object_must_have_valid_url(self):
         sponsor = Sponsor(name="foo", path_to_logo=self.image.name, url="goo.baz")

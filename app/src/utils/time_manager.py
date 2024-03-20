@@ -37,12 +37,12 @@ def time_point(year, month, day, hour=0, minute=0, second=0):
     return to_timezone(datetime(year, month, day, hour, minute, second))
 
 
-def convert_zone(time, zonename):
-    return timezone.localtime(to_timezone(time), pytz.timezone(zonename))
+def convert_zone(time, zone_name):
+    return timezone.localtime(to_timezone(time), pytz.timezone(zone_name))
 
 
-def format_in_zone(time, zonename, format_str):
-    return convert_zone(time, zonename).strftime(format_str)
+def format_in_zone(time, zone_name, format_str):
+    return convert_zone(time, zone_name).strftime(format_str)
 
 
 def set_default_zone():

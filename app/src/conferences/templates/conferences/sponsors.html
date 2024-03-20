@@ -12,7 +12,11 @@
             {% for sponsor in sponsors %}
                 <div class="col l6 m6 s12">
                     <a href="{{ sponsor.url }}" rel="noopener noreferrer" target="_blank">
-                        <img src="{{ sponsor.path_to_logo }}" alt="{{ sponsor }}" width="100%"/>
+                        {% if sponsor.path_to_logo %}
+                            <img src="{{ sponsor.path_to_logo }}" alt="{{ sponsor.name }}" width="100%"/>
+                        {% else %}
+                            <h5 style="text-align: center">{{ sponsor.name }}</h5>
+                        {% endif %}
                     </a>
                 </div>
             {% endfor %}

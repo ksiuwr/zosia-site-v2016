@@ -38,9 +38,12 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'email', 'hash', 'person_type', 'is_active',
                     'is_staff', 'is_superuser', 'last_login')
     list_display_links = ('first_name', 'last_name')
-    readonly_fields = ('email', 'hash', 'last_login')
     search_fields = ('first_name', 'last_name', 'email', 'hash')
     list_filter = ('person_type', 'is_active', 'is_staff', 'is_superuser')
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly = ('hash', 'last_login')
+        return ('email', *readonly) if obj else readonly
 
 
 class OrganizationNameListFilter(admin.SimpleListFilter):

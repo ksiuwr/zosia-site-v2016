@@ -143,11 +143,10 @@ class Zosia(models.Model):
         return f'Zosia {self.start_date.year}'
 
     def user_registration_start(self, user):
-        if user.is_authenticated:
-            return self.early_registration_start \
-                if self.early_registration_start is not None \
-                   and user.person_type == UserInternals.PERSON_EARLY_REGISTERING \
-                else self.registration_start
+        if user.is_authenticated \
+                and self.early_registration_start is not None \
+                and user.person_type == UserInternals.PERSON_PRIVILEGED:
+            return self.early_registration_start
 
         return self.registration_start
 
@@ -156,8 +155,7 @@ class Zosia(models.Model):
             return False
 
         if self.registration_suspended:
-            return user.is_authenticated \
-                and user.person_type == UserInternals.PERSON_EARLY_REGISTERING
+            return user.is_authenticated and user.person_type == UserInternals.PERSON_PRIVILEGED
 
         return True
 

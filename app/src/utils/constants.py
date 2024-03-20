@@ -17,8 +17,7 @@ SHIRT_SIZE_CHOICES = [
 
 SHIRT_TYPES_CHOICES = [
     ("m", _("classic")),
-    # ("f", _("female")),
-    # ("u", _("unisex")),
+    ("f", _("female")),
 ]
 
 # Admin commands
@@ -92,7 +91,7 @@ class UserInternals:
     PERSON_NORMAL = "Normal"
     PERSON_GUEST = "Guest"
     PERSON_SPONSOR = "Sponsor"
-    PERSON_EARLY_REGISTERING = "Early_registering"
+    PERSON_PRIVILEGED = "Privileged"
     PERSON_ORGANIZER = "Organizer"
 
 
@@ -100,7 +99,7 @@ PERSON_TYPE = [
     (UserInternals.PERSON_NORMAL, _("Normal")),
     (UserInternals.PERSON_GUEST, _("Guest")),
     (UserInternals.PERSON_SPONSOR, _("Sponsor")),
-    (UserInternals.PERSON_EARLY_REGISTERING, _("Early registering")),
+    (UserInternals.PERSON_PRIVILEGED, _("Privileged")),
     (UserInternals.PERSON_ORGANIZER, _("Organizer"))
 ]
 
