@@ -89,15 +89,19 @@ LECTURE_TYPE = [
 # Users
 class UserInternals:
     PERSON_NORMAL = "Normal"
-    PERSON_GUEST = "Guest"
+
+    # User working at sponsor company
     PERSON_SPONSOR = "Sponsor"
+
+    # User able to early registering
     PERSON_PRIVILEGED = "Privileged"
+
+    # User organizing ZOSIA
     PERSON_ORGANIZER = "Organizer"
 
 
 PERSON_TYPE = [
     (UserInternals.PERSON_NORMAL, _("Normal")),
-    (UserInternals.PERSON_GUEST, _("Guest")),
     (UserInternals.PERSON_SPONSOR, _("Sponsor")),
     (UserInternals.PERSON_PRIVILEGED, _("Privileged")),
     (UserInternals.PERSON_ORGANIZER, _("Organizer"))

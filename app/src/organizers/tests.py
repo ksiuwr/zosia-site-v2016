@@ -4,7 +4,7 @@ from django.test import TestCase
 from organizers.forms import OrganizerForm
 from organizers.models import OrganizerContact
 from utils.constants import UserInternals
-from utils.test_helpers import create_user, create_zosia, user_login
+from utils.test_helpers import create_user, create_zosia, login_as_user
 
 
 class FormTestCase(TestCase):
@@ -50,27 +50,27 @@ class ViewsTestCase(TestCase):
         self.assertRedirects(response, '/admin/login/?next=/organizers/')
 
     def test_index_get_normal_user(self):
-        self.client.login(**user_login(self.normal))
+        login_as_user(self.normal, self.client)
         response = self.client.get(reverse('organizers_index'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/organizers/')
 
     def test_index_get_staff_user(self):
-        self.client.login(**user_login(self.staff))
+        login_as_user(self.staff, self.client)
         response = self.client.get(reverse('organizers_index'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
         self.assertEqual(list(context['objects']), list(OrganizerContact.objects.all()))
 
     def test_add_get_staff_user(self):
-        self.client.login(**user_login(self.staff))
+        login_as_user(self.staff, self.client)
         response = self.client.get(reverse('organizers_add'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
         self.assertEqual(context['form'].__class__, OrganizerForm)
 
     def test_edit_get_staff_user(self):
-        self.client.login(**user_login(self.staff))
+        login_as_user(self.staff, self.client)
         organizer = OrganizerContact(zosia=self.zosia, user=self.staff, phone_number='123456789')
         organizer.save()
         response = self.client.get(reverse('organizers_edit',

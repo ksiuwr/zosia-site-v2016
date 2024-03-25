@@ -23,7 +23,7 @@ from utils.views import csv_response
 
 @staff_member_required()
 @require_http_methods(['GET'])
-def export_json(request):
+def export_data(request):
     zosia = Zosia.objects.find_active_or_404()
 
     prefs = UserPreferences.objects \
