@@ -32,7 +32,8 @@ def command_run(command):
             f"{Colour.WHITE}** {Colour.YELLOW}{subp.list2cmdline(command)}{Colour.WHITE} **"
             f"{Colour.NORMAL}")
 
-    subp.run(command, check=False)
+    proc = subp.run(command, check=False)
+    return proc.returncode
 
 
 def docker_exec(command, container):
@@ -49,7 +50,10 @@ def docker_python(command):
 
 def docker_compose_run(command, with_project=True):
     project = ["-p", PROJECT_NAME] if with_project else []
-    command_run(["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
+    status_code = command_run(
+        ["docker", "compose", "--compatibility", "-f", DOCKER_COMPOSE] + project + command)
+    if status_code != 0:
+        exit(1)
 
 
 def web_install():
