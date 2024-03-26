@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from conferences.models import Bus, Zosia
+from conferences.models import Transport, Zosia
 from utils.test_helpers import create_transport, create_user, create_user_preferences, create_zosia
 from utils.time_manager import now, time_point
 
@@ -57,50 +57,50 @@ class ZosiaTestCase(TestCase):
         self.assertTrue(result)
 
 
-class BusTestCase(TestCase):
+class TransportTestCase(TestCase):
     def setUp(self):
         super().setUp()
         self.normal = create_user(0)
         self.zosia = create_zosia()
 
-        self.bus1 = create_transport(self.zosia, capacity=0)
-        self.bus2 = create_transport(self.zosia, capacity=1)
-        self.bus3 = create_transport(self.zosia, capacity=2)
+        self.transport1 = create_transport(self.zosia, capacity=0)
+        self.transport2 = create_transport(self.zosia, capacity=1)
+        self.transport3 = create_transport(self.zosia, capacity=2)
 
-    def test_find_buses_with_free_places_when_all_empty(self):
-        buses = Bus.objects.find_with_free_places(self.zosia)
-        self.assertEqual(buses.count(), 2)
+    def test_find_transport_with_free_places_when_all_empty(self):
+        transport = Transport.objects.find_with_free_places(self.zosia)
+        self.assertEqual(transport.count(), 2)
 
-    def test_find_buses_with_free_places_when_bus_chosen_and_full(self):
-        create_user_preferences(self.normal, self.zosia, bus=self.bus2)
-        buses = Bus.objects.find_with_free_places(self.zosia)
-        self.assertEqual(buses.count(), 1)
+    def test_find_transport_with_free_places_when_transport_chosen_and_full(self):
+        create_user_preferences(self.normal, self.zosia, transport=self.transport2)
+        transport = Transport.objects.find_with_free_places(self.zosia)
+        self.assertEqual(transport.count(), 1)
 
-    def test_find_buses_with_free_places_when_bus_chosen_and_not_full(self):
-        create_user_preferences(self.normal, self.zosia, bus=self.bus3)
-        buses = Bus.objects.find_with_free_places(self.zosia)
-        self.assertEqual(buses.count(), 2)
+    def test_find_transport_with_free_places_when_transport_chosen_and_not_full(self):
+        create_user_preferences(self.normal, self.zosia, transport=self.transport3)
+        transport = Transport.objects.find_with_free_places(self.zosia)
+        self.assertEqual(transport.count(), 2)
 
     def test_find_available_when_all_empty(self):
-        buses = Bus.objects.find_available(self.zosia)
-        self.assertEqual(buses.count(), 2)
+        transport = Transport.objects.find_available(self.zosia)
+        self.assertEqual(transport.count(), 2)
 
-    def test_find_available_when_bus_chosen_and_full(self):
-        create_user_preferences(self.normal, self.zosia, bus=self.bus2)
-        buses = Bus.objects.find_available(self.zosia)
-        self.assertEqual(buses.count(), 1)
+    def test_find_available_when_transport_chosen_and_full(self):
+        create_user_preferences(self.normal, self.zosia, transport=self.transport2)
+        transport = Transport.objects.find_available(self.zosia)
+        self.assertEqual(transport.count(), 1)
 
-    def test_find_available_when_bus_chosen_and_not_full(self):
-        create_user_preferences(self.normal, self.zosia, bus=self.bus3)
-        buses = Bus.objects.find_available(self.zosia)
-        self.assertEqual(buses.count(), 2)
+    def test_find_available_when_transport_chosen_and_not_full(self):
+        create_user_preferences(self.normal, self.zosia, transport=self.transport3)
+        transport = Transport.objects.find_available(self.zosia)
+        self.assertEqual(transport.count(), 2)
 
-    def test_find_available_when_passenger_and_bus_chosen_and_full(self):
-        user_prefs = create_user_preferences(self.normal, self.zosia, bus=self.bus2)
-        buses = Bus.objects.find_available(self.zosia, passenger=user_prefs)
-        self.assertEqual(buses.count(), 2)
+    def test_find_available_when_passenger_and_transport_chosen_and_full(self):
+        user_prefs = create_user_preferences(self.normal, self.zosia, transport=self.transport2)
+        transport = Transport.objects.find_available(self.zosia, passenger=user_prefs)
+        self.assertEqual(transport.count(), 2)
 
-    def test_find_available_when_passenger_and_bus_chosen_and_not_full(self):
-        user_prefs = create_user_preferences(self.normal, self.zosia, bus=self.bus3)
-        buses = Bus.objects.find_available(self.zosia, passenger=user_prefs)
-        self.assertEqual(buses.count(), 2)
+    def test_find_available_when_passenger_and_transport_chosen_and_not_full(self):
+        user_prefs = create_user_preferences(self.normal, self.zosia, transport=self.transport3)
+        transport = Transport.objects.find_available(self.zosia, passenger=user_prefs)
+        self.assertEqual(transport.count(), 2)

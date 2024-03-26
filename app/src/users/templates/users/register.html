@@ -50,7 +50,7 @@
                     <blockquote style="border-left-color: #ee80ee">
                         <i>{% trans "Additional prices" %}:</i><br />
                         {% trans "Administration fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
-                        {% trans "Bus fee" %}: <strong>{{ zosia.price_transport }} PLN</strong><br />
+                        {% trans "Transport fee" %}: <strong>{{ zosia.price_transport }} PLN</strong><br />
                     </blockquote>
                     <blockquote style="border-left-color: #9900ff">
                         <i>{% trans "Total cost (updated automatically)" %}:</i><br />
@@ -123,7 +123,7 @@
             }
         }
 
-        if ($('select[name="bus"]').val() !== '') {
+        if ($('select[name="transport"]').val() !== '') {
             totalPayment += {{ zosia.price_transport }};
         }
 
@@ -138,7 +138,7 @@
         dependencies[accommId].forEach(mealId => $(mealId).change(event => countPayment()));
     }
 
-    $('select[name="bus"]').change(event => countPayment());
+    $('select[name="transport"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
     if(!payed) {

@@ -234,16 +234,13 @@ class BusManager(models.Manager):
             .distinct()
 
 
-class Bus(models.Model):
-    class Meta:
-        verbose_name_plural = 'Buses'
-
+class Transport(models.Model):
     objects = BusManager()
 
-    zosia = models.ForeignKey(Zosia, related_name='buses', on_delete=models.CASCADE)
-    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
+    zosia = models.ForeignKey(Zosia, related_name='transports', on_delete=models.CASCADE)
+    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(400)])
     departure_time = models.DateTimeField()
-    name = models.TextField(default="Bus")
+    name = models.TextField(default="Transport")
 
     def __str__(self):
         return f'{self.name} {format_in_zone(self.departure_time, "Europe/Warsaw", "(%H:%M %Z)")}'
@@ -261,9 +258,9 @@ class Bus(models.Model):
         return self.passengers.filter(payment_accepted=True).count()
 
     def passengers_to_string(self, paid=False):
-        bus_passengers = self.passengers.order_by("user__last_name", "user__first_name")
+        passengers_list = self.passengers.order_by("user__last_name", "user__first_name")
 
         if paid:
-            bus_passengers = bus_passengers.filter(payment_accepted=True)
+            passengers_list = passengers_list.filter(payment_accepted=True)
 
-        return DELIMITER.join(map(lambda p: str(p.user), bus_passengers))
+        return DELIMITER.join(str(p.user) for p in passengers_list)
