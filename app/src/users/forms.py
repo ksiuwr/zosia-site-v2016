@@ -182,7 +182,7 @@ class UserPreferencesForm(UserPreferencesWithTransportForm):
         self.fields['is_student'].label = "I am a student under 25 and I have a valid Student ID card."
         self.fields['is_student'].help_text = "<br/>" # Just for do some space
 
-        self.fields['bus'].label = "Train"
+        self.fields['transport'].label = "Train"
 
         self.fields['transport_baggage'].label = "I want to have my baggage transported."
         self.fields['transport_baggage'].help_text = "<br/>"

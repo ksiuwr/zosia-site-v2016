@@ -255,18 +255,18 @@ def list_csv_paid_users_by_transport(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_csv_paid_students_by_bus(request):
-    buses = Bus.objects.order_by("departure_time")
-    data_list = [(str(b), b.passengers_to_string(paid=True, student=True)) for b in buses]
-    return csv_response(("Bus", "Paid student users"), data_list, filename='list_csv_paid_student_users_by_bus')
+def list_csv_paid_students_by_transport(request):
+    transport_list = Transport.objects.order_by("departure_time")
+    data_list = [(str(t), t.passengers_to_string(paid=True, student=True)) for t in transport_list]
+    return csv_response(("Transport", "Paid student users"), data_list, filename='list_csv_paid_student_users_by_transport')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_csv_paid_not_students_by_bus(request):
-    buses = Bus.objects.order_by("departure_time")
-    data_list = [(str(b), b.passengers_to_string(paid=True, student=False)) for b in buses]
-    return csv_response(("Bus", "Paid student users"), data_list, filename='list_csv_paid_not_student_users_by_bus')
+def list_csv_paid_not_students_by_transport(request):
+    transport_list = Transport.objects.order_by("departure_time")
+    data_list = [(str(t), t.passengers_to_string(paid=True, student=False)) for t in transport_list]
+    return csv_response(("Transport", "Paid student users"), data_list, filename='list_csv_paid_not_student_users_by_transport')
 
 
 @staff_member_required
