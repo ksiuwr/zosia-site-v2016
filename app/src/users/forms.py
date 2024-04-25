@@ -103,7 +103,7 @@ class UserForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         label = f'I agree to the <a href="{reverse("privacy_policy")}">Privacy Policy</a>'
         self.fields['privacy_consent'].label = mark_safe(label)
-        print('LOG',self.fields['captcha'].label)
+        print('Captcha', self.fields['captcha'].label)
 
     def save(self, request):
         user = super().save(commit=False)
@@ -180,11 +180,9 @@ class UserPreferencesForm(UserPreferencesWithTransportForm):
         super().__init__(*args, **kwargs)
         self.user = user
         self.fields['is_student'].label = "I am a student under 25 and I have a valid Student ID card."
-        self.fields['is_student'].help_text = "<br/>" # Just for do some space
+        self.fields['is_student'].help_text = "<br/>"  # Just for some space
 
-        self.fields['transport'].label = "Train"
-
-        self.fields['transport_baggage'].label = "I want to have my baggage transported."
+        self.fields['transport_baggage'].label = "I want to have my baggage transferred."
         self.fields['transport_baggage'].help_text = "<br/>"
 
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
@@ -192,6 +190,7 @@ class UserPreferencesForm(UserPreferencesWithTransportForm):
         self.fields["terms_accepted"].label = mark_safe(terms_label)
         self.fields["terms_accepted"].error_messages = \
             {'required': "You have to accept Terms & Conditions."}
+
         self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
 
     def call(self, zosia, first_call):

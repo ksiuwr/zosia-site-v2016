@@ -281,7 +281,7 @@ class UserPreferences(models.Model):
                 payment += self.zosia.price_transport
 
         if self.transport_baggage:
-            payment += self.zosia.price_transport_baggage
+            payment += self.zosia.price_transfer_baggage
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {

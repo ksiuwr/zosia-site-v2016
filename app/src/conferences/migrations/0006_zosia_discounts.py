@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='zosia',
-            name='price_transport_baggage',
+            name='price_transfer_baggage',
             field=models.IntegerField(default=0, verbose_name='Price for transport baggage'),
         ),
         migrations.AddField(

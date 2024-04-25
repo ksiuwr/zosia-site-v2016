@@ -13,7 +13,8 @@ from users.models import Organization, User, UserPreferences
 from utils.constants import FULL_DURATION_CHOICES, LECTURE_TYPE, MAX_BONUS_MINUTES, UserInternals
 from utils.time_manager import now, time_point, timedelta_since, timedelta_since_now
 
-FIRST_NAMES = ['Kasia', 'Marta', 'Julia', 'Ola', 'Natalia', 'Ania', 'Ewa', 'Alicja']
+FIRST_NAMES = ['Kasia', 'Marta', 'Julia', 'Ola', 'Natalia', 'Ania', 'Ewa', 'Alicja', 'Beata',
+               'Dorota', 'Justyna', 'Weronika']
 
 
 def create_question():
@@ -102,6 +103,7 @@ def create_active_zosia(place, **kwargs):
         'price_accommodation_dinner': 65,
         'price_whole_day': 70,
         'price_transport': 50,
+        'price_transfer_baggage': 15,
         'account_number': 'PL59 1090 2402 4156 9594 3379 3484',
         'account_owner': 'Joan Doe',
         'account_bank': 'SuperBank',
@@ -183,6 +185,9 @@ def create_random_user_with_preferences(zosia, id):
     payment_acc = random_bool()
     bonus = random.randint(1, MAX_BONUS_MINUTES) if payment_acc else 0
 
+    is_student = id % 2 == 1
+    student_number = random.randint(100000, 999999) if is_student else ''
+
     UserPreferences.objects.create(
         user=u,
         zosia=zosia,
@@ -200,7 +205,9 @@ def create_random_user_with_preferences(zosia, id):
         contact=phone_number,
         payment_accepted=payment_acc,
         bonus_minutes=bonus,
-        terms_accepted=True,
+        is_student=is_student,
+        student_number=student_number,
+        terms_accepted=True
     )
     return u
 
@@ -254,13 +261,13 @@ class Command(BaseCommand):
         create_contact_to_organizer(zosia, sample_organizer_user)
         self.stdout.write('Contact to sample organizer created')
 
-        user_num = 5
+        user_num = 7
         for i in range(1, user_num + 1):
             user_with_prefs = create_random_user_with_preferences(zosia, i)
             self.stdout.write(f"Created random user #{i}")
             all_users.append(user_with_prefs)
 
-        lectures_num = 4
+        lectures_num = 5
         for i in range(1, lectures_num + 1):
             author = random.choice(all_users)
             create_lecture(zosia, author)
@@ -268,12 +275,12 @@ class Command(BaseCommand):
 
         create_blogpost(sample_staff_user)
 
-        question_num = random.randint(3, 9)
+        question_num = random.randint(3, 10)
         for i in range(1, question_num + 1):
             create_question()
             self.stdout.write(f"Created question #{i}")
 
-        room_num = random.randint(7, 20)
+        room_num = random.randint(10, 25)
         for i in range(1, room_num + 1):
             create_room(i)
             self.stdout.write(f"Created room #{i}")

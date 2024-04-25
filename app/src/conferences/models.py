@@ -116,8 +116,8 @@ class Zosia(models.Model):
         verbose_name=_('Price for transportation with discount'),
         default=0
     )
-    price_transport_baggage = models.IntegerField(
-        verbose_name=_('Price for transport baggage'),
+    price_transfer_baggage = models.IntegerField(
+        verbose_name=_('Price for transfer baggage'),
         default=0
     )
     price_base = models.IntegerField(
@@ -236,17 +236,17 @@ class Zosia(models.Model):
 
         super(Zosia, self).validate_unique(**kwargs)
 
-
-    def get_discount_for_round(self, round):
-        if round <= 0 or round > 3:
+    def get_discount_for_round(self, round_number):
+        if round_number <= 0 or round_number > 3:
             return 0
 
-        if round == 1:
+        if round_number == 1:
             return self.first_discount
-        if round == 2:
-            return self.second_discount
-        return self.third_discount
 
+        if round_number == 2:
+            return self.second_discount
+
+        return self.third_discount
 
     def clean(self):
         if self.early_registration_start is not None:
@@ -259,7 +259,7 @@ class Zosia(models.Model):
                 })
 
 
-class BusManager(models.Manager):
+class TransportManager(models.Manager):
     def find_with_free_places(self, zosia):
         return self \
             .filter(zosia=zosia) \
@@ -280,7 +280,7 @@ class BusManager(models.Manager):
 
 
 class Transport(models.Model):
-    objects = BusManager()
+    objects = TransportManager()
 
     zosia = models.ForeignKey(Zosia, related_name='transports', on_delete=models.CASCADE)
     capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
@@ -302,16 +302,13 @@ class Transport(models.Model):
     def paid_passengers_count(self):
         return self.passengers.filter(payment_accepted=True).count()
 
-    def passengers_to_string(self, paid=False, student=None):
+    def passengers_to_string(self, paid=False, is_student=None):
         passengers_list = self.passengers.order_by("user__last_name", "user__first_name")
 
         if paid:
             passengers_list = passengers_list.filter(payment_accepted=True)
 
-        if student is not None:
-            if student:
-                passengers_list = passengers_list.filter(is_student=True)
-            else:
-                passengers_list = passengers_list.filter(is_student=False)
+        if is_student is not None:
+            passengers_list = passengers_list.filter(is_student=is_student)
 
         return DELIMITER.join(map(lambda p: str(p.user), passengers_list))

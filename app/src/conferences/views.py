@@ -257,16 +257,20 @@ def list_csv_paid_users_by_transport(request):
 @require_http_methods(['GET'])
 def list_csv_paid_students_by_transport(request):
     transport_list = Transport.objects.order_by("departure_time")
-    data_list = [(str(t), t.passengers_to_string(paid=True, student=True)) for t in transport_list]
-    return csv_response(("Transport", "Paid student users"), data_list, filename='list_csv_paid_student_users_by_transport')
+    data_list = [(str(t), t.passengers_to_string(paid=True, is_student=True))
+                 for t in transport_list]
+    return csv_response(("Transport", "Paid student users"), data_list,
+                        filename='list_csv_paid_student_users_by_transport')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_csv_paid_not_students_by_transport(request):
+def list_csv_paid_non_students_by_transport(request):
     transport_list = Transport.objects.order_by("departure_time")
-    data_list = [(str(t), t.passengers_to_string(paid=True, student=False)) for t in transport_list]
-    return csv_response(("Transport", "Paid student users"), data_list, filename='list_csv_paid_not_student_users_by_transport')
+    data_list = [(str(t), t.passengers_to_string(paid=True, is_student=False))
+                 for t in transport_list]
+    return csv_response(("Transport", "Paid non-student users"), data_list,
+                        filename='list_csv_paid_non_student_users_by_transport')
 
 
 @staff_member_required

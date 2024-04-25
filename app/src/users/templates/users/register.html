@@ -65,9 +65,9 @@
                     <blockquote style="border-left-color: #ee80ee">
                         <i>{% trans "Additional prices" %}:</i><br />
                         {% trans "Administration fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
-                        {% trans "Train fee" %}: <strong><span id="transport-fee">{{ zosia.price_transport }}</span> PLN</strong><br />
-                        {% trans "Baggage transfer fee" %}: <strong>{{ zosia.price_transport_baggage }} PLN</strong><br />
-                        <small>We offer you to transport your baggage from the train station to the hotel and back.<br/>
+                        {% trans "Transport fee" %}: <strong><span id="transport-fee">{{ zosia.price_transport }}</span> PLN</strong><br />
+                        {% trans "Baggage transfer fee" %}: <strong>{{ zosia.price_transfer_baggage }} PLN</strong><br />
+                        <small>We offer you to transfer your baggage from the transport stop to the hotel and back.<br/>
                             Check out the Q&A for more information.</small><br/>
                     </blockquote>
                     <blockquote style="border-left-color: #9900ff">
@@ -137,10 +137,10 @@
 
         const isStudent = $('#id_is_student').is(':checked');
         let transport = transport_price;
-        if(isStudent){
+        if (isStudent){
             transport = transport_discount_price;
             discount > 0 && $('#discount').show();
-        }else{
+        } else {
             $('#discount').hide();
             $('#id_student_number').parent().hide()
         }
@@ -175,14 +175,15 @@
         }
 
         if($('#id_transport_baggage').is(':checked')) {
-            totalPayment += {{ zosia.price_transport_baggage }};
+            totalPayment += {{ zosia.price_transfer_baggage }};
         }
 
         const totalPaymentWithDiscount = Math.max(0, totalPayment - totalDiscount);
-        if(totalDiscount > 0)
+        if (totalDiscount > 0) {
             $("#total-price").html(`<s>${totalPayment}</s> ${totalPaymentWithDiscount}`);
-        else
+        } else {
             $("#total-price").text(totalPayment);
+        }
     }
 
     for (accommId in dependencies) {
@@ -196,9 +197,9 @@
     $('#id_is_student').change(event => {
             alert("Be careful. You won't be able to change it later!")
             countPayment()
-            if(event.target.checked)
+            if (event.target.checked) {
                 $('#id_student_number').parent().show()
-            else{
+            } else {
                 const student_number_field = $('#id_student_number')
                 student_number_field.val('')
                 student_number_field.parent().hide()
@@ -216,12 +217,13 @@
     {% endif %}
 
 
-    if(!payed) {
+    if (!payed) {
         countPayment();
-    }else{
+    } else {
         {% if object.is_student %}
-        if(discount > 0)
+        if (discount > 0) {
             $('#discount').show();
+        }
         $("#transport-fee").text(transport_discount_price);
         {% endif %}
     }
