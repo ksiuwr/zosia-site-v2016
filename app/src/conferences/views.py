@@ -33,7 +33,7 @@ def export_data(request):
                 'accommodation_day_1', 'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2',
                 'dinner_day_2', 'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3',
                 'breakfast_day_4', 'contact', 'information', 'vegetarian', 'payment_accepted',
-                'shirt_size', 'shirt_type')
+                'shirt_size', 'shirt_type', 'is_student', 'transport_baggage')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
@@ -255,6 +255,22 @@ def list_csv_paid_users_by_transport(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
+def list_csv_paid_students_by_bus(request):
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string(paid=True, student=True)) for b in buses]
+    return csv_response(("Bus", "Paid student users"), data_list, filename='list_csv_paid_student_users_by_bus')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_paid_not_students_by_bus(request):
+    buses = Bus.objects.order_by("departure_time")
+    data_list = [(str(b), b.passengers_to_string(paid=True, student=False)) for b in buses]
+    return csv_response(("Bus", "Paid student users"), data_list, filename='list_csv_paid_not_student_users_by_bus')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
 def statistics(request):
     zosia = Zosia.objects.find_active_or_404()
     user_prefs = UserPreferences.objects.filter(zosia=zosia)
@@ -285,12 +301,33 @@ def statistics(request):
         transport_values['notPaid'].append(t.passengers_count - t.paid_passengers_count)
         transport_values['empty'].append(t.free_seats)
 
+    # discount
+    discounts = list(
+        user_prefs.filter(discount_round__gt=0).values_list('discount_round', flat=True))
+
+    # discount_values = {
+    #     "round_1": (discounts.count(1), zosia.first_discount_limit),
+    #     "round_2": (discounts.count(2), zosia.second_discount_limit),
+    #     "round_3": (discounts.count(3), zosia.third_discount_limit)
+    #     }
+
+    discount_values = {
+        "taken": [discounts.count(x) for x in (1, 2, 3)],
+        "available": [
+            zosia.first_discount_limit-discounts.count(1),
+            zosia.second_discount_limit-discounts.count(2),
+            zosia.third_discount_limit-discounts.count(3)]
+    }
+
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
+    students = user_prefs.filter(is_student=True).count()
 
     ctx = {
         'registeredUsers': prefs_count,
         'vegetarians': vegetarians,
+        'students': students,
+        'discountsData': json.dumps(discount_values),
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
         'userCostsCounts': list(price_counts),

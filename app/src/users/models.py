@@ -143,6 +143,14 @@ class UserPreferences(models.Model):
 
     user = models.ForeignKey(User, related_name="preferences", on_delete=models.CASCADE)
     zosia = models.ForeignKey(Zosia, related_name="registrations", on_delete=models.CASCADE)
+    is_student = models.BooleanField(default=False)
+    student_number = models.TextField(
+        default='',
+        blank=True,
+        help_text=_(
+            "Providing false information risks removal of your application with no refund."
+        )
+    )
 
     organization = models.ForeignKey(
         Organization,
@@ -161,6 +169,8 @@ class UserPreferences(models.Model):
         blank=True,
         on_delete=models.SET_NULL
     )
+
+    transport_baggage = models.BooleanField(default=False)
 
     # Day 1 (Coming)
     dinner_day_1 = models.BooleanField(default=False)
@@ -223,6 +233,9 @@ class UserPreferences(models.Model):
         validators=[MinValueValidator(MIN_BONUS_MINUTES), MaxValueValidator(MAX_BONUS_MINUTES)]
     )
 
+    # Assigned by form view after registration.
+    discount_round = models.IntegerField(default=0)
+
     def _pays_for(self, option_name):
         return getattr(self, option_name)
 
@@ -241,12 +254,34 @@ class UserPreferences(models.Model):
 
         return self.zosia.price_accommodation
 
+    @staticmethod
+    def get_current_discount_round(zosia: Zosia):
+        boxed_discount_turn_students_counts = UserPreferences.objects \
+            .values('discount_round').annotate(count=models.Count('discount_round'))
+
+        discount_turn_students_counts = {d['discount_round']: d['count'] for d in boxed_discount_turn_students_counts}
+
+        if ((discount_turn_students_counts[1] if 1 in discount_turn_students_counts else 0) < zosia.first_discount_limit):
+            return 1
+        if ((discount_turn_students_counts[2] if 2 in discount_turn_students_counts else 0) < zosia.second_discount_limit):
+            return 2
+        if ((discount_turn_students_counts[3] if 3 in discount_turn_students_counts else 0) < zosia.third_discount_limit):
+            return 3
+
+        return 0
+
     @property
     def price(self):
         payment = self.zosia.price_base
 
         if self.transport is not None:
-            payment += self.zosia.price_transport
+            if self.is_student:
+                payment += self.zosia.price_transport_with_discount
+            else:
+                payment += self.zosia.price_transport
+
+        if self.transport_baggage:
+            payment += self.zosia.price_transport_baggage
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             chosen = {
@@ -254,9 +289,12 @@ class UserPreferences(models.Model):
                 accommodation[:-6]: self._pays_for(accommodation),
                 **{m[:-6]: self._pays_for(m) for m in meals.values()}
             }
-            payment += self._price_for(chosen)
+            pricefor = self._price_for(chosen)
+            payment += pricefor
+            if self.is_student and pricefor > 0:
+                payment -= self.zosia.get_discount_for_round(self.discount_round)
 
-        return payment
+        return max(0, payment)
 
     def __str__(self):
         return f"{str(self.user)} preferences"

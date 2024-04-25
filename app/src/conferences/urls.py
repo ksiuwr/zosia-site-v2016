@@ -15,6 +15,11 @@ urlpatterns = [
             name='list_csv_all_users_by_transport'),
     re_path(r'^transport/list/users_by_transport/paid$', views.list_csv_paid_users_by_transport,
             name='list_csv_paid_users_by_transport'),
+    #TODO: Rename these two paths from bus to transport     
+    re_path(r'^bus/list/paidstudentsbybus$', views.list_csv_paid_students_by_bus,
+            name='list_csv_paid_students_by_bus'),
+    re_path(r'^bus/list/paidnotstudentsbybus$', views.list_csv_paid_not_students_by_bus,
+            name='list_csv_paid_not_students_by_bus'),
     re_path(r'^transport/(?P<pk>\d+)/update/$', views.transport_add, name='transport_update'),
     re_path(r'^transport/(?P<pk>\d+)/people/$', views.transport_people, name='transport_people'),
     re_path(r'^conferences/$', views.conferences, name='conferences'),

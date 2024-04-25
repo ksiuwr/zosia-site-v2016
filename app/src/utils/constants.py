@@ -109,7 +109,6 @@ PERSON_TYPE = [
 
 II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
 
-
 # Sponsors
 class SponsorInternals:
     TYPE_BRONZE = "bronze"

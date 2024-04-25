@@ -239,8 +239,9 @@ def user_preferences_admin_edit(request):
 @require_http_methods(['GET', 'POST'])
 def register(request):
     user = request.user
-    zosia = Zosia.objects.find_active_or_404()
+    zosia: Zosia = Zosia.objects.find_active_or_404()
     user_prefs = UserPreferences.objects.filter(zosia=zosia, user=user).first()
+    first_call = False
 
     if user_prefs is None:
         if not zosia.is_user_registration_open(user):
@@ -250,16 +251,30 @@ def register(request):
         if zosia.is_registration_over:
             messages.error(request, _('You missed registration for ZOSIA'))
             return redirect(reverse('index'))
+        
+        first_call = True
 
     ctx = {'field_dependencies': PAYMENT_GROUPS, 'payed': False, 'zosia': zosia}
+    ctx['first_call'] = first_call
     form_args = {}
 
     if user_prefs is not None:
         ctx['object'] = user_prefs
         form_args['instance'] = user_prefs
+        ctx['discount'] = zosia.get_discount_for_round(
+            user_prefs.discount_round
+        )
+    else:
+        ctx['discount'] = zosia.get_discount_for_round(
+            UserPreferences.get_current_discount_round(zosia)
+        )
+        ctx['before_discounts'] = zosia.first_discount_limit == 0
 
     form = UserPreferencesForm(request.user, request.POST or None, **form_args)
     ctx['form'] = form
+
+    if user_prefs:
+        form.fields['is_student'].disabled = True
 
     if user_prefs and user_prefs.payment_accepted:
         ctx['payed'] = True
@@ -267,7 +282,7 @@ def register(request):
 
     if request.method == 'POST':
         if form.is_valid():
-            form.call(zosia)
+            form.call(zosia, first_call)
             messages.success(request, _("Preferences saved!"))
 
             return redirect(reverse('accounts_profile') + '#zosia')
@@ -282,12 +297,12 @@ def register(request):
 def list_csv_preferences_all(request):
     prefs = UserPreferences.objects.select_related('user').order_by("user__last_name",
                                                                     "user__first_name")
-    header = ("User", "Organization", "Paid", "AccommodationDay1", "AccommodationDay2",
+    header = ("User", "Student", "Organization", "Paid", "Baggage Transport", "AccommodationDay1", "AccommodationDay2",
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
     data_list = [(
-        str(p.user), ("" if p.organization is None else str(p.organization.name)),
-        str(p.payment_accepted),
+        str(p.user), str(p.is_student), ("" if p.organization is None else str(p.organization.name)),
+        str(p.payment_accepted), str(p.transport_baggage),
         str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
         str(p.dinner_day_1),
         str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3), str(p.dinner_day_3),
@@ -303,11 +318,12 @@ def list_csv_preferences_all(request):
 def list_csv_preferences_paid(request):
     prefs = UserPreferences.objects.select_related('user').filter(payment_accepted=True) \
         .order_by("user__last_name", "user__first_name")
-    header = ("User", "Organization", "AccommodationDay1", "AccommodationDay2",
+    header = ("User", "Student", "Organization", "Baggage Transport", "AccommodationDay1", "AccommodationDay2",
               "AccommodationDay3", "DinnerDay1", "BreakfastDay2", "DinnerDay2", "BreakfastDay3",
               "DinnerDay3", "BreakfastDay4", "Vegetarian", "ShirtSize", "ShirtType")
     data_list = [(
-        str(p.user), ("" if p.organization is None else str(p.organization.name)),
+        str(p.user), str(p.is_student), ("" if p.organization is None else str(p.organization.name)),
+        str(p.transport_baggage),
         str(p.accommodation_day_1), str(p.accommodation_day_2), str(p.accommodation_day_3),
         str(p.dinner_day_1), str(p.breakfast_day_2), str(p.dinner_day_2), str(p.breakfast_day_3),
         str(p.dinner_day_3), str(p.breakfast_day_4), str(p.vegetarian),

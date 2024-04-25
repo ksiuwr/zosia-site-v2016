@@ -284,7 +284,8 @@ class UserPreferencesEditTestCase(UserPreferencesTestCase):
                                         'shirt_type': 'm',
                                         'contact': self.user_prefs.contact,
                                         'bonus_minutes': 0,
-                                        'terms_accepted': True
+                                        'terms_accepted': True,
+                                        'transport_baggage': False
                                     },
                                     follow=True)
         self.assertEqual(response.status_code, 200)

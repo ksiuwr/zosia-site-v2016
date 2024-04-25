@@ -37,20 +37,38 @@
     </h3>
     <div class="row">
         <div class="col s12 m8">
+            {% if before_discounts %}
+            <div class='card'>
+                <div class='card-content'>
+                    The first round of funding starts 18.12.2023, registering before this date,
+                    you will not get a discount - see the <a href="{% url 'questions_index' %}">Q&A</a> for more information.
+                    At this point, you can still register to get bonus time for rooms enrollment.
+                </div>
+            </div>
+            {% endif %}
             <div class="card">
                 <div class="card-content">
                     <span class="card-title">{% trans "Cost" %}</span>
                     <blockquote style="border-left-color: #3333cc">
-                        <i>{% trans "Prices (per night)" %}:</i><br />
-                        {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br />
+                        <i>{% trans "Price (per night)" %}:</i><br />
+                        {% comment %} {% trans "Accommodation" %}: <strong>{{ zosia.price_accommodation }} PLN</strong><br />
                         {% trans "Accommodation + breakfast" %}: <strong>{{ zosia.price_accommodation_breakfast }} PLN</strong><br />
-                        {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br />
+                        {% trans "Accommodation + dinner" %}: <strong>{{ zosia.price_accommodation_dinner }} PLN</strong><br /> {% endcomment %}
                         {% trans "Accommodation + both meals" %}: <strong>{{ zosia.price_whole_day }} PLN</strong><br />
+                        <div id="discount" style="display: none;">
+                            Your discount: <strong style="color: red;"><span id="discount_amount">0</span> PLN</strong><br/>
+                            {% if first_call %}
+                            <small><b>This is your possible discount</b>. The actual discount will be calculated after you save your registration.</small><br/>
+                            {% endif %}
+                        </div>
                     </blockquote>
                     <blockquote style="border-left-color: #ee80ee">
                         <i>{% trans "Additional prices" %}:</i><br />
                         {% trans "Administration fee" %}: <strong>{{ zosia.price_base }} PLN</strong><br />
-                        {% trans "Transport fee" %}: <strong>{{ zosia.price_transport }} PLN</strong><br />
+                        {% trans "Train fee" %}: <strong><span id="transport-fee">{{ zosia.price_transport }}</span> PLN</strong><br />
+                        {% trans "Baggage transfer fee" %}: <strong>{{ zosia.price_transport_baggage }} PLN</strong><br />
+                        <small>We offer you to transport your baggage from the train station to the hotel and back.<br/>
+                            Check out the Q&A for more information.</small><br/>
                     </blockquote>
                     <blockquote style="border-left-color: #9900ff">
                         <i>{% trans "Total cost (updated automatically)" %}:</i><br />
@@ -88,46 +106,83 @@
         {% endfor %}
     }
 
+    const transport_price = {{ zosia.price_transport }};
+    const transport_discount_price = {{ zosia.price_transport_with_discount }};
+
+    let discount = {{ discount }};
+    {% if object.discount %}
+    discount = {{ object.discount }};
+    {% endif %}
+    $('#discount_amount').text(discount);
+
     const enableMeals = accommodations => {
         accommodations.forEach(accommId => {
             const isAccommChecked = $(accommId).is(':checked')
             dependencies[accommId].forEach(mealId => {
-                $(mealId).attr('disabled', payed || !isAccommChecked);
                 if (!isAccommChecked) {
                   $(mealId).prop('checked', false);
+                }else if($(mealId).attr('disabled'))
+                {
+                  $(mealId).prop('checked', true);
                 }
+                $(mealId).attr('disabled', payed || !isAccommChecked);
             })
         })
     }
 
     const countPayment = () => {
+        if (payed) return;
         let totalPayment = {{ zosia.price_base }};
+        let totalDiscount = 0;
+
+        const isStudent = $('#id_is_student').is(':checked');
+        let transport = transport_price;
+        if(isStudent){
+            transport = transport_discount_price;
+            discount > 0 && $('#discount').show();
+        }else{
+            $('#discount').hide();
+            $('#id_student_number').parent().hide()
+        }
+        $("#transport-fee").text(transport);
 
         for (accommId in dependencies) {
             const breakfastId = dependencies[accommId].find(mealId => /breakfast/.test(mealId));
             const dinnerId = dependencies[accommId].find(mealId => /dinner/.test(mealId));
-            const isAccommChecked = $(accommId).is(':checked')
-            const isBreakfastChecked = $(breakfastId).is(':checked')
-            const isDinnerChecked = $(dinnerId).is(':checked')
+            const isAccommChecked = $(accommId).is(':checked');
+            const isBreakfastChecked = $(breakfastId).is(':checked');
+            const isDinnerChecked = $(dinnerId).is(':checked');
 
             if (!isAccommChecked && !isBreakfastChecked && !isDinnerChecked) {
                 totalPayment += 0;
             } else if (isBreakfastChecked && isDinnerChecked) {
                 totalPayment += {{ zosia.price_whole_day }};
+                totalDiscount += isStudent ? discount : 0
             } else if (isBreakfastChecked && !isDinnerChecked) {
                 totalPayment += {{ zosia.price_accommodation_breakfast }};
+                totalDiscount += isStudent ? discount : 0
             } else if (!isBreakfastChecked && isDinnerChecked) {
                 totalPayment += {{ zosia.price_accommodation_dinner }};
+                totalDiscount += isStudent ? discount : 0
             } else {
                 totalPayment += {{ zosia.price_accommodation }};
+                totalDiscount += isStudent ? discount : 0
             }
         }
 
         if ($('select[name="transport"]').val() !== '') {
-            totalPayment += {{ zosia.price_transport }};
+            totalPayment += transport;
         }
 
-        $("#total-price").text(totalPayment);
+        if($('#id_transport_baggage').is(':checked')) {
+            totalPayment += {{ zosia.price_transport_baggage }};
+        }
+
+        const totalPaymentWithDiscount = Math.max(0, totalPayment - totalDiscount);
+        if(totalDiscount > 0)
+            $("#total-price").html(`<s>${totalPayment}</s> ${totalPaymentWithDiscount}`);
+        else
+            $("#total-price").text(totalPayment);
     }
 
     for (accommId in dependencies) {
@@ -138,11 +193,37 @@
         dependencies[accommId].forEach(mealId => $(mealId).change(event => countPayment()));
     }
 
+    $('#id_is_student').change(event => {
+            alert("Be careful. You won't be able to change it later!")
+            countPayment()
+            if(event.target.checked)
+                $('#id_student_number').parent().show()
+            else{
+                const student_number_field = $('#id_student_number')
+                student_number_field.val('')
+                student_number_field.parent().hide()
+            }
+        }
+    )
+
+    $('#id_transport_baggage').change(event => countPayment());
+
     $('select[name="transport"]').change(event => countPayment());
     enableMeals(Object.keys(dependencies));
 
+    {% if not object.is_student %}
+    $('#id_student_number').parent().hide();
+    {% endif %}
+
+
     if(!payed) {
         countPayment();
+    }else{
+        {% if object.is_student %}
+        if(discount > 0)
+            $('#discount').show();
+        $("#transport-fee").text(transport_discount_price);
+        {% endif %}
     }
   });
 </script>
