@@ -4,6 +4,7 @@ from django.test import TestCase
 
 from questions.forms import QAForm
 from questions.models import QA
+from utils.test_helpers import create_user, login_as_user
 
 User = get_user_model()
 
@@ -24,14 +25,8 @@ class FormTestCase(TestCase):
 class ViewsTestCase(TestCase):
     def setUp(self):
         super().setUp()
-        self.staff = User.objects.create_user('paul@thebeatles.com',
-                                              'paulpassword')
-        self.staff.is_staff = True
-        self.staff.save()
-
-        self.normal = User.objects.create_user('lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
+        self.staff = create_user(0, is_staff=True)
+        self.normal = create_user(1)
 
     def test_index_get_no_user(self):
         response = self.client.get(reverse('questions_index_staff'),
@@ -40,22 +35,20 @@ class ViewsTestCase(TestCase):
         self.assertRedirects(response, '/admin/login/?next=/questions/all/')
 
     def test_index_get_normal_user(self):
-        self.client.login(email="lennon@thebeatles.com", password="johnpassword")
-        response = self.client.get(reverse('questions_index_staff'),
-                                   follow=True)
+        login_as_user(self.normal, self.client)
+        response = self.client.get(reverse('questions_index_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertRedirects(response, '/admin/login/?next=/questions/all/')
 
     def test_index_get_staff_user(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
-        response = self.client.get(reverse('questions_index_staff'),
-                                   follow=True)
+        login_as_user(self.staff, self.client)
+        response = self.client.get(reverse('questions_index_staff'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
         self.assertEqual(list(context['questions']), list(QA.objects.all().order_by('-priority')))
 
     def test_add_get_staff_user(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        login_as_user(self.staff, self.client)
         response = self.client.get(reverse('questions_add'), follow=True)
         self.assertEqual(response.status_code, 200)
         context = response.context[-1]
@@ -63,7 +56,7 @@ class ViewsTestCase(TestCase):
 
     def test_add_post(self):
         questions = QA.objects.count()
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        login_as_user(self.staff, self.client)
         response = self.client.post(reverse('questions_add'),
                                     {'question': 'foo', 'answer': 'bar', 'priority': 0},
                                     follow=True)
@@ -71,7 +64,7 @@ class ViewsTestCase(TestCase):
         self.assertEqual(questions + 1, QA.objects.count())
 
     def test_edit_get_staff_user(self):
-        self.client.login(email='paul@thebeatles.com', password='paulpassword')
+        login_as_user(self.staff, self.client)
         qa = QA.objects.create(question='foo', answer='http://google.com')
         response = self.client.get(reverse('questions_edit',
                                            kwargs={'question_id': qa.id}),

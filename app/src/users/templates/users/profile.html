@@ -87,6 +87,12 @@
                   <strong><i style="font-size: 1.125rem; color: #ff4000">
                       {% trans "IMPORTANT NOTE: Please copy and use the provided transfer title! Otherwise, the organizers may not guarantee your time bonus for rooming." %}
                   </i></strong>
+                  {% if current_prefs.discount_round > 0 and current_prefs.is_student %}
+                  <br />
+                  <strong><i style="font-size: 1rem; color: #ff4000">
+                    {% trans "Your total price includes a discount. You should pay for the conference immediately so as not to lose your discount." %}
+                </i></strong>
+                  {% endif %}
               </blockquote>
             {% endif %}
 
@@ -106,10 +112,10 @@
 
               <div class="col s12">
                 <i class="fa fa-bus" aria-hidden="true"></i>
-                {% if current_prefs.bus %}
-                  {{ current_prefs.bus }}
+                {% if current_prefs.transport %}
+                  {{ current_prefs.transport }}
                 {% else %}
-                  {% trans "You haven't selected any bus" %}
+                  {% trans "You haven't selected any form of transport" %}
                 {% endif %}
               </div>
             </div>

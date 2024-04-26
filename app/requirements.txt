@@ -5,7 +5,7 @@ django-anymail~=8.6
 django-materializecss-form>=1.1.15, <2.0
 # git+https://github.com/ksiuwr/django-materializecss-form@master#egg=django-materializecss-form
 djangorestframework~=3.14
-drf-yasg~=1.20
+drf-yasg~=1.21
 packaging>=19.1
 psycopg2~=2.9.5
 pytz>=2022.4
@@ -15,3 +15,4 @@ argon2-cffi~=21.3.0
 boto3>=1.20.23, <2.0
 python-dotenv~=0.21.0
 google-cloud-secret-manager~=2.8
+django-recaptcha

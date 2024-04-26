@@ -17,8 +17,7 @@ SHIRT_SIZE_CHOICES = [
 
 SHIRT_TYPES_CHOICES = [
     ("m", _("classic")),
-    # ("f", _("female")),
-    # ("u", _("unisex")),
+    ("f", _("female")),
 ]
 
 # Admin commands
@@ -90,22 +89,25 @@ LECTURE_TYPE = [
 # Users
 class UserInternals:
     PERSON_NORMAL = "Normal"
-    PERSON_GUEST = "Guest"
+
+    # User working at sponsor company
     PERSON_SPONSOR = "Sponsor"
-    PERSON_EARLY_REGISTERING = "Early_registering"
+
+    # User with registration privileges: earlier registration, not suspendable
+    PERSON_PRIVILEGED = "Privileged"
+
+    # User organizing ZOSIA
     PERSON_ORGANIZER = "Organizer"
 
 
 PERSON_TYPE = [
     (UserInternals.PERSON_NORMAL, _("Normal")),
-    (UserInternals.PERSON_GUEST, _("Guest")),
     (UserInternals.PERSON_SPONSOR, _("Sponsor")),
-    (UserInternals.PERSON_EARLY_REGISTERING, _("Early registering")),
+    (UserInternals.PERSON_PRIVILEGED, _("Privileged")),
     (UserInternals.PERSON_ORGANIZER, _("Organizer"))
 ]
 
 II_UWR_EMAIL_DOMAIN = "@cs.uni.wroc.pl"
-
 
 # Sponsors
 class SponsorInternals:

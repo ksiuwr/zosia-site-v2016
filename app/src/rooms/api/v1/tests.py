@@ -34,7 +34,7 @@ class RoomsAPITestCase(APITestCase):
 class RoomListAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url = reverse("rooms_api_list", kwargs={"version": "v1"})
+        self.url = reverse("rooms_api_list")
 
     def test_user_can_get_all_visible_rooms(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -56,12 +56,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_2)
 
         data = {
-            "name": "789",
-            "description": "Room for JMa",
-            "beds_single": 1,
-            "beds_double": 0,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "789",
+                "description": "Room for JMa",
+                "beds_single": 1,
+                "beds_double": 0,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -71,12 +71,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "789",
-            "description": "Room for JMa",
-            "beds_single": 1,
-            "beds_double": 0,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "789",
+                "description": "Room for JMa",
+                "beds_single": 1,
+                "beds_double": 0,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -89,12 +89,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "357",
-            "description": "",
-            "beds_single": 2,
-            "beds_double": 0,
-            "available_beds_single": 2,
-            "available_beds_double": 0
+                "name": "357",
+                "description": "",
+                "beds_single": 2,
+                "beds_double": 0,
+                "available_beds_single": 2,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -107,12 +107,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "456",
-            "description": "Room for some random guys with Divide inside",
-            "beds_single": 2,
-            "beds_double": 3,
-            "available_beds_single": 3,
-            "available_beds_double": 1
+                "name": "456",
+                "description": "Room for some random guys with Divide inside",
+                "beds_single": 2,
+                "beds_double": 3,
+                "available_beds_single": 3,
+                "available_beds_double": 1
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -125,12 +125,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "456",
-            "description": "Room for some random guys with Divide inside",
-            "beds_single": 2,
-            "beds_double": 3,
-            "available_beds_single": 4,
-            "available_beds_double": 2
+                "name": "456",
+                "description": "Room for some random guys with Divide inside",
+                "beds_single": 2,
+                "beds_double": 3,
+                "available_beds_single": 4,
+                "available_beds_double": 2
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -140,12 +140,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "123",
-            "description": "Room for TWi, who is still not coming",
-            "beds_single": -2,
-            "beds_double": 0,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "123",
+                "description": "Room for TWi, who is still not coming",
+                "beds_single": -2,
+                "beds_double": 0,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -155,12 +155,12 @@ class RoomListAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "123",
-            "description": "Room for TWi, who is still not coming",
-            "beds_single": 1,
-            "beds_double": -1,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "123",
+                "description": "Room for TWi, who is still not coming",
+                "beds_single": 1,
+                "beds_double": -1,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.post(self.url, data, format="json")
 
@@ -170,9 +170,9 @@ class RoomListAPITestCase(RoomsAPITestCase):
 class RoomDetailAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_2.pk})
-        self.url_3 = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": self.room_3.pk})
+        self.url_1 = reverse("rooms_api_detail", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api_detail", kwargs={"pk": self.room_2.pk})
+        self.url_3 = reverse("rooms_api_detail", kwargs={"pk": self.room_3.pk})
 
     def test_user_can_view_visible_room(self):
         self.room_1.join(self.staff_2)
@@ -183,7 +183,7 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["last_name"], "harrison")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], self.staff_2.last_name)
         self.assertIsNone(response.data["lock"])
 
     def test_user_can_view_visible_self_locked_room(self):
@@ -196,8 +196,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], self.normal_2.last_name)
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_2.last_name)
         self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_user_can_view_visible_room_locked_by_other(self):
@@ -210,8 +210,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["name"], "111")
         self.assertEqual(response.data["available_beds_single"], 1)
-        self.assertEqual(response.data["members"][0]["user"]["last_name"], "starr")
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "starr")
+        self.assertEqual(response.data["members"][0]["user"]["last_name"], self.normal_2.last_name)
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_2.last_name)
         self.assertIsNone(response.data["lock"]["password"])
 
     def test_user_cannot_view_hidden_room(self):
@@ -224,7 +224,7 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
     def test_user_cannot_view_nonexisting_room(self):
         self.client.force_authenticate(user=self.normal_1)
 
-        url = reverse("rooms_api_detail", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api_detail", kwargs={"pk": 0})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -256,12 +256,12 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_2)
 
         data = {
-            "name": "2222",
-            "description": "Continuum HQ",
-            "beds_single": 2,
-            "beds_double": 0,
-            "available_beds_single": 2,
-            "available_beds_double": 0
+                "name": "2222",
+                "description": "Continuum HQ",
+                "beds_single": 2,
+                "beds_double": 0,
+                "available_beds_single": 2,
+                "available_beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -271,13 +271,13 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {
-            "name": "1111",
-            "description": "KSI HQ",
-            "hidden": False,
-            "beds_single": 1,
-            "beds_double": 1,
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "1111",
+                "description": "KSI HQ",
+                "hidden": False,
+                "beds_single": 1,
+                "beds_double": 1,
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.put(self.url_1, data, format="json")
 
@@ -291,8 +291,8 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "3333",
-            "description": "CamelPhat's Panic Room"
+                "name": "3333",
+                "description": "CamelPhat's Panic Room"
         }
         response = self.client.put(self.url_3, data)
 
@@ -305,9 +305,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_1)
 
         data = {
-            "name": "1111",
-            "available_beds_single": 1,
-            "available_beds_double": 10
+                "name": "1111",
+                "available_beds_single": 1,
+                "available_beds_double": 10
         }
         response = self.client.put(self.url_1, data, format="json")
 
@@ -317,9 +317,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.staff_2)
 
         data = {
-            "name": "2222",
-            "beds_single": -1,
-            "beds_double": 0
+                "name": "2222",
+                "beds_single": -1,
+                "beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -332,9 +332,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.room_2.join(self.normal_2)
 
         data = {
-            "name": "99",
-            "available_beds_single": 1,
-            "available_beds_double": 0
+                "name": "99",
+                "available_beds_single": 1,
+                "available_beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -347,9 +347,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
         self.room_2.join(self.normal_2)
 
         data = {
-            "name": "99",
-            "beds_single": 1,
-            "beds_double": 0
+                "name": "99",
+                "beds_single": 1,
+                "beds_double": 0
         }
         response = self.client.put(self.url_2, data, format="json")
 
@@ -359,9 +359,9 @@ class RoomDetailAPITestCase(RoomsAPITestCase):
 class RoomJoinAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_2.pk})
-        self.url_3 = reverse("rooms_api_join", kwargs={"version": "v1", "pk": self.room_3.pk})
+        self.url_1 = reverse("rooms_api_join", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api_join", kwargs={"pk": self.room_2.pk})
+        self.url_3 = reverse("rooms_api_join", kwargs={"pk": self.room_3.pk})
 
     def test_user_can_join_free_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -590,7 +590,7 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
-        url = reverse("rooms_api_join", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api_join", kwargs={"pk": 0})
         data = {"user": self.normal_1.pk}
         response = self.client.post(url, data)
 
@@ -608,8 +608,8 @@ class RoomJoinAPITestCase(RoomsAPITestCase):
 class RoomLeaveAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": self.room_2.pk})
+        self.url_1 = reverse("rooms_api_leave", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api_leave", kwargs={"pk": self.room_2.pk})
 
     def test_user_can_leave_joined_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -685,7 +685,7 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
         self.client.force_authenticate(user=self.normal_1)
         create_user_preferences(self.normal_1, self.zosia, payment_accepted=True)
 
-        url = reverse("rooms_api_leave", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api_leave", kwargs={"pk": 0})
         data = {"user": self.normal_1.pk}
         response = self.client.post(url, data)
 
@@ -703,9 +703,9 @@ class RoomLeaveAPITestCase(RoomsAPITestCase):
 class RoomLockAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_2.pk})
-        self.url_3 = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": self.room_3.pk})
+        self.url_1 = reverse("rooms_api_lock", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api_lock", kwargs={"pk": self.room_2.pk})
+        self.url_3 = reverse("rooms_api_lock", kwargs={"pk": self.room_3.pk})
 
     def test_user_can_lock_room_after_joining(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -719,7 +719,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_1, self.normal_1)
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_1.last_name)
         self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_user_cannot_lock_room_without_joining(self):
@@ -745,7 +745,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         room_assertions.assertLocked(self.room_2, self.normal_1)
-        self.assertEqual(response.data["lock"]["user"]["last_name"], "lennon")
+        self.assertEqual(response.data["lock"]["user"]["last_name"], self.normal_1.last_name)
         self.assertIsNotNone(response.data["lock"]["password"])
 
     def test_staff_can_lock_room_with_expiration_date(self):
@@ -811,7 +811,7 @@ class RoomLockAPITestCase(RoomsAPITestCase):
     def test_staff_cannot_lock_nonexisting_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_lock", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api_lock", kwargs={"pk": 0})
         expiration_date = timedelta_since_now(days=1)
         data = {"user": self.normal_1.pk, "expiration_date": expiration_date}
         response = self.client.post(url, data)
@@ -831,8 +831,8 @@ class RoomLockAPITestCase(RoomsAPITestCase):
 class RoomUnlockAPITestCase(RoomsAPITestCase):
     def setUp(self):
         super().setUp()
-        self.url_1 = reverse("rooms_api_unlock", kwargs={"version": "v1", "pk": self.room_1.pk})
-        self.url_2 = reverse("rooms_api_unlock", kwargs={"version": "v1", "pk": self.room_2.pk})
+        self.url_1 = reverse("rooms_api_unlock", kwargs={"pk": self.room_1.pk})
+        self.url_2 = reverse("rooms_api_unlock", kwargs={"pk": self.room_2.pk})
 
     def test_owner_can_unlock_owned_room(self):
         self.client.force_authenticate(user=self.normal_1)
@@ -911,7 +911,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_staff_can_hide_room(self):
         self.client.force_authenticate(user=self.staff_1)
 
-        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": self.room_1.pk})
+        url = reverse("rooms_api_hide", kwargs={"pk": self.room_1.pk})
         response = self.client.post(url, {})
         self.room_1.refresh_from_db()
 
@@ -921,7 +921,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_staff_can_unhide_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
+        url = reverse("rooms_api_unhide", kwargs={"pk": self.room_3.pk})
         response = self.client.post(url, {})
         self.room_3.refresh_from_db()
 
@@ -931,7 +931,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_user_cannot_hide_room(self):
         self.client.force_authenticate(user=self.normal_1)
 
-        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": self.room_2.pk})
+        url = reverse("rooms_api_hide", kwargs={"pk": self.room_2.pk})
         response = self.client.post(url, {})
         self.room_2.refresh_from_db()
 
@@ -940,7 +940,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_user_cannot_unhide_room(self):
         self.client.force_authenticate(user=self.normal_2)
 
-        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": self.room_3.pk})
+        url = reverse("rooms_api_unhide", kwargs={"pk": self.room_3.pk})
         response = self.client.post(url, {})
         self.room_3.refresh_from_db()
 
@@ -949,7 +949,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_staff_cannot_hide_nonexisting_room(self):
         self.client.force_authenticate(user=self.staff_1)
 
-        url = reverse("rooms_api_hide", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api_hide", kwargs={"pk": 0})
         response = self.client.post(url, {})
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -957,7 +957,7 @@ class RoomHideUnhideAPITestCase(RoomsAPITestCase):
     def test_staff_cannot_unhide_nonexisting_room(self):
         self.client.force_authenticate(user=self.staff_2)
 
-        url = reverse("rooms_api_unhide", kwargs={"version": "v1", "pk": 0})
+        url = reverse("rooms_api_unhide", kwargs={"pk": 0})
         response = self.client.post(url, {})
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

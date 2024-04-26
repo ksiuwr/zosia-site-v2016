@@ -21,7 +21,7 @@ urlpatterns = [
     re_path(r'^organizations/(?P<pk>\d+)/edit/$', views.update_organization,
             name='organization_update'),
     re_path(r'^preferences/$', views.user_preferences_index, name='user_preferences_index'),
-    re_path(r'^preferences/admin_edit/$', views.user_preferences_admin_edit,
+    re_path(r'^preferences/admin/$', views.user_preferences_admin_edit,
             name='user_preferences_admin_edit'),
     re_path(r'^preferences/(?P<pk>\d+)/edit$', views.user_preferences_edit,
             name='user_preferences_edit'),

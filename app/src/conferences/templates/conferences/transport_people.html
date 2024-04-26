@@ -3,13 +3,16 @@
 
 {% block content %}
   <div class="container">
-    <h3>{{ bus }}</h3>
+    <h3>{{ transport }}</h3>
         <div class="col s12">
             <ul class="collection">
               {% for user in users %}
               <li class='collection-item'>
                   {{ forloop.counter }}.
                   {{ user.user }}
+                  {% if user.is_student %}
+                  (student)
+                  {% endif %}
               </li>
               {% endfor %}
             </ul>

@@ -1,6 +1,6 @@
 from django import forms
 
-from conferences.models import Bus, Place, Zosia
+from conferences.models import Place, Transport, Zosia
 
 
 class SplitDateTimePickerField(forms.SplitDateTimeField):
@@ -11,9 +11,9 @@ class SplitDateTimePickerField(forms.SplitDateTimeField):
         self.help_text = "Provide date and time in <b>UTC</b> time zone!"
 
 
-class BusForm(forms.ModelForm):
+class TransportForm(forms.ModelForm):
     class Meta:
-        model = Bus
+        model = Transport
         fields = '__all__'
         field_classes = {
             "departure_time": SplitDateTimePickerField

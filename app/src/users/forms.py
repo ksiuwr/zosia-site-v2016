@@ -5,8 +5,10 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django_recaptcha.fields import ReCaptchaField
+from django_recaptcha.widgets import ReCaptchaV2Checkbox
 
-from conferences.models import Bus, Zosia
+from conferences.models import Transport, Zosia
 from users.actions import SendActivationEmail, SendEmailToAll
 from users.models import Organization, User, UserPreferences
 from utils.constants import PAYMENT_GROUPS
@@ -16,10 +18,10 @@ GROUPS = (
     ('all_Users', 'All users'),
     ('staff', 'Staff'),
     ('active', 'Active'),
-    ('inactive', 'Don\'t activate their account yet'),
+    ('inactive', "Haven't activated their account yet"),
     ('registered', 'Registered to zosia'),
     ('payed', 'Payed for zosia'),
-    ('not_Payed', 'Didn`t pay for zosia'),
+    ('not_Payed', "Didn't pay for zosia"),
 )
 
 
@@ -91,6 +93,7 @@ class MailForm(forms.Form):
 
 class UserForm(UserCreationForm):
     privacy_consent = forms.BooleanField(required=True)
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox)
 
     class Meta:
         model = User
@@ -100,6 +103,7 @@ class UserForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         label = f'I agree to the <a href="{reverse("privacy_policy")}">Privacy Policy</a>'
         self.fields['privacy_consent'].label = mark_safe(label)
+        print('Captcha', self.fields['captcha'].label)
 
     def save(self, request):
         user = super().save(commit=False)
@@ -129,17 +133,17 @@ class OrganizationForm(forms.ModelForm):
         fields = ['name', 'accepted']
 
 
-class UserPreferencesWithBusForm(forms.ModelForm):
+class UserPreferencesWithTransportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['bus'].queryset = self.bus_queryset(kwargs.get('instance'))
+        self.fields['transport'].queryset = self.transport_queryset(kwargs.get('instance'))
 
-    def bus_queryset(self, instance=None):
-        queryset = Bus.objects.find_available(Zosia.objects.find_active(), passenger=instance)
+    def transport_queryset(self, instance=None):
+        queryset = Transport.objects.find_available(Zosia.objects.find_active(), passenger=instance)
         return queryset
 
 
-class UserPreferencesForm(UserPreferencesWithBusForm):
+class UserPreferencesForm(UserPreferencesWithTransportForm):
     use_required_attribute = False
 
     # NOTE: In hindsight, this sucks.
@@ -150,8 +154,11 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
     class Meta:
         model = UserPreferences
         fields = [
+            'is_student',
+            'student_number',
             'organization',
-            'bus',
+            'transport',
+            'transport_baggage',
             'dinner_day_1',
             'accommodation_day_1',
             'breakfast_day_2',
@@ -172,16 +179,26 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
+        self.fields['is_student'].label = "I am a student under 25 and I have a valid Student ID card."
+        self.fields['is_student'].help_text = "<br/>"  # Just for some space
+
+        self.fields['transport_baggage'].label = "I want to have my baggage transferred."
+        self.fields['transport_baggage'].help_text = "<br/>"
+
         terms_label = f'I agree to <a href="{reverse("terms_and_conditions")}"> Terms & Conditions</a> of ZOSIA.'
         self.fields["terms_accepted"].required = True
         self.fields["terms_accepted"].label = mark_safe(terms_label)
-        self.fields["terms_accepted"].error_messages = {'required': "You have to accept Terms & Conditions."}
+        self.fields["terms_accepted"].error_messages = \
+            {'required': "You have to accept Terms & Conditions."}
+
         self.fields['organization'].queryset = Organization.objects.order_by("-accepted", "name")
 
-    def call(self, zosia):
+    def call(self, zosia, first_call):
         user_preferences = self.save(commit=False)
         user_preferences.user = self.user
         user_preferences.zosia = zosia
+        if first_call and user_preferences.is_student:
+            user_preferences.discount_round = UserPreferences.get_current_discount_round(zosia)
         user_preferences.save()
 
         return user_preferences
@@ -191,6 +208,17 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
 
         def _pays_for(d):
             return cleaned_data.get(d, False)
+
+        if (_pays_for('accommodation_day_1') and _pays_for('accommodation_day_3')
+                and not _pays_for('accommodation_day_2')):
+            self.add_error(
+                        'accommodation_day_2',
+                        forms.ValidationError(
+                            _("When choosing the other days, this one must also be chosen. Please check `%(accomm)s`"),
+                            code='invalid',
+                            params={'accomm': self.fields['accommodation_day_2'].label}
+                        )
+                    )
 
         for accommodation, meals in PAYMENT_GROUPS.items():
             for m in meals.values():
@@ -205,13 +233,36 @@ class UserPreferencesForm(UserPreferencesWithBusForm):
                         )
                     )
 
+            # TODO: this is the hotfix for ZOSIA 2024 agreement
+            if _pays_for(accommodation) and not _pays_for(meals["breakfast"]):
+                self.add_error(
+                    meals['breakfast'],
+                    forms.ValidationError(
+                        _("This year breakfast is required (its price is included in accommodation price). Please check `%(meal)s`"),
+                        code='invalid',
+                        params={'accomm': self.fields[accommodation].label,
+                                'meal': self.fields[meals['breakfast']].label}
+                    )
+                )
+
+            if _pays_for(accommodation) and not _pays_for(meals["dinner"]):
+                self.add_error(
+                    meals['dinner'],
+                    forms.ValidationError(
+                        _("This year dinner is required (its price is included in accommodation price). Please check `%(meal)s`"),
+                        code='invalid',
+                        params={'accomm': self.fields[accommodation].label,
+                                'meal': self.fields[meals['dinner']].label}
+                    )
+                )
+
     def disable(self):
         for field in self.fields:
             if field not in self.CAN_CHANGE_AFTER_PAYMENT_ACCEPTED:
                 self.fields[field].disabled = True
 
 
-class UserPreferencesAdminForm(UserPreferencesWithBusForm):
+class UserPreferencesAdminForm(UserPreferencesWithTransportForm):
     class Meta:
         model = UserPreferences
         exclude = [
@@ -227,7 +278,8 @@ class UserPreferencesAdminForm(UserPreferencesWithBusForm):
             'dinner_day_3',
             'breakfast_day_3',
             'breakfast_day_4',
-            'vegetarian'
+            'vegetarian',
+            'discount_round'
         ]
 
     def __init__(self, *args, **kwargs):

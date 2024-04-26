@@ -4,9 +4,14 @@ from botocore.exceptions import ClientError, NoCredentialsError
 
 def list_bucket_objects(bucket_name):
     '''List the objects in S3 bucket
-    Example response:
-    [{'Key': 'cats/cute_cat.jpg', 'LastModified': datetime(..), 'ETag': 'abc...', 'Size': 123, 'StorageClass': '...'}]
-    '''
+    Sample response:
+    [{
+      'Key': 'cats/cute_cat.jpg',
+      'LastModified': datetime(...),
+      'ETag': 'abc...',
+      'Size': 123,
+      'StorageClass': '...'
+    }]'''
 
     s3 = boto3.client('s3')
 

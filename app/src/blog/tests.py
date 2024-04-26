@@ -1,24 +1,19 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.test import TestCase
 from django.urls import reverse
 
-from blog.models import BlogPost
 from blog.forms import BlogPostForm
+from blog.models import BlogPost
+from utils.test_helpers import create_user, login_as_user
 
 User = get_user_model()
 
 
 class BlogTests(TestCase):
     def setUp(self):
-        self.normal = User.objects.create_user('lennon@thebeatles.com',
-                                               'johnpassword')
-        self.normal.save()
-
-        self.staff = User.objects.create_user('paul@thebeatles.com',
-                                              'paulpassword')
-        self.staff.is_staff = True
-        self.staff.save()
+        self.normal = create_user(0)
+        self.staff = create_user(1, is_staff = True)
 
 
 class ModelTestCase(BlogTests):
@@ -77,23 +72,24 @@ class ViewTestCase(BlogTests):
         self.assertRedirects(response, '/admin/login/?next=/blog/create')
 
     def test_create_get_staff_user(self):
-        self.client.login(email="paul@thebeatles.com", password="paulpassword")
+        login_as_user(self.staff, self.client)
         response = self.client.get(reverse('blog_create'), follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'blog/create.html')
         context = response.context[-1]
         self.assertTrue(isinstance(context['form'], BlogPostForm))
 
-    def test_create_post_by_normal_user(self):
+    def test_create_post_normal_user(self):
         count = BlogPost.objects.count()
+        login_as_user(self.normal, self.client)
         response = self.client.post(
             reverse('blog_create'), {'author': self.normal.id, 'title': 'foo', 'content': 'bar'}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(count, BlogPost.objects.count())
 
-    def test_create_post_by_staff_user(self):
+    def test_create_post_staff_user(self):
         count = BlogPost.objects.count()
-        self.client.login(email="paul@thebeatles.com", password="paulpassword")
+        login_as_user(self.staff, self.client)
         response = self.client.post(
             reverse('blog_create'), {'author': self.staff.id, 'title': 'bar', 'content': 'baz'}, follow=True)
         self.assertEqual(response.status_code, 200)
@@ -101,7 +97,7 @@ class ViewTestCase(BlogTests):
 
     def test_edit_get_staff_user(self):
         blog_post_id = BlogPost.objects.values('id')[0]['id']
-        self.client.login(email="paul@thebeatles.com", password="paulpassword")
+        login_as_user(self.staff, self.client)
         response = self.client.post(
             reverse('blog_edit', kwargs={'pk': blog_post_id}), {}, follow=True)
         self.assertEqual(response.status_code, 200)

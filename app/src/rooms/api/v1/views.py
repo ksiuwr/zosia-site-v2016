@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from conferences.models import Zosia
-from rooms.api.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
+from rooms.api.v1.serializers import JoinMethodSerializer, LeaveMethodSerializer, \
     LockMethodAdminSerializer, LockMethodSerializer, RoomMembersSerializer, RoomSerializer, \
     RoomWithLockPasswordSerializer
 from rooms.models import Room, UserRoom
@@ -45,7 +45,7 @@ class RoomViewSet(ModelViewSet):
         return Room.objects.all() if sender.is_staff else Room.objects.all_visible()
 
     @action(detail=True, methods=["POST"])
-    def hide(self, request, version, pk):
+    def hide(self, request, pk):
         room = self.get_object()
         room.hidden = True
         room.save()
@@ -53,7 +53,7 @@ class RoomViewSet(ModelViewSet):
         return Response(self.get_serializer(room).data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["POST"])
-    def unhide(self, request, version, pk):
+    def unhide(self, request, pk):
         room = self.get_object()
         room.hidden = False
         room.save()
@@ -62,7 +62,7 @@ class RoomViewSet(ModelViewSet):
 
 
 @api_view(["POST"])
-def join(request, version, pk):  # only room joining
+def join(request, pk):  # only room joining
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = JoinMethodSerializer(data=request.data)
@@ -87,7 +87,7 @@ def join(request, version, pk):  # only room joining
 
 
 @api_view(["POST"])
-def leave(request, version, pk):
+def leave(request, pk):
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = LeaveMethodSerializer(data=request.data)
@@ -111,7 +111,7 @@ def leave(request, version, pk):
 
 
 @api_view(["POST"])
-def lock(request, version, pk):  # only locks the room
+def lock(request, pk):  # only locks the room
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
     serializer = LockMethodAdminSerializer(data=request.data) \
@@ -137,7 +137,7 @@ def lock(request, version, pk):  # only locks the room
 
 
 @api_view(["POST"])
-def unlock(request, version, pk):
+def unlock(request, pk):
     room = get_object_or_404(Room, pk=pk)
     sender = request.user
 

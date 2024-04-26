@@ -11,8 +11,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_http_methods
 
-from conferences.forms import BusForm, PlaceForm, ZosiaForm
-from conferences.models import Bus, Place, Zosia
+from conferences.forms import PlaceForm, TransportForm, ZosiaForm
+from conferences.models import Place, Transport, Zosia
 from lectures.models import Lecture
 from organizers.models import OrganizerContact
 from sponsors.models import Sponsor
@@ -23,17 +23,17 @@ from utils.views import csv_response
 
 @staff_member_required()
 @require_http_methods(['GET'])
-def export_json(request):
+def export_data(request):
     zosia = Zosia.objects.find_active_or_404()
 
     prefs = UserPreferences.objects \
         .filter(zosia=zosia) \
         .values('user__first_name', 'user__last_name', 'user__email', 'user__person_type',
-                'organization__name', 'bus__name', 'bus__departure_time', 'accommodation_day_1',
-                'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2', 'dinner_day_2',
-                'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3', 'breakfast_day_4',
-                'contact', 'information', 'vegetarian', 'payment_accepted',
-                'shirt_size', 'shirt_type')
+                'organization__name', 'transport__name', 'transport__departure_time',
+                'accommodation_day_1', 'dinner_day_1', 'accommodation_day_2', 'breakfast_day_2',
+                'dinner_day_2', 'accommodation_day_3', 'breakfast_day_3', 'dinner_day_3',
+                'breakfast_day_4', 'contact', 'information', 'vegetarian', 'payment_accepted',
+                'shirt_size', 'shirt_type', 'is_student', 'transport_baggage')
 
     lectures = Lecture.objects \
         .filter(zosia=zosia) \
@@ -136,40 +136,40 @@ def admin_panel(request):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def bus_admin(request):
+def transport(request):
     zosia = Zosia.objects.find_active()
-    active_buses = Bus.objects.filter(zosia=zosia)
-    ctx = {'zosia': zosia, 'buses': active_buses}
-    return render(request, 'conferences/bus.html', ctx)
+    transports = Transport.objects.filter(zosia=zosia)
+    ctx = {'zosia': zosia, 'transports': transports}
+    return render(request, 'conferences/transport.html', ctx)
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def bus_people(request, pk):
-    bus = get_object_or_404(Bus, pk=pk)
-    users = UserPreferences.objects.select_related('user').filter(bus=bus)
-    ctx = {'bus': bus, 'users': users}
-    return render(request, 'conferences/bus_users.html', ctx)
+def transport_people(request, pk):
+    transport_obj = get_object_or_404(Transport, pk=pk)
+    users = UserPreferences.objects.select_related('user').filter(transport=transport_obj)
+    ctx = {'transport': transport_obj, 'users': users}
+    return render(request, 'conferences/transport_people.html', ctx)
 
 
 @staff_member_required
 @require_http_methods(['GET', 'POST'])
-def bus_add(request, pk=None):
+def transport_add(request, pk=None):
     active_zosia = Zosia.objects.find_active()
     if pk is not None:
-        instance = get_object_or_404(Bus, pk=pk)
-        form = BusForm(request.POST or None, initial={'zosia': active_zosia},
-                       instance=instance)
+        instance = get_object_or_404(Transport, pk=pk)
+        form = TransportForm(request.POST or None, initial={'zosia': active_zosia},
+                             instance=instance)
     else:
         instance = None
-        form = BusForm(request.POST or None, initial={'zosia': active_zosia})
+        form = TransportForm(request.POST or None, initial={'zosia': active_zosia})
 
     if form.is_valid():
         form.save()
-        messages.success(request, _('Bus has been saved'))
-        return redirect('bus_admin')
+        messages.success(request, _('Transport has been saved'))
+        return redirect('transport')
     ctx = {'form': form, 'object': instance}
-    return render(request, 'conferences/bus_add.html', ctx)
+    return render(request, 'conferences/transport_add.html', ctx)
 
 
 @staff_member_required
@@ -227,27 +227,50 @@ def place_add(request, pk=None):
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_csv_bus_by_user(request):
-    prefs = UserPreferences.objects.select_related('user').filter(bus__isnull=False) \
+def list_csv_transport_by_user(request):
+    prefs = UserPreferences.objects.select_related('user').filter(transport__isnull=False) \
         .order_by("user__last_name", "user__first_name")
-    data_list = [(str(p.user), str(p.bus), str(p.payment_accepted)) for p in prefs]
-    return csv_response(("User", "Bus", "Paid"), data_list, filename='list_csv_bus_by_user')
+    data_list = [(str(p.user), str(p.transport), str(p.payment_accepted)) for p in prefs]
+    return csv_response(("User", "Transport", "Paid"), data_list,
+                        filename='list_csv_transport_by_user')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_csv_all_users_by_bus(request):
-    buses = Bus.objects.order_by("departure_time")
-    data_list = [(str(b), b.passengers_to_string()) for b in buses]
-    return csv_response(("Bus", "All users"), data_list, filename='list_csv_all_users_by_bus')
+def list_csv_all_users_by_transport(request):
+    transport_list = Transport.objects.order_by("departure_time")
+    data_list = [(str(t), t.passengers_to_string()) for t in transport_list]
+    return csv_response(("Transport", "All users"), data_list,
+                        filename='list_csv_all_users_by_transport')
 
 
 @staff_member_required
 @require_http_methods(['GET'])
-def list_csv_paid_users_by_bus(request):
-    buses = Bus.objects.order_by("departure_time")
-    data_list = [(str(b), b.passengers_to_string(paid=True)) for b in buses]
-    return csv_response(("Bus", "Paid users"), data_list, filename='list_csv_paid_users_by_bus')
+def list_csv_paid_users_by_transport(request):
+    transport_list = Transport.objects.order_by("departure_time")
+    data_list = [(str(t), t.passengers_to_string(paid=True)) for t in transport_list]
+    return csv_response(("Transport", "Paid users"), data_list,
+                        filename='list_csv_paid_users_by_transport')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_paid_students_by_transport(request):
+    transport_list = Transport.objects.order_by("departure_time")
+    data_list = [(str(t), t.passengers_to_string(paid=True, is_student=True))
+                 for t in transport_list]
+    return csv_response(("Transport", "Paid student users"), data_list,
+                        filename='list_csv_paid_student_users_by_transport')
+
+
+@staff_member_required
+@require_http_methods(['GET'])
+def list_csv_paid_non_students_by_transport(request):
+    transport_list = Transport.objects.order_by("departure_time")
+    data_list = [(str(t), t.passengers_to_string(paid=True, is_student=False))
+                 for t in transport_list]
+    return csv_response(("Transport", "Paid non-student users"), data_list,
+                        filename='list_csv_paid_non_student_users_by_transport')
 
 
 @staff_member_required
@@ -272,27 +295,48 @@ def statistics(request):
     else:
         price_values, price_counts = [], []
 
-    # data for bus info chart
-    buses = Bus.objects.all()
-    buses_labels = []
-    buses_values = {'paid': [], 'notPaid': [], 'empty': []}
-    for bus in buses:
-        buses_labels.append(f'{bus}')
-        buses_values['paid'].append(bus.paid_passengers_count)
-        buses_values['notPaid'].append(bus.passengers_count - bus.paid_passengers_count)
-        buses_values['empty'].append(bus.free_seats)
+    # data for transport info chart
+    transport_list = Transport.objects.all()
+    transport_labels = []
+    transport_values = {'paid': [], 'notPaid': [], 'empty': []}
+    for t in transport_list:
+        transport_labels.append(f'{t}')
+        transport_values['paid'].append(t.paid_passengers_count)
+        transport_values['notPaid'].append(t.passengers_count - t.paid_passengers_count)
+        transport_values['empty'].append(t.free_seats)
+
+    # discount
+    discounts = list(
+        user_prefs.filter(discount_round__gt=0).values_list('discount_round', flat=True))
+
+    # discount_values = {
+    #     "round_1": (discounts.count(1), zosia.first_discount_limit),
+    #     "round_2": (discounts.count(2), zosia.second_discount_limit),
+    #     "round_3": (discounts.count(3), zosia.third_discount_limit)
+    #     }
+
+    discount_values = {
+        "taken": [discounts.count(x) for x in (1, 2, 3)],
+        "available": [
+            zosia.first_discount_limit-discounts.count(1),
+            zosia.second_discount_limit-discounts.count(2),
+            zosia.third_discount_limit-discounts.count(3)]
+    }
 
     # other data
     vegetarians = user_prefs.filter(vegetarian=True).count()
+    students = user_prefs.filter(is_student=True).count()
 
     ctx = {
         'registeredUsers': prefs_count,
         'vegetarians': vegetarians,
+        'students': students,
+        'discountsData': json.dumps(discount_values),
         'userPrefsData': [users_with_payment, users_with_prefs_only, users_without_prefs],
         'userCostsValues': list(price_values),
         'userCostsCounts': list(price_counts),
-        'busesLabels': json.dumps(buses_labels),
-        'busesValues': json.dumps(buses_values),
-        'numberOfBuses': len(buses_labels)
+        'transportLabels': json.dumps(transport_labels),
+        'transportValues': json.dumps(transport_values),
+        'numberOfTransport': len(transport_labels)
     }
     return render(request, 'conferences/statistics.html', ctx)
