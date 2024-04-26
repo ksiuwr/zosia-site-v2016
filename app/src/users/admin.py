@@ -65,11 +65,12 @@ class OrganizationNameListFilter(admin.SimpleListFilter):
 
 
 class UserPreferencesAdmin(admin.ModelAdmin):
-    list_display = ('user', 'payment_accepted', 'organization_name', 'accommodation_day_1',
-                    'accommodation_day_2', 'accommodation_day_3', 'vegetarian', 'bonus_minutes')
+    list_display = ('user', 'is_student', 'payment_accepted', 'organization_name', 'accommodation_day_1',
+                    'accommodation_day_2', 'accommodation_day_3', 'vegetarian',
+                    'bonus_minutes', 'discount_round')
     readonly_fields = ('user', 'zosia', 'terms_accepted')
-    list_filter = ('payment_accepted', OrganizationNameListFilter, 'accommodation_day_1',
-                   'accommodation_day_2', 'accommodation_day_3', 'vegetarian')
+    list_filter = ('payment_accepted', 'is_student', OrganizationNameListFilter, 'accommodation_day_1',
+                   'accommodation_day_2', 'accommodation_day_3', 'vegetarian', 'discount_round')
 
     def get_queryset(self, request):
         return super().get_queryset(request).annotate(
@@ -117,6 +118,46 @@ class PaymentAcceptedListFilter(admin.SimpleListFilter):
         if value == 'false':
             return queryset.filter(Q(payment_accepted=False) | Q(payment_accepted__isnull=True))
         return queryset
+    
+
+class HasBaggageTransportListFilter(admin.SimpleListFilter):
+    title = 'has baggage transport'
+    parameter_name = 'has_baggage_transport'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('true', "Baggage transport selected"),
+            ('false', "Baggage transport not selected"),
+        ]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == 'true':
+            return queryset.filter(transport_baggage=True)
+        if value == 'false':
+            return queryset.filter(transport_baggage=False)
+        return queryset
+
+
+class IsStudentListFilter(admin.SimpleListFilter):
+    title = 'is student'
+    parameter_name = 'is_student'
+
+    def lookups(self, request, model_admin):
+        return [
+            ('true', "User is a student"),
+            ('false', "User is not a student"),
+        ]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == 'true':
+            return queryset.filter(is_student=True)
+        if value == 'false':
+            return queryset.filter(is_student=False)
+        return queryset
+
+
 
 
 class UserAccommodationListFilter(admin.SimpleListFilter):
@@ -227,14 +268,15 @@ class UserPreferencesInline(admin.TabularInline):
 @admin.register(UserFilters)
 class UserFiltersAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'has_preferences',
-                    'has_lecture', 'has_supporting_lecture', 'shirt_properties')
+                    'has_lecture', 'has_supporting_lecture', 'shirt_properties', 'is_student', 'transport_baggage')
     list_display_links = ('first_name', 'last_name')
     fields = ('first_name', 'last_name', 'room_name', 'payment_accepted', 'has_preferences',
               'has_lecture', 'has_supporting_lecture', 'shirt_properties')
     readonly_fields = ('room_name', 'payment_accepted', 'has_preferences', 'has_lecture',
-                       'has_supporting_lecture', 'shirt_properties')
+                       'has_supporting_lecture', 'shirt_properties', 'is_student', 'transport_baggage')
     search_fields = ('first_name', 'last_name', 'room_name')
     list_filter = (PaymentAcceptedListFilter, HasPreferencesListFilter, HasLectureListFilter,
+                   IsStudentListFilter, HasBaggageTransportListFilter,
                    UserAccommodationListFilter, RoomNameListFilter, ShirtPropertiesListFilter)
     inlines = (UserPreferencesInline, RoomInline)
 
@@ -253,7 +295,9 @@ class UserFiltersAdmin(admin.ModelAdmin):
             ),
             has_supporting_lecture=Exists(
                 Lecture.objects.filter(supporting_authors__id=OuterRef('id')).only('id')
-            )
+            ),
+            is_student=F('preferences__is_student'),
+            transport_baggage=F('preferences__transport_baggage'),
         )
 
     @admin.display(ordering='shirt_properties')
@@ -280,6 +324,14 @@ class UserFiltersAdmin(admin.ModelAdmin):
     @admin.display(boolean=True)
     def has_supporting_lecture(self, obj):
         return obj.has_supporting_lecture
+    
+    @admin.display(boolean=True)
+    def transport_baggage(self, obj):
+        return obj.transport_baggage
+    
+    @admin.display(boolean=True)
+    def is_student(self, obj):
+        return obj.is_student 
 
 
 admin.site.register(User, UserAdmin)

@@ -112,8 +112,41 @@ class Zosia(models.Model):
     price_transport = models.IntegerField(
         verbose_name=_('Price for transportation')
     )
+    price_transport_with_discount = models.IntegerField(
+        verbose_name=_('Price for transportation with discount'),
+        default=0
+    )
+    price_transfer_baggage = models.IntegerField(
+        verbose_name=_('Price for transfer baggage'),
+        default=0
+    )
     price_base = models.IntegerField(
         verbose_name=_('Organisation fee'),
+        default=0
+    )
+
+    first_discount = models.IntegerField(
+        verbose_name=_('First discount per day'),
+        default=0
+    )
+    first_discount_limit = models.IntegerField(
+        verbose_name=_('Limited number of registered users for first discount'),
+        default=0
+    )
+    second_discount = models.IntegerField(
+        verbose_name=_('Second discount per day'),
+        default=0
+    )
+    second_discount_limit = models.IntegerField(
+        verbose_name=_('Limited number of registered users for second discount'),
+        default=0
+    )
+    third_discount = models.IntegerField(
+        verbose_name=_('Third discount per day'),
+        default=0
+    )
+    third_discount_limit = models.IntegerField(
+        verbose_name=_('Limited number of registered users for third discount'),
         default=0
     )
 
@@ -203,6 +236,18 @@ class Zosia(models.Model):
 
         super(Zosia, self).validate_unique(**kwargs)
 
+    def get_discount_for_round(self, round_number):
+        if round_number <= 0 or round_number > 3:
+            return 0
+
+        if round_number == 1:
+            return self.first_discount
+
+        if round_number == 2:
+            return self.second_discount
+
+        return self.third_discount
+
     def clean(self):
         if self.early_registration_start is not None:
             if self.early_registration_start > self.registration_start:
@@ -214,7 +259,7 @@ class Zosia(models.Model):
                 })
 
 
-class BusManager(models.Manager):
+class TransportManager(models.Manager):
     def find_with_free_places(self, zosia):
         return self \
             .filter(zosia=zosia) \
@@ -235,10 +280,10 @@ class BusManager(models.Manager):
 
 
 class Transport(models.Model):
-    objects = BusManager()
+    objects = TransportManager()
 
     zosia = models.ForeignKey(Zosia, related_name='transports', on_delete=models.CASCADE)
-    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(400)])
+    capacity = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(500)])
     departure_time = models.DateTimeField()
     name = models.TextField(default="Transport")
 
@@ -257,10 +302,13 @@ class Transport(models.Model):
     def paid_passengers_count(self):
         return self.passengers.filter(payment_accepted=True).count()
 
-    def passengers_to_string(self, paid=False):
+    def passengers_to_string(self, paid=False, is_student=None):
         passengers_list = self.passengers.order_by("user__last_name", "user__first_name")
 
         if paid:
             passengers_list = passengers_list.filter(payment_accepted=True)
 
-        return DELIMITER.join(str(p.user) for p in passengers_list)
+        if is_student is not None:
+            passengers_list = passengers_list.filter(is_student=is_student)
+
+        return DELIMITER.join(map(lambda p: str(p.user), passengers_list))

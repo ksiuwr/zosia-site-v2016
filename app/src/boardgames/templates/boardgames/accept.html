@@ -14,7 +14,7 @@
         <input data-id={{boardgame.pk}} data-name={{boardgame.name}} type="checkbox"
             {% if boardgame.accepted %}checked{% endif %} />
         <span class="lever"></span>
-        <a href={{boardgame.url}}>{{boardgame.name}}</a>
+        <a href={{boardgame.url}}>{{boardgame.name|safe|escape}}</a>
     </label>
 </div>
 {% endblock %}

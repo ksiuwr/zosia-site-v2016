@@ -36,7 +36,7 @@
             </tr>
             {% for boardgame in boardgames %}
             <tr>
-              <td><a href={{boardgame.url}}>{{boardgame.name}}</a></td>
+              <td><a href={{boardgame.url}}>{{boardgame.name|safe|escape}}</a></td>
               <td>{{boardgame.votes}}</td>
               <td>{% if boardgame.accepted %} Accepted {% else %} Suggested by {{boardgame.user.first_name}}
                 {{boardgame.user.last_name}}{% endif %}

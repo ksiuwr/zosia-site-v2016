@@ -13,4 +13,9 @@
     {% include '_form.html' %}
   </form>
 </div>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("label[for='id_captcha']").hide();
+  });
+</script>
 {% endblock %}
