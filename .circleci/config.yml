@@ -76,5 +76,4 @@ workflows:
           filters:
             branches:
               only:
-                # - master
-                - zosia_2024
+                - master
