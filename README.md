@@ -1,8 +1,8 @@
-# zosia16-site
+# zosia-site-v2016
 
 Django 3.2 version of ZOSIA registration page.
 
-[![CircleCI](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia16-site/tree/master)
+[![CircleCI](https://circleci.com/gh/ksiuwr/zosia-site-v2016/tree/master.svg?style=svg)](https://circleci.com/gh/ksiuwr/zosia-site-v2016/tree/master)
 
 - [Development](#development)
     - [Full in-docker local development](#full-in-docker-local-development)
